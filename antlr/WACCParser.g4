@@ -11,7 +11,7 @@ param : type ident ;
 
 //stat_list : stat SEMICOLON stat_list | stat ;
 
-stat : SKIP
+stat : NOP
      | type ident EQUALS assign_rhs
      | assign_lhs EQUALS assign_rhs
      | READ assign_lhs

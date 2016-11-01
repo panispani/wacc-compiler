@@ -49,7 +49,7 @@ CHR : 'chr' ;
 BEGIN: 'begin' ;
 END  : 'end' ;
 IS : 'is' ;
-SKIP : 'skip' ;
+NOP : 'skip' ;
 READ : 'read' ;
 FREE : 'free' ;
 RETURN : 'return' ;
