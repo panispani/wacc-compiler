@@ -51,7 +51,8 @@ type : base_type
 
 base_type : INT | BOOL | CHAR | STRING ;
 
-array_type : type L_SQ_BRACKET R_SQ_BRACKET ;
+//array_type : type L_SQ_BRACKET R_SQ_BRACKET ;
+array_type : (base_type | pair_type) (L_SQ_BRACKET R_SQ_BRACKET)+ ;
 
 pair_type : PAIR L_BRACKET pair_elem_type COMMA pair_elem_type R_BRACKET ;
 
