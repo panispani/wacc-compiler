@@ -95,7 +95,7 @@ binary_oper : STAR
             | OR
             ;
 
-ident : (UNDERSCORE | LOWERCASE | UPPERCASE) (UNDERSCORE | LOWERCASE | UPPERCASE | DIGIT )* ;
+ident : IDENT;
 
 array_elem : ident (L_SQ_BRACKET expr R_SQ_BRACKET)+ ;
 
@@ -115,4 +115,4 @@ array_liter : L_SQ_BRACKET (expr (COMMA expr)*)? R_SQ_BRACKET ;
 
 pair_liter : NULL ;
 
-comment : HASH CHAR_NOT_EOL EOF ;
+comment : COMMENT;
