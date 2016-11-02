@@ -4,16 +4,18 @@ options {
   tokenVocab=WACCLexer;
 }
 
+// program
 prog : BEGIN func* stat END EOF;
 
+// functions
 func : type ident L_BRACKET param_list? R_BRACKET IS stat END ;
 
 param_list : param (COMMA param)* ;
 
 param : type ident ;
 
-//stat_list : stat SEMICOLON stat_list | stat ;
 
+// statement
 stat : NOP
      | type ident EQUALS assign_rhs
      | assign_lhs EQUALS assign_rhs
@@ -29,6 +31,7 @@ stat : NOP
      | stat SEMICOLON stat
      ;
 
+// assignment
 assign_lhs : ident
            | array_elem
            | pair_elem
@@ -43,10 +46,7 @@ assign_rhs : expr
 
 arg_list : expr (COMMA expr)* ;
 
-pair_elem : FST expr
-          | SND expr
-          ;
-
+// types
 type : base_type
      | array_type
      | pair_type
@@ -54,7 +54,6 @@ type : base_type
 
 base_type : INT | BOOL | CHAR | STRING ;
 
-//array_type : type L_SQ_BRACKET R_SQ_BRACKET ;
 array_type : (base_type | pair_type) (L_SQ_BRACKET R_SQ_BRACKET)+ ;
 
 pair_type : PAIR L_BRACKET pair_elem_type COMMA pair_elem_type R_BRACKET ;
@@ -64,6 +63,7 @@ pair_elem_type : base_type
                | PAIR
                ;
 
+// expressions
 expr : int_liter
      | bool_liter
      | char_liter
@@ -76,6 +76,7 @@ expr : int_liter
      | L_BRACKET expr R_BRACKET
      ;
 
+// operators
 unary_oper : BANG
            | MINUS
            | LEN
@@ -98,13 +99,20 @@ binary_oper : STAR
             | OR
             ;
 
+// identifier
 ident : IDENT;
 
+// array and pair elements
 array_elem : ident (L_SQ_BRACKET expr R_SQ_BRACKET)+ ;
 
-int_liter : int_sign? NUMBER ;
+pair_elem : FST expr
+          | SND expr
+          ;
 
+// literals
 int_sign : PLUS | MINUS ;
+
+int_liter : int_sign? NUMBER ;
 
 bool_liter : TRUE | FALSE ;
 
@@ -116,4 +124,5 @@ array_liter : L_SQ_BRACKET (expr (COMMA expr)*)? R_SQ_BRACKET ;
 
 pair_liter : NULL ;
 
+// comment
 comment : COMMENT;
