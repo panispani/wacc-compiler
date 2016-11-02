@@ -115,4 +115,4 @@ array_liter : L_SQ_BRACKET (expr (COMMA expr)*)? R_SQ_BRACKET ;
 
 pair_liter : NULL ;
 
-comment : HASH CHAR_NOT_EOL EOF ;
+comment : COMMENT;

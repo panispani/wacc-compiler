@@ -66,7 +66,7 @@ DONE : 'done' ;
 CALL: 'call' ;
 
 // compound
-WS : [ \t\n]+ -> skip ;
+WS : [ \t\r\n]+ -> skip ;
 
 fragment
 LOWERCASE : [a-z] ;
@@ -79,8 +79,8 @@ ID_START : (UNDERSCORE | LOWERCASE | UPPERCASE) ;
 ID_CHAR : (UNDERSCORE | LOWERCASE | UPPERCASE | DIGITS) ;
 IDENT: ID_START (ID_CHAR)*;
 
-CHAR_NOT_EOL : [^\n] ;
+CHAR_NOT_EOL : [~\n] ;
 CHAR_NO_QUOTES_BACKSLASH: [^ ' | " | \\];
 ESCAPED_CHAR: [0 | b | t | n | f | r | " | ' | \\];
-
+COMMENT: '#' .*? '\n' -> skip;
 // what about whitespace
