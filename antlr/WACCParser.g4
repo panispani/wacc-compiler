@@ -105,11 +105,10 @@ int_sign : PLUS | MINUS ;
 
 bool_liter : TRUE | FALSE ;
 
-char_liter : SINGLE_QUOTE character SINGLE_QUOTE ;
 
-str_liter : DOUBLE_QUOTE character* DOUBLE_QUOTE ;
+char_liter : CHAR_LITER ;
 
-character : CHAR_NO_QUOTES_BACKSLASH | BACKSLASH ESCAPED_CHAR ;
+str_liter : STR_LITER;
 
 array_liter : L_SQ_BRACKET (expr (COMMA expr)*)? R_SQ_BRACKET ;
 

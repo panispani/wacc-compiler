@@ -81,8 +81,13 @@ fragment
 ID_CHAR : (UNDERSCORE | LOWERCASE | UPPERCASE | DIGITS) ;
 IDENT: ID_START (ID_CHAR)*;
 
+fragment
+STR_CHARACTER : (CHAR_NO_QUOTES_BACKSLASH | ESCAPED_CHAR) ;
+STR_LITER : DOUBLE_QUOTE STR_CHARACTER* DOUBLE_QUOTE ;
+CHAR_LITER : SINGLE_QUOTE STR_CHARACTER SINGLE_QUOTE ;
+
 CHAR_NOT_EOL : [~\n] ;
-CHAR_NO_QUOTES_BACKSLASH: [^ ' | " | \\];
-ESCAPED_CHAR: [0 | b | t | n | f | r | " | ' | \\];
+CHAR_NO_QUOTES_BACKSLASH: ~['"\\];
+ESCAPED_CHAR: '\\' [0 | b | t | n | f | r | " | ' | \\];
 COMMENT: '#' .*? '\n' -> skip;
 // what about whitespace
