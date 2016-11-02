@@ -7,3 +7,7 @@ bin
 
 # ANTLR generated files
 src/antlr
+
+# SBT project
+project
+target
