@@ -7,12 +7,15 @@ MINUS : '-' ;
 STAR : '*' ;
 DIV : '/' ;
 MOD : '%' ;
+
+// comparison operators
 GREATER_THAN : '>' ;
 GREATER_THAN_EQ : '>=';
 LESS_THAN : '<' ;
 LESS_THAN_EQ : '<=' ;
 EQUAL : '==' ;
 NOT_EQUAL : '!=' ;
+
 AND : '&&' ;
 OR : '||' ;
 L_BRACKET : '(' ;
@@ -74,7 +77,7 @@ fragment
 UPPERCASE : [A-Z] ;
 fragment
 DIGITS : [0-9] ;
-DIGIT : [0-9];
+NUMBER :  DIGITS+ ;
 fragment
 ID_START : (UNDERSCORE | LOWERCASE | UPPERCASE) ;
 fragment

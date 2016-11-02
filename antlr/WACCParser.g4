@@ -102,12 +102,11 @@ ident : IDENT;
 
 array_elem : ident (L_SQ_BRACKET expr R_SQ_BRACKET)+ ;
 
-int_liter : int_sign? DIGIT ;
+int_liter : int_sign? NUMBER ;
 
 int_sign : PLUS | MINUS ;
 
 bool_liter : TRUE | FALSE ;
-
 
 char_liter : CHAR_LITER ;
 
