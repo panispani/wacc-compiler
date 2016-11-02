@@ -1,12 +1,13 @@
 lexer grammar WACCLexer;
 
-// symbols
-BANG : '!' ;
+// arithmetic operators
 PLUS : '+' ;
 MINUS : '-' ;
 STAR : '*' ;
 DIV : '/' ;
 MOD : '%' ;
+EQUALS : '=' ;
+
 
 // comparison operators
 GREATER_THAN : '>' ;
@@ -16,28 +17,19 @@ LESS_THAN_EQ : '<=' ;
 EQUAL : '==' ;
 NOT_EQUAL : '!=' ;
 
+
+// boolean operators
+BANG : '!' ;
 AND : '&&' ;
 OR : '||' ;
-L_BRACKET : '(' ;
-R_BRACKET : ')' ;
-COMMA : ',' ;
-SEMICOLON : ';' ;
-EQUALS : '=' ;
-L_SQ_BRACKET : '[' ;
-R_SQ_BRACKET : ']' ;
-UNDERSCORE : '_' ;
-SINGLE_QUOTE : '\'' ;
-DOUBLE_QUOTE : '"' ;
-HASH : '#' ;
-BACKSLASH: '\\';
 
-//types
-NEWPAIR : 'newpair' ;
-FST : 'fst' ;
-SND : 'snd' ;
+
+// boolean values
 TRUE : 'true' ;
 FALSE : 'false' ;
-NULL : 'null' ;
+
+
+// base types
 INT : 'int' ;
 BOOL : 'bool' ;
 CHAR : 'char' ;
@@ -45,13 +37,21 @@ STRING : 'string' ;
 PAIR : 'pair' ;
 
 
-//keywords
-LEN : 'len' ;
-ORD : 'ord' ;
-CHR : 'chr' ;
-BEGIN: 'begin' ;
-END  : 'end' ;
-IS : 'is' ;
+// pairs
+NEWPAIR : 'newpair' ;
+FST : 'fst' ;
+SND : 'snd' ;
+NULL : 'null' ;
+
+
+// brackets
+L_BRACKET : '(' ;
+R_BRACKET : ')' ;
+L_SQ_BRACKET : '[' ;
+R_SQ_BRACKET : ']' ;
+
+
+// stat keywords
 NOP : 'skip' ;
 READ : 'read' ;
 FREE : 'free' ;
@@ -66,31 +66,58 @@ FI : 'fi' ;
 WHILE : 'while' ;
 DO : 'do' ;
 DONE : 'done' ;
+BEGIN: 'begin' ;
+END  : 'end' ;
+
+// punctuation
+COMMA : ',' ;
+SEMICOLON : ';' ;
+HASH : '#' ;
+
+// unary operators
+LEN : 'len' ;
+ORD : 'ord' ;
+CHR : 'chr' ;
+
+// special characters
+SINGLE_QUOTE : '\'' ;
+DOUBLE_QUOTE : '"' ;
+UNDERSCORE : '_' ;
+BACKSLASH: '\\';
+ESCAPED_CHAR: '\\' [0 | b | t | n | f | r | " | ' | \\];
+
+// function specific keywords
+IS : 'is' ;
 CALL: 'call' ;
 
-// compound
-WS : [ \t\r\n]+ -> skip ;
-
+// fragments
 fragment
 LOWERCASE : [a-z] ;
 fragment
 UPPERCASE : [A-Z] ;
 fragment
 DIGITS : [0-9] ;
-NUMBER :  DIGITS+ ;
 fragment
 ID_START : (UNDERSCORE | LOWERCASE | UPPERCASE) ;
 fragment
 ID_CHAR : (UNDERSCORE | LOWERCASE | UPPERCASE | DIGITS) ;
-IDENT: ID_START (ID_CHAR)*;
-
 fragment
 STR_CHARACTER : (CHAR_NO_QUOTES_BACKSLASH | ESCAPED_CHAR) ;
+
+//whitespace
+WS : [ \t\r\n]+ -> skip ;
+
+// number
+NUMBER :  DIGITS+ ;
+
+// identifier
+IDENT: ID_START (ID_CHAR)*;
+
+// commment
+COMMENT: '#' .*? '\n' -> skip;
+
+// string and characters
 STR_LITER : DOUBLE_QUOTE STR_CHARACTER* DOUBLE_QUOTE ;
 CHAR_LITER : SINGLE_QUOTE STR_CHARACTER SINGLE_QUOTE ;
-
 CHAR_NOT_EOL : [~\n] ;
 CHAR_NO_QUOTES_BACKSLASH: ~['"\\];
-ESCAPED_CHAR: '\\' [0 | b | t | n | f | r | " | ' | \\];
-COMMENT: '#' .*? '\n' -> skip;
-// what about whitespace
