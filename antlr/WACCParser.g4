@@ -95,7 +95,7 @@ binary_oper : STAR
             | OR
             ;
 
-ident : (UNDERSCORE | LOWERCASE | UPPERCASE) (UNDERSCORE | LOWERCASE | UPPERCASE | DIGIT )* ;
+ident : IDENT;
 
 array_elem : ident (L_SQ_BRACKET expr R_SQ_BRACKET)+ ;
 

@@ -66,10 +66,19 @@ DONE : 'done' ;
 CALL: 'call' ;
 
 // compound
-WS : [ \t]+ -> skip ;
+WS : [ \t\n]+ -> skip ;
+
+fragment
 LOWERCASE : [a-z] ;
+fragment
 UPPERCASE : [A-Z] ;
-DIGIT : [0-9] ;
+fragment
+DIGITS : [0-9] ;
+DIGIT : [0-9];
+ID_START : (UNDERSCORE | LOWERCASE | UPPERCASE) ;
+ID_CHAR : (UNDERSCORE | LOWERCASE | UPPERCASE | DIGITS) ;
+IDENT: ID_START (ID_CHAR)*;
+
 CHAR_NOT_EOL : [^\n] ;
 CHAR_NO_QUOTES_BACKSLASH: [^ ' | " | \\];
 ESCAPED_CHAR: [0 | b | t | n | f | r | " | ' | \\];
