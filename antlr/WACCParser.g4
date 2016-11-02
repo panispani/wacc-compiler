@@ -1,5 +1,8 @@
-grammar WACCParser;
-import WACCLexer;
+parser grammar WACCParser;
+
+options {
+  tokenVocab=WACCLexer;
+}
 
 prog : BEGIN func* stat END EOF;
 
