@@ -13,5 +13,6 @@ class SyntaxErrorListener() extends BaseErrorListener {
     //super.syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e)
     println("Syntax error")
     System.exit(-100)
+    return -100
   }
 }
