@@ -1,5 +1,6 @@
-import antlr.
+package experimental
 
-class SmallVisitor {
+import antlr.WACCParserBaseVisitor
 
+class SmallVisitor[T] extends WACCParserBaseVisitor[T] {
 }
