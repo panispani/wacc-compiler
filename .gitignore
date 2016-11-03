@@ -6,7 +6,8 @@
 bin
 
 # ANTLR generated files
-src/antlr
+src/main/java/antlr
+*.tokens
 
 # SBT project
 project

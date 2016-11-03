@@ -1,0 +1,5 @@
+import antlr.
+
+class SmallVisitor {
+
+}
