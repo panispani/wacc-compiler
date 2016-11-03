@@ -1,5 +1,7 @@
 #!/bin/sh
 
 echo running the ANTLR TestRig grammar tool
-java -cp bin:lib/antlr-4.5.3-complete.jar org.antlr.v4.gui.TestRig antlr.WACC prog $@
+DIR=$(dirname "$(readlink -f "$0")")
+BIN=$DIR"/bin:"$DIR"/lib/antlr-4.5.3-complete.jar"
+java -cp $BIN org.antlr.v4.gui.TestRig antlr.WACC prog $@
 
