@@ -112,12 +112,12 @@ pair_elem : FST expr
 // literals
 int_sign : PLUS | MINUS ;
 
-char_liter : SINGLE_QUOTE STR_CHARACTER SINGLE_QUOTE ;
-
 int_liter : int_sign? NUMBER ;
 
 bool_liter : TRUE | FALSE ;
 
-str_liter : DOUBLE_QUOTE STR? DOUBLE_QUOTE ;
+char_liter : CHAR_LITER ;
+
+str_liter : STR_LITER;
 
 array_liter : L_SQ_BRACKET (expr (COMMA expr)*)? R_SQ_BRACKET ;

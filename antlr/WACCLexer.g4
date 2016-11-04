@@ -91,21 +91,18 @@ IS : 'is' ;
 CALL: 'call' ;
 
 // fragments
-//TODO: Clean up fragments so that we can avoid repetitions
 fragment
 LOWERCASE : [a-z] ;
-
 fragment
 UPPERCASE : [A-Z] ;
-
 fragment
 DIGITS : [0-9] ;
-
 fragment
 ID_START : (UNDERSCORE | LOWERCASE | UPPERCASE) ;
-
 fragment
 ID_CHAR : (UNDERSCORE | LOWERCASE | UPPERCASE | DIGITS) ;
+fragment
+STR_CHARACTER : (CHAR_NO_QUOTES_BACKSLASH | ESCAPED_CHAR) ;
 
 //whitespace
 WS : [ \t\r\n]+ -> skip ;
@@ -120,8 +117,7 @@ IDENT: ID_START (ID_CHAR)*;
 COMMENT: '#' .*? '\n' -> skip;
 
 // string and characters
-STR_CHARACTER : (CHAR_NO_QUOTES_BACKSLASH | ESCAPED_CHAR) ;
-STR : STR_CHARACTER+ ;
+STR_LITER : DOUBLE_QUOTE STR_CHARACTER* DOUBLE_QUOTE ;
+CHAR_LITER : SINGLE_QUOTE STR_CHARACTER SINGLE_QUOTE ;
 CHAR_NOT_EOL : [~\n] ;
 CHAR_NO_QUOTES_BACKSLASH: ~['"\\];
-
