@@ -116,7 +116,7 @@ int_liter : int_sign? NUMBER ;
 
 bool_liter : TRUE | FALSE ;
 
-char_liter : CHAR_LITER ;
+char_liter : SINGLE_QUOTE STR_CHARACTER SINGLE_QUOTE ;
 
 str_liter : STR_LITER;
 
