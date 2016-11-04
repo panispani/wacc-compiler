@@ -27,6 +27,7 @@ rules:
 	$(MKDIR) $(OUTPUT_DIR)
 	$(JAVAC) $(JFLAGS) @$@
 	$(RM) rules
+	sbt package
 
 clean:
 	$(RM) rules $(OUTPUT_DIR)
