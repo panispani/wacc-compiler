@@ -1,7 +1,12 @@
-#!/bin/sh
+#!/bin/bash
 
-echo running the ANTLR TestRig grammar tool
-DIR=$(dirname "$(readlink -f "$0")")
+READLINK="readlink"
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    READLINK="greadlink"
+fi
+
+#echo running the ANTLR TestRig grammar tool
+DIR=$(dirname "$($READLINK -f "$0")")
 BIN=$DIR"/bin:"$DIR"/lib/antlr-4.5.3-complete.jar"
 java -cp $BIN org.antlr.v4.gui.TestRig antlr.WACC prog $@
-
