@@ -93,12 +93,16 @@ CALL: 'call' ;
 // fragments
 fragment
 LOWERCASE : [a-z] ;
+
 fragment
 UPPERCASE : [A-Z] ;
+
 fragment
 DIGITS : [0-9] ;
+
 fragment
 ID_START : (UNDERSCORE | LOWERCASE | UPPERCASE) ;
+
 fragment
 ID_CHAR : (UNDERSCORE | LOWERCASE | UPPERCASE | DIGITS) ;
 
