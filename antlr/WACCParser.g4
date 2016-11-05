@@ -1,123 +1,58 @@
 parser grammar WACCParser;
+options { tokenVocab=WACCLexer; }
 
-options {
-  tokenVocab=WACCLexer;
-}
+// Top-level rule
+program : BEGIN function* statement END EOF;
 
-// program
-prog : BEGIN func* stat END EOF;
+function : type IDENT LP parameterList? RP IS statement END ;
+parameterList : parameter (COMMA parameter)* ;
+parameter : type IDENT ;
 
-// functions
-func : type ident L_BRACKET param_list? R_BRACKET IS stat END ;
+functionCall : CALL IDENT LP argumentList? RP ;
+argumentList : expression (COMMA expression)* ;
 
-param_list : param (COMMA param)* ;
-
-param : type ident ;
-
-
-// statement
-stat : NOP
-     | type ident EQUALS assign_rhs
-     | assign_lhs EQUALS assign_rhs
-     | READ assign_lhs
-     | FREE expr
-     | RETURN expr
-     | EXIT expr
-     | PRINT expr
-     | PRINTLN expr
-     | IF expr THEN stat ELSE stat FI
-     | WHILE expr DO stat DONE
-     | BEGIN stat END
-     | stat SEMICOLON stat
-     ;
-
-// assignment
-assign_lhs : ident
-           | array_elem
-           | pair_elem
-           ;
-
-assign_rhs : expr
-           | array_liter
-           | NEWPAIR L_BRACKET expr COMMA expr R_BRACKET
-           | pair_elem
-           | CALL ident L_BRACKET arg_list? R_BRACKET
-           ;
-
-arg_list : expr (COMMA expr)* ;
-
-// types
-type : base_type
-     | array_type
-     | pair_type
-     ;
-
-base_type : INT | BOOL | CHAR | STRING ;
-
-array_type : (base_type | pair_type) (L_SQ_BRACKET R_SQ_BRACKET)+ ;
-
-pair_type : PAIR L_BRACKET pair_elem_type COMMA pair_elem_type R_BRACKET ;
-
-pair_elem_type : base_type
-               | array_type
-               | PAIR
-               ;
-
-// expressions
-expr : int_liter
-     | bool_liter
-     | char_liter
-     | str_liter
-     | NULL_PAIR
-     | ident
-     | array_elem
-     | unary_oper expr
-     | expr binary_oper expr
-     | L_BRACKET expr R_BRACKET
-     ;
-
-// operators
-unary_oper : BANG
-           | MINUS
-           | LEN
-           | ORD
-           | CHR
-           ;
-
-binary_oper : STAR
-            | DIV
-            | MOD
-            | PLUS
-            | MINUS
-            | GREATER_THAN
-            | GREATER_THAN_EQ
-            | LESS_THAN
-            | LESS_THAN_EQ
-            | EQUAL
-            | NOT_EQUAL
-            | AND
-            | OR
-            ;
-
-// identifier
-ident : IDENT;
-
-// array and pair elements
-array_elem : ident (L_SQ_BRACKET expr R_SQ_BRACKET)+ ;
-
-pair_elem : FST expr
-          | SND expr
+statement : NOP
+          | type IDENT ASSIGN assignRhs
+          | assignLhs ASSIGN assignRhs
+          | READ assignLhs
+          | expressionAction expression
+          | IF expression THEN statement ELSE statement FI
+          | WHILE expression DO statement DONE
+          | BEGIN statement END
+          | statement SEMICOLON statement
           ;
 
-// literals
-int_sign : PLUS | MINUS ;
 
-int_liter : int_sign? NUMBER ;
+assignLhs : IDENT | arrayElement | pairElement ;
+assignRhs : expression | arrayLiteral | pairConstructor | pairElement | functionCall ;
 
-bool_liter : TRUE | FALSE ;
+type : baseType | arrayType | pairType ;
+baseType : INT | BOOL | CHAR | STRING ;
 
-char_liter : SINGLE_QUOTE STR_CHARACTER SINGLE_QUOTE ;
+arrayType    : (baseType | pairType) (LB RB)+ ;
+arrayElement : IDENT (LB expression RB)+ ;
+arrayLiteral : LB (expression (COMMA expression)*)? RB ;
 
-str_liter : STR_LITER;
+pairType        : PAIR LP pairElementType COMMA pairElementType RP ;
+pairElementType : baseType | arrayType | PAIR ;
+pairConstructor : NEWPAIR LP expression COMMA expression RP ;
+pairElement     : FST expression | SND expression ;
 
-array_liter : L_SQ_BRACKET (expr (COMMA expr)*)? R_SQ_BRACKET ;
+expressionAction : FREE | RETURN | EXIT | PRINT | PRINTLN ;
+
+expression : literal
+           | IDENT
+           | arrayElement
+           | unaryOperator expression
+           | expression binaryOperator expression
+           | LP expression RP
+           ;
+
+literal : intLiteral | boolLiteral | CHAR_LITERAL | STRING_LITERAL | NULL_PAIR ;
+intLiteral    : (PLUS | MINUS)? NUMBER ;
+boolLiteral   : TRUE | FALSE ;
+
+unaryOperator : NOT | MINUS | LEN | ORD | CHR ;
+binaryOperator : arithmeticOperator | comparisonOperator | ASSIGN | NOT_EQUAL | EQUAL | AND | OR ;
+arithmeticOperator : MUL | DIV | MOD | PLUS | MINUS ;
+comparisonOperator : GREATER_THAN | GREATER_THAN_EQ | LESS_THAN | LESS_THAN_EQ ;

@@ -3,11 +3,11 @@ lexer grammar WACCLexer;
 // arithmetic operators
 PLUS : '+' ;
 MINUS : '-' ;
-STAR : '*' ;
+MUL : '*' ;
 DIV : '/' ;
 MOD : '%' ;
-EQUALS : '=' ;
 
+ASSIGN : '=' ;
 
 // comparison operators
 GREATER_THAN : '>' ;
@@ -17,17 +17,14 @@ LESS_THAN_EQ : '<=' ;
 EQUAL : '==' ;
 NOT_EQUAL : '!=' ;
 
-
 // boolean operators
-BANG : '!' ;
+NOT : '!' ;
 AND : '&&' ;
 OR : '||' ;
-
 
 // boolean values
 TRUE : 'true' ;
 FALSE : 'false' ;
-
 
 // base types
 INT : 'int' ;
@@ -36,20 +33,17 @@ CHAR : 'char' ;
 STRING : 'string' ;
 PAIR : 'pair' ;
 
-
 // pairs
 NEWPAIR : 'newpair' ;
 FST : 'fst' ;
 SND : 'snd' ;
 NULL_PAIR : 'null' ;
 
-
-// brackets
-L_BRACKET : '(' ;
-R_BRACKET : ')' ;
-L_SQ_BRACKET : '[' ;
-R_SQ_BRACKET : ']' ;
-
+// parentheses and brackets
+LP : '(' ;
+RP : ')' ;
+LB : '[' ;
+RB : ']' ;
 
 // stat keywords
 NOP : 'skip' ;
@@ -79,48 +73,43 @@ LEN : 'len' ;
 ORD : 'ord' ;
 CHR : 'chr' ;
 
-// special characters
-SINGLE_QUOTE : '\'' ;
-DOUBLE_QUOTE : '"' ;
-UNDERSCORE : '_' ;
-BACKSLASH: '\\';
-ESCAPED_CHAR: '\\' [0 | b | t | n | f | r | " | ' | \\];
-
 // function specific keywords
 IS : 'is' ;
 CALL: 'call' ;
 
-// fragments
-fragment
-LOWERCASE : [a-z] ;
 
+NUMBER :  DIGIT+ ;
 fragment
-UPPERCASE : [A-Z] ;
+DIGIT : [0-9] ;
 
+IDENT: ID_START (ID_CHAR)*;
 fragment
-DIGITS : [0-9] ;
-
+ID_START : (UNDERSCORE | ALPHA) ;
 fragment
-ID_START : (UNDERSCORE | LOWERCASE | UPPERCASE) ;
-
+ID_CHAR : (UNDERSCORE | ALPHA | DIGIT) ;
 fragment
-ID_CHAR : (UNDERSCORE | LOWERCASE | UPPERCASE | DIGITS) ;
-
+ALPHA : [a-zA-Z] ;
+fragment
+UNDERSCORE : '_' ;
 
 //whitespace
 WS : [ \t\r\n]+ -> skip ;
-
-// number
-NUMBER :  DIGITS+ ;
-
-// identifier
-IDENT: ID_START (ID_CHAR)*;
 
 // commment
 COMMENT: '#' .*? '\n' -> skip;
 
 // string and characters
-STR_CHARACTER : (CHAR_NO_QUOTES_BACKSLASH | ESCAPED_CHAR) ;
-STR_LITER : DOUBLE_QUOTE STR_CHARACTER* DOUBLE_QUOTE ;
-CHAR_NOT_EOL : [~\n] ;
-CHAR_NO_QUOTES_BACKSLASH: ~['"\\];
+STRING_LITERAL : DOUBLE_QUOTE (ESCAPED_CHAR | CHARACTER)*? DOUBLE_QUOTE ;
+CHAR_LITERAL : SINGLE_QUOTE CHARACTER SINGLE_QUOTE ;
+fragment
+CHARACTER : (ESCAPED_CHAR | SINGLE_CHARACTER) ;
+fragment
+SINGLE_CHARACTER: ~['"\\];
+fragment
+SINGLE_QUOTE : '\'' ;
+fragment
+DOUBLE_QUOTE : '"' ;
+fragment
+ESCAPED_CHAR: BACKSLASH [0 | b | t | n | f | r | " | ' | \\];
+fragment
+BACKSLASH: '\\';
