@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Do *not* change the name or location of this script
 
 DIR=$(dirname $0)
