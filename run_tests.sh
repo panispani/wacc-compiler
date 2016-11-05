@@ -28,6 +28,6 @@ cd "../invalid/syntaxErr"
 cat_wacc_files
 
 echo "Running semantically invalid tests"
-cd "../invalid/semanticErr"
+cd "../semanticErr"
 cat_wacc_files
 
