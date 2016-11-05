@@ -2,7 +2,7 @@ package experimental
 
 import scala.collection.mutable
 
-class SymbolTable(parent: SymbolTable) {
+case class SymbolTable(parent: Option[SymbolTable]) {
 
   var map: mutable.Map[String, Identifier] = mutable.Map()
 
@@ -12,10 +12,13 @@ class SymbolTable(parent: SymbolTable) {
   def lookup(symbol: String): Option[Identifier]
     = map get symbol
 
-  def lookupAll(symbol: String): Identifier
-    = map get symbol match {
-      case Some (identifier) => identifier
-      case None              => parent lookupAll symbol
+  def lookupAll(symbol: String): Option[Identifier]
+    = lookup (symbol) match {
+      case Some (identifier) => Some (identifier)
+      case None => parent match {
+        case None => None
+        case Some (higherParent) => higherParent lookupAll symbol
+      }
     }
 
 }
