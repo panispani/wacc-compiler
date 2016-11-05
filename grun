@@ -7,6 +7,6 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 
 #echo running the ANTLR TestRig grammar tool
-DIR=$(dirname "$($READLINK -f "$0")")
-BIN=$DIR"/bin:"$DIR"/lib/antlr-4.5.3-complete.jar"
-java -cp $BIN org.antlr.v4.gui.TestRig antlr.WACC program $@
+DIR=$(dirname $0)
+CP=$DIR"/bin:"$DIR"/lib/antlr-4.5.3-complete.jar"
+java -cp $CP org.antlr.v4.gui.TestRig antlr.WACC program $@

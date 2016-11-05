@@ -1,4 +1,8 @@
 #!/bin/sh
 # Do *not* change the name or location of this script
 
-scala -cp target/scala-2.11/wacc_27_2.11-1.0.jar:lib/antlr-4.5.3-complete.jar experimental.Compiler $@
+DIR=$(dirname $0)
+
+scala -cp $DIR/target/scala-2.11/wacc_27_2.11-1.0.jar:$DIR/lib/antlr-4.5.3-complete.jar \
+          experimental.Compiler < $@
+exit $?

@@ -12,8 +12,7 @@ test_wacc_files() {
             cd ".."
         elif [ $extension = "wacc" ]
         then
-            BIN=$BASE_DIR"/target/scala-2.11/wacc_27_2.11-1.0.jar:"$BASE_DIR"/lib/antlr-4.5.3-complete.jar"
-            scala -cp $BIN experimental.Compiler <$f
+            $BASE_DIR/compile $f
             if [ $? -eq $EXITCODE ]
             then
                 correct=$((correct+1))
