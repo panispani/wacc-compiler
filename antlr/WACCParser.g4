@@ -11,15 +11,15 @@ parameter : type IDENT ;
 functionCall : CALL IDENT LP argumentList? RP ;
 argumentList : expression (COMMA expression)* ;
 
-statement : NOP
-          | type IDENT ASSIGN assignRhs
-          | assignLhs ASSIGN assignRhs
-          | READ assignLhs
-          | expressionAction expression
-          | IF expression THEN statement ELSE statement FI
-          | WHILE expression DO statement DONE
-          | BEGIN statement END
-          | statement SEMICOLON statement
+statement : NOP                                                # Skip
+          | type IDENT ASSIGN assignRhs                        # Declare
+          | assignLhs ASSIGN assignRhs                         # Assign
+          | READ assignLhs                                     # Read
+          | expressionAction expression                        # Action
+          | IF expression THEN statement ELSE statement FI     # Conditional
+          | WHILE expression DO statement DONE                 # Loop
+          | BEGIN statement END                                # Scope
+          | statement SEMICOLON statement                      # Sequence
           ;
 
 
