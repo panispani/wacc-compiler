@@ -1,5 +1,5 @@
 package experimental
 
-case class BaseType(min: Int, max: Int) extends Identifier {
+case class BaseType(min: Int, max: Int) extends Identifier("") {
 
 }

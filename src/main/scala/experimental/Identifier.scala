@@ -1,4 +1,7 @@
 package experimental
 
-class Identifier() {
+class Identifier(Type: String) {
+  def getType(): String = {
+    Type
+  }
 }

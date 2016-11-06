@@ -15,15 +15,20 @@ class SmallVisitor[T] extends WACCParserBaseVisitor[T] {
   override def visitPairType(ctx: PairTypeContext): T = super.visitPairType(ctx)
 
   override def visitBaseType(ctx: BaseTypeContext): T = {
-    println("int is: " + ctx.INT())
-    println("bool is: " + ctx.BOOL())
+    //println("int is: " + ctx.INT())
+    //println("bool is: " + ctx.BOOL())
     super.visitBaseType(ctx)
   }
 
   override def visitType(ctx: TypeContext): T = super.visitType(ctx)
 
   override def visitDeclare(ctx: DeclareContext): T = {
-    print("kirie")
+    val ident = globalTable.lookup(ctx.IDENT().toString)
+    if (ident.isDefined && ident.get.getType().toString != "function") {
+      println("Semantic Error: Identifier is re-defined")
+      System.exit(200);
+    }
+    globalTable.addSymbol(ctx.IDENT().toString, new Identifier("variable"))
     super.visitDeclare(ctx)
   }
 
@@ -41,6 +46,8 @@ class SmallVisitor[T] extends WACCParserBaseVisitor[T] {
     globalTable.addSymbol("char", BaseType(min = 0, max = 255))
     globalTable.addSymbol("string", BaseType(min = -1000000, max = 1000000))
 
-    super.visitProgram(ctx)
+    val x = super.visitProgram(ctx)
+    print(globalTable.lookup("a"))
+    x
   }
 }
