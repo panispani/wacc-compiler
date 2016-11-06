@@ -8,13 +8,27 @@ class SmallVisitor[T] extends WACCParserBaseVisitor[T] {
   var globalTable: SymbolTable = SymbolTable(None)
   var currentTable: SymbolTable = globalTable
 
+  private def notInBounds(n: String): Boolean = {
+    val num = BigInt(n)
+    return num > 2147483647 || num < -2147483648;
+  }
 
+  override def visitIntLiteral(ctx: IntLiteralContext): T = {
+    if(notInBounds(ctx.NUMBER().toString)) {
+      println("Semantic Error: Number is not in integer bounds")
+      System.exit(200)
+    }
+    super.visitIntLiteral(ctx)
+  }
 
   override def visitArrayType(ctx: ArrayTypeContext): T = super.visitArrayType(ctx)
 
   override def visitPairType(ctx: PairTypeContext): T = super.visitPairType(ctx)
 
   override def visitBaseType(ctx: BaseTypeContext): T = {
+    if (ctx.INT() != null) {
+      //how? what is currrent variable
+    }
     //println("int is: " + ctx.INT())
     //println("bool is: " + ctx.BOOL())
     super.visitBaseType(ctx)
