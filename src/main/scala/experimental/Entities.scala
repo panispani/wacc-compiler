@@ -23,6 +23,7 @@ trait Expression {
   def valueType() : Type
   def semanticCheck() : Boolean = true
 }
+
 case class IntegerLiteral(value: Int) extends Expression {
   override def valueType(): Type = Integer
 }
@@ -50,6 +51,24 @@ case class CharLiteral(value: Char) extends Expression {
 case class PairLiteral(value: String) extends Expression {
   override def valueType(): Type = Pair
 }
+
+case class IdentExpr(typeValue: Type, name: String) extends Expression {
+  override def valueType(): Type = typeValue
+}
+
+case class UnaryOperatorExpr(typeValue: Type, name: String) extends Expression {
+  override def valueType(): Type = typeValue
+}
+
+trait UnaryOperator {
+
+}
+
+class Not extends UnaryOperator {
+
+}
+
+
 
 
 
