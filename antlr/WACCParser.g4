@@ -26,17 +26,24 @@ statement : NOP                                                # Skip
 assignLhs : IDENT | arrayElement | pairElement ;
 assignRhs : expression | arrayLiteral | pairConstructor | pairElement | functionCall ;
 
-type : baseType | arrayType | pairType ;
-baseType : INT | BOOL | CHAR | STRING ;
+type : primitiveType
+     | arrayType
+     | pairType
+     ;
 
-arrayType    : (baseType | pairType) (LB RB)+ ;
+primitiveType : INT | BOOL | CHAR | STRING ;
+notNestedArrayType: primitiveType | pairType ;
+
+arrayType    : notNestedArrayType (LB RB)+ ;
+
 arrayElement : IDENT (LB expression RB)+ ;
 arrayLiteral : LB (expression (COMMA expression)*)? RB ;
 
-pairType        : PAIR LP pairElementType COMMA pairElementType RP ;
-pairElementType : baseType | arrayType | PAIR ;
+pairType        : PAIR LP firstType=pairElementType COMMA secondType=pairElementType RP ;
+pairElementType : primitiveType | arrayType | erasedPair ;
 pairConstructor : NEWPAIR LP expression COMMA expression RP ;
 pairElement     : FST expression | SND expression ;
+erasedPair      : PAIR ;
 
 expressionAction : FREE | RETURN | EXIT | PRINT | PRINTLN ;
 
