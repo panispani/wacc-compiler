@@ -1,9 +1,10 @@
 # Sample Makefile for the WACC Compiler lab: edit this to build your own comiler
 # Locations
 
-ANTLR_DIR	:= antlr
+ANTLR_DIR	  := antlr
 SOURCE_DIR	:= src
 OUTPUT_DIR	:= bin 
+SBT					?= sbt
 
 # Tools
 
@@ -27,7 +28,7 @@ rules:
 	$(MKDIR) $(OUTPUT_DIR)
 	$(JAVAC) $(JFLAGS) @$@
 	$(RM) rules
-	sbt package
+	$(SBT) package
 
 clean:
 	$(RM) rules $(OUTPUT_DIR)

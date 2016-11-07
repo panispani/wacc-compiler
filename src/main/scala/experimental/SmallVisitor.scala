@@ -37,6 +37,7 @@ class SmallVisitor[T] extends WACCParserBaseVisitor[T] {
 
   override def visitDeclare(ctx: DeclareContext): T = {
     val ident = currentTable.lookup(ctx.IDENT().toString)
+
     if (ident.isDefined && ident.get.getType().toString != "function") {
       println("Semantic Error: Identifier is re-defined")
       System.exit(200);
@@ -44,10 +45,6 @@ class SmallVisitor[T] extends WACCParserBaseVisitor[T] {
     currentTable.addSymbol(ctx.IDENT().toString, new Identifier("variable"))
     super.visitDeclare(ctx)
   }
-
-  override def visitAssignLhs(ctx: AssignLhsContext): T = super.visitAssignLhs(ctx)
-
-  override def visitAssignRhs(ctx: AssignRhsContext): T = super.visitAssignRhs(ctx)
 
   override def visitAssign(ctx: AssignContext): T = {
     super.visitAssign(ctx)
