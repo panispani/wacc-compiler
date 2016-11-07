@@ -5,6 +5,9 @@ import scala.collection.immutable.List
 trait Type {}
 object Integer extends Type
 object Bool extends Type
+object StringType extends Type
+object CharType extends Type
+object Pair extends Type
 case class Array(elementType: Type) extends Type
 
 
@@ -37,3 +40,19 @@ case class ArrayLiteral(elements: Seq[Expression]) extends Expression {
 
   override def valueType(): Type = Array(elements.head.valueType())
 }
+
+case class StringLiteral(value: String) extends Expression {
+  override def valueType(): Type = StringType
+}
+
+case class CharLiteral(value: Char) extends Expression {
+  override def valueType(): Type = CharType
+}
+
+case class PairLiteral(value: String) extends Expression {
+  override def valueType(): Type = Pair
+}
+
+
+
+
