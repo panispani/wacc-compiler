@@ -13,7 +13,7 @@ object Compiler extends App {
   parser.addErrorListener(new SyntaxErrorListener())
 
   val tree = parser.program()
-  val visitor = new SmallVisitor()
+  val visitor = new ExpressionVisitor()
   visitor.visit(tree)
   //println(tree.toStringTree(parser))
 }

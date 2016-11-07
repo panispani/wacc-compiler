@@ -15,8 +15,7 @@ class SmallVisitor[T] extends WACCParserBaseVisitor[T] {
 
   override def visitIntLiteral(ctx: IntLiteralContext): T = {
     if(notInBounds(ctx.NUMBER().toString)) {
-      println("Semantic Error: Number is not in integer bounds")
-      System.exit(200)
+      println("Runtime Error: Number is not in integer bounds")
     }
     super.visitIntLiteral(ctx)
   }
