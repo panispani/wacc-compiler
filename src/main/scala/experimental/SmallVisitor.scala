@@ -103,7 +103,7 @@ class SmallVisitor extends WACCParserBaseVisitor[Node] {
   override def visitProgram(ctx: ProgramContext): Node = {
     val childCount = ctx.getChildCount
     val functions =
-      for (i <- List.range(0, childCount - 1)) yield visit(ctx.getChild(i)).asInstanceOf[FunctionNode]
+      for (i <- List.range(0, childCount - 2)) yield visit(ctx.getChild(i)).asInstanceOf[FunctionNode]
     val stmt = visit(ctx.getChild(childCount - 1)).asInstanceOf[StatementNode]
     ProgramNode(functions, stmt)
   }
