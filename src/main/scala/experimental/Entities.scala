@@ -22,8 +22,6 @@ trait Expression {
 }
 case class IntegerLiteral(value: Int) extends Expression {
   override def valueType(): Type = Integer
-  override def semanticCheck(): Boolean =
-    Int.MinValue <= value && value <= Int.MaxValue
 }
 
 case class BoolLiteral(value: Boolean) extends Expression {

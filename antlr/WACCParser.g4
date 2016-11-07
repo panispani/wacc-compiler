@@ -23,8 +23,17 @@ statement : NOP                                                # Skip
           ;
 
 
-assignLhs : IDENT | arrayElement | pairElement ;
-assignRhs : expression | arrayLiteral | pairConstructor | pairElement | functionCall ;
+assignLhs : IDENT           # AssignLhsIdent
+          | arrayElement    # AssignLhsArrayElement
+          | pairElement     # AssignLhsPairElement
+          ;
+
+assignRhs : expression      # AssignRhsExpression
+          | arrayLiteral    # AssingRhsArrayLiteral
+          | pairConstructor # AssingRhsPairConstructor
+          | pairElement     # AssingRhsPairElement
+          | functionCall    # AssingRhsFunctionCall
+          ;
 
 type : baseType | arrayType | pairType ;
 baseType : INT | BOOL | CHAR | STRING ;
