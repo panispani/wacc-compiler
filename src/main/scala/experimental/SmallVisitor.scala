@@ -2,6 +2,7 @@ package experimental
 
 import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
+
 import scala.collection.immutable.List
 
 class SmallVisitor extends WACCParserBaseVisitor[Node] {
@@ -51,9 +52,54 @@ class SmallVisitor extends WACCParserBaseVisitor[Node] {
     super.visitAssign(ctx)
   }
 
-  /*  statements can't be empty
-   *
-   */
+
+  // Next to impelement
+  def thereIsReturn(stmt: StatementNode): Boolean = {
+    true
+  }
+
+  def returnIsLastStmt(stmt: StatementNode): Boolean = {
+    true
+  }
+
+  def returnTypesSameWithFunction(stmt: StatementNode, returnType: Type): Boolean = {
+    true
+  }
+
+  def functionParamsAreNotDuplicated(paramList: List[ParamNode]): Boolean = {
+    true
+  }
+
+  def functionIsNotRedefined(fname: Ident): Boolean = {
+    true
+  }
+
+  // function must have a return statement - syntax error
+  // return statement is the last statement is the function - semantic error
+  // return values(s) are the same(type) with the function type - semantic error
+  // function parameters are not duplicated - semantic error
+  //-----------------------------------------------------------------------------
+  // function parameters are nor reserved keywords ? should be fine by grammar - to check
+  // case class FunctionNode(retType: Type, fname: Ident, paramList: List[ParamNode], stmt: StatementNode) extends Node
+  override def visitFunction(ctx: FunctionContext): Node = {
+    val childCount = ctx.getChildCount
+    val retType = visit(ctx.getChild(0)).asInstanceOf[Type]
+    val fname = visit(ctx.getChild(1)).asInstanceOf[Ident]
+    val paramList = visit(ctx.getChild(2)).asInstanceOf[List[ParamNode]]
+    val stmt = visit(ctx.getChild(3)).asInstanceOf[StatementNode]
+    if (thereIsReturn(stmt)
+      && returnIsLastStmt(stmt)
+      && returnTypesSameWithFunction(stmt, retType)
+      && functionParamsAreNotDuplicated(paramList)
+      && functionIsNotRedefined(fname)) {
+        FunctionNode(retType, fname, paramList, stmt)
+    }
+    else {
+      println("Semantic Error: ")
+      System.exit(200);
+    }
+  }
+
   override def visitProgram(ctx: ProgramContext): Node = {
     val childCount = ctx.getChildCount
     val functions =
