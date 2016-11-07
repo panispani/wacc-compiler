@@ -1,9 +1,20 @@
 package experimental
 
+import scala.collection.immutable.List
+
 trait Type {}
 object Integer extends Type
 object Bool extends Type
 case class Array(elementType: Type) extends Type
+
+
+trait Ident
+class Node
+case class StatementNode() extends Node
+case class ParamNode(paramType: Type, name: Ident) extends Node
+case class FunctionNode(retType: Type, fname: Ident, paramList: List[ParamNode], stmt: StatementNode) extends Node
+case class ProgramNode(functions: List[FunctionNode], stmt: StatementNode) extends Node
+
 
 trait Expression {
   def valueType() : Type
