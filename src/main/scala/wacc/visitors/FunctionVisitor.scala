@@ -8,21 +8,18 @@ import scala.collection.JavaConversions._
 object FunctionVisitor extends WACCParserBaseVisitor[Function] {
 
   override def visitFunction(ctx: FunctionContext): Function = {
-    val ctxparamList = ctx.parameterList()
-    if (ctxparamList == null) {
-      Function(
-        ctx.IDENT().accept(IdentifierVisitor),
-        List(),
-        ctx.`type`().accept(TypeVisitor),
-        ctx.statement().accept(StatementVisitor)
-      )
-    } else {
-      Function(
-        ctx.IDENT().accept(IdentifierVisitor),
-        ctxparamList.parameter().toList map (_.accept(ParamVisitor)),
-        ctx.`type`().accept(TypeVisitor),
-        ctx.statement().accept(StatementVisitor)
-      )
+    val ctxparamList = Option(ctx.parameterList())
+
+    val paramList = ctxparamList match {
+      case None => Seq()
+      case Some(ls) => ls.parameter().toList
     }
+
+    Function(
+      ctx.IDENT().accept(IdentifierVisitor),
+      paramList map (_.accept(ParamVisitor)),
+      ctx.`type`().accept(TypeVisitor),
+      ctx.statement().accept(StatementVisitor)
+    )
   }
 }
