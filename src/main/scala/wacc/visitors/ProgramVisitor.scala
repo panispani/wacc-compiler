@@ -3,6 +3,7 @@ package wacc.visitors
 import antlr.WACCParser.ProgramContext
 import antlr.WACCParserBaseVisitor
 import wacc.constructs.Program
+
 import scala.collection.JavaConversions._
 
 object ProgramVisitor extends WACCParserBaseVisitor[Program] {

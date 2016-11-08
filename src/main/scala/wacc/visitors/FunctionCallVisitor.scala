@@ -1,8 +1,7 @@
 package wacc.visitors
 
-/**
-  * Created by ema on 08/11/2016.
-  */
-class FunctionCallVisitor {
+import antlr.WACCParserBaseVisitor
+import wacc.constructs.FunctionCall
 
+object FunctionCallVisitor extends WACCParserBaseVisitor[FunctionCall] {
 }

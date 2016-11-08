@@ -1,8 +1,8 @@
 package wacc
 
 import antlr.{WACCLexer, WACCParser}
-import wacc.visitors.ProgramVisitor
 import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream}
+import wacc.visitors.ProgramVisitor
 
 /* This is an experimental compiler */
 object Compiler extends App {
