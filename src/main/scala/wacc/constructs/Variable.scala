@@ -1,3 +1,3 @@
 package wacc.constructs
 
-case class Variable(identifier: Identifier, vartype: BaseType)
+case class Variable(identifier: Identifier, vartype: Type)
