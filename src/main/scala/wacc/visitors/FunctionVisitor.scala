@@ -13,13 +13,15 @@ object FunctionVisitor extends WACCParserBaseVisitor[Function] {
       Function(
         ctx.IDENT().accept(IdentifierVisitor),
         List(),
-        ctx.`type`().accept(TypeVisitor)
+        ctx.`type`().accept(TypeVisitor),
+        ctx.statement().accept(StatementVisitor)
       )
     } else {
       Function(
         ctx.IDENT().accept(IdentifierVisitor),
         ctxparamList.parameter().toList map (_.accept(ParamVisitor)),
-        ctx.`type`().accept(TypeVisitor)
+        ctx.`type`().accept(TypeVisitor),
+        ctx.statement().accept(StatementVisitor)
       )
     }
   }
