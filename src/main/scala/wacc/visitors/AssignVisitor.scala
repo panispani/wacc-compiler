@@ -28,7 +28,7 @@ object AssignLhsVisitor extends WACCParserBaseVisitor[Try[AssignTarget]] {
     }
 
   override def visitAssignLhsArrayElement(ctx: AssignLhsArrayElementContext): Try[AssignTarget] =
-    Success(ctx.arrayElement().accept(ArrayElementVisitor))
+    ctx.arrayElement().accept(ArrayElementVisitor).flatMap(Success(_))
 
   override def visitAssignLhsPairElement(ctx: AssignLhsPairElementContext): Try[AssignTarget] =
     Success(ctx.pairElement().accept(PairElementVisitor))

@@ -2,10 +2,9 @@ package wacc.constructs
 
 import wacc.Symbol
 
-case class Function(identifier: Identifier,
+case class Function(identifier: String,
                     params: Seq[Param],
-                    returns: Type,
+                    vartype: Type,
                     stmt: Statement) extends SemanticallyCheckable with Symbol {
-//not base type
 
 }

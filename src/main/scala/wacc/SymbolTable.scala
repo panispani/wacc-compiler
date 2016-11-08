@@ -1,8 +1,11 @@
 package wacc
 
+import wacc.constructs.{Type, Typed}
+
 import scala.collection.mutable
 
-trait Symbol
+trait Symbol extends Typed
+
 case class SymbolTable(parent: Option[SymbolTable]) {
 
   var map: mutable.Map[String, Symbol] = mutable.Map()

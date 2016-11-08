@@ -1,4 +1,5 @@
 package wacc.constructs
 
-case class Expression() extends AssignValue {
+case class Expression(vartype: Type) extends AssignValue {
+
 }

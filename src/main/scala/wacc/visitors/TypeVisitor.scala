@@ -6,7 +6,7 @@ import wacc.constructs._
 
 object TypeVisitor extends WACCParserBaseVisitor[Type] {
   override def visitPrimitiveType(ctx: PrimitiveTypeContext): Type =
-    PrimitiveType(Identifier(ctx.toString))
+    PrimitiveType(ctx.toString)
 
   override def visitPairType(ctx: PairTypeContext): Type = {
     val firstType = ctx.pairElementType(0).accept(TypeVisitor)

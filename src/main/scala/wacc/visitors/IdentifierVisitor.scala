@@ -2,8 +2,10 @@ package wacc.visitors
 
 import antlr.WACCParser.AssignLhsIdentContext
 import antlr.WACCParserBaseVisitor
-import wacc.constructs.Identifier
 
-object IdentifierVisitor extends WACCParserBaseVisitor[Identifier] {
+object IdentifierVisitor extends WACCParserBaseVisitor[String] {
+  override def visitAssignLhsIdent(ctx: AssignLhsIdentContext): String = {
+    ctx.IDENT().toString()
+  }
 
 }
