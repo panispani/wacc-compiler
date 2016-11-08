@@ -1,6 +1,8 @@
 package wacc.constructs
 
-case class Typed(vartype: Type)
+trait Typed {
+  val vartype: Type
+}
 
 trait AssignValue extends Typed
 trait AssignTarget extends Typed

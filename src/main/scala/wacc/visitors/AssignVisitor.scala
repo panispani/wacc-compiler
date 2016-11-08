@@ -2,44 +2,52 @@ package wacc.visitors
 
 import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
+import wacc.SymbolTable
 import wacc.constructs._
 
-object AssignVisitor extends WACCParserBaseVisitor[Assign] {
+import scala.util.{Failure, Success, Try}
 
-  override def visitAssign(ctx: AssignContext): Assign = {
+object AssignVisitor extends WACCParserBaseVisitor[Try[Assign]] {
+
+  override def visitAssign(ctx: AssignContext): Try[Assign] = {
     val lhs = ctx.assignLhs().accept(AssignLhsVisitor)
     val rhs = ctx.assignRhs().accept(AssignRhsVisitor)
 
-    Assign(lhs, rhs)
+    Success(Assign(lhs.get, rhs.get))
   }
 }
 
-object AssignLhsVisitor extends WACCParserBaseVisitor[AssignTarget] {
+object AssignLhsVisitor extends WACCParserBaseVisitor[Try[AssignTarget]] {
 
-  override def visitAssignLhsIdent(ctx: AssignLhsIdentContext): AssignTarget =
-    ctx.IDENT().accept(IdentifierVisitor)
+  override def visitAssignLhsIdent(ctx: AssignLhsIdentContext): Try[AssignTarget] = {
+    SymbolTable.currentTable.lookupAll(ctx.IDENT().toString) match {
+      case Some(symbol: Variable)   => Success(symbol)
+      case None                     => Failure(Error("Semantic", "Variable not declared"))
+      case default                  => Failure(Error("Semantic", "Can only assign to variables, not functions"))
+      }
+    }
 
-  override def visitAssignLhsArrayElement(ctx: AssignLhsArrayElementContext): AssignTarget =
-    ctx.arrayElement().accept(ArrayElementVisitor)
+  override def visitAssignLhsArrayElement(ctx: AssignLhsArrayElementContext): Try[AssignTarget] =
+    Success(ctx.arrayElement().accept(ArrayElementVisitor))
 
-  override def visitAssignLhsPairElement(ctx: AssignLhsPairElementContext): AssignTarget =
-    ctx.pairElement().accept(PairElementVisitor)
+  override def visitAssignLhsPairElement(ctx: AssignLhsPairElementContext): Try[AssignTarget] =
+    Success(ctx.pairElement().accept(PairElementVisitor))
 }
 
-object AssignRhsVisitor extends WACCParserBaseVisitor[AssignValue] {
+object AssignRhsVisitor extends WACCParserBaseVisitor[Try[AssignValue]] {
 
-  override def visitAssignRhsExpression(ctx: AssignRhsExpressionContext): AssignValue =
-    ctx.expression().accept(ExpressionVisitor)
+  override def visitAssignRhsExpression(ctx: AssignRhsExpressionContext): Try[AssignValue] =
+    Success(ctx.expression().accept(ExpressionVisitor))
 
-  override def visitAssingRhsArrayLiteral(ctx: AssingRhsArrayLiteralContext): AssignValue =
-    ctx.arrayLiteral().accept(ArrayLiteralVisitor)
+  override def visitAssingRhsArrayLiteral(ctx: AssingRhsArrayLiteralContext): Try[AssignValue] =
+    Success(ctx.arrayLiteral().accept(ArrayLiteralVisitor))
 
-  override def visitAssingRhsPairConstructor(ctx: AssingRhsPairConstructorContext): AssignValue =
-    ctx.pairConstructor().accept(PairConstructorVisitor)
+  override def visitAssingRhsPairConstructor(ctx: AssingRhsPairConstructorContext): Try[AssignValue] =
+    Success(ctx.pairConstructor().accept(PairConstructorVisitor))
 
-  override def visitAssingRhsPairElement(ctx: AssingRhsPairElementContext): AssignValue =
-    ctx.pairElement().accept(PairElementVisitor)
+  override def visitAssingRhsPairElement(ctx: AssingRhsPairElementContext): Try[AssignValue] =
+    Success(ctx.pairElement().accept(PairElementVisitor))
 
-  override def visitAssingRhsFunctionCall(ctx: AssingRhsFunctionCallContext): AssignValue =
-    ctx.functionCall().accept(FunctionCallVisitor)
+  override def visitAssingRhsFunctionCall(ctx: AssingRhsFunctionCallContext): Try[AssignValue] =
+    Success(ctx.functionCall().accept(FunctionCallVisitor))
 }

@@ -3,7 +3,7 @@ package wacc.constructs
 /**
   * Created by panayiotis on 08/11/16.
   */
-case class Error(errorType: String, errorMessage: String) {
+case class Error(errorType: String, errorMessage: String) extends Throwable {
   println(errorType + ": " + errorMessage)
   val errorCode = getErrorCode(errorType)
   if (errorCode != 0) {
