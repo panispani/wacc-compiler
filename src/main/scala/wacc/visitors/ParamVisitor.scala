@@ -2,11 +2,11 @@ package wacc.visitors
 
 import antlr.WACCParser.ParameterContext
 import antlr.WACCParserBaseVisitor
-import wacc.constructs.{FunctionParam, Variable}
+import wacc.constructs.{Param, Variable}
 
-object ParamVisitor extends WACCParserBaseVisitor[FunctionParam] {
-  override def visitParameter(ctx: ParameterContext): FunctionParam = {
-    FunctionParam (
+object ParamVisitor extends WACCParserBaseVisitor[Param] {
+  override def visitParameter(ctx: ParameterContext): Param = {
+    Param (
       Variable(
         ctx.IDENT().accept(IdentifierVisitor),
         ctx.`type`.accept(TypeVisitor)
