@@ -1,9 +1,9 @@
 package wacc.constructs
 
-trait Literal extends AssignValue
+case class Literal(vartype: Type) extends AssignValue
 
-case class ArrayLiteral(elements: Seq[Expression]) extends Literal {
-  override val vartype: ArrayType = ArrayType(elements.head.vartype)
+case class ArrayLiteral(elements: Seq[Expression]) extends AssignValue{
+  val vartype: ArrayType = ArrayType(elements.head.vartype)
 }
 
 
