@@ -52,6 +52,32 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
     }
   }
 
+  override def visitBinaryOperatorExp(ctx: BinaryOperatorExpContext): Either[CompilationError, Expression] = {
+    val operator = ctx.binaryOperator().accept(BinaryOperatorVisitor)
+    for {
+      expr1 : Expression <- ctx.expression(0).accept(ExpressionVisitor)
+      expr2 : Expression <- ctx.expression(1).accept(ExpressionVisitor)
+    } yield operator match {
+
+      case timesBinOp | divBinOp | modBinOp | plusBinOp | minusBinOp
+        if expr1.vartype != Integer || expr2.vartype != Integer =>
+        SemanticError(operator.binaryOperator + " operator needs 2 integers as its arguments")
+
+      case gtBinOp | gteBinOP | ltBinOp | lteBinOp
+        if expr1.vartype != expr2.vartype || (expr1.vartype != Integer && expr2.vartype != Character) =>
+        SemanticError(operator.binaryOperator + " operator needs 2 integers/characters as its arguments")
+
+      case equalsBinOp | nequalsOp
+        if expr1.vartype != expr2.vartype =>
+        SemanticError(operator.binaryOperator + " operator needs 2 arguments of the same type")
+
+      case andBinOp | orBinOp
+        if expr1.vartype != Boolean || expr2.vartype != Boolean =>
+        SemanticError(operator.binaryOperator + " operator needs 2 booleans as its arguments")
+
+      case default => BinaryOperatorExpr(expr1, operator, expr2)
+    }
+  }
 }
 
 
