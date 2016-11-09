@@ -38,7 +38,16 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
   }
 
   override def visitUnaryOperatorExp(ctx: UnaryOperatorExpContext): Either[CompilationError, Expression] = {
-    ctx.expression().accept(ExpressionVisitor).right map (e =>
-      UnaryOperatorExpr(ctx.unaryOperator.accept(UnaryOperatorVisitor), e))
+    val operator = ctx.unaryOperator.accept(UnaryOperatorVisitor)
+    val expr = ctx.expression().accept(ExpressionVisitor).right
+    val unaryExpr = expr map (e => UnaryOperatorExpr(operator, e))
+    operator match {
+      case MinusOp if expr map (e => e.vartype != Integer)   => Left(SemanticError("'-' operator needs integers"))
+      case LenOp if expr map (e => e.vartype != ArrayType(Character)) => Left(SemanticError("'len' operator needs array of charcters"))
+      case OrdOp if expr map (e => e.vartype != Character) => Left(SemanticError("'ord' operator needs character"))
+      case ChrOp if expr map (e => e.vartype != Integer) => Left(SemanticError("'chr' operator needs integer"))
+      case NotOp if expr map (e => e.vartype != Boolean)  => Left(SemanticError("'!' operator needs Boolean"))
+      case default => unaryExpr
+    }
   }
 }
