@@ -1,12 +1,12 @@
 package wacc.visitors
 
 import antlr.WACCParserBaseVisitor
-import wacc.constructs.{BinaryOperatorExpr, FunctionCall}
+import wacc.constructs._
 
 
 /**
   * Created by panayiotis on 08/11/16.
   */
-object BinaryOperatorVisitor extends WACCParserBaseVisitor[BinaryOperatorExpr] {
+object BinaryOperatorVisitor extends WACCParserBaseVisitor[BinaryOperator] {
 
 }
