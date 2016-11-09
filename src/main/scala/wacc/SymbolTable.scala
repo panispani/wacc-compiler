@@ -13,18 +13,18 @@ case class SymbolTable(parent: Option[SymbolTable]) {
 
   var map: mutable.Map[String, Typed] = mutable.Map()
 
-  def addTyped(Typed: String, identifier: Typed)
-    = map += Typed -> identifier
+  def addTyped(identifier: String, symbol: Typed)
+    = map += identifier -> symbol
 
-  def lookup(Typed: String): Option[Typed]
-    = map get Typed
+  def lookup(identifier: String): Option[Typed]
+    = map get identifier
 
-  def lookupAll(Typed: String): Option[Typed]
-    = lookup (Typed) match {
-      case Some (identifier) => Some (identifier)
+  def lookupAll(identifier: String): Option[Typed]
+    = lookup (identifier) match {
+      case Some (ident) => Some (ident)
       case None => parent match {
         case None => None
-        case Some (higherParent) => higherParent lookupAll Typed
+        case Some (higherParent) => higherParent lookupAll identifier
       }
     }
 

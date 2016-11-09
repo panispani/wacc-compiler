@@ -32,15 +32,15 @@ statement : NOP                                                # Skip
 
 
 assignLhs : variableReference # AssignLhsIdent
-          | arrayElement     # AssignLhsArrayElement
-          | pairElement      # AssignLhsPairElement
+          | arrayElement      # AssignLhsArrayElement
+          | pairElement       # AssignLhsPairElement
           ;
 
 assignRhs : expression      # AssignRhsExpression
-          | arrayLiteral    # AssingRhsArrayLiteral
-          | pairConstructor # AssingRhsPairConstructor
-          | pairElement     # AssingRhsPairElement
-          | functionCall    # AssingRhsFunctionCall
+          | arrayLiteral    # AssignRhsArrayLiteral
+          | pairConstructor # AssignRhsPairConstructor
+          | pairElement     # AssignRhsPairElement
+          | functionCall    # AssignRhsFunctionCall
           ;
 
 type : primitiveType
@@ -58,7 +58,7 @@ arrayLiteral : LB (expression (COMMA expression)*)? RB ;
 
 pairType        : PAIR LP firstType=pairElementType COMMA secondType=pairElementType RP ;
 pairElementType : primitiveType | arrayType | erasedPair ;
-pairConstructor : NEWPAIR LP expression COMMA expression RP ;
+pairConstructor : NEWPAIR LP expression1=expression COMMA expression2=expression RP ;
 pairElement     : FST expression | SND expression ;
 erasedPair      : PAIR ;
 

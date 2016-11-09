@@ -3,6 +3,7 @@ package wacc.visitors
 import antlr.{WACCLexer, WACCParser, WACCParserBaseVisitor}
 import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream, ParserRuleContext}
 import wacc.SyntaxErrorListener
+import wacc.constructs.{Program, Statement}
 
 object TestUtilities {
 
@@ -37,4 +38,9 @@ object TestUtilities {
 
     program
   }
+
+  def functionlessProgram(statements: Seq[Statement]): Program = {
+    Program(Seq(), statements)
+  }
+
 }

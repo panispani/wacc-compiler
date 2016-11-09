@@ -9,8 +9,8 @@ object TypeVisitor extends WACCParserBaseVisitor[Type] {
     PrimitiveType(ctx.getText)
 
   override def visitPairType(ctx: PairTypeContext): Type = {
-    val firstType = ctx.pairElementType(0).accept(TypeVisitor)
-    val secondType = ctx.pairElementType(0).accept(TypeVisitor)
+    val firstType = ctx.firstType.accept(TypeVisitor)
+    val secondType = ctx.secondType.accept(TypeVisitor)
     PairType(firstType, secondType)
   }
 
