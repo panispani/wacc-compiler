@@ -20,7 +20,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Function] {
       ctx.IDENT().accept(IdentifierVisitor),
       paramList map (_.accept(ParamVisitor)),
       ctx.`type`().accept(TypeVisitor),
-      ctx.statement().accept(StatementVisitor)
+      ctx.sequence().statement().toList map (_.accept(StatementVisitor))
     )
   }
 }

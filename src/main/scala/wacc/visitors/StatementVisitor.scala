@@ -1,12 +1,23 @@
 package wacc.visitors
 
-import antlr.WACCParser.{ActionContext, AssignContext, ExpressionActionContext}
+import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
-import wacc.constructs.Statement
+import wacc.constructs.{Declare, PrimitiveType, Skip, Statement}
+
+import scala.util.{Success, Try}
 
 object StatementVisitor extends WACCParserBaseVisitor[Statement] {
-  override def visitAssign(ctx: AssignContext): Statement = {
-    Statement()
+
+  override def visitSkip(ctx: SkipContext): Skip = {
+    Skip()
+  }
+
+  override def visitDeclare(ctx: DeclareContext): Declare = {
+    val vartype = ctx.`type`().accept(TypeVisitor)
+    val identifier = ctx.IDENT().toString
+    val rhs = ctx.assignRhs().accept(AssignRhsVisitor)
+
+    Declare(vartype, identifier, rhs)
   }
 
 }

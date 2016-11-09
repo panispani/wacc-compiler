@@ -8,15 +8,17 @@ import scala.collection.JavaConversions._
 
 import scala.util.{Failure, Success, Try}
 
-object ArrayElementVisitor extends WACCParserBaseVisitor[Try[ArrayElement]] {
+object ArrayElementVisitor extends WACCParserBaseVisitor[ArrayElement] {
 
-  override def visitArrayElement(ctx: ArrayElementContext): Try[ArrayElement] = {
+  override def visitArrayElement(ctx: ArrayElementContext): ArrayElement = {
     val identifier = ctx.IDENT().toString
 
     SymbolTable.currentTable.lookupAll(identifier) match {
-      case Some(variable: Variable)  => Success(ArrayElement(identifier, ctx.expression().toList map (_.accept(ExpressionVisitor))))
-      case None                      => Failure(Error("Semantic", "Variable not declared"))
-      case default                   => Failure(Error("Semantic" , "Identifier is a function, not an array variable"))
+      case Some(variable: Variable)  => ArrayElement(identifier, ctx.expression().toList map (_.accept(ExpressionVisitor)))
+        /*
+      case None                      => Error("Semantic", "Variable not declared")
+      case default                   => Error("Semantic" , "Identifier is a function, not an array variable")
+      */
     }
   }
 

@@ -2,24 +2,25 @@ parser grammar WACCParser;
 options { tokenVocab=WACCLexer; }
 
 // Top-level rule
-program : BEGIN function* statement END EOF;
+program : BEGIN function* sequence END EOF;
 
-function : type IDENT LP parameterList? RP IS statement END ;
+function : type IDENT LP parameterList? RP IS sequence END ;
 parameterList : parameter (COMMA parameter)* ;
 parameter : type IDENT ;
 
 functionCall : CALL IDENT LP argumentList? RP ;
 argumentList : expression (COMMA expression)* ;
 
+sequence : statement (SEMICOLON statement)* ;
+
 statement : NOP                                                # Skip
           | type IDENT ASSIGN assignRhs                        # Declare
           | assignLhs ASSIGN assignRhs                         # Assign
           | READ assignLhs                                     # Read
           | expressionAction expression                        # Action
-          | IF expression THEN statement ELSE statement FI     # Conditional
-          | WHILE expression DO statement DONE                 # Loop
-          | BEGIN statement END                                # Scope
-          | statement SEMICOLON statement                      # Sequence
+          | IF expression THEN sequence ELSE sequence FI       # Conditional
+          | WHILE expression DO sequence DONE                  # Loop
+          | BEGIN sequence END                                 # Scope
           ;
 
 
