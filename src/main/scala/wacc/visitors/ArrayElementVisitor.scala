@@ -14,9 +14,9 @@ object ArrayElementVisitor extends WACCParserBaseVisitor[Either[CompilationError
     val identifier = ctx.variableReference().getText
 
     SymbolTable.currentTable.lookupAll(identifier) match {
-      case Some(VariableReference(ArrayType(elemtype))) => for {
+      case Some(reference @ VariableReference(ArrayType(elemtype))) => for {
         indexes <- sequence(ctx.expression().toList map (e => e.accept(ExpressionVisitor))).right
-      } yield ArrayElement(identifier, indexes)
+      } yield ArrayElement(reference, indexes)
 
       case None    => Left(SemanticError("Variable not declared"))
       case default => Left(SemanticError("Identifier is not an array reference"))
