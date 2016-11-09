@@ -63,14 +63,15 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
   override def visitConditional(ctx: ConditionalContext): Either[CompilationError, Conditional] = {
     val tuple = for {
       expression <- ctx.expression().accept(ExpressionVisitor).right
-      trueStatements: Seq[Statement]  <- sequence(ctx.trueSequence.statement().toList map (s => s.accept(StatementVisitor))).right
-      falseStatements: Seq[Statement] <- sequence(ctx.falseSequence.statement().toList map (s => s.accept(StatementVisitor))).right
-    } yield (expression, trueStatements, falseStatements)
+      trueStatements <- sequence(ctx.trueSequence.statement().toList map (s => s.accept(StatementVisitor))).right
+      falseStatements <- sequence(ctx.falseSequence.statement().toList map (s => s.accept(StatementVisitor))).right
+    } yield Tuple3(expression, trueStatements, falseStatements)
 
     tuple match {
-      Left(error)                                          => error
-      Right((expression, trueStatements, falseStatements)) => expression match {
-
+      case Left(error)                                                => Left(error)
+      case Right(Tuple3(expression, trueStatements, falseStatements)) => expression.vartype match {
+        case Boolean => Right(Conditional(expression, trueStatements, falseStatements))
+        case default => Left(SemanticError("Conditional statement expected expression of type, got " + expression.vartype))
       }
     }
   }
