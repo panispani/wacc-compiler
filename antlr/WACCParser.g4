@@ -58,7 +58,7 @@ arrayLiteral : LB (expression (COMMA expression)*)? RB ;
 
 pairType        : PAIR LP firstType=pairElementType COMMA secondType=pairElementType RP ;
 pairElementType : primitiveType | arrayType | erasedPair ;
-pairConstructor : NEWPAIR LP expression COMMA expression RP ;
+pairConstructor : NEWPAIR LP expression1=expression COMMA expression2=expression RP ;
 pairElement     : FST expression | SND expression ;
 erasedPair      : PAIR ;
 
