@@ -3,7 +3,7 @@ package wacc.visitors
 import org.scalatest.{EitherValues, FlatSpec, Matchers}
 import wacc.constructs.{Declare, Integer, IntegerLiteral, Program, Skip, Variable}
 
-class AssignTest extends FlatSpec
+class DeclareTest extends FlatSpec
   with Matchers
   with EitherValues {
 
