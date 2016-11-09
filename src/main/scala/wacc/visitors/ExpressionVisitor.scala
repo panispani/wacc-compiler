@@ -79,6 +79,9 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
     }
 
   }
+
+  override def visitLiteral(ctx: LiteralContext): Either[CompilationError, Expression]
+    = Right(LiteralVisitor.visitLiteral(ctx))
 }
 
 
