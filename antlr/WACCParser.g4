@@ -15,7 +15,11 @@ statement : NOP                                                # Skip
           | type IDENT ASSIGN assignRhs                        # Declare
           | assignLhs ASSIGN assignRhs                         # Assign
           | READ assignLhs                                     # Read
-          | expressionAction expression                        # Action
+          | FREE expression                                    # Free
+          | RETURN expression                                  # Return
+          | EXIT expression                                    # Exit
+          | PRINT expression                                   # Print
+          | PRINTLN expression                                 # PrintLn
           | IF expression THEN statement ELSE statement FI     # Conditional
           | WHILE expression DO statement DONE                 # Loop
           | BEGIN statement END                                # Scope
@@ -53,8 +57,6 @@ pairElementType : primitiveType | arrayType | erasedPair ;
 pairConstructor : NEWPAIR LP expression COMMA expression RP ;
 pairElement     : FST expression | SND expression ;
 erasedPair      : PAIR ;
-
-expressionAction : FREE | RETURN | EXIT | PRINT | PRINTLN ;
 
 expression : literal
            | IDENT
