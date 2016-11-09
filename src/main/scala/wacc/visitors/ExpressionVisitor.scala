@@ -28,4 +28,8 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
       case None                          => Left(SemanticError("Variable not declared : " + identifier))
     }
   }
+
+  override def visitPairLiteral(ctx: PairLiteralContext): Either[CompilationError, Expression] = {
+    Right(PairLiteral(NullType, NullType, None)) // put values in
+  }
 }
