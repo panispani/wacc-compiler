@@ -15,5 +15,9 @@ object Compiler extends App {
 
   val tree = parser.program()
   val program = ProgramVisitor.visit(tree)
-  System.out.println(program)
+
+  program match {
+    case Right(_) => System.exit(0)
+    case Left(error) => error.raise()
+  }
 }
