@@ -1,6 +1,6 @@
 package wacc.visitors
 
-import antlr.WACCParser.{BoolLiteralContext, CharLiteralContext, IntLiteralContext, StringLiteralContext}
+import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
 import wacc.constructs._
 
@@ -21,5 +21,8 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
   override def visitStringLiteral(ctx: StringLiteralContext): Either[CompilationError, Expression] = {
     Right(StringLiteral(ctx.getText))
   }
-  
+
+  override def visitPairLiteral(ctx: PairLiteralContext): Either[CompilationError, Expression] = {
+    Right(PairLiteral(NullType, NullType, None)) // put values in
+  }
 }
