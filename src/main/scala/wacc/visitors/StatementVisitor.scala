@@ -41,5 +41,25 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
   override def visitReturn(ctx: ReturnContext): Either[CompilationError, Statement] = {
     ctx.expression().accept(ExpressionVisitor).right map ReturnStatement
   }
+
+  //TODO: Any way to get rid of this duplication?
+  override def visitPrint(ctx: PrintContext): Either[CompilationError, Statement] = {
+    for {
+      expression: Expression <- ctx.expression().accept(ExpressionVisitor)
+    } yield expression.vartype match {
+      case Integer | Character => PrintStatement(expression)
+      case vartype @ default   => SemanticError("Print statement expected expression of type int or char, got " + vartype)
+    }
+  }
+
+  override def visitPrintLn(ctx: PrintLnContext): Either[CompilationError, Statement] = {
+    for {
+      expression: Expression <- ctx.expression().accept(ExpressionVisitor)
+    } yield expression.vartype match {
+      case Integer | Character => PrintLnStatement(expression)
+      case vartype @ default   => SemanticError("PrintLn statement expected expression of type int or char, got " + vartype)
+    }
+  }
+
 }
 
