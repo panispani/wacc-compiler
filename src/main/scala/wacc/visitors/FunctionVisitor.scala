@@ -24,3 +24,15 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
     } yield Function(name, args, returnType, body)
   }
 }
+
+// function must have a return statement - syntax error
+// return statement is the last statement is the function - semantic error
+// return values(s) are the same(type) with the function type - semantic error
+// function parameters are not duplicated - semantic error
+
+
+//last statement - return
+//get list of return types
+//not null, all same, same with returnType
+//func parameters not duplicated
+//funcNotRedefined
