@@ -25,5 +25,9 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
       case default => Left(SemanticError("Exit statement code should evaluate to value of type int"))
     })
   }
+
+  override def visitReturn(ctx: ReturnContext): Either[CompilationError, Statement] = {
+    ctx.expression().accept(ExpressionVisitor).right map ReturnStatement
+  }
 }
 

@@ -21,6 +21,13 @@ class StatementVisitorTest extends FlatSpec
     result.left.value should be (SemanticError("Exit statement code should evaluate to value of type int"))
   }
 
+  it should "be a semantic error when identifier is not declared" in {
+    val parser = TestUtilities.setupParser("exit x")
+    val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
+
+    result.left.value should be (SemanticError("Variable not declared : x"))
+  }
+
   // TODO: enable when integer expressions are implemented
   ignore should "create an exit statement with integer expression exit codes" in {
     val parser = TestUtilities.setupParser("exit 2 + 3")
