@@ -30,8 +30,15 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
   }
 
   override def visitPairLiteral(ctx: PairLiteralContext): Either[CompilationError, Expression] = {
-    Right(PairLiteral(NullType, NullType, None)) // put values in
+    Right(PairLiteral(NullType, NullType, None))
   }
 
-  
+  override def visitBracketedExp(ctx: BracketedExpContext): Either[CompilationError, Expression] = {
+    ctx.expression().accept(ExpressionVisitor)
+  }
+
+  override def visitUnaryOperatorExp(ctx: UnaryOperatorExpContext): Either[CompilationError, Expression] = {
+    ctx.expression().accept(ExpressionVisitor).right map (e =>
+      UnaryOperatorExpr(ctx.unaryOperator.accept(UnaryOperatorVisitor), e))
+  }
 }
