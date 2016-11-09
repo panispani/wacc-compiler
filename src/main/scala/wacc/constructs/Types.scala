@@ -11,4 +11,3 @@ object String extends PrimitiveType("string")
 object Integer extends PrimitiveType("int")
 object Boolean extends PrimitiveType("bool")
 object Character extends PrimitiveType("char")
-

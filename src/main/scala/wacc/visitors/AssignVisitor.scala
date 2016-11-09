@@ -10,7 +10,7 @@ import scala.util.{Failure, Success, Try}
 object AssignLhsVisitor extends WACCParserBaseVisitor[Either[CompilationError, AssignTarget]] {
 
   override def visitAssignLhsIdent(ctx: AssignLhsIdentContext): Either[CompilationError, AssignTarget] = {
-    SymbolTable.currentTable.lookupAll(ctx.IDENT().toString) match {
+    SymbolTable.currentTable.lookupAll(ctx.variableReference().getText) match {
       case Some(symbol: Variable)   => Right(symbol)
       case None                     => Left(SemanticError("Variable not declared"))
       case default                  => Left(SemanticError("Can only assign to variables, not functions"))

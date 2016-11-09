@@ -2,20 +2,19 @@ package wacc.visitors
 
 import antlr.WACCParser.ArrayElementContext
 import antlr.WACCParserBaseVisitor
-import wacc.SymbolTable
+import wacc.{SymbolTable, VariableReference}
 import wacc.constructs._
 
 import scala.collection.JavaConversions._
-import scala.util.{Failure, Success, Try}
 import wacc.visitor._
 
 object ArrayElementVisitor extends WACCParserBaseVisitor[Either[CompilationError, ArrayElement]] {
 
   override def visitArrayElement(ctx: ArrayElementContext): Either[CompilationError, ArrayElement] = {
-    val identifier = ctx.IDENT().toString
+    val identifier = ctx.variableReference().getText
 
     SymbolTable.currentTable.lookupAll(identifier) match {
-      case Some(variable: Variable) => for {
+      case Some(VariableReference(ArrayType(elemtype))) => for {
         indexes <- sequence(ctx.expression().toList map (e => e.accept(ExpressionVisitor))).right
       } yield ArrayElement(identifier, indexes)
 

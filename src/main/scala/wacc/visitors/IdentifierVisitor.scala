@@ -6,7 +6,7 @@ import antlr.WACCParserBaseVisitor
 object IdentifierVisitor extends WACCParserBaseVisitor[String] {
 
   override def visitAssignLhsIdent(ctx: AssignLhsIdentContext): String = {
-    ctx.IDENT().toString
+    ctx.variableReference().getText
   }
 
 }

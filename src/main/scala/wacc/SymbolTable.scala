@@ -4,24 +4,27 @@ import wacc.constructs.{Type, Typed}
 
 import scala.collection.mutable
 
-trait Symbol extends Typed
+case class VariableReference(vartype: Type) extends Typed
+case class FunctionReference(returnType: Type, argumentTypes : Seq[Type]) extends Typed {
+  override val vartype: Type = returnType
+}
 
 case class SymbolTable(parent: Option[SymbolTable]) {
 
-  var map: mutable.Map[String, Symbol] = mutable.Map()
+  var map: mutable.Map[String, Typed] = mutable.Map()
 
-  def addSymbol(symbol: String, identifier: Symbol)
-    = map += symbol -> identifier
+  def addTyped(Typed: String, identifier: Typed)
+    = map += Typed -> identifier
 
-  def lookup(symbol: String): Option[Symbol]
-    = map get symbol
+  def lookup(Typed: String): Option[Typed]
+    = map get Typed
 
-  def lookupAll(symbol: String): Option[Symbol]
-    = lookup (symbol) match {
+  def lookupAll(Typed: String): Option[Typed]
+    = lookup (Typed) match {
       case Some (identifier) => Some (identifier)
       case None => parent match {
         case None => None
-        case Some (higherParent) => higherParent lookupAll symbol
+        case Some (higherParent) => higherParent lookupAll Typed
       }
     }
 
