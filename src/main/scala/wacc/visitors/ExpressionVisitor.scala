@@ -1,8 +1,8 @@
 package wacc.visitors
 
-import antlr.WACCParser.{BoolLiteralContext, IntLiteralContext}
+import antlr.WACCParser.{BoolLiteralContext, CharLiteralContext, IntLiteralContext}
 import antlr.WACCParserBaseVisitor
-import wacc.constructs.{BoolLiteral, CompilationError, Expression, IntegerLiteral}
+import wacc.constructs._
 
 object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Expression]] {
 
@@ -13,4 +13,7 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
   override def visitBoolLiteral(ctx: BoolLiteralContext): Either[CompilationError, Expression] = {
     Right(BoolLiteral(ctx.getText.toBoolean))
   }
+
+  override def visitCharLiteral(ctx: CharLiteralContext): Either[CompilationError, Expression]
+    = Right(CharLiteral(ctx.getText.charAt(1))) // 0 is a quote
 }

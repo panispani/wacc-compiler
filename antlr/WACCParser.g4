@@ -70,9 +70,12 @@ expression : literal
            | LP expression RP
            ;
 
-literal : intLiteral | boolLiteral | CHAR_LITERAL | STRING_LITERAL | NULL_PAIR ;
+literal : intLiteral | boolLiteral | charLiteral | stringLiteral | nullPair ;
 intLiteral    : (PLUS | MINUS)? NUMBER ;
 boolLiteral   : TRUE | FALSE ;
+charLiteral   : CHAR_LITERAL ;
+stringLiteral : STRING_LITERAL ;
+nullPair      : NULL_PAIR ;
 
 unaryOperator : NOT | MINUS | LEN | ORD | CHR ;
 binaryOperator : arithmeticOperator | comparisonOperator | ASSIGN | NOT_EQUAL | EQUAL | AND | OR ;
