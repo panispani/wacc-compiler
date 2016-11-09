@@ -32,15 +32,15 @@ statement : NOP                                                # Skip
 
 
 assignLhs : variableReference # AssignLhsIdent
-          | arrayElement     # AssignLhsArrayElement
-          | pairElement      # AssignLhsPairElement
+          | arrayElement      # AssignLhsArrayElement
+          | pairElement       # AssignLhsPairElement
           ;
 
 assignRhs : expression      # AssignRhsExpression
-          | arrayLiteral    # AssingRhsArrayLiteral
-          | pairConstructor # AssingRhsPairConstructor
-          | pairElement     # AssingRhsPairElement
-          | functionCall    # AssingRhsFunctionCall
+          | arrayLiteral    # AssignRhsArrayLiteral
+          | pairConstructor # AssignRhsPairConstructor
+          | pairElement     # AssignRhsPairElement
+          | functionCall    # AssignRhsFunctionCall
           ;
 
 type : primitiveType
