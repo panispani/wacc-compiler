@@ -66,9 +66,22 @@ expression : literal                                # LiteralExp
            | variableReference                      # VariableRefExp
            | arrayElement                           # ArrayElemExp
            | unaryOperator expression               # UnaryOperatorExp
-           | expression binaryOperator expression   # BinaryOperatorExp
            | LP expression RP                       # BracketedExp
+           | expression op=MUL expression              # BinaryOperatorExp
+           | expression op=DIV expression              # BinaryOperatorExp
+           | expression op=MOD expression              # BinaryOperatorExp
+           | expression op=PLUS expression             # BinaryOperatorExp
+           | expression op=MINUS expression            # BinaryOperatorExp
+           | expression op=GREATER_THAN expression     # BinaryOperatorExp
+           | expression op=GREATER_THAN_EQ expression  # BinaryOperatorExp
+           | expression op=LESS_THAN expression        # BinaryOperatorExp
+           | expression op=LESS_THAN_EQ expression     # BinaryOperatorExp
+           | expression op=EQUAL expression            # BinaryOperatorExp
+           | expression op=NOT_EQUAL expression        # BinaryOperatorExp
+           | expression op=AND expression              # BinaryOperatorExp
+           | expression op=OR expression               # BinaryOperatorExp
            ;
+
 
 variableReference : IDENT ;
 
@@ -80,6 +93,3 @@ stringLiteral : STRING_LITERAL ;
 pairLiteral      : NULL_PAIR ;
 
 unaryOperator : NOT | MINUS | LEN | ORD | CHR ;
-binaryOperator : arithmeticOperator | comparisonOperator | ASSIGN | NOT_EQUAL | EQUAL | AND | OR ;
-arithmeticOperator : MUL | DIV | MOD | PLUS | MINUS ;
-comparisonOperator : GREATER_THAN | GREATER_THAN_EQ | LESS_THAN | LESS_THAN_EQ ;

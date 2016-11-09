@@ -5,7 +5,7 @@ package wacc.constructs
   */
 case class BinaryOperator(binaryOperator: String)
 case class BinaryOperatorExpr(expression1: Expression, binaryOperator: BinaryOperator, expression2: Expression) extends Expression {
-  override val vartype = String
+  override val vartype = expression1.vartype
 }
 
 object TimesBinOp extends BinaryOperator("+")

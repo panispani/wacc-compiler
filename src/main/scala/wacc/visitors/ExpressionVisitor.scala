@@ -51,7 +51,7 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
 
 
   override def visitBinaryOperatorExp(ctx: BinaryOperatorExpContext): Either[CompilationError, Expression] = {
-    val operator = ctx.binaryOperator().accept(BinaryOperatorVisitor)
+    val operator = BinaryOperator(ctx.op.getText)
 
     val pair = for {
       expr1 <- ctx.expression(0).accept(ExpressionVisitor).right
