@@ -2,7 +2,7 @@ package wacc.visitors
 
 import org.scalatest.{EitherValues, FlatSpec, Matchers}
 import wacc.VariableReference
-import wacc.constructs.{BoolLiteral, CharLiteral, IntegerLiteral, StringLiteral}
+import wacc.constructs._
 
 class ExpressionVisitorTest extends FlatSpec
   with Matchers
@@ -34,6 +34,13 @@ class ExpressionVisitorTest extends FlatSpec
     val result = TestUtilities.buildSubProgram(parser.expression, ExpressionVisitor)
 
     result.right.value should be (BoolLiteral(true))
+  }
+
+  "Visiting a unary operator" should "create UnaryOperatorExp" in {
+    val parser = TestUtilities.setupParser("--5")
+    val result = TestUtilities.buildSubProgram(parser.expression, ExpressionVisitor)
+
+    result.right.value should be (UnaryOperatorExpr(UnaryOperator("-"), IntegerLiteral(-5)))
   }
 
 }
