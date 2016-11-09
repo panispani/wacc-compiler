@@ -51,4 +51,28 @@ class ExpressionVisitorTest extends FlatSpec
     result.right.value should be (BinaryOperatorExpr(IntegerLiteral(2),BinaryOperator("+"), IntegerLiteral(-5)))
   }
 
+  "Visiting a complex valid binary expression" should "create a Binary Expression with" in {
+    val parser = TestUtilities.setupParser("-2*+3+4")
+    val result = TestUtilities.buildSubProgram(parser.expression, ExpressionVisitor)
+
+    result.right.value should be(
+      BinaryOperatorExpr(
+        BinaryOperatorExpr(
+          IntegerLiteral(-2),
+          BinaryOperator("*"),
+          IntegerLiteral(+3)
+        ),
+        BinaryOperator("+"),
+        IntegerLiteral(4)
+      )
+    )
+  }
+  
+  "Visiting an invalid binary expression" should "create a Semantic error" in {
+    val parser = TestUtilities.setupParser("2+'a'")
+    val result = TestUtilities.buildSubProgram(parser.expression, ExpressionVisitor)
+
+    result.left.value should be (SemanticError("+ operator needs 2 integers as its arguments"))
+  }
+
 }
