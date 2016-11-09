@@ -2,6 +2,7 @@ package wacc.visitors
 
 import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
+import wacc.SymbolTable
 import wacc.constructs._
 
 object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, Statement]] {
@@ -14,13 +15,17 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     val vartype = ctx.`type`().accept(TypeVisitor)
     val identifier = ctx.IDENT().toString
 
-    for {
-      rhs <- ctx.assignRhs().accept(AssignRhsVisitor).right
-    } yield Declare(vartype, identifier, rhs)
+    ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(rhs => rhs.vartype == vartype match {
+      case true  => {
+        SymbolTable.currentTable.addTyped(identifier, VariableReferenceExpression(vartype))
+        Right(Declare(vartype, identifier, rhs))
+      }
+      case false => Left(SemanticError("Expected type " + vartype + ", got " + rhs.vartype))
+    })
   }
 
   override def visitExit(ctx: ExitContext): Either[CompilationError, ExitStatement] = {
-    ctx.expression().accept(ExpressionVisitor).right.flatMap( e => e.vartype match {
+    ctx.expression().accept(ExpressionVisitor).right.flatMap(e => e.vartype match {
       case Integer => Right(ExitStatement(e))
       case default => Left(SemanticError("Exit statement code should evaluate to value of type int"))
     })
