@@ -24,11 +24,13 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
 
     SymbolTable.currentTable = SymbolTable(Some(SymbolTable.currentTable))
     args map (arg => {
-      if (SymbolTable.currentTable.lookup(arg.variable.identifier).isDefined) {
+      val ident = arg.variable.identifier
+
+      if (SymbolTable.currentTable.lookup(ident).isDefined) {
         return Left(SemanticError("A function shouldn't have two or more parameters with the same"))
       }
 
-      SymbolTable.currentTable.addTyped(arg.variable.identifier, VariableReference(arg.variable.vartype))
+      SymbolTable.currentTable.addTyped(ident, VariableReference(arg.variable.vartype))
     })
 
     for {
