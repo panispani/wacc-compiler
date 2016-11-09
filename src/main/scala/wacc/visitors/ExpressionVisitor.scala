@@ -51,30 +51,30 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
     val pair = for {
       expr1 <- ctx.expression(0).accept(ExpressionVisitor).right
       expr2 <- ctx.expression(1).accept(ExpressionVisitor).right
-    } yield Pair(expr1, expr2)
+    } yield (expr1, expr2)
 
     pair match {
-      case Left(error)                => Left(error)
-      case Right(Pair(expr1: Expression, expr2: Expression))  => operator match {
+      case Left(error)                                    => Left(error)
+      case Right((expr1: Expression, expr2: Expression))  => operator match {
 
         case TimesBinOp | DivBinOp | ModBinOp | PlusBinOp | MinusBinOp
         if expr1.vartype != Integer || expr2.vartype != Integer =>
-        Left(SemanticError(operator.binaryOperator + " operator needs 2 integers as its arguments"))
+          Left(SemanticError(operator.binaryOperator + " operator needs 2 integers as its arguments"))
 
         case GtBinOp | GteBinOp | LtBinOp | LteBinOp
         if expr1.vartype != expr2.vartype || (expr1.vartype != Integer && expr2.vartype != Character) =>
-        Left(SemanticError(operator.binaryOperator + " operator needs 2 integers/characters as its arguments"))
+          Left(SemanticError(operator.binaryOperator + " operator needs 2 integers/characters as its arguments"))
 
         case EqualsBinOp | NequalsBinOp
         if expr1.vartype != expr2.vartype =>
-        Left(SemanticError(operator.binaryOperator + " operator needs 2 arguments of the same type"))
+          Left(SemanticError(operator.binaryOperator + " operator needs 2 arguments of the same type"))
 
         case AndBinOp | OrBinOp
         if expr1.vartype != Boolean || expr2.vartype != Boolean =>
-        Left(SemanticError(operator.binaryOperator + " operator needs 2 booleans as its arguments"))
+          Left(SemanticError(operator.binaryOperator + " operator needs 2 booleans as its arguments"))
 
         case default =>
-        Right(BinaryOperatorExpr(expr1, operator, expr2))
+          Right(BinaryOperatorExpr(expr1, operator, expr2))
         }
     }
 
