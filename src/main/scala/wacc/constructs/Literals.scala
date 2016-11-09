@@ -18,4 +18,8 @@ case class CharLiteral(value: Char) extends Literal {
   override val vartype: Type = Character
 }
 
+case class StringLiteral(value: String) extends Literal {
+  override val vartype: Type = String
+}
+
 
