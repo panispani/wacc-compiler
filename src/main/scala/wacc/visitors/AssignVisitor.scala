@@ -6,8 +6,8 @@ import wacc.constructs._
 
 object AssignLhsVisitor extends WACCParserBaseVisitor[Either[CompilationError, AssignTarget]] {
 
-  override def visitAssignLhsIdent(ctx: AssignLhsIdentContext): Either[CompilationError, VariableReferenceExpression] = {
-    ctx.variableReference().accept(VariableReferenceVisitor)
+  override def visitAssignLhsIdent(ctx: AssignLhsIdentContext): Either[CompilationError, AssignTarget] = {
+    ctx.variableReference().accept(ExpressionVisitor)
   }
 
   override def visitAssignLhsArrayElement(ctx: AssignLhsArrayElementContext): Either[CompilationError, AssignTarget] =
