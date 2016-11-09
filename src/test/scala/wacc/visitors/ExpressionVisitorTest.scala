@@ -19,7 +19,7 @@ class ExpressionVisitorTest extends FlatSpec
     val parser = TestUtilities.setupParser("\"parseMe\"")
     val result = TestUtilities.buildSubProgram(parser.expression, ExpressionVisitor)
 
-    result.right.value should be (StringLiteral("\"parseMe\""))
+      result.right.value should be (StringLiteral("\"parseMe\""))
   }
 
   "Visiting an int literal" should "create an IntegerLiteral" in {

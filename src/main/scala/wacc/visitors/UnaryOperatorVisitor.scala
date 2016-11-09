@@ -9,5 +9,7 @@ import wacc.constructs._
   */
 
 object UnaryOperatorVisitor extends WACCParserBaseVisitor[UnaryOperator] {
-
+  override def visitUnaryOperator(ctx: UnaryOperatorContext): UnaryOperator = {
+    UnaryOperator(ctx.getText)
+  }
 }
