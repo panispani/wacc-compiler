@@ -1,6 +1,6 @@
 package wacc
 
-package object Util {
+package object visitor {
 
   def sequence[A, B](s: Seq[Either[A, B]]): Either[A, Seq[B]] =
     s.foldRight(Right(Nil): Either[A, List[B]]) {

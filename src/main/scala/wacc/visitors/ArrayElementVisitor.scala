@@ -7,7 +7,7 @@ import wacc.constructs._
 
 import scala.collection.JavaConversions._
 import scala.util.{Failure, Success, Try}
-import wacc.Util._
+import wacc.visitor._
 
 object ArrayElementVisitor extends WACCParserBaseVisitor[Either[CompilationError, ArrayElement]] {
 

@@ -5,7 +5,7 @@ import antlr.WACCParserBaseVisitor
 import wacc.constructs.{CompilationError, FunctionCall}
 
 import scala.collection.JavaConversions._
-import wacc.Util._
+import wacc.visitor._
 
 
 object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError, FunctionCall]] {

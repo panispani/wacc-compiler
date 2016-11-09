@@ -3,7 +3,7 @@ package wacc.visitors
 import antlr.WACCParser.ArrayLiteralContext
 import antlr.WACCParserBaseVisitor
 import wacc.constructs.{ArrayLiteral, CompilationError, Expression, SemanticError}
-import wacc.Util._
+import wacc.visitor._
 import scala.collection.JavaConversions._
 
 object ArrayLiteralVisitor extends WACCParserBaseVisitor[Either[CompilationError, ArrayLiteral]] {

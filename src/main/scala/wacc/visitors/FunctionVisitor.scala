@@ -3,7 +3,7 @@ package wacc.visitors
 import antlr.WACCParser.FunctionContext
 import antlr.WACCParserBaseVisitor
 import wacc.constructs.{Function, CompilationError}
-import wacc.Util._
+import wacc.visitor._
 
 import scala.collection.JavaConversions._
 
