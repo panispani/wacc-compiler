@@ -7,7 +7,7 @@ trait Typed {
 trait AssignValue extends Typed
 trait AssignTarget extends Typed
 
-case class Assign(target: AssignTarget, value: AssignValue) extends SemanticallyCheckable {
+case class Declare(vartype: Type, identifier: String, value: AssignValue) extends Statement with SemanticallyCheckable {
 
   def checkTypes(target: Typed, value: Typed) = {
     target.vartype == value.vartype
@@ -24,9 +24,5 @@ case class Assign(target: AssignTarget, value: AssignValue) extends Semantically
   def checkTypes(target: Typed, value: PairElement) = {
   }
 
-
-  override def semanticCheck(): Unit = {
-    checkTypes(target, value)
-  }
 }
 

@@ -3,6 +3,7 @@ package wacc.visitors
 import antlr.WACCParser.FunctionContext
 import antlr.WACCParserBaseVisitor
 import wacc.constructs.{Function, CompilationError}
+import wacc.Util._
 
 import scala.collection.JavaConversions._
 
@@ -19,7 +20,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
     val returnType = ctx.`type`().accept(TypeVisitor)
 
     for {
-      body <- ctx.statement().accept(StatementVisitor).right
+      body <- sequence(ctx.sequence().statement().toList map (s => s.accept(StatementVisitor))).right
     } yield Function(name, args, returnType, body)
   }
 }

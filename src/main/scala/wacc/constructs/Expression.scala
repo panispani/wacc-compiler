@@ -1,5 +1,6 @@
 package wacc.constructs
 
-case class Expression(vartype: Type) extends AssignValue {
+class Expression() extends AssignValue {
 
+  override val vartype = String
 }
