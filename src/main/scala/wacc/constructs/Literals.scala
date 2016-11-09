@@ -10,4 +10,8 @@ case class ArrayLiteral(elements: Seq[Expression]) extends AssignValue {
   val vartype: ArrayType = ArrayType(elements.head.vartype)
 }
 
+case class BoolLiteral(value: Boolean) extends Literal {
+  override val vartype: Type = Boolean
+}
+
 
