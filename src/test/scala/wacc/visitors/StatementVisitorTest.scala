@@ -25,7 +25,7 @@ class StatementVisitorTest extends FlatSpec
     val parser = TestUtilities.setupParser("exit x")
     val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
-    result.left.value should be (SemanticError("Variable not declared : x"))
+    result.left.value should be (SemanticError("Variable x not declared"))
   }
 
   // TODO: enable when integer expressions are implemented

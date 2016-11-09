@@ -2,20 +2,13 @@ package wacc.visitors
 
 import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
-import wacc.SymbolTable
 import wacc.constructs._
-
-import scala.util.{Failure, Success, Try}
 
 object AssignLhsVisitor extends WACCParserBaseVisitor[Either[CompilationError, AssignTarget]] {
 
-  override def visitAssignLhsIdent(ctx: AssignLhsIdentContext): Either[CompilationError, AssignTarget] = {
-    SymbolTable.currentTable.lookupAll(ctx.variableReference().getText) match {
-      case Some(symbol: AssignTarget) => Right(symbol)
-      case None                       => Left(SemanticError("Variable not declared"))
-      case target @ default           => Left(SemanticError("Invalid assignment target " + target))
-      }
-    }
+  override def visitAssignLhsIdent(ctx: AssignLhsIdentContext): Either[CompilationError, VariableReferenceExpression] = {
+    ctx.variableReference().accept(VariableReferenceVisitor)
+  }
 
   override def visitAssignLhsArrayElement(ctx: AssignLhsArrayElementContext): Either[CompilationError, AssignTarget] =
     ctx.arrayElement().accept(ArrayElementVisitor)
