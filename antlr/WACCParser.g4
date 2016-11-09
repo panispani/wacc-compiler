@@ -31,9 +31,9 @@ statement : NOP                                                # Skip
           ;
 
 
-assignLhs : IDENT           # AssignLhsIdent
-          | arrayElement    # AssignLhsArrayElement
-          | pairElement     # AssignLhsPairElement
+assignLhs : variableReference # AssignLhsIdent
+          | arrayElement     # AssignLhsArrayElement
+          | pairElement      # AssignLhsPairElement
           ;
 
 assignRhs : expression      # AssignRhsExpression
@@ -53,7 +53,7 @@ notNestedArrayType: primitiveType | pairType ;
 
 arrayType    : notNestedArrayType (LB RB)+ ;
 
-arrayElement : IDENT (LB expression RB)+ ;
+arrayElement : variableReference (LB expression RB)+ ;
 arrayLiteral : LB (expression (COMMA expression)*)? RB ;
 
 pairType        : PAIR LP firstType=pairElementType COMMA secondType=pairElementType RP ;
@@ -63,12 +63,14 @@ pairElement     : FST expression | SND expression ;
 erasedPair      : PAIR ;
 
 expression : literal
-           | IDENT
+           | variableReference
            | arrayElement
            | unaryOperator expression
            | expression binaryOperator expression
            | LP expression RP
            ;
+
+variableReference : IDENT ;
 
 literal : intLiteral | boolLiteral | charLiteral | stringLiteral | nullPair ;
 intLiteral    : (PLUS | MINUS)? NUMBER ;
