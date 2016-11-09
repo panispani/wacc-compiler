@@ -22,6 +22,6 @@ case class StringLiteral(value: String) extends Literal {
   override val vartype: Type = String
 }
 
-case class PairLiteral(firstType: Type, secondType: Type, pair: Option[PairType]) extends Literal {
+case class PairLiteral(firstType: Type, secondType: Type, pair: Option[(Type, Type)]) extends Literal {
   override val vartype: Type = PairType(firstType, secondType)
 }
