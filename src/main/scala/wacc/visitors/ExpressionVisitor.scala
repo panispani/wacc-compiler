@@ -3,7 +3,7 @@ package wacc.visitors
 import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
 import wacc.constructs._
-import wacc.{SymbolTable, VariableReference}
+import wacc.{FunctionReference, SymbolTable, VariableReference}
 
 object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Expression]] {
 
@@ -22,9 +22,10 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
   override def visitVariableReference(ctx: VariableReferenceContext): Either[CompilationError, Expression] = {
     val identifier = ctx.IDENT().getText
     SymbolTable.currentTable.lookupAll(identifier) match {
-      case Some(VariableReference(t)) => Right(VariableReferenceExpression(t))
-//      case Some(FunctionReference(_, _)) => Left(SemanticError("Function is not a variable"))
-      case None            => Left(SemanticError("Variable not declared : " + identifier))
+      case Some(VariableReference(t))    => Right(VariableReferenceExpression(t))
+      case Some(FunctionReference(_, _)) => Left(SemanticError("Function is not a variable"))
+      case Some(_ : Typed)               => Left(SemanticError("Identifier is not a variable"))
+      case None                          => Left(SemanticError("Variable not declared : " + identifier))
     }
   }
 }
