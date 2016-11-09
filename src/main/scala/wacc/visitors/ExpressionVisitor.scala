@@ -9,18 +9,13 @@ import scala.util.Either
 
 object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Expression]] {
 
-
-  override def visitLiteral(ctx: LiteralContext): Either[CompilationError, Expression] = {
-    Right(ctx.accept(LiteralVisitor))
-  }
-
-  override def visitVariableReference(ctx: VariableReferenceContext): Either[CompilationError, Expression] = {
+  override def visitVariableReference(ctx: VariableReferenceContext): Either[CompilationError, VariableReferenceExpression] = {
     val identifier = ctx.IDENT().getText
     SymbolTable.currentTable.lookupAll(identifier) match {
       case Some(VariableReference(t)) => Right(VariableReferenceExpression(t))
-      case Some(FunctionReference(_, _)) => Left(SemanticError("Function is not a variable"))
-      case Some(_: Typed) => Left(SemanticError("Identifier is not a variable"))
-      case None => Left(SemanticError("Variable not declared : " + identifier))
+      case Some(FunctionReference(_, _)) => Left(SemanticError("Expected identifier to be a variable, got function instead"))
+      case Some(_: Typed) => Left(SemanticError("Compiler broken"))
+      case None => Left(SemanticError("Identifier " + identifier + " not declared"))
     }
   }
 
@@ -84,6 +79,9 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
     }
 
   }
+
+  override def visitLiteral(ctx: LiteralContext): Either[CompilationError, Expression]
+    = Right(LiteralVisitor.visitLiteral(ctx))
 }
 
 

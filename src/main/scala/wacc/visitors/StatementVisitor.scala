@@ -2,8 +2,9 @@ package wacc.visitors
 
 import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
-import wacc.SymbolTable
+import wacc.{SymbolTable, VariableReference}
 import wacc.constructs._
+
 import scala.collection.JavaConversions._
 import wacc.visitor._
 
@@ -20,7 +21,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
 
     ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(rhs => rhs.vartype == vartype match {
       case true  => {
-        SymbolTable.currentTable.addTyped(identifier, VariableReferenceExpression(vartype))
+        SymbolTable.currentTable.addTyped(identifier, VariableReference(vartype))
         Right(DeclareStatement(vartype, identifier, rhs))
       }
       case false => Left(SemanticError("Expected type " + vartype + ", got " + rhs.vartype))
@@ -60,7 +61,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     })
   }
 
-  override def visitConditional(ctx: ConditionalContext): Either[CompilationError, Conditional] = {
+  override def visitConditional(ctx: ConditionalContext): Either[CompilationError, ConditionalStatement] = {
     val tuple = for {
       expression <- ctx.expression().accept(ExpressionVisitor).right
       trueStatements <- sequence(ctx.trueSequence.statement().toList map (s => s.accept(StatementVisitor))).right
@@ -70,8 +71,8 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     tuple match {
       case Left(error)                                                => Left(error)
       case Right(Tuple3(expression, trueStatements, falseStatements)) => expression.vartype match {
-        case Boolean => Right(Conditional(expression, trueStatements, falseStatements))
-        case default => Left(SemanticError("Conditional statement expected expression of type, got " + expression.vartype))
+        case Boolean => Right(ConditionalStatement(expression, trueStatements, falseStatements))
+        case default => Left(SemanticError("Conditional statement expected expression of type bool, got " + expression.vartype))
       }
     }
   }
