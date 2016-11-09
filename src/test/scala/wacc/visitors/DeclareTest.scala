@@ -11,7 +11,7 @@ class DeclareTest extends FlatSpec
     val input = "begin int x = 1 end"
     val program = TestUtilities.buildProgram(input)
     val statements = Seq(
-      Declare(
+      DeclareStatement(
         Integer,
         "x",
         IntegerLiteral(1)
@@ -26,7 +26,7 @@ class DeclareTest extends FlatSpec
     val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
     result.right.value should be (
-      Declare(
+      DeclareStatement(
         PairType(Integer, Integer),
         "p",
         PairConstructor(IntegerLiteral(1), IntegerLiteral(2))

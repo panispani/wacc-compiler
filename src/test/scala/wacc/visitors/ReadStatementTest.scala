@@ -18,7 +18,7 @@ class ReadStatementTest extends FlatSpec
 
     val program = TestUtilities.buildProgram(input)
     val statements = Seq(
-      Declare(
+      DeclareStatement(
         PairType(Integer, Integer),
         "p",
         PairConstructor(IntegerLiteral(1), IntegerLiteral(2))
