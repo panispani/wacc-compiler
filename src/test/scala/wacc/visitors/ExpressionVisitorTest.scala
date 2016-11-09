@@ -43,4 +43,12 @@ class ExpressionVisitorTest extends FlatSpec
     result.right.value should be (UnaryOperatorExpr(UnaryOperator("-"), IntegerLiteral(-5)))
   }
 
+
+  "Visiting a valid binary expression(+)" should "create a Binary Expression with (+)" in {
+    val parser = TestUtilities.setupParser("2+-5")
+    val result = TestUtilities.buildSubProgram(parser.expression, ExpressionVisitor)
+
+    result.right.value should be (BinaryOperatorExpr(IntegerLiteral(2),BinaryOperator("+"), IntegerLiteral(-5)))
+  }
+
 }

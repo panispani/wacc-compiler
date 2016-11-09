@@ -4,7 +4,8 @@ import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
 import wacc.constructs._
 import wacc.{FunctionReference, SymbolTable, VariableReference}
-import wacc.visitor._
+
+import scala.util.Either
 
 object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Expression]] {
 
@@ -25,48 +26,58 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
   override def visitUnaryOperatorExp(ctx: UnaryOperatorExpContext): Either[CompilationError, Expression] = {
     val operator = ctx.unaryOperator.accept(UnaryOperatorVisitor)
     val expr = ctx.expression().accept(ExpressionVisitor).right
-    val unaryExpr = expr map (e => UnaryOperatorExpr(operator, e))
 
-    operator match {
-      case MinusOp | ChrOp if expr map (e => e.vartype != Integer) =>
-        Left(SemanticError(operator.unaryOperator + " operator needs integers"))
-      case LenOp if expr map (e => e.vartype != ArrayType(Character)) =>
-        Left(SemanticError("'len' operator needs array of charcters"))
-      case OrdOp if expr map (e => e.vartype != Character) =>
-        Left(SemanticError("'ord' operator needs character"))
-      case NotOp if expr map (e => e.vartype != Boolean) =>
-        Left(SemanticError("'!' operator needs Boolean"))
-      case default =>
-        unaryExpr
-    }
+    expr.flatMap(
+      expr => operator match {
+        case MinusOp | ChrOp if expr.vartype != Integer =>
+          Left(SemanticError(operator.unaryOperator + " operator needs integers"))
+        case LenOp if expr.vartype != ArrayType(Character) =>
+          Left(SemanticError("'len' operator needs array of charcters"))
+        case OrdOp if expr.vartype != Character =>
+          Left(SemanticError("'ord' operator needs character"))
+        case NotOp if expr.vartype != Boolean =>
+          Left(SemanticError("'!' operator needs Boolean"))
+        case default =>
+          Right(UnaryOperatorExpr(operator, expr))
+      }
+    )
+
   }
+
 
   override def visitBinaryOperatorExp(ctx: BinaryOperatorExpContext): Either[CompilationError, Expression] = {
     val operator = ctx.binaryOperator().accept(BinaryOperatorVisitor)
-    for {
-      expr1 : Expression <- ctx.expression(0).accept(ExpressionVisitor)
-      expr2 : Expression <- ctx.expression(1).accept(ExpressionVisitor)
-    } yield operator match {
 
-      case timesBinOp | divBinOp | modBinOp | plusBinOp | minusBinOp
+    val pair = for {
+      expr1 <- ctx.expression(0).accept(ExpressionVisitor).right
+      expr2 <- ctx.expression(1).accept(ExpressionVisitor).right
+    } yield Pair(expr1, expr2)
+
+    pair match {
+      case Left(error)                => Left(error)
+      case Right(Pair(expr1: Expression, expr2: Expression))  => operator match {
+
+        case TimesBinOp | DivBinOp | ModBinOp | PlusBinOp | MinusBinOp
         if expr1.vartype != Integer || expr2.vartype != Integer =>
-        SemanticError(operator.binaryOperator + " operator needs 2 integers as its arguments")
+        Left(SemanticError(operator.binaryOperator + " operator needs 2 integers as its arguments"))
 
-      case gtBinOp | gteBinOP | ltBinOp | lteBinOp
+        case GtBinOp | GteBinOp | LtBinOp | LteBinOp
         if expr1.vartype != expr2.vartype || (expr1.vartype != Integer && expr2.vartype != Character) =>
-        SemanticError(operator.binaryOperator + " operator needs 2 integers/characters as its arguments")
+        Left(SemanticError(operator.binaryOperator + " operator needs 2 integers/characters as its arguments"))
 
-      case equalsBinOp | nequalsOp
+        case EqualsBinOp | NequalsBinOp
         if expr1.vartype != expr2.vartype =>
-        SemanticError(operator.binaryOperator + " operator needs 2 arguments of the same type")
+        Left(SemanticError(operator.binaryOperator + " operator needs 2 arguments of the same type"))
 
-      case andBinOp | orBinOp
+        case AndBinOp | OrBinOp
         if expr1.vartype != Boolean || expr2.vartype != Boolean =>
-        SemanticError(operator.binaryOperator + " operator needs 2 booleans as its arguments")
+        Left(SemanticError(operator.binaryOperator + " operator needs 2 booleans as its arguments"))
 
-      case default =>
-        BinaryOperatorExpr(expr1, operator, expr2)
+        case default =>
+        Right(BinaryOperatorExpr(expr1, operator, expr2))
+        }
     }
+
   }
 }
 
