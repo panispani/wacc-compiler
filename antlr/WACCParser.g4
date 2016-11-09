@@ -72,12 +72,12 @@ expression : literal
 
 variableReference : IDENT ;
 
-literal : intLiteral | boolLiteral | charLiteral | stringLiteral | nullPair ;
+literal : intLiteral | boolLiteral | charLiteral | stringLiteral | pairLiteral ;
 intLiteral    : (PLUS | MINUS)? NUMBER ;
 boolLiteral   : TRUE | FALSE ;
 charLiteral   : CHAR_LITERAL ;
 stringLiteral : STRING_LITERAL ;
-nullPair      : NULL_PAIR ;
+pairLiteral      : NULL_PAIR ;
 
 unaryOperator : NOT | MINUS | LEN | ORD | CHR ;
 binaryOperator : arithmeticOperator | comparisonOperator | ASSIGN | NOT_EQUAL | EQUAL | AND | OR ;

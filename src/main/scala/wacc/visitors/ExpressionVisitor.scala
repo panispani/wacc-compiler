@@ -2,8 +2,8 @@ package wacc.visitors
 
 import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
-import wacc.{FunctionReference, SymbolTable, VariableReference}
 import wacc.constructs._
+import wacc.{SymbolTable, VariableReference}
 
 object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Expression]] {
 
@@ -15,6 +15,9 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
 
   override def visitCharLiteral(ctx: CharLiteralContext): Either[CompilationError, Expression]
     = Right(CharLiteral(ctx.getText.charAt(1))) // 0 is a quote
+
+  override def visitStringLiteral(ctx: StringLiteralContext): Either[CompilationError, Expression]
+    = Right(StringLiteral(ctx.getText))
 
   override def visitVariableReference(ctx: VariableReferenceContext): Either[CompilationError, Expression] = {
     val identifier = ctx.IDENT().getText
