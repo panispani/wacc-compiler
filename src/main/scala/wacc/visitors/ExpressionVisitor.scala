@@ -19,10 +19,6 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
     }
   }
 
-  override def visitLiteral(ctx: LiteralContext): Either[CompilationError, Expression] = {
-    Right(ctx.accept(LiteralVisitor))
-  }
-
   override def visitBracketedExp(ctx: BracketedExpContext): Either[CompilationError, Expression] = {
     ctx.expression().accept(ExpressionVisitor)
   }
@@ -83,6 +79,9 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
     }
 
   }
+
+  override def visitLiteral(ctx: LiteralContext): Either[CompilationError, Expression]
+    = Right(LiteralVisitor.visitLiteral(ctx))
 }
 
 
