@@ -9,6 +9,11 @@ import scala.util.Either
 
 object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Expression]] {
 
+
+  override def visitLiteral(ctx: LiteralContext): Either[CompilationError, Expression] = {
+    Right(ctx.accept(LiteralVisitor))
+  }
+
   override def visitVariableReference(ctx: VariableReferenceContext): Either[CompilationError, Expression] = {
     val identifier = ctx.IDENT().getText
     SymbolTable.currentTable.lookupAll(identifier) match {
