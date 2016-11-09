@@ -25,4 +25,18 @@ class FunctionVisitorTest extends FlatSpec
     SymbolTable.globalTable.lookup("f") should contain (FunctionReference(Integer, Seq()))
   }
 
+  it should "be a semantic error if two or more parameters have the same name" in {
+    val parser = TestUtilities.setupParser("char f(int a, char a) is return 'c' end")
+    val result = TestUtilities.buildSubProgram(parser.function, FunctionVisitor)
+
+    result.left.value should be (SemanticError("A function shouldn't have two or more parameters with the same"))
+  }
+
+//  it should "be a semantic error if there is a mismatch between the declared and the actual return type" in {
+//    val parser = TestUtilities.setupParser("int f() is return 'c' end")
+//    val result = TestUtilities.buildSubProgram(parser.function, FunctionVisitor)
+//
+//    result.left.value should be (SemanticError("The actual return type of a function should match the declared one"))
+//  }
+
 }
