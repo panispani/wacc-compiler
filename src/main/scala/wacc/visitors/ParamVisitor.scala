@@ -6,11 +6,6 @@ import wacc.constructs.{Param, Variable}
 
 object ParamVisitor extends WACCParserBaseVisitor[Param] {
   override def visitParameter(ctx: ParameterContext): Param = {
-    Param (
-      Variable(
-        ctx.IDENT().accept(IdentifierVisitor),
-        ctx.`type`.accept(TypeVisitor)
-      )
-    )
+    Param(Variable(ctx.IDENT().toString, ctx.`type`.accept(TypeVisitor)))
   }
 }
