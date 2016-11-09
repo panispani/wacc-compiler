@@ -11,9 +11,9 @@ object AssignLhsVisitor extends WACCParserBaseVisitor[Either[CompilationError, A
 
   override def visitAssignLhsIdent(ctx: AssignLhsIdentContext): Either[CompilationError, AssignTarget] = {
     SymbolTable.currentTable.lookupAll(ctx.variableReference().getText) match {
-      case Some(symbol: Variable)   => Right(symbol)
-      case None                     => Left(SemanticError("Variable not declared"))
-      case default                  => Left(SemanticError("Can only assign to variables, not functions"))
+      case Some(symbol: AssignTarget) => Right(symbol)
+      case None                       => Left(SemanticError("Variable not declared"))
+      case target @ default           => Left(SemanticError("Invalid assignment target " + target))
       }
     }
 
@@ -29,15 +29,15 @@ object AssignRhsVisitor extends WACCParserBaseVisitor[Either[CompilationError, A
   override def visitAssignRhsExpression(ctx: AssignRhsExpressionContext): Either[CompilationError, AssignValue] =
     ctx.expression().accept(ExpressionVisitor)
 
-  override def visitAssingRhsArrayLiteral(ctx: AssingRhsArrayLiteralContext): Either[CompilationError, AssignValue] =
+  override def visitAssignRhsArrayLiteral(ctx: AssignRhsArrayLiteralContext): Either[CompilationError, AssignValue] =
     Right(ctx.arrayLiteral().accept(LiteralVisitor))
 
-  override def visitAssingRhsPairConstructor(ctx: AssingRhsPairConstructorContext): Either[CompilationError, AssignValue] =
-    Right(ctx.pairConstructor().accept(PairConstructorVisitor))
+  override def visitAssignRhsPairConstructor(ctx: AssignRhsPairConstructorContext): Either[CompilationError, AssignValue] =
+    ctx.pairConstructor().accept(PairConstructorVisitor)
 
-  override def visitAssingRhsPairElement(ctx: AssingRhsPairElementContext): Either[CompilationError, AssignValue] =
+  override def visitAssignRhsPairElement(ctx: AssignRhsPairElementContext): Either[CompilationError, AssignValue] =
     Right(ctx.pairElement().accept(PairElementVisitor))
 
-  override def visitAssingRhsFunctionCall(ctx: AssingRhsFunctionCallContext): Either[CompilationError, AssignValue] =
+  override def visitAssignRhsFunctionCall(ctx: AssignRhsFunctionCallContext): Either[CompilationError, AssignValue] =
     ctx.functionCall().accept(FunctionCallVisitor)
 }
