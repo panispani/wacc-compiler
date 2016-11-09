@@ -7,3 +7,9 @@ case class UnaryOperator(unaryOperator: String)
 case class UnaryOperatorExpr(unaryOperator: UnaryOperator, expression: Expression) extends Expression {
   override val vartype = String
 }
+
+object NotOp extends UnaryOperator("!")
+object MinusOp extends UnaryOperator("-")
+object LenOp extends UnaryOperator("len")
+object OrdOp extends UnaryOperator("ord")
+object ChrOp extends UnaryOperator("chr")
