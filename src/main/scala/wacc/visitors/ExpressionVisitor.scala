@@ -32,4 +32,6 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
   override def visitPairLiteral(ctx: PairLiteralContext): Either[CompilationError, Expression] = {
     Right(PairLiteral(NullType, NullType, None)) // put values in
   }
+
+  
 }

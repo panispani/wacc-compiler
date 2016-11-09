@@ -62,12 +62,12 @@ pairConstructor : NEWPAIR LP expression COMMA expression RP ;
 pairElement     : FST expression | SND expression ;
 erasedPair      : PAIR ;
 
-expression : literal
-           | variableReference
-           | arrayElement
-           | unaryOperator expression
-           | expression binaryOperator expression
-           | LP expression RP
+expression : literal                                # LiteralExp
+           | variableReference                      # VariableRefExp
+           | arrayElement                           # ArrayElemExp
+           | unaryOperator expression               # UnaryOperatorExp
+           | expression binaryOperator expression   # BinaryOperatorExp
+           | LP expression RP                       # BracketedExp
            ;
 
 variableReference : IDENT ;
