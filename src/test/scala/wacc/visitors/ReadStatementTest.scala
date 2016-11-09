@@ -4,7 +4,7 @@ import org.scalatest.{EitherValues, FlatSpec, Matchers}
 import wacc.constructs._
 import wacc.visitors
 
-class ReadTest extends FlatSpec
+class ReadStatementTest extends FlatSpec
   with Matchers
   with EitherValues {
 
@@ -18,12 +18,12 @@ class ReadTest extends FlatSpec
 
     val program = TestUtilities.buildProgram(input)
     val statements = Seq(
-      Declare(
+      DeclareStatement(
         PairType(Integer, Integer),
         "p",
         PairConstructor(IntegerLiteral(1), IntegerLiteral(2))
       ),
-      Read(VariableReferenceExpression(PairType(Integer, Integer)))
+      ReadStatement(VariableReferenceExpression(PairType(Integer, Integer)))
     )
 
 

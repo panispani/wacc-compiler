@@ -1,9 +1,9 @@
 package wacc.visitors
 
 import org.scalatest.{EitherValues, FlatSpec, Matchers}
-import wacc.constructs.{Program, Skip}
+import wacc.constructs.{Program, SkipStatement}
 
-class SkipTest extends FlatSpec
+class SkipStatementTest extends FlatSpec
   with Matchers
   with EitherValues {
 
@@ -11,7 +11,7 @@ class SkipTest extends FlatSpec
   "Skip " should " be built correctly " in {
     val input = "begin skip end"
     val program = TestUtilities.buildProgram(input)
-    program.right.value should be (Program(Seq(), Seq(Skip())))
+    program.right.value should be (Program(Seq(), Seq(SkipStatement())))
   }
 }
 

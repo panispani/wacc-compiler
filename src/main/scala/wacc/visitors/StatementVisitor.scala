@@ -4,21 +4,24 @@ import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
 import wacc.SymbolTable
 import wacc.constructs._
+import scala.collection.JavaConversions._
+import wacc.visitor._
+
 
 object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, Statement]] {
 
-  override def visitSkip(ctx: SkipContext): Either[CompilationError, Skip] = {
-    Right(Skip())
+  override def visitSkip(ctx: SkipContext): Either[CompilationError, SkipStatement] = {
+    Right(SkipStatement())
   }
 
-  override def visitDeclare(ctx: DeclareContext): Either[CompilationError, Declare] = {
+  override def visitDeclare(ctx: DeclareContext): Either[CompilationError, DeclareStatement] = {
     val vartype = ctx.`type`().accept(TypeVisitor)
     val identifier = ctx.IDENT().toString
 
     ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(rhs => rhs.vartype == vartype match {
       case true  => {
         SymbolTable.currentTable.addTyped(identifier, VariableReferenceExpression(vartype))
-        Right(Declare(vartype, identifier, rhs))
+        Right(DeclareStatement(vartype, identifier, rhs))
       }
       case false => Left(SemanticError("Expected type " + vartype + ", got " + rhs.vartype))
     })
@@ -31,35 +34,45 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     })
   }
 
-  override def visitRead(ctx: ReadContext): Either[CompilationError, Read] = {
+  override def visitRead(ctx: ReadContext): Either[CompilationError, ReadStatement] = {
     ctx.assignLhs().accept(AssignLhsVisitor).right.flatMap(lhs => lhs.vartype match {
-      case Integer | Character => Right(Read(lhs))
+      case Integer | Character => Right(ReadStatement(lhs))
       case default => Left(SemanticError("Read statement target must be of type int or char"))
     })
   }
 
-  override def visitReturn(ctx: ReturnContext): Either[CompilationError, Statement] = {
+  override def visitReturn(ctx: ReturnContext): Either[CompilationError, ReturnStatement] = {
     ctx.expression().accept(ExpressionVisitor).right map ReturnStatement
   }
 
   //TODO: Any way to get rid of this duplication?
-  override def visitPrint(ctx: PrintContext): Either[CompilationError, Statement] = {
-    for {
-      expression: Expression <- ctx.expression().accept(ExpressionVisitor)
-    } yield expression.vartype match {
-      case Integer | Character => PrintStatement(expression)
-      case vartype @ default   => SemanticError("Print statement expected expression of type int or char, got " + vartype)
-    }
+  override def visitPrint(ctx: PrintContext): Either[CompilationError, PrintStatement] = {
+    ctx.expression().accept(ExpressionVisitor).right flatMap (e => e.vartype match {
+      case Integer | Character => Right(PrintStatement(e))
+      case vartype @ default   => Left(SemanticError("PrintLn statement expected expression of type int or char, got " + vartype))
+    })
   }
 
-  override def visitPrintLn(ctx: PrintLnContext): Either[CompilationError, Statement] = {
-    for {
-      expression: Expression <- ctx.expression().accept(ExpressionVisitor)
-    } yield expression.vartype match {
-      case Integer | Character => PrintLnStatement(expression)
-      case vartype @ default   => SemanticError("PrintLn statement expected expression of type int or char, got " + vartype)
-    }
+  override def visitPrintLn(ctx: PrintLnContext): Either[CompilationError, PrintLnStatement] = {
+    ctx.expression().accept(ExpressionVisitor).right flatMap (e => e.vartype match {
+      case Integer | Character => Right(PrintLnStatement(e))
+      case vartype @ default   => Left(SemanticError("PrintLn statement expected expression of type int or char, got " + vartype))
+    })
   }
 
+  override def visitConditional(ctx: ConditionalContext): Either[CompilationError, Conditional] = {
+    val tuple = for {
+      expression <- ctx.expression().accept(ExpressionVisitor).right
+      trueStatements: Seq[Statement]  <- sequence(ctx.trueSequence.statement().toList map (s => s.accept(StatementVisitor))).right
+      falseStatements: Seq[Statement] <- sequence(ctx.falseSequence.statement().toList map (s => s.accept(StatementVisitor))).right
+    } yield (expression, trueStatements, falseStatements)
+
+    tuple match {
+      Left(error)                                          => error
+      Right((expression, trueStatements, falseStatements)) => expression match {
+
+      }
+    }
+  }
 }
 

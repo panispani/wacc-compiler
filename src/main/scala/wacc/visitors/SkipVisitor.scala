@@ -1,9 +1,9 @@
 package wacc.visitors
 
 import antlr.WACCParserBaseVisitor
-import wacc.constructs.Skip
+import wacc.constructs.SkipStatement
 
-object SkipVisitor extends WACCParserBaseVisitor[Skip] {
+object SkipVisitor extends WACCParserBaseVisitor[SkipStatement] {
 
 
 
