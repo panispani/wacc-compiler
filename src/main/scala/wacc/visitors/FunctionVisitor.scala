@@ -2,7 +2,7 @@ package wacc.visitors
 
 import antlr.WACCParser.FunctionContext
 import antlr.WACCParserBaseVisitor
-import wacc.constructs.{CompilationError, Function, Param, SemanticError, ConditionalStatement}
+import wacc.constructs.{CompilationError, ConditionalStatement, Function, LoopStatement, Param, ReturnStatement, SemanticError, Statement, SyntaxError}
 import wacc.visitor._
 import wacc.{FunctionReference, SymbolTable, VariableReference}
 
@@ -34,15 +34,24 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
       SymbolTable.currentTable.addTyped(ident, VariableReference(arg.variable.vartype))
     })
 
+    def SyntaxErrorIfNotReturn(stat: Statement): Either[SyntaxError, Statement] = stat match {
+        case ReturnStatement(expr) => Right(stat)
+        case ConditionalStatement(expr, trueStats, falseStats) => {
+          val trueRes = SyntaxErrorIfNotReturn(trueStats.last)
+          val falseRes = SyntaxErrorIfNotReturn(falseStats.last)
+          trueRes match {
+            case Left(x) => Left(x)
+            case Right(x) => falseRes
+          }
+        }
+        case LoopStatement(expr, stats) => SyntaxErrorIfNotReturn(stats.last)
+        case _ => Left(SyntaxError("The last statement of a function should be a return"))
+    }
+
+    val rightProjection = sequence(ctx.sequence().statement().toList map (_.accept(StatementVisitor))).right
+
 //    val res = for {
-//      body <- sequence(ctx.sequence().statement().toList map (_.accept(StatementVisitor))).right map (_.last match {
-//        case ConditionalStatement(e, t, f) => {
-//
-//        }
-//        case
-//      })
-//      statements <- sequence(ctx.sequence().statement().toList map (
-//        _.accept(StatementVisitor).right.flatMap(semanticErrorIfReturn))).right
+//      body <- rightProjection flatMap (stats => SyntaxErrorIfNotReturn(stats.last))
 //    } yield Function(name, args, returnType, body)
 
     val res = for {

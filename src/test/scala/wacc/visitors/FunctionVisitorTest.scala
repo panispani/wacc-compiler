@@ -1,6 +1,6 @@
 package wacc.visitors
 
-import wacc.constructs.{Function, Integer, IntegerLiteral, ReturnStatement, SemanticError}
+import wacc.constructs.{Function, Integer, IntegerLiteral, ReturnStatement, SemanticError, SyntaxError}
 import wacc.{FunctionReference, SymbolTable}
 
 /**
@@ -29,11 +29,11 @@ class FunctionVisitorTest extends VisitorTest {
     result.left.value should be (SemanticError("A function shouldn't have two or more parameters with the same"))
   }
 
-//  it should "be a semantic error if the last statement is not a return" in {
-//    val parser = TestUtilities.setupParser("int f() is int x = 3 end")
+//  it should "be a syntax error if the last statement is not a return" in {
+//    val parser = TestUtilities.setupParser("int f() is bool b = true end")
 //    val result = TestUtilities.buildSubProgram(parser.function, FunctionVisitor)
 //
-//    result.left.value should be (SemanticError("The last statement of a function should be a return"))
+//    result.left.value should be (SyntaxError("The last statement of a function should be a return"))
 //  }
 
 //  it should "be a semantic error if there is a mismatch between the declared and the actual return type" in {
