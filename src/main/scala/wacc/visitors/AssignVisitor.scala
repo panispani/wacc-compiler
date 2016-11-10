@@ -23,7 +23,7 @@ object AssignRhsVisitor extends WACCParserBaseVisitor[Either[CompilationError, A
     ctx.expression().accept(ExpressionVisitor)
 
   override def visitAssignRhsArrayLiteral(ctx: AssignRhsArrayLiteralContext): Either[CompilationError, AssignValue] =
-    Right(ctx.arrayLiteral().accept(LiteralVisitor))
+    ctx.arrayLiteral().accept(ArrayLiteralVisitor)
 
   override def visitAssignRhsPairConstructor(ctx: AssignRhsPairConstructorContext): Either[CompilationError, AssignValue] =
     ctx.pairConstructor().accept(PairConstructorVisitor)

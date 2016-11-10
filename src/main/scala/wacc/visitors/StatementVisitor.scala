@@ -2,11 +2,11 @@ package wacc.visitors
 
 import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
-import wacc.{SymbolTable, VariableReference}
 import wacc.constructs._
+import wacc.visitor._
+import wacc.{SymbolTable, VariableReference}
 
 import scala.collection.JavaConversions._
-import wacc.visitor._
 
 object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, Statement]] {
 
@@ -18,12 +18,12 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     val vartype = ctx.`type`().accept(TypeVisitor)
     val identifier = ctx.IDENT().toString
 
-    ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(rhs => rhs.vartype == vartype match {
-      case true  =>
+    ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(
+      rhs => if(rhs.vartype == vartype) {
         SymbolTable.currentTable.addTyped(identifier, VariableReference(vartype))
         Right(DeclareStatement(vartype, identifier, rhs))
-      case false => Left(SemanticError("Expected type " + vartype + ", got " + rhs.vartype))
-    })
+      }
+      else Left(SemanticError("Expected type " + vartype + ", got " + rhs.vartype)))
   }
 
   override def visitExit(ctx: ExitContext): Either[CompilationError, ExitStatement] = {
@@ -75,7 +75,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     }
   }
 
-  override def visitLoop(ctx: LoopContext): Either[CompilationError, Statement] = {
+  override def visitLoop(ctx: LoopContext): Either[CompilationError, Loop] = {
     val pair = for {
       expression     <- ctx.expression().accept(ExpressionVisitor).right
       statements     <- sequence(ctx.sequence().statement().toList map (s => s.accept(StatementVisitor))).right
