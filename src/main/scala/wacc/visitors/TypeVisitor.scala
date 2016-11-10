@@ -17,9 +17,9 @@ object TypeVisitor extends WACCParserBaseVisitor[Type] {
   //TODO: Make this functional
   override def visitArrayType(ctx: ArrayTypeContext): Type = {
     val elemtype = ctx.notNestedArrayType().accept(TypeVisitor)
-    var arrayType: ArrayType = ArrayType(elemtype)
+    var arrayType = ArrayType(elemtype)
 
-    for (i <- 1 to ctx.RB().size()) {
+    for (i <- 2 to ctx.RB().size()) {
       arrayType = ArrayType(arrayType)
     }
 

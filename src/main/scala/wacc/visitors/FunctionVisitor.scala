@@ -2,9 +2,9 @@ package wacc.visitors
 
 import antlr.WACCParser.FunctionContext
 import antlr.WACCParserBaseVisitor
-import wacc.{FunctionReference, SymbolTable, VariableReference}
 import wacc.constructs.{CompilationError, Function, Param, SemanticError}
 import wacc.visitor._
+import wacc.{FunctionReference, SymbolTable, VariableReference}
 
 import scala.collection.JavaConversions._
 
@@ -20,9 +20,10 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
     val args: Seq[Param] = params map (_.accept(ParamVisitor))
     val returnType = ctx.`type`().accept(TypeVisitor)
 
-    SymbolTable.currentTable.addTyped("f", FunctionReference(returnType, args map (_.variable.vartype)))
+    SymbolTable.currentTable.addTyped(name, FunctionReference(returnType, args map (_.variable.vartype)))
 
-    SymbolTable.currentTable = SymbolTable(Some(SymbolTable.currentTable))
+    SymbolTable.openScope()
+
     args map (arg => {
       val ident = arg.variable.identifier
 
@@ -32,6 +33,8 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
 
       SymbolTable.currentTable.addTyped(ident, VariableReference(arg.variable.vartype))
     })
+
+    SymbolTable.closeScope()
 
     for {
       body <- sequence(ctx.sequence().statement().toList map (s => s.accept(StatementVisitor))).right

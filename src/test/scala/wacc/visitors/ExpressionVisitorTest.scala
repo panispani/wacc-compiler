@@ -1,12 +1,8 @@
 package wacc.visitors
 
-import org.scalatest.{EitherValues, FlatSpec, Matchers}
-import wacc.VariableReference
 import wacc.constructs._
 
-class ExpressionVisitorTest extends FlatSpec
-  with Matchers
-  with EitherValues {
+class ExpressionVisitorTest extends VisitorTest {
 
   "Visiting a char literal" should "create a CharLiteral with the correct value" in {
     val parser = TestUtilities.setupParser("'a'")
@@ -49,6 +45,30 @@ class ExpressionVisitorTest extends FlatSpec
     val result = TestUtilities.buildSubProgram(parser.expression, ExpressionVisitor)
 
     result.right.value should be (BinaryOperatorExpr(IntegerLiteral(2),BinaryOperator("+"), IntegerLiteral(-5)))
+  }
+
+  "Visiting a complex valid binary expression" should "create a Binary Expression with" in {
+    val parser = TestUtilities.setupParser("-2*+3+4")
+    val result = TestUtilities.buildSubProgram(parser.expression, ExpressionVisitor)
+
+    result.right.value should be(
+      BinaryOperatorExpr(
+        BinaryOperatorExpr(
+          IntegerLiteral(-2),
+          BinaryOperator("*"),
+          IntegerLiteral(+3)
+        ),
+        BinaryOperator("+"),
+        IntegerLiteral(4)
+      )
+    )
+  }
+  
+  "Visiting an invalid binary expression" should "create a Semantic error" in {
+    val parser = TestUtilities.setupParser("2+'a'")
+    val result = TestUtilities.buildSubProgram(parser.expression, ExpressionVisitor)
+
+    result.left.value should be (SemanticError("+ operator needs 2 integers as its arguments"))
   }
 
 }

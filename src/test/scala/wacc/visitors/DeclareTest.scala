@@ -1,13 +1,10 @@
 package wacc.visitors
 
-import org.scalatest.{EitherValues, FlatSpec, Matchers}
 import wacc.constructs._
 
-class DeclareTest extends FlatSpec
-  with Matchers
-  with EitherValues {
+class DeclareTest extends VisitorTest {
 
-  "Integer decleration " should " be built correctly " in {
+  "Integer declaration " should " be built correctly " in {
     val input = "begin int x = 1 end"
     val program = TestUtilities.buildProgram(input)
     val statements = Seq(
@@ -21,7 +18,7 @@ class DeclareTest extends FlatSpec
     program.right.value should be (Program(Seq(), statements))
   }
 
-  "Pair decleration " should " be built correctly " in {
+  "Pair declaration " should " be built correctly " in {
     val parser = TestUtilities.setupParser("pair(int, int) p = newpair(1,2)")
     val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
@@ -32,6 +29,17 @@ class DeclareTest extends FlatSpec
         PairConstructor(IntegerLiteral(1), IntegerLiteral(2))
       )
     )
+  }
+
+  "Array declaration" should "work with array literals on the RHS" in {
+    val parser = TestUtilities.setupParser("int[] x = [1,2]")
+    val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
+
+    result.right.value should be (
+      DeclareStatement(
+        ArrayType(Integer),
+        "x",
+        ArrayLiteral(Seq(IntegerLiteral(1), IntegerLiteral(2)))))
   }
 
   /*

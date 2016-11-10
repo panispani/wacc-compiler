@@ -2,7 +2,8 @@ package wacc.visitors
 
 import antlr.{WACCLexer, WACCParser, WACCParserBaseVisitor}
 import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream, ParserRuleContext}
-import wacc.SyntaxErrorListener
+import org.scalatest._
+import wacc.{SymbolTable, SyntaxErrorListener}
 import wacc.constructs.{Program, Statement}
 
 object TestUtilities {
@@ -43,4 +44,11 @@ object TestUtilities {
     Program(Seq(), statements)
   }
 
+  trait SymbolTableState extends BeforeAndAfterEach { this: Suite =>
+
+    override def afterEach(): Unit = {
+      try super.afterEach()
+      finally SymbolTable.clearAll()
+    }
+  }
 }

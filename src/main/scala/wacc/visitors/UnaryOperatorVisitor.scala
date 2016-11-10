@@ -1,7 +1,7 @@
 package wacc.visitors
 
 import antlr.WACCParser.UnaryOperatorContext
-import antlr.{WACCParser, WACCParserBaseVisitor}
+import antlr.WACCParserBaseVisitor
 import wacc.constructs._
 
 /**
