@@ -34,12 +34,18 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
       expr => operator match {
         case MinusOp | ChrOp if expr.vartype != Integer =>
           Left(SemanticError(operator.unaryOperator + " operator needs integers"))
-        case LenOp if expr.vartype != ArrayType(Character) =>
-          Left(SemanticError("'len' operator needs array of charcters"))
+
+        case LenOp => expr.vartype match {
+          case ArrayType(_) => Right(UnaryOperatorExpr(operator, expr))
+          case _            => Left(SemanticError("'len' operator needs an array"))
+        }
+
         case OrdOp if expr.vartype != Character =>
           Left(SemanticError("'ord' operator needs character"))
+
         case NotOp if expr.vartype != Boolean =>
           Left(SemanticError("'!' operator needs Boolean"))
+
         case default =>
           Right(UnaryOperatorExpr(operator, expr))
       }
