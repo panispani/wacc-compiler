@@ -18,12 +18,12 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     val vartype = ctx.`type`().accept(TypeVisitor)
     val identifier = ctx.IDENT().toString
 
-    ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(rhs => rhs.vartype == vartype match {
-      case true  =>
+    ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(
+      rhs => if(rhs.vartype == vartype) {
         SymbolTable.currentTable.addTyped(identifier, VariableReference(vartype))
         Right(DeclareStatement(vartype, identifier, rhs))
-      case false => Left(SemanticError("Expected type " + vartype + ", got " + rhs.vartype))
-    })
+      }
+      else Left(SemanticError("Expected type " + vartype + ", got " + rhs.vartype)))
   }
 
   override def visitExit(ctx: ExitContext): Either[CompilationError, ExitStatement] = {
