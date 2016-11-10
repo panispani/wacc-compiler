@@ -21,7 +21,6 @@ class StatementVisitorTest extends VisitorTest {
 
   it should "be a semantic error when identifier is not declared" in {
     val parser = TestUtilities.setupParser("exit x")
-    println(SymbolTable.currentTable.lookupAll("x"))
     val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
     result.left.value should be (SemanticError("Identifier x not declared"))
