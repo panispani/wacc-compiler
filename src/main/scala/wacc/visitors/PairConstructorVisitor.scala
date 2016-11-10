@@ -1,6 +1,6 @@
 package wacc.visitors
 
-import antlr.WACCParser.{PairConstructorContext, AssignRhsPairConstructorContext}
+import antlr.WACCParser.PairConstructorContext
 import antlr.WACCParserBaseVisitor
 import wacc.constructs.{CompilationError, PairConstructor}
 

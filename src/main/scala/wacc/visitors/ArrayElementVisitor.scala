@@ -2,11 +2,11 @@ package wacc.visitors
 
 import antlr.WACCParser.ArrayElementContext
 import antlr.WACCParserBaseVisitor
-import wacc.{SymbolTable, VariableReference}
 import wacc.constructs._
+import wacc.visitor._
+import wacc.{SymbolTable, VariableReference}
 
 import scala.collection.JavaConversions._
-import wacc.visitor._
 
 object ArrayElementVisitor extends WACCParserBaseVisitor[Either[CompilationError, ArrayElement]] {
 

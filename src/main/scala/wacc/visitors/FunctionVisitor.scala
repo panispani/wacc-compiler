@@ -2,9 +2,9 @@ package wacc.visitors
 
 import antlr.WACCParser.FunctionContext
 import antlr.WACCParserBaseVisitor
-import wacc.{FunctionReference, SymbolTable, VariableReference}
 import wacc.constructs.{CompilationError, Function, Param, SemanticError}
 import wacc.visitor._
+import wacc.{FunctionReference, SymbolTable, VariableReference}
 
 import scala.collection.JavaConversions._
 
