@@ -1,7 +1,6 @@
 package wacc.visitors
 
 import wacc.constructs._
-import wacc.visitors.TestUtilities.VisitorTest
 
 class ExpressionVisitorTest extends VisitorTest {
 

@@ -20,10 +20,9 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     val identifier = ctx.IDENT().toString
 
     ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(rhs => rhs.vartype == vartype match {
-      case true  => {
+      case true  =>
         SymbolTable.currentTable.addTyped(identifier, VariableReference(vartype))
         Right(DeclareStatement(vartype, identifier, rhs))
-      }
       case false => Left(SemanticError("Expected type " + vartype + ", got " + rhs.vartype))
     })
   }
