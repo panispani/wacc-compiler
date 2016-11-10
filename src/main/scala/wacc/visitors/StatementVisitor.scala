@@ -91,5 +91,12 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
       }
     }
   }
+
+  override def visitScope(ctx: ScopeContext): Either[CompilationError, Statement] = {
+    SymbolTable.openScope()
+    val stmt = ctx.statement().accept(StatementVisitor)
+    SymbolTable.closeScope()
+    stmt
+  }
 }
 
