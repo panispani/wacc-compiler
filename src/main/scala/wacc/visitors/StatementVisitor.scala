@@ -2,11 +2,11 @@ package wacc.visitors
 
 import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
-import wacc.{SymbolTable, VariableReference}
 import wacc.constructs._
+import wacc.visitor._
+import wacc.{SymbolTable, VariableReference}
 
 import scala.collection.JavaConversions._
-import wacc.visitor._
 
 object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, Statement]] {
 
@@ -20,10 +20,18 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
 
     ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(
       rhs => if(rhs.vartype == vartype) {
-        SymbolTable.currentTable.addTyped(identifier, VariableReference(vartype))
-        Right(DeclareStatement(vartype, identifier, rhs))
-      }
-      else Left(SemanticError("Expected type " + vartype + ", got " + rhs.vartype)))
+
+               SymbolTable.currentTable.lookup(ctx.IDENT().getText) match {
+                 case None    => SymbolTable.currentTable.addTyped(identifier, VariableReference(vartype))
+                                 Right(DeclareStatement(vartype, identifier, rhs))
+
+                 case Some(_) => Left(SemanticError("Re-declaration of variable " + ctx.IDENT().getText))
+               }
+             }
+             else {
+              Left(SemanticError("Expected type " + vartype + ", got " + rhs.vartype))
+             }
+    )
   }
 
   override def visitAssign(ctx: AssignContext): Either[CompilationError, Statement] = {
@@ -88,7 +96,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     }
   }
 
-  override def visitLoop(ctx: LoopContext): Either[CompilationError, Statement] = {
+  override def visitLoop(ctx: LoopContext): Either[CompilationError, Loop] = {
     val pair = for {
       expression     <- ctx.expression().accept(ExpressionVisitor).right
       statements     <- sequence(ctx.sequence().statement().toList map (s => s.accept(StatementVisitor))).right
@@ -102,5 +110,15 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
       }
     }
   }
+
+  override def visitScope(ctx: ScopeContext): Either[CompilationError, Statement] = {
+    SymbolTable.openScope()
+    val stmt = ctx.sequence().accept(SequenceVisitor).right
+    SymbolTable.closeScope()
+    for (
+      s <- stmt
+    ) yield ScopeStatement(s)
+  }
+
 }
 

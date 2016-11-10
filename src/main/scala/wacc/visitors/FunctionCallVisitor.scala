@@ -3,9 +3,9 @@ package wacc.visitors
 import antlr.WACCParser.FunctionCallContext
 import antlr.WACCParserBaseVisitor
 import wacc.constructs.{CompilationError, FunctionCall}
+import wacc.visitor._
 
 import scala.collection.JavaConversions._
-import wacc.visitor._
 
 
 object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError, FunctionCall]] {
