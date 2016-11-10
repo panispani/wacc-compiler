@@ -46,12 +46,9 @@ object TestUtilities {
 
   trait SymbolTableState extends BeforeAndAfterEach { this: Suite =>
 
-    override def beforeEach() {
-      SymbolTable.clearAll()
-      super.beforeEach()
+    override def afterEach(): Unit = {
+      try super.afterEach()
+      finally SymbolTable.clearAll()
     }
   }
-
-  trait VisitorTest extends FlatSpec with Matchers with EitherValues with SymbolTableState
-
 }

@@ -1,8 +1,6 @@
 package wacc.visitors
 
-/**
-  * Created by tencho on 11/10/16.
-  */
-trait VisitorTest {
+import org.scalatest.{EitherValues, FlatSpec, Matchers}
+import wacc.visitors.TestUtilities.SymbolTableState
 
-}
+trait VisitorTest extends FlatSpec with Matchers with EitherValues with SymbolTableState

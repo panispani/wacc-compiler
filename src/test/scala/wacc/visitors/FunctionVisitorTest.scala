@@ -1,7 +1,6 @@
 package wacc.visitors
 
 import wacc.constructs.{Function, Integer, IntegerLiteral, ReturnStatement, SemanticError}
-import wacc.visitors.TestUtilities.VisitorTest
 import wacc.{FunctionReference, SymbolTable}
 
 /**
