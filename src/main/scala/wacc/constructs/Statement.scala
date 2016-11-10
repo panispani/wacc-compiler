@@ -17,5 +17,7 @@ case class ConditionalStatement(expression: Expression,
 }
 case class DeclareStatement(vartype: Type, identifier: String, value: AssignValue) extends Statement {
 }
+case class LoopStatement(condition: Expression, statements: Seq[Statement]) extends Statement {
+}
 
 

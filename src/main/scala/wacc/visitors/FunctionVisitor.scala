@@ -2,7 +2,7 @@ package wacc.visitors
 
 import antlr.WACCParser.FunctionContext
 import antlr.WACCParserBaseVisitor
-import wacc.constructs.{CompilationError, Function, Param, SemanticError}
+import wacc.constructs.{CompilationError, Function, Param, SemanticError, ConditionalStatement}
 import wacc.visitor._
 import wacc.{FunctionReference, SymbolTable, VariableReference}
 
@@ -36,7 +36,10 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
 
 //    val res = for {
 //      body <- sequence(ctx.sequence().statement().toList map (_.accept(StatementVisitor))).right map (_.last match {
-//        IfState
+//        case ConditionalStatement(e, t, f) => {
+//
+//        }
+//        case
 //      })
 //      statements <- sequence(ctx.sequence().statement().toList map (
 //        _.accept(StatementVisitor).right.flatMap(semanticErrorIfReturn))).right
