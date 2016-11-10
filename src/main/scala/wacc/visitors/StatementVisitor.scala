@@ -11,11 +11,11 @@ import scala.collection.JavaConversions._
 
 object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, Statement]] {
 
-  def compatibleTypes(lhs: Type, rhs: AssignValue): Boolean = {
+  def compatibleTypes(ltype: Type, rhs: AssignValue): Boolean = {
     rhs.vartype match {
-      case NullType            => lhs.isInstanceOf[PairType]
-      case ArrayType(NullType) => lhs.isInstanceOf[ArrayType]
-      case vartype @ default   => vartype == rhs.vartype
+      case NullType            => ltype.isInstanceOf[PairType]
+      case ArrayType(NullType) => ltype.isInstanceOf[ArrayType]
+      case default             => ltype == rhs.vartype
     }
   }
 
@@ -25,6 +25,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
 
     ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(rhs => {
       if (compatibleTypes(vartype, rhs)) {
+
         SymbolTable.currentTable.lookup(ctx.IDENT().getText) match {
           case None => SymbolTable.currentTable.addTyped(identifier, VariableReference(vartype))
                        Right(DeclareStatement(vartype, identifier, rhs))
