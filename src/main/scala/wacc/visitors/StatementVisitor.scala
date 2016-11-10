@@ -19,6 +19,10 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
   }
 
   def isEmptyArray(rhs: AssignValue): Boolean = {
+    println("here")
+    println(rhs)
+    println(rhs.vartype)
+
     rhs match {
       case ArrayLiteral(_) if rhs.vartype == NullType => true
       case default                                    => false
