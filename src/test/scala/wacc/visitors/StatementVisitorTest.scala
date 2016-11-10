@@ -1,11 +1,10 @@
 package wacc.visitors
 
-import org.scalatest.{EitherValues, FlatSpec, Matchers}
-import wacc.constructs.{ExitStatement, IntegerLiteral, SemanticError}
+import wacc.SymbolTable
+import wacc.constructs._
+import wacc.visitors.TestUtilities.VisitorTest
 
-class StatementVisitorTest extends FlatSpec
-  with Matchers
-  with EitherValues {
+class StatementVisitorTest extends VisitorTest {
 
   "Visiting exit" should "create an exit statement" in {
     val parser = TestUtilities.setupParser("exit 10")
@@ -23,17 +22,17 @@ class StatementVisitorTest extends FlatSpec
 
   it should "be a semantic error when identifier is not declared" in {
     val parser = TestUtilities.setupParser("exit x")
+    println(SymbolTable.currentTable.lookupAll("x"))
     val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
     result.left.value should be (SemanticError("Identifier x not declared"))
   }
 
-  // TODO: enable when integer expressions are implemented
-  ignore should "create an exit statement with integer expression exit codes" in {
+  it should "create an exit statement with integer expression exit codes" in {
     val parser = TestUtilities.setupParser("exit 2 + 3")
     val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
-//    result.right.value should be (ExitStatement(Add(IndetegerLiteral(2), IntegerLiteral(3))))
+    result.right.value should be (ExitStatement(BinaryOperatorExpr(IntegerLiteral(2), PlusBinOp, IntegerLiteral(3))))
   }
 
 }

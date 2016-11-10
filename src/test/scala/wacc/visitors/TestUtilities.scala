@@ -2,7 +2,8 @@ package wacc.visitors
 
 import antlr.{WACCLexer, WACCParser, WACCParserBaseVisitor}
 import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream, ParserRuleContext}
-import wacc.SyntaxErrorListener
+import org.scalatest._
+import wacc.{SymbolTable, SyntaxErrorListener}
 import wacc.constructs.{Program, Statement}
 
 object TestUtilities {
@@ -42,5 +43,15 @@ object TestUtilities {
   def functionlessProgram(statements: Seq[Statement]): Program = {
     Program(Seq(), statements)
   }
+
+  trait SymbolTableState extends BeforeAndAfterEach { this: Suite =>
+
+    override def beforeEach() {
+      SymbolTable.clearAll()
+      super.beforeEach()
+    }
+  }
+
+  trait VisitorTest extends FlatSpec with Matchers with EitherValues with SymbolTableState
 
 }
