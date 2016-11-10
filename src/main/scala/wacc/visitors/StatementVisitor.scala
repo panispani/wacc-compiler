@@ -26,6 +26,19 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
       else Left(SemanticError("Expected type " + vartype + ", got " + rhs.vartype)))
   }
 
+  override def visitAssign(ctx: AssignContext): Either[CompilationError, Statement] = {
+
+    val pair = for {
+      rhs <- ctx.assignRhs().accept(AssignRhsVisitor).right
+      lhs <- ctx.assignLhs().accept(AssignLhsVisitor).right
+    } yield (lhs, rhs)
+
+    pair.right flatMap {
+      case (l, r) if l.vartype == r.vartype => Right(AssignStatement(l, r))
+      case (l, r)                          => Left(SemanticError("Cannot assign " + r.vartype + " to " + l.vartype))
+    }
+  }
+
   override def visitExit(ctx: ExitContext): Either[CompilationError, ExitStatement] = {
     ctx.expression().accept(ExpressionVisitor).right.flatMap(e => e.vartype match {
       case Integer => Right(ExitStatement(e))
