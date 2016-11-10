@@ -21,7 +21,6 @@ class StatementVisitorTest extends VisitorTest {
 
   it should "be a semantic error when identifier is not declared" in {
     val parser = TestUtilities.setupParser("exit x")
-    println(SymbolTable.currentTable.lookupAll("x"))
     val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
     result.left.value should be (SemanticError("Identifier x not declared"))
@@ -32,6 +31,22 @@ class StatementVisitorTest extends VisitorTest {
     val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
     result.right.value should be (ExitStatement(BinaryOperatorExpr(IntegerLiteral(2), PlusBinOp, IntegerLiteral(3))))
+  }
+
+  it should "allow re-declarations in new scopes" in {
+    val parser = TestUtilities.setupParser("int a = 1; begin int a = 2 end")
+    val result = TestUtilities.buildSubProgram(parser.sequence, SequenceVisitor)
+
+    result.right.value should be (
+      List(
+        DeclareStatement(Integer,"a",IntegerLiteral(1)),
+        ScopeStatement(
+          List(
+            DeclareStatement(Integer, "a",IntegerLiteral(2))
+          )
+        )
+      )
+    )
   }
 
 }
