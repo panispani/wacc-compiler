@@ -43,7 +43,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
 
     pair.right flatMap {
       case (l, r) if l.vartype == r.vartype => Right(AssignStatement(l, r))
-      case (l, r)                          => Left(SemanticError("Cannot assign " + r.vartype + " to " + l.vartype))
+      case (l, r)                           => Left(SemanticError("Cannot assign " + r.vartype + " to " + l.vartype))
     }
   }
 
@@ -111,7 +111,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     }
   }
 
-  override def visitScope(ctx: ScopeContext): Either[CompilationError, Statement] = {
+  override def visitScope(ctx: ScopeContext): Either[CompilationError, ScopeStatement] = {
     SymbolTable.openScope()
     val stmt = ctx.sequence().accept(SequenceVisitor).right
     SymbolTable.closeScope()
@@ -120,5 +120,12 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     ) yield ScopeStatement(s)
   }
 
+  override def visitFree(ctx: FreeContext): Either[CompilationError, FreeStatement] = {
+      ctx.expression().accept(ExpressionVisitor).right flatMap (e => e.vartype match {
+        case ArrayType(_) | PairType(_, _)    => Right(FreeStatement(e))
+        case default                          =>
+          Left(SemanticError("Free statement " + SemanticErrors.typeError("expression", e.vartype.toString, ArrayType.toString, PairType.toString)))
+      })
+  }
 }
 
