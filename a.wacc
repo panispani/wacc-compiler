@@ -1,0 +1,7 @@
+begin
+    int a = 1;
+    a = 2;
+    int r = 6;
+    char c = 'δ';
+    int B = 3987443
+end

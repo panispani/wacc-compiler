@@ -7,7 +7,7 @@ case class IntegerLiteral(value: Integer) extends Literal {
 }
 
 case class ArrayLiteral(elements: Seq[Expression]) extends AssignValue {
-  val vartype: ArrayType = ArrayType(elements.head.vartype)
+  val vartype: ArrayType = ArrayType(if (elements.nonEmpty) elements.head.vartype else NullType)
 }
 
 case class BoolLiteral(value: Boolean) extends Literal {
@@ -22,6 +22,6 @@ case class StringLiteral(value: String) extends Literal {
   override val vartype: Type = String
 }
 
-case class PairLiteral(firstType: Type, secondType: Type, pair: Option[(Type, Type)]) extends Literal {
-  override val vartype: Type = PairType(firstType, secondType)
+case class PairLiteral() extends Literal {
+  override val vartype: Type = NullType
 }

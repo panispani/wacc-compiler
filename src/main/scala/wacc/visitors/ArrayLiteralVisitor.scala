@@ -9,15 +9,15 @@ import scala.collection.JavaConversions._
 
 object ArrayLiteralVisitor extends WACCParserBaseVisitor[Either[CompilationError, ArrayLiteral]] {
   def sameType(types: Seq[Expression]): Boolean = {
-    types.forall(_.vartype == types.head.vartype)
+    if (types.nonEmpty) types.forall(_.vartype == types.head.vartype) else true
   }
 
   override def visitArrayLiteral(ctx: ArrayLiteralContext): Either[CompilationError, ArrayLiteral] = {
     val literals = ctx.expression().toList map (_.accept(ExpressionVisitor))
 
-    sequence(literals).right flatMap ( ls =>
+    sequence(literals).right flatMap (ls =>
       if (!sameType(ls)) {
-        val message = ctx.start.getLine+ ":" + ctx.start.getCharPositionInLine + "Array literal types don't match"
+        val message = ctx.start.getLine + ":" + ctx.start.getCharPositionInLine + "Array literal types don't match"
         Left(SemanticError(message))
       }
       else Right(ArrayLiteral(ls)))
