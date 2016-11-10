@@ -3,8 +3,11 @@ package wacc.visitors
 import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
 import wacc.constructs._
+import wacc.util.SemanticErrors
+import wacc.visitor._
 import wacc.{FunctionReference, SymbolTable, VariableReference}
 
+import scala.collection.JavaConversions._
 import scala.util.Either
 
 object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Expression]] {
@@ -82,6 +85,21 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
 
   override def visitLiteral(ctx: LiteralContext): Either[CompilationError, Expression]
     = Right(LiteralVisitor.visitLiteral(ctx))
+
+  override def visitArrayElement(ctx: ArrayElementContext): Either[CompilationError, ArrayElement] = {
+    val identifier = ctx.variableReference().getText
+
+    SymbolTable.currentTable.lookupAll(identifier) match {
+      case Some(reference @ VariableReference(ArrayType(elemtype))) => for {
+        indexes <- sequence(ctx.expression().toList map (e => e.accept(ExpressionVisitor))).right
+      } yield ArrayElement(reference, indexes)
+
+      case None    => Left(SemanticError("Variable not declared"))
+      case default => Left(SemanticError("Identifier is not an array reference"))
+    }
+  }
+
+
 }
 
 
