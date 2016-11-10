@@ -17,7 +17,7 @@ object PairElementVisitor extends WACCParserBaseVisitor[Either[CompilationError,
 
         Right(PairElement(selector, e, pairElementType))
       }
-      case default              => Left(SemanticError("Pair element " + SemanticErrors.typeError("expression", e.vartype.toString, PairType.toString())))
+      case default => Left(SemanticError("Pair element " + SemanticErrors.typeError("expression", e.vartype.toString, PairType.toString())))
     })
   }
 

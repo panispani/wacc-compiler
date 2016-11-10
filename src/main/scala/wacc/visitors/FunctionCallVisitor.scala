@@ -2,7 +2,8 @@ package wacc.visitors
 
 import antlr.WACCParser.FunctionCallContext
 import antlr.WACCParserBaseVisitor
-import wacc.constructs.{CompilationError, FunctionCall}
+import wacc.{FunctionReference, SymbolTable}
+import wacc.constructs._
 import wacc.visitor._
 
 import scala.collection.JavaConversions._
@@ -10,16 +11,46 @@ import scala.collection.JavaConversions._
 
 object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError, FunctionCall]] {
 
+  def matchTypes(l1: Seq[Type], l2: Seq[Expression]): Boolean = {
+    val matchList = (l1, l2).zipped map((e1, e2) => e1 == e2.vartype)
+    matchList.forall(b => b)
+  }
+
   override def visitFunctionCall(ctx: FunctionCallContext): Either[CompilationError, FunctionCall] = {
     val ctxArgList = Option(ctx.argumentList())
 
-    val argList = ctxArgList match {
+    val untypedArgList = ctxArgList match {
       case None => Seq()
       case Some(ls) => ls.expression().toList
     }
 
-    for {
-      args <- sequence(argList map (_.accept(ExpressionVisitor))).right
-    } yield FunctionCall(ctx.IDENT().getText, args)
+    val typedArgList = sequence(untypedArgList map (_.accept(ExpressionVisitor)))
+
+    val functionSignature: Either[CompilationError, (Type, Seq[Type])] =
+      SymbolTable.globalTable.lookup(ctx.IDENT().getText) match {
+      case Some(function) => {
+        function match {
+          case FunctionReference(returnType, argumentTypes) => Right((returnType, argumentTypes))
+          case default => Left(SemanticError(ctx.IDENT().getText + " is not a function"))
+        }
+      }
+      case None => Left(SemanticError("Function " + ctx.IDENT().getText + " is undefined"))
+    }
+
+    typedArgList match {
+      case Right(argList) => {
+        functionSignature match {
+          case Right((returnType, argTypes)) => {
+            if (matchTypes(argTypes, argList)) {
+              Right(FunctionCall(ctx.IDENT().getText, argList))
+            } else {
+              Left(SemanticError("Argument list types don't match up"))
+            }
+          }
+          case Left(error) => Left(error)
+        }
+      }
+      case Left(error) => Left(error)
+    }
   }
 }
