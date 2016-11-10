@@ -10,4 +10,5 @@ class ProgramVisitorTest extends VisitorTest {
 
     result.left.value shouldBe a[SemanticError]
   }
+
 }

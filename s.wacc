@@ -1,0 +1,4 @@
+begin
+    #int[] c = [1, 2, 3];
+    int b = 3
+end
