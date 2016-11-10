@@ -75,7 +75,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     }
   }
 
-  override def visitLoop(ctx: LoopContext): Either[CompilationError, Statement] = {
+  override def visitLoop(ctx: LoopContext): Either[CompilationError, Loop] = {
     val pair = for {
       expression     <- ctx.expression().accept(ExpressionVisitor).right
       statements     <- sequence(ctx.sequence().statement().toList map (s => s.accept(StatementVisitor))).right
