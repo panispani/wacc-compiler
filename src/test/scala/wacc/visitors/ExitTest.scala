@@ -15,7 +15,8 @@ class ExitTest extends VisitorTest {
     val parser = TestUtilities.setupParser("exit true")
     val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
-    result.left.value should be (SemanticError("Exit statement code should evaluate to value of type int"))
+    result.left.value shouldBe a[SemanticError]
+//    result.left.value should be (SemanticError("Exit statement code should evaluate to value of type int"))
   }
 
   it should "be a semantic error when identifier is not declared" in {

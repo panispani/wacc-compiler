@@ -2,7 +2,7 @@ package wacc.visitors
 
 import antlr.WACCParser.FunctionContext
 import antlr.WACCParserBaseVisitor
-import wacc.constructs.{CompilationError, Function, Param, SemanticError}
+import wacc.constructs.{CompilationError, Function, Param, SemanticError, ConditionalStatement}
 import wacc.visitor._
 import wacc.{FunctionReference, SymbolTable, VariableReference}
 
@@ -25,25 +25,39 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
     SymbolTable.openScope()
 
     args map (arg => {
-      if (SymbolTable.currentTable.lookup(arg.variable.identifier).isDefined) {
+      val ident = arg.variable.identifier
+
+      if (SymbolTable.currentTable.lookup(ident).isDefined) {
         return Left(SemanticError("A function shouldn't have two or more parameters with the same"))
       }
 
-      SymbolTable.currentTable.addTyped(arg.variable.identifier, VariableReference(arg.variable.vartype))
+      SymbolTable.currentTable.addTyped(ident, VariableReference(arg.variable.vartype))
     })
+
+//    val res = for {
+//      body <- sequence(ctx.sequence().statement().toList map (_.accept(StatementVisitor))).right map (_.last match {
+//        case ConditionalStatement(e, t, f) => {
+//
+//        }
+//        case
+//      })
+//      statements <- sequence(ctx.sequence().statement().toList map (
+//        _.accept(StatementVisitor).right.flatMap(semanticErrorIfReturn))).right
+//    } yield Function(name, args, returnType, body)
+
+    val res = for {
+      body <- sequence(ctx.sequence().statement().toList map (_.accept(StatementVisitor))).right
+    } yield Function(name, args, returnType, body)
 
     SymbolTable.closeScope()
 
-    for {
-      body <- sequence(ctx.sequence().statement().toList map (s => s.accept(StatementVisitor))).right
-    } yield Function(name, args, returnType, body)
+    res
   }
 }
 
 // function must have a return statement - syntax error
 // return statement is the last statement of the function - semantic error
 // return values(s) are the same(type) as the function type - semantic error
-// function parameters are not duplicated - semantic error
 
 
 //last statement - return

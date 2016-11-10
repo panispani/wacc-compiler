@@ -24,5 +24,5 @@ object LiteralVisitor extends WACCParserBaseVisitor[Literal] {
     = StringLiteral(ctx.getText)
 
   override def visitPairLiteral(ctx: PairLiteralContext): PairLiteral
-    = PairLiteral(NullType, NullType, None)
+    = PairLiteral()
 }

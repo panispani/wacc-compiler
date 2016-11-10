@@ -11,10 +11,10 @@ object AssignLhsVisitor extends WACCParserBaseVisitor[Either[CompilationError, A
   }
 
   override def visitAssignLhsArrayElement(ctx: AssignLhsArrayElementContext): Either[CompilationError, AssignTarget] =
-    ctx.arrayElement().accept(ArrayElementVisitor)
+    ctx.arrayElement().accept(ExpressionVisitor)
 
   override def visitAssignLhsPairElement(ctx: AssignLhsPairElementContext): Either[CompilationError, AssignTarget] =
-    ctx.pairElement().accept(PairElementVisitor)
+    ctx.pairElement().accept(ExpressionVisitor)
 }
 
 object AssignRhsVisitor extends WACCParserBaseVisitor[Either[CompilationError, AssignValue]] {
