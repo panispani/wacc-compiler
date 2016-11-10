@@ -4,9 +4,15 @@ import wacc.constructs.{SemanticError, Type}
 
 object SemanticErrors {
 
-  def typeError(what: String, got: String, expected: String*): String =
+  def typeError(what: String, got: String, expected: Seq[String]): String =
     "expected " + what + " of type " + (expected mkString " or ") + ", got " + got
 
-  def typeError(what: String, got: Type, expected: Type*): String =
-    typeError(what, got.toString, expected.toString)
+  def typeError(what: String, got: String, expected: String): String =
+    typeError(what, got, Seq(expected))
+
+  def typeError(what: String, got: Type, expected: Seq[Type]): String =
+    typeError(what, got.toString, expected map (_.toString))
+
+  def typeError(what: String, got: Type, expected: Type): String =
+    typeError(what, got, Seq(expected))
 }

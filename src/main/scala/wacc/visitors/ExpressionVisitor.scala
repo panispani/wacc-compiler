@@ -90,7 +90,7 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
   }
 
   override def visitLiteral(ctx: LiteralContext): Either[CompilationError, Expression]
-    = LiteralVisitor.visitLiteral(ctx)
+    = ctx.accept(LiteralVisitor)
 
   override def visitArrayElement(ctx: ArrayElementContext): Either[CompilationError, ArrayElement] = {
     val identifier = ctx.variableReference().getText

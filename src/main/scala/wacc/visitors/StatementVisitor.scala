@@ -11,30 +11,11 @@ import scala.collection.JavaConversions._
 
 object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, Statement]] {
 
-  def isNullPair(rhs: AssignValue): Boolean = {
-    rhs match {
-      case PairLiteral() => true
-      case default       => false
-    }
-  }
-
-  def isEmptyArray(rhs: AssignValue): Boolean = {
-    println("here")
-    println(rhs)
-    println(rhs.vartype)
-
-    rhs match {
-      case ArrayLiteral(_) if rhs.vartype == NullType => true
-      case default                                    => false
-    }
-  }
-
-
-  def compatibleTypes(ltype: Type, rtype: Type, rhs: AssignValue): Boolean = {
-    ltype match {
-      case PairType(_, _) => ltype == rtype || isNullPair(rhs)
-      case ArrayType(_)   => ltype == rtype || isEmptyArray(rhs)
-      case default        => ltype == rtype
+  def compatibleTypes(lhs: Type, rhs: AssignValue): Boolean = {
+    rhs.vartype match {
+      case NullType            => lhs.isInstanceOf[PairType]
+      case ArrayType(NullType) => lhs.isInstanceOf[ArrayType]
+      case vartype @ default   => vartype == rhs.vartype
     }
   }
 
@@ -42,15 +23,18 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     val vartype = ctx.`type`().accept(TypeVisitor)
     val identifier = ctx.IDENT().toString
 
-    ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(rhs =>
-      if (compatibleTypes(vartype, rhs.vartype, rhs)) {
+    ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(rhs => {
+      System.out.println("Assigning " + rhs + " of type " + rhs.vartype + " to " + vartype)
+
+      if (compatibleTypes(vartype, rhs)) {
         SymbolTable.currentTable.lookup(ctx.IDENT().getText) match {
           case None => SymbolTable.currentTable.addTyped(identifier, VariableReference(vartype))
-            Right(DeclareStatement(vartype, identifier, rhs))
+                       Right(DeclareStatement(vartype, identifier, rhs))
 
-          case Some(_) => Left(SemanticError("Declare statement " + SemanticErrors.typeError("expression", rhs.vartype, vartype)))
+          case Some(_) => Left(SemanticError("Identifier " + identifier + " already declared in current scope"))
         }
-      } else Left(SemanticError("Expected type " + vartype + ", got " + rhs.vartype))
+      } else Left(SemanticError("Declare statement " + SemanticErrors.typeError("expression", rhs.vartype, vartype)))
+    }
     )
   }
 
@@ -62,7 +46,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     } yield (lhs, rhs)
 
     pair.right flatMap {
-      case (l, r) if compatibleTypes(l.vartype, r.vartype, r)
+      case (l, r) if compatibleTypes(l.vartype, r)
         => Right(AssignStatement(l, r))
       case (l, r)
         => Left(SemanticError("Cannot assign " + r.vartype + " to " + l.vartype))
@@ -84,7 +68,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
   override def visitRead(ctx: ReadContext): Either[CompilationError, ReadStatement] = {
     ctx.assignLhs().accept(AssignLhsVisitor).right.flatMap(lhs => lhs.vartype match {
       case Integer | Character => Right(ReadStatement(lhs))
-      case default => Left(SemanticError("Read statement " + SemanticErrors.typeError("target", lhs.vartype, Integer, Character)))
+      case default => Left(SemanticError("Read statement " + SemanticErrors.typeError("target", lhs.vartype, Seq(Integer, Character))))
     })
   }
 
@@ -147,7 +131,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
       ctx.expression().accept(ExpressionVisitor).right flatMap (e => e.vartype match {
         case ArrayType(_) | PairType(_, _)    => Right(FreeStatement(e))
         case default                          =>
-          Left(SemanticError("Free statement " + SemanticErrors.typeError("expression", e.vartype.toString, ArrayType.toString, PairType.toString)))
+          Left(SemanticError("Free statement " + SemanticErrors.typeError("expression", e.vartype.toString, Seq(ArrayType.toString, PairType.toString))))
       })
   }
 }
