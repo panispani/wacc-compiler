@@ -34,6 +34,14 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
       SymbolTable.currentTable.addTyped(ident, VariableReference(arg.variable.vartype))
     })
 
+//    val res = for {
+//      body <- sequence(ctx.sequence().statement().toList map (_.accept(StatementVisitor))).right map (_.last match {
+//        IfState
+//      })
+//      statements <- sequence(ctx.sequence().statement().toList map (
+//        _.accept(StatementVisitor).right.flatMap(semanticErrorIfReturn))).right
+//    } yield Function(name, args, returnType, body)
+
     val res = for {
       body <- sequence(ctx.sequence().statement().toList map (_.accept(StatementVisitor))).right
     } yield Function(name, args, returnType, body)
