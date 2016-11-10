@@ -3,6 +3,7 @@ package wacc.visitors
 import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
 import wacc.constructs._
+import wacc.util.SemanticErrors
 import wacc.visitor._
 import wacc.{SymbolTable, VariableReference}
 
@@ -20,31 +21,43 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
 
     ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(
       rhs => if(rhs.vartype == vartype) {
+        SymbolTable.currentTable.lookup(ctx.IDENT().getText) match {
+          case None    => SymbolTable.currentTable.addTyped(identifier, VariableReference(vartype))
+                          Right(DeclareStatement(vartype, identifier, rhs))
 
-               SymbolTable.currentTable.lookup(ctx.IDENT().getText) match {
-                 case None    => SymbolTable.currentTable.addTyped(identifier, VariableReference(vartype))
-                                 Right(DeclareStatement(vartype, identifier, rhs))
-
-                 case Some(_) => Left(SemanticError("Re-declaration of variable " + ctx.IDENT().getText))
-               }
-             }
-             else {
-              Left(SemanticError("Expected type " + vartype + ", got " + rhs.vartype))
-             }
+          case Some(_) => Left(SemanticError("Declare statement " + SemanticErrors.typeError("expression", rhs.vartype, vartype)))
+        }
+      }
+      else {
+       Left(SemanticError("Expected type " + vartype + ", got " + rhs.vartype))
+      }
     )
+  }
+
+  override def visitAssign(ctx: AssignContext): Either[CompilationError, Statement] = {
+
+    val pair = for {
+      rhs <- ctx.assignRhs().accept(AssignRhsVisitor).right
+      lhs <- ctx.assignLhs().accept(AssignLhsVisitor).right
+    } yield (lhs, rhs)
+
+    pair.right flatMap {
+      case (l, r) if l.vartype == r.vartype => Right(AssignStatement(l, r))
+      case (l, r)                           => Left(SemanticError("Cannot assign " + r.vartype + " to " + l.vartype))
+    }
   }
 
   override def visitExit(ctx: ExitContext): Either[CompilationError, ExitStatement] = {
     ctx.expression().accept(ExpressionVisitor).right.flatMap(e => e.vartype match {
       case Integer => Right(ExitStatement(e))
-      case default => Left(SemanticError("Exit statement code should evaluate to value of type int"))
+      case default => Left(SemanticError("Exit statement " + SemanticErrors.typeError("expression", e.vartype, Integer)))
     })
   }
 
   override def visitRead(ctx: ReadContext): Either[CompilationError, ReadStatement] = {
     ctx.assignLhs().accept(AssignLhsVisitor).right.flatMap(lhs => lhs.vartype match {
       case Integer | Character => Right(ReadStatement(lhs))
-      case default => Left(SemanticError("Read statement target must be of type int or char"))
+      case default => Left(SemanticError("Read statement " + SemanticErrors.typeError("target", lhs.vartype, Integer, Character)))
     })
   }
 
@@ -54,17 +67,11 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
 
   //TODO: Any way to get rid of this duplication?
   override def visitPrint(ctx: PrintContext): Either[CompilationError, PrintStatement] = {
-    ctx.expression().accept(ExpressionVisitor).right flatMap (e => e.vartype match {
-      case Integer | Character | String => Right(PrintStatement(e))
-      case vartype @ default            => Left(SemanticError("PrintLn statement expected expression of type int/char/string, got " + vartype))
-    })
+    ctx.expression().accept(ExpressionVisitor).right flatMap (e => Right(PrintStatement(e)))
   }
 
   override def visitPrintLn(ctx: PrintLnContext): Either[CompilationError, PrintLnStatement] = {
-    ctx.expression().accept(ExpressionVisitor).right flatMap (e => e.vartype match {
-      case Integer | Character | String => Right(PrintLnStatement(e))
-      case vartype @ default            => Left(SemanticError("PrintLn statement expected expression of type int/char/string, got " + vartype))
-    })
+    ctx.expression().accept(ExpressionVisitor).right flatMap (e => Right(PrintLnStatement(e)))
   }
 
   override def visitConditional(ctx: ConditionalContext): Either[CompilationError, ConditionalStatement] = {
@@ -78,7 +85,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
       case Left(error)                                                => Left(error)
       case Right(Tuple3(expression, trueStatements, falseStatements)) => expression.vartype match {
         case Boolean => Right(ConditionalStatement(expression, trueStatements, falseStatements))
-        case default => Left(SemanticError("Conditional statement expected expression of type bool, got " + expression.vartype))
+        case default => Left(SemanticError("Conditional statement " + SemanticErrors.typeError("expression", expression.vartype, Boolean)))
       }
     }
   }
@@ -93,12 +100,12 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
       case Left(error)                         => Left(error)
       case Right((expression, statements)) => expression.vartype match {
         case Boolean => Right(Loop(expression, statements))
-        case default => Left(SemanticError("Loop statement expected expression of type bool, got " + expression.vartype))
+        case default => Left(SemanticError("Loop statement " + SemanticErrors.typeError("expression", expression.vartype, Boolean)))
       }
     }
   }
 
-  override def visitScope(ctx: ScopeContext): Either[CompilationError, Statement] = {
+  override def visitScope(ctx: ScopeContext): Either[CompilationError, ScopeStatement] = {
     SymbolTable.openScope()
     val stmt = ctx.sequence().accept(SequenceVisitor).right
     SymbolTable.closeScope()
@@ -107,5 +114,12 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     ) yield ScopeStatement(s)
   }
 
+  override def visitFree(ctx: FreeContext): Either[CompilationError, FreeStatement] = {
+      ctx.expression().accept(ExpressionVisitor).right flatMap (e => e.vartype match {
+        case ArrayType(_) | PairType(_, _)    => Right(FreeStatement(e))
+        case default                          =>
+          Left(SemanticError("Free statement " + SemanticErrors.typeError("expression", e.vartype.toString, ArrayType.toString, PairType.toString)))
+      })
+  }
 }
 

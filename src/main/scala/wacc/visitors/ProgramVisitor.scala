@@ -16,10 +16,9 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[CompilationError, Pro
     }
 
     for {
+      functions <- sequence(ctx.function().toList map (e => e.accept(FunctionVisitor))).right
       statements <- sequence(ctx.sequence().statement().toList map (
         _.accept(StatementVisitor).right.flatMap(semanticErrorIfReturn))).right
-
-      functions <- sequence(ctx.function().toList map (e => e.accept(FunctionVisitor))).right
     } yield Program(functions, statements)
   }
 }
