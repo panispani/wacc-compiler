@@ -55,15 +55,15 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
   //TODO: Any way to get rid of this duplication?
   override def visitPrint(ctx: PrintContext): Either[CompilationError, PrintStatement] = {
     ctx.expression().accept(ExpressionVisitor).right flatMap (e => e.vartype match {
-      case Integer | Character => Right(PrintStatement(e))
-      case vartype @ default   => Left(SemanticError("PrintLn statement expected expression of type int or char, got " + vartype))
+      case Integer | Character | String => Right(PrintStatement(e))
+      case vartype @ default            => Left(SemanticError("PrintLn statement expected expression of type int/char/string, got " + vartype))
     })
   }
 
   override def visitPrintLn(ctx: PrintLnContext): Either[CompilationError, PrintLnStatement] = {
     ctx.expression().accept(ExpressionVisitor).right flatMap (e => e.vartype match {
-      case Integer | Character => Right(PrintLnStatement(e))
-      case vartype @ default   => Left(SemanticError("PrintLn statement expected expression of type int or char, got " + vartype))
+      case Integer | Character | String => Right(PrintLnStatement(e))
+      case vartype @ default            => Left(SemanticError("PrintLn statement expected expression of type int/char/string, got " + vartype))
     })
   }
 
