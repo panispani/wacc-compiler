@@ -30,13 +30,20 @@ case class SymbolTable(parent: Option[SymbolTable]) {
 
   def clear() = map.clear()
 
-  SymbolTable.currentTable = this
 }
 
 object SymbolTable {
   def clearAll() = {
     globalTable.clear()
     currentTable.clear()
+  }
+
+  def openScope() = {
+    currentTable = SymbolTable(Some(currentTable))
+  }
+
+  def closeScope() = {
+    currentTable = currentTable.parent.get
   }
 
   val globalTable: SymbolTable = SymbolTable(None)
