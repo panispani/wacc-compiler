@@ -1,6 +1,5 @@
 package wacc.visitors
 
-import wacc.SymbolTable
 import wacc.constructs._
 
 class StatementVisitorTest extends VisitorTest {
