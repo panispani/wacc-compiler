@@ -24,7 +24,7 @@ statement : NOP                                                                 
           | PRINTLN expression                                                            # PrintLn
           | IF expression THEN trueSequence=sequence ELSE falseSequence=sequence FI       # Conditional
           | WHILE expression DO sequence DONE                                             # Loop
-          | BEGIN statement END                                                           # Scope
+          | BEGIN sequence END                                                            # Scope
           ;
 
 
