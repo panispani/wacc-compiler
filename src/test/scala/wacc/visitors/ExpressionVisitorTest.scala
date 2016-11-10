@@ -39,7 +39,6 @@ class ExpressionVisitorTest extends VisitorTest {
     result.right.value should be (UnaryOperatorExpr(UnaryOperator("-"), IntegerLiteral(-5)))
   }
 
-
   "Visiting a valid binary expression(+)" should "create a Binary Expression with (+)" in {
     val parser = TestUtilities.setupParser("2+-5")
     val result = TestUtilities.buildSubProgram(parser.expression, ExpressionVisitor)
@@ -63,7 +62,19 @@ class ExpressionVisitorTest extends VisitorTest {
       )
     )
   }
-  
+
+  "Visiting a binary operator with an identifier" should "create BinaryOperatorExpression" in {
+    val parser = TestUtilities.setupParser("int a = 5; bool b = a == 5")
+    val result = TestUtilities.buildSubProgram(parser.sequence, SequenceVisitor)
+
+    result.right.value should be (List(
+      DeclareStatement(Integer, "a", IntegerLiteral(5)),
+      DeclareStatement(Boolean, "b",
+        BinaryOperatorExpr(VariableReferenceExpression(Integer), EqualsBinOp, IntegerLiteral(5))
+      )
+    ))
+  }
+
   "Visiting an invalid binary expression" should "create a Semantic error" in {
     val parser = TestUtilities.setupParser("2+'a'")
     val result = TestUtilities.buildSubProgram(parser.expression, ExpressionVisitor)
