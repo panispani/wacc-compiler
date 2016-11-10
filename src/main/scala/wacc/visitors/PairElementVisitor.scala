@@ -1,8 +1,16 @@
 package wacc.visitors
 
+import antlr.WACCParser.PairElementContext
 import antlr.WACCParserBaseVisitor
-import wacc.constructs.ArrayElement
+import wacc.constructs._
+import wacc.util.SemanticErrors
 
-object PairElementVisitor extends WACCParserBaseVisitor[ArrayElement] {
+object PairElementVisitor extends WACCParserBaseVisitor[Either[CompilationError, PairElement]] {
+  override def visitPairElement(ctx: PairElementContext): Either[CompilationError, PairElement] = {
+    ctx.expression().accept(ExpressionVisitor).right flatMap (e => e.vartype match {
+      case PairType(_, _)       => Right(PairElement(Selector(ctx.selector.getText), e))
+      case default              => Left(SemanticError("Pair element " + SemanticErrors.typeError("expression", e.vartype.toString, PairType.toString())))
+    })
+  }
 
 }
