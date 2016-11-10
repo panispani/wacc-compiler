@@ -1,6 +1,6 @@
 package wacc.visitors
 
-import wacc.constructs.{ArrayLiteral, ArrayType, PairConstructor, PairType, _}
+import wacc.constructs._
 
 /**
   * Created by panayiotis on 10/11/16.
@@ -19,14 +19,14 @@ class DeclareStatementTest extends VisitorTest {
     val parser = TestUtilities.setupParser("int[] p = []")
     val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
-    result.right.value should be ()
+    result.right.value should be (DeclareStatement(ArrayType(PrimitiveType("int")),"p",ArrayLiteral(List())))
   }
 
   it should "be invalid when lhs is pair and rhs empty array" in {
     val parser = TestUtilities.setupParser("pair(int, int) p = []")
     val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
-    result.left.value should be (SemanticError(""))
+    result.left.value shouldBe a[SemanticError]
   }
 
   "Integer declaration " should " be built correctly " in {

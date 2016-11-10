@@ -67,8 +67,13 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
 
   override def visitRead(ctx: ReadContext): Either[CompilationError, ReadStatement] = {
     ctx.assignLhs().accept(AssignLhsVisitor).right.flatMap(lhs => lhs.vartype match {
+<<<<<<< HEAD
       case Integer | Character => Right(ReadStatement(lhs))
       case default => Left(SemanticError("Read statement " + SemanticErrors.typeError("target", lhs.vartype, Seq(Integer, Character))))
+=======
+      case Integer | Character | String => Right(ReadStatement(lhs))
+      case default => Left(SemanticError("Read statement " + SemanticErrors.typeError("target", lhs.vartype, Integer, Character)))
+>>>>>>> 9dcf23de8bd553a44e4836e18666225d38252f96
     })
   }
 
