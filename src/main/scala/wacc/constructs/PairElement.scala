@@ -1,6 +1,6 @@
 package wacc.constructs
 
-abstract class PairElement(selector: Selector, identifier: String) extends AssignValue {
+case class PairElement(selector: Selector, expression: Expression) extends AssignValue with AssignTarget {
   override val vartype: Type = String
 }
 
