@@ -29,6 +29,13 @@ class FunctionVisitorTest extends VisitorTest {
     result.left.value should be (SemanticError("A function shouldn't have two or more parameters with the same"))
   }
 
+//  it should "be a semantic error if the last statement is not a return" in {
+//    val parser = TestUtilities.setupParser("int f() is int x = 3 end")
+//    val result = TestUtilities.buildSubProgram(parser.function, FunctionVisitor)
+//
+//    result.left.value should be (SemanticError("The last statement of a function should be a return"))
+//  }
+
 //  it should "be a semantic error if there is a mismatch between the declared and the actual return type" in {
 //    val parser = TestUtilities.setupParser("int f() is return 'c' end")
 //    val result = TestUtilities.buildSubProgram(parser.function, FunctionVisitor)

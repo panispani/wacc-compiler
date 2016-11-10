@@ -34,18 +34,19 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
       SymbolTable.currentTable.addTyped(ident, VariableReference(arg.variable.vartype))
     })
 
+    val res = for {
+      body <- sequence(ctx.sequence().statement().toList map (_.accept(StatementVisitor))).right
+    } yield Function(name, args, returnType, body)
+
     SymbolTable.closeScope()
 
-    for {
-      body <- sequence(ctx.sequence().statement().toList map (s => s.accept(StatementVisitor))).right
-    } yield Function(name, args, returnType, body)
+    res
   }
 }
 
 // function must have a return statement - syntax error
 // return statement is the last statement of the function - semantic error
 // return values(s) are the same(type) as the function type - semantic error
-// function parameters are not duplicated - semantic error
 
 
 //last statement - return
