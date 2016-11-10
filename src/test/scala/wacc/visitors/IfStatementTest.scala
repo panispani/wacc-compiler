@@ -1,11 +1,9 @@
 package wacc.visitors
 
-import org.scalatest.{EitherValues, FlatSpec, Matchers}
 import wacc.constructs._
+import wacc.visitors.TestUtilities.VisitorTest
 
-class IfStatementTest extends FlatSpec
-  with Matchers
-  with EitherValues {
+class IfStatementTest extends VisitorTest {
 
   val input =
     "begin " +

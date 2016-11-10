@@ -1,11 +1,9 @@
 package wacc.visitors
 
-import org.scalatest.{EitherValues, FlatSpec, Matchers}
 import wacc.constructs._
+import wacc.visitors.TestUtilities.VisitorTest
 
-class DeclareTest extends FlatSpec
-  with Matchers
-  with EitherValues {
+class DeclareTest extends VisitorTest {
 
   "Integer decleration " should " be built correctly " in {
     val input = "begin int x = 1 end"

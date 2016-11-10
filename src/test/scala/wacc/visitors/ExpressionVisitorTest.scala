@@ -1,12 +1,9 @@
 package wacc.visitors
 
-import org.scalatest.{EitherValues, FlatSpec, Matchers}
-import wacc.VariableReference
 import wacc.constructs._
+import wacc.visitors.TestUtilities.VisitorTest
 
-class ExpressionVisitorTest extends FlatSpec
-  with Matchers
-  with EitherValues {
+class ExpressionVisitorTest extends VisitorTest {
 
   "Visiting a char literal" should "create a CharLiteral with the correct value" in {
     val parser = TestUtilities.setupParser("'a'")

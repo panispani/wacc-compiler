@@ -1,13 +1,9 @@
 package wacc.visitors
 
-import org.scalatest.{EitherValues, FlatSpec, Matchers}
 import wacc.constructs._
-import wacc.visitors
+import wacc.visitors.TestUtilities.VisitorTest
 
-class ReadStatementTest extends FlatSpec
-  with Matchers
-  with EitherValues {
-
+class ReadStatementTest extends VisitorTest {
 
   "Read " should " throw a semantic error when the target type is not an int or char " in {
     val input =
@@ -25,7 +21,6 @@ class ReadStatementTest extends FlatSpec
       ),
       ReadStatement(VariableReferenceExpression(PairType(Integer, Integer)))
     )
-
 
     program.left.value should be (SemanticError("Read statement target must be of type int or char"))
   }
