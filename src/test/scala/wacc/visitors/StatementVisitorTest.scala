@@ -49,4 +49,23 @@ class StatementVisitorTest extends VisitorTest {
     )
   }
 
+  it should "use parent variables after exiting a scope" in {
+    val parser = TestUtilities.setupParser("int a = 1; begin int a = 2 end; int b = a")
+    val result = TestUtilities.buildSubProgram(parser.sequence, SequenceVisitor)
+
+    result.right.value should be (
+      List(
+        DeclareStatement(Integer,"a",IntegerLiteral(1)),
+        ScopeStatement(
+          List(
+            DeclareStatement(Integer, "a",IntegerLiteral(2))
+          )
+        ),
+        DeclareStatement(Integer,"b",VariableReferenceExpression(Integer))
+      )
+    )
+  }
+
+
+
 }
