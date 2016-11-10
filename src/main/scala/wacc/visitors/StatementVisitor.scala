@@ -11,8 +11,27 @@ import scala.collection.JavaConversions._
 
 object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, Statement]] {
 
-  override def visitSkip(ctx: SkipContext): Either[CompilationError, SkipStatement] = {
-    Right(SkipStatement())
+  def isNullPair(rhs: AssignValue): Boolean = {
+    rhs match {
+      case PairLiteral() => true
+      case default       => false
+    }
+  }
+
+  def isEmptyArray(rhs: AssignValue): Boolean = {
+    rhs match {
+      case ArrayLiteral(_) if rhs.vartype == NullType => true
+      case default                                    => false
+    }
+  }
+
+
+  def compatibleTypes(ltype: Type, rtype: Type, rhs: AssignValue): Boolean = {
+    ltype match {
+      case PairType(_, _) => ltype == rtype || isNullPair(rhs)
+      case ArrayType(_)   => ltype == rtype || isEmptyArray(rhs)
+      case default        => ltype == rtype
+    }
   }
 
   override def visitDeclare(ctx: DeclareContext): Either[CompilationError, DeclareStatement] = {
@@ -20,17 +39,17 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     val identifier = ctx.IDENT().toString
 
     ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(
-      rhs => if(rhs.vartype == vartype) {
-        SymbolTable.currentTable.lookup(ctx.IDENT().getText) match {
-          case None    => SymbolTable.currentTable.addTyped(identifier, VariableReference(vartype))
-                          Right(DeclareStatement(vartype, identifier, rhs))
+    rhs => if(compatibleTypes(vartype, rhs.vartype, rhs)) {
+      SymbolTable.currentTable.lookup(ctx.IDENT().getText) match {
+        case None    => SymbolTable.currentTable.addTyped(identifier, VariableReference(vartype))
+      Right(DeclareStatement(vartype, identifier, rhs))
 
-          case Some(_) => Left(SemanticError("Declare statement " + SemanticErrors.typeError("expression", rhs.vartype, vartype)))
-        }
+        case Some(_) => Left(SemanticError("Declare statement " + SemanticErrors.typeError("expression", rhs.vartype, vartype)))
       }
-      else {
-       Left(SemanticError("Expected type " + vartype + ", got " + rhs.vartype))
-      }
+    }
+    else {
+      Left(SemanticError("Expected type " + vartype + ", got " + rhs.vartype))
+    }
     )
   }
 
@@ -42,10 +61,17 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     } yield (lhs, rhs)
 
     pair.right flatMap {
-      case (l, r) if l.vartype == r.vartype => Right(AssignStatement(l, r))
-      case (l, r)                           => Left(SemanticError("Cannot assign " + r.vartype + " to " + l.vartype))
+      case (l, r) if compatibleTypes(l.vartype, r.vartype, r)
+        => Right(AssignStatement(l, r))
+      case (l, r)
+        => Left(SemanticError("Cannot assign " + r.vartype + " to " + l.vartype))
     }
   }
+
+  override def visitSkip(ctx: SkipContext): Either[CompilationError, SkipStatement] = {
+    Right(SkipStatement())
+  }
+
 
   override def visitExit(ctx: ExitContext): Either[CompilationError, ExitStatement] = {
     ctx.expression().accept(ExpressionVisitor).right.flatMap(e => e.vartype match {
