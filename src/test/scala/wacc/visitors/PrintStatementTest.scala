@@ -25,6 +25,6 @@ class PrintStatementTest extends VisitorTest {
     val parser = TestUtilities.setupParser("print \"str\"")
     val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
-    result.right.value should be (PrintStatement(StringLiteral("str")))
+    result.right.value should be (PrintStatement(StringLiteral("\"str\"")))
   }
 }

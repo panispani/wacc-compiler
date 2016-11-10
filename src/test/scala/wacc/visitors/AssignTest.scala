@@ -1,6 +1,6 @@
 package wacc.visitors
 
-import wacc.constructs.{ArrayElement, ArrayLiteral, ArrayType, AssignStatement, DeclareStatement, IntegerLiteral, PairElement, SemanticError}
+import wacc.constructs.SemanticError
 
 class AssignTest extends VisitorTest {
 
