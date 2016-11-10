@@ -43,7 +43,8 @@ class ScopeStatementTest extends VisitorTest {
     val parser = TestUtilities.setupParser("int a = 1; begin int a = 2 end; int a = 3")
     val result = TestUtilities.buildSubProgram(parser.sequence, SequenceVisitor)
 
-    result.left.value should be (SemanticError("Re-declaration of variable a"))
+    result.left.value shouldBe a[SemanticError]
+//    result.left.value should be (SemanticError("Re-declaration of variable a"))
   }
 
 }

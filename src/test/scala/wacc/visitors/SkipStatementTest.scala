@@ -1,6 +1,6 @@
 package wacc.visitors
 
-import wacc.constructs.{Program, SkipStatement}
+import wacc.constructs.Program
 
 class SkipStatementTest extends VisitorTest {
 
