@@ -24,8 +24,6 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     val identifier = ctx.IDENT().toString
 
     ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(rhs => {
-      System.out.println("Assigning " + rhs + " of type " + rhs.vartype + " to " + vartype)
-
       if (compatibleTypes(vartype, rhs)) {
         SymbolTable.currentTable.lookup(ctx.IDENT().getText) match {
           case None => SymbolTable.currentTable.addTyped(identifier, VariableReference(vartype))
@@ -67,7 +65,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
 
   override def visitRead(ctx: ReadContext): Either[CompilationError, ReadStatement] = {
     ctx.assignLhs().accept(AssignLhsVisitor).right.flatMap(lhs => lhs.vartype match {
-      case Integer | Character => Right(ReadStatement(lhs))
+      case Integer | Character | String => Right(ReadStatement(lhs))
       case default => Left(SemanticError("Read statement " + SemanticErrors.typeError("target", lhs.vartype, Seq(Integer, Character))))
     })
   }
