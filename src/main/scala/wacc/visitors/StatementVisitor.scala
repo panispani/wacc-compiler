@@ -38,18 +38,15 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     val vartype = ctx.`type`().accept(TypeVisitor)
     val identifier = ctx.IDENT().toString
 
-    ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(
-    rhs => if(compatibleTypes(vartype, rhs.vartype, rhs)) {
-      SymbolTable.currentTable.lookup(ctx.IDENT().getText) match {
-        case None    => SymbolTable.currentTable.addTyped(identifier, VariableReference(vartype))
-      Right(DeclareStatement(vartype, identifier, rhs))
+    ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(rhs =>
+      if (compatibleTypes(vartype, rhs.vartype, rhs)) {
+        SymbolTable.currentTable.lookup(ctx.IDENT().getText) match {
+          case None => SymbolTable.currentTable.addTyped(identifier, VariableReference(vartype))
+            Right(DeclareStatement(vartype, identifier, rhs))
 
-        case Some(_) => Left(SemanticError("Declare statement " + SemanticErrors.typeError("expression", rhs.vartype, vartype)))
-      }
-    }
-    else {
-      Left(SemanticError("Expected type " + vartype + ", got " + rhs.vartype))
-    }
+          case Some(_) => Left(SemanticError("Declare statement " + SemanticErrors.typeError("expression", rhs.vartype, vartype)))
+        }
+      } else Left(SemanticError("Expected type " + vartype + ", got " + rhs.vartype))
     )
   }
 
