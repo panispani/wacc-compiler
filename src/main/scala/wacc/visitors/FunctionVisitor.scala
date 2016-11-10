@@ -20,7 +20,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
     val args: Seq[Param] = params map (_.accept(ParamVisitor))
     val returnType = ctx.`type`().accept(TypeVisitor)
 
-    SymbolTable.currentTable.addTyped("f", FunctionReference(returnType, args map (_.variable.vartype)))
+    SymbolTable.currentTable.addTyped(name, FunctionReference(returnType, args map (_.variable.vartype)))
 
     SymbolTable.openScope()
 
