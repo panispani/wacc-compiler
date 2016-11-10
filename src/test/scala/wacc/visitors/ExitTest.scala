@@ -32,7 +32,7 @@ class ExitTest extends VisitorTest {
     result.right.value should be (ExitStatement(BinaryOperatorExpr(IntegerLiteral(2), PlusBinOp, IntegerLiteral(3))))
   }
 
-  it should "allow re-declarations in new scopes" in {
+  "Visiting a new scope" should "allow re-declarations in new scopes" in {
     val parser = TestUtilities.setupParser("int a = 1; begin int a = 2 end")
     val result = TestUtilities.buildSubProgram(parser.sequence, SequenceVisitor)
 
@@ -72,5 +72,25 @@ class ExitTest extends VisitorTest {
     result.left.value should be (SemanticError("Re-declaration of variable a"))
   }
 
+  "Visiting a print statement" should "allow int arguments" in {
+    val parser = TestUtilities.setupParser("print 3")
+    val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
+
+    result.right.value should be (PrintStatement(IntegerLiteral(3)))
+  }
+
+  "Visiting a print statement" should "allow char arguments" in {
+    val parser = TestUtilities.setupParser("print 'a'")
+    val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
+
+    result.right.value should be (PrintStatement(CharLiteral('a')))
+  }
+
+  "Visiting a print statement" should "allow string arguments" in {
+    val parser = TestUtilities.setupParser("print \"str\"")
+    val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
+
+    result.right.value should be (PrintStatement(StringLiteral("str")))
+  }
 
 }

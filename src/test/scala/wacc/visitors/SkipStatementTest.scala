@@ -10,5 +10,3 @@ class SkipStatementTest extends VisitorTest {
     program.right.value should be (Program(Seq(), Seq(SkipStatement())))
   }
 }
-
-
