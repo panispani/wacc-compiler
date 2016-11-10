@@ -70,4 +70,11 @@ class FunctionCallTest extends VisitorTest{
 
     result.left.value shouldBe a[SemanticError]
   }
+
+  it should "fail when function return type and variable on lhs don't line up" in {
+    val parser = TestUtilities.setupParser("begin int foo(int a) is return 1 end char a = call foo(1) end")
+    val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
+
+    result.left.value shouldBe a[SemanticError]
+  }
 }
