@@ -69,7 +69,7 @@ class StatementVisitorTest extends VisitorTest {
     val parser = TestUtilities.setupParser("int a = 1; begin int a = 2 end; int a = 3")
     val result = TestUtilities.buildSubProgram(parser.sequence, SequenceVisitor)
 
-    result.right.value should be (SemanticError("oh well"))
+    result.left.value should be (SemanticError("Re-declaration of variable a"))
   }
 
 

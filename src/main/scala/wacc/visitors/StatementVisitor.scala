@@ -21,10 +21,17 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
 
     ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(
       rhs => if(rhs.vartype == vartype) {
-        SymbolTable.currentTable.addTyped(identifier, VariableReference(vartype))
-        Right(DeclareStatement(vartype, identifier, rhs))
+        SymbolTable.currentTable.lookup(ctx.IDENT().getText) match {
+          case None    => SymbolTable.currentTable.addTyped(identifier, VariableReference(vartype))
+                          Right(DeclareStatement(vartype, identifier, rhs))
+
+          case Some(_) => Left(SemanticError("Declare statement " + SemanticErrors.typeError("expression", rhs.vartype, vartype)))
+        }
       }
-      else Left(SemanticError("Declare statement " + SemanticErrors.typeError("expression", rhs.vartype, vartype))))
+      else {
+       Left(SemanticError("Expected type " + vartype + ", got " + rhs.vartype))
+      }
+    )
   }
 
   override def visitExit(ctx: ExitContext): Either[CompilationError, ExitStatement] = {
