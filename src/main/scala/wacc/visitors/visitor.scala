@@ -15,10 +15,14 @@ package object visitor {
       case ArrayType(NullType) => lhs.vartype.isInstanceOf[ArrayType]
       case PairType(x, y)      => {
         lhs.vartype match {
-          case PairType(a, b) => compatibleTypes(new AssignValue {override val vartype: Type = a},
-            new AssignValue {override val vartype: Type = x}) &&
-            compatibleTypes(new AssignValue {override val vartype: Type = b},
-              new AssignValue {override val vartype: Type = y})
+          case PairType(a, b) =>
+            val lhsFstType = new AssignValue {override val vartype: Type = a}
+            val rhsFstType = new AssignValue {override val vartype: Type = x}
+
+            val lhsSndType = new AssignValue {override val vartype: Type = b}
+            val rhsSndType = new AssignValue {override val vartype: Type = y}
+
+            compatibleTypes(lhsFstType, rhsFstType) && compatibleTypes(lhsSndType, rhsSndType)
           case default        => lhs.vartype == rhs.vartype
         }
       }

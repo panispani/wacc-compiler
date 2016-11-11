@@ -18,7 +18,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(rhs => {
       if (compatibleTypes(new AssignValue {override val vartype: Type = varType}, rhs)) {
 
-        SymbolTable.currentTable.lookup(ctx.IDENT().getText) match {
+        SymbolTable.currentTable.lookup(identifier) match {
           case None => SymbolTable.currentTable.addTyped(identifier, VariableReference(identifier, varType))
                        Right(DeclareStatement(varType, identifier, rhs))
 
