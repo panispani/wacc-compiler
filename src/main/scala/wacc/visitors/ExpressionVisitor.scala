@@ -69,7 +69,7 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
           Left(SemanticError(operator.binaryOperator + " operator needs 2 integers as its arguments"))
 
         case GtBinOp | GteBinOp | LtBinOp | LteBinOp
-        if expr1.vartype != expr2.vartype || (expr1.vartype != Integer && expr2.vartype != Character) =>
+        if expr1.vartype != expr2.vartype || (expr1.vartype != Integer && expr1.vartype != Character) =>
           Left(SemanticError(operator.binaryOperator + " operator needs 2 integers/characters as its arguments"))
 
         case EqualsBinOp | NequalsBinOp
