@@ -1,11 +1,11 @@
 package wacc
 
-import wacc.constructs.{Type, Typed}
+import wacc.constructs.{Param, Type, Typed}
 
 import scala.collection.mutable
 
 case class VariableReference(name: String, vartype: Type) extends Typed
-case class FunctionReference(name: String, returnType: Type, argumentTypes : Seq[Type]) extends Typed {
+case class FunctionReference(name: String, returnType: Type, arguments : Seq[Param]) extends Typed {
   override val vartype: Type = returnType
 }
 

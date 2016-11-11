@@ -10,8 +10,7 @@ import scala.collection.JavaConversions._
 
 object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Function]] {
 
-  override def visitFunction(ctx: FunctionContext): Either[CompilationError, Function] = {
-
+  private def defineFunction(ctx: FunctionContext): Either[SemanticError, _] = {
     val params = Option(ctx.parameterList()) match {
       case None => Seq()
       case Some(ls) => ls.parameter().toList
@@ -23,9 +22,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
 
     if (SymbolTable.globalTable.lookup(name).isDefined)
       return Left(SemanticError("Attempted redefinition of function " + name))
-    else SymbolTable.globalTable.addTyped(name, FunctionReference(name, returnType, args map (_.variable.vartype)))
-
-    SymbolTable.openScope()
+    else SymbolTable.globalTable.addTyped(name, FunctionReference(name, returnType, args))
 
     args map (arg => {
       val ident = arg.variable.identifier
@@ -36,6 +33,19 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
 
       SymbolTable.currentTable.addTyped(ident, VariableReference(ident, arg.variable.vartype))
     })
+    Right()
+  }
+
+  override def visitFunction(ctx: FunctionContext): Either[CompilationError, Function] = {
+
+    SymbolTable.openScope()
+
+    defineFunction(ctx) match {
+      case Left(error) => return Left(error)
+      case Right(_) => ;
+    }
+
+    val FunctionReference(name, returnType, args) = SymbolTable.globalTable.lookup(ctx.IDENT().getText).get
 
     val matchReturnType: PartialFunction[Statement, Either[SemanticError, Statement]] = {
       case s @ ReturnStatement(expression) =>

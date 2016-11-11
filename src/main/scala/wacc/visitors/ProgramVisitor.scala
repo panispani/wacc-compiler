@@ -15,6 +15,8 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[CompilationError, Pro
       case statement: Statement => Right(statement)
     }
 
+    //declare functions
+
     for {
       functions <- sequence(ctx.function().toList map (e => e.accept(FunctionVisitor))).right
       statements <- sequence(ctx.sequence().statement().toList map (
