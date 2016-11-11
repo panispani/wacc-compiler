@@ -5,7 +5,7 @@ import antlr.WACCParserBaseVisitor
 import wacc.constructs._
 import wacc.util.SemanticErrors
 import wacc.visitor._
-import wacc.{SymbolTable, VariableReference}
+import wacc.{FunctionReference, SymbolTable, VariableReference}
 
 import scala.collection.JavaConversions._
 
@@ -36,9 +36,9 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
       if (compatibleTypes(new AssignValue {override val vartype: Type = varType}, rhs)) {
 
         SymbolTable.currentTable.lookup(ctx.IDENT().getText) match {
-          case None => SymbolTable.currentTable.addTyped(identifier, VariableReference(identifier, varType))
-                       Right(DeclareStatement(varType, identifier, rhs))
-
+          case None | Some(FunctionReference(_, _, _)) =>
+            SymbolTable.currentTable.addTyped(identifier, VariableReference(identifier, varType))
+            Right(DeclareStatement(varType, identifier, rhs))
           case Some(_) => Left(SemanticError("Identifier " + identifier + " already declared in current scope"))
         }
       } else Left(SemanticError("Declare statement " + SemanticErrors.typeError("expression", rhs.vartype, varType)))
