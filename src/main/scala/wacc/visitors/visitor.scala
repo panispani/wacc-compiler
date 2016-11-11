@@ -12,6 +12,10 @@ package object visitor {
   def compatibleTypes(a: Type, b: Type): Boolean = {
     b == AnyType || a == AnyType || (b match {
       case ArrayType(AnyType) => a.isInstanceOf[ArrayType]
+      case ArrayType(PairType(x1, y1)) => a match {
+        case ArrayType(PairType(x2, y2)) => compatibleTypes(x1, x2) && compatibleTypes(y1, y2)
+        case default => false
+      }
       case PairType(aFst, aSnd) => a match {
         case PairType(bFst, bSnd) => compatibleTypes(aFst, bFst) && compatibleTypes(aSnd, bSnd)
         case default => a == b
