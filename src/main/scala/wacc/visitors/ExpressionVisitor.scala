@@ -73,8 +73,8 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
           Left(SemanticError(operator.binaryOperator + " operator needs 2 integers/characters as its arguments"))
 
         case EqualsBinOp | NequalsBinOp
-        if expr1.vartype != expr2.vartype =>
-          Left(SemanticError(operator.binaryOperator + " operator needs 2 arguments of the same type"))
+        if !compatibleTypes(expr1.vartype, expr2.vartype) =>
+          Left(SemanticError(operator.binaryOperator + " operator needs 2 arguments of a compatible type"))
 
         case AndBinOp | OrBinOp
         if expr1.vartype != Boolean || expr2.vartype != Boolean =>
