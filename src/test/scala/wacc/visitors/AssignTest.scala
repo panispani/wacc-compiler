@@ -20,7 +20,13 @@ class AssignTest extends VisitorTest {
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
     result.right.value should not be a[SyntaxError]
+  }
 
+  "Assigning to a character" should "be possible from a string element" in {
+    val parser = TestUtilities.setupParser("begin\n  string s = \"hello world!\" ;\n char c = s[1]\nend")
+    val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
+
+    result.right.value should not be a[SyntaxError]
   }
 
   "Assigning to an array element" should "build an AssignStatement" in {
