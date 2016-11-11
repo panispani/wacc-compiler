@@ -2,7 +2,7 @@ package wacc.visitors
 
 import antlr.WACCParser.FunctionContext
 import antlr.WACCParserBaseVisitor
-import wacc.constructs.{CompilationError, ConditionalStatement, Function, LoopStatement, Param, ReturnStatement, SemanticError, Statement, SyntaxError}
+import wacc.constructs.{CompilationError, ConditionalStatement, ExitStatement, Function, LoopStatement, Param, ReturnStatement, SemanticError, Statement, SyntaxError}
 import wacc.visitor._
 import wacc.{FunctionReference, SymbolTable, VariableReference}
 
@@ -11,6 +11,7 @@ import scala.collection.JavaConversions._
 object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Function]] {
 
   override def visitFunction(ctx: FunctionContext): Either[CompilationError, Function] = {
+
     val params = Option(ctx.parameterList()) match {
       case None => Seq()
       case Some(ls) => ls.parameter().toList
@@ -34,29 +35,41 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
       SymbolTable.currentTable.addTyped(ident, VariableReference(arg.variable.vartype))
     })
 
-    def syntaxErrorIfNotReturn(stat: Statement): Either[SyntaxError, Statement] = stat match {
-        case ReturnStatement(expr) => Right(stat)
-        case ConditionalStatement(expr, trueStats, falseStats) => {
-          val trueRes = syntaxErrorIfNotReturn(trueStats.last)
-          val falseRes = syntaxErrorIfNotReturn(falseStats.last)
-          trueRes match {
-            case Left(x) => Left(x)
-            case Right(x) => falseRes
-          }
-        }
-        case LoopStatement(expr, stats) => syntaxErrorIfNotReturn(stats.last)
-        case _ => Left(SyntaxError("The last statement of a function should be a return"))
+    val matchReturnType: PartialFunction[Statement, Either[SemanticError, Statement]] = {
+      case s @ ReturnStatement(expression) =>
+        if (expression.vartype == returnType) Right(s)
+        else Left(SemanticError("The actual return type of a function should match the declared one"))
+      case s @ ExitStatement(_) => Right(s)
+    }
+
+    val matchReturnOrExit: PartialFunction[Statement, Either[SyntaxError, Statement]] = {
+      case s @ (ReturnStatement(_) | ExitStatement(_)) => Right(s)
+      case default => Left(SyntaxError("The last statement of a function should be a return"))
     }
 
     val function = for {
-      statements <- sequence(ctx.sequence().statement().toList map (_.accept(StatementVisitor))).right
-      lastStatement <- syntaxErrorIfNotReturn(statements.last).right
+      statements <- sequence(ctx.sequence.statement.toList map (_.accept(StatementVisitor))).right
+
+      lastStatement <- mapLastStatements(
+        statements.last,
+        matchReturnOrExit(_).right flatMap matchReturnType).right
+
       body <- Right(statements.dropRight(1) :+ lastStatement).right
     } yield Function(name, args, returnType, body)
 
     SymbolTable.closeScope()
 
     function
+  }
+
+  private def mapLastStatements(lastStatement: Statement, f: Statement => Either[CompilationError, Statement])
+  : Either[CompilationError, Statement] = lastStatement match {
+    case ConditionalStatement(expr, trueStats, falseStats) =>
+      val trueRes = mapLastStatements(trueStats.last, f)
+      val falseRes = mapLastStatements(falseStats.last, f)
+      trueRes.right flatMap (_ => falseRes)
+    case LoopStatement(expr, stats) => mapLastStatements(stats.last, f)
+    case statement => f(statement)
   }
 }
 

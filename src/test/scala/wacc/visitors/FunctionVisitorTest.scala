@@ -29,6 +29,13 @@ class FunctionVisitorTest extends VisitorTest {
     result.left.value should be (SemanticError("A function shouldn't have two or more parameters with the same"))
   }
 
+  it should "be valid when the last statement is exit" in {
+    val parser = TestUtilities.setupParser("char f() is exit 1 end")
+    val result = TestUtilities.buildSubProgram(parser.function, FunctionVisitor)
+
+    result.right.value shouldBe a[Function]
+  }
+
   it should "be a syntax error if the last statement is not a return" in {
     val parser = TestUtilities.setupParser("int f() is bool b = true end")
     val result = TestUtilities.buildSubProgram(parser.function, FunctionVisitor)
@@ -36,7 +43,26 @@ class FunctionVisitorTest extends VisitorTest {
     result.left.value should be (SyntaxError("The last statement of a function should be a return"))
   }
 
-  ignore should "be a semantic error if there is a mismatch between the declared and the actual return type" in {
+  it should "be a syntax error if the last statement is not a return with conditionals" in {
+    val parser = TestUtilities.setupParser("int f() is bool b = true ; if b then return 1 else println \"wrong\" fi end")
+    val result = TestUtilities.buildSubProgram(parser.function, FunctionVisitor)
+
+    result.left.value should be (SyntaxError("The last statement of a function should be a return"))
+  }
+
+  it should "be a syntax error if the last statement is not a return with loops" in {
+    val parser = TestUtilities.setupParser("" +
+      "int f() is " +
+      "bool b = true ;" +
+      "if b then return 1" +
+      "else while true do skip done fi end")
+
+    val result = TestUtilities.buildSubProgram(parser.function, FunctionVisitor)
+
+    result.left.value should be (SyntaxError("The last statement of a function should be a return"))
+  }
+
+  it should "be a semantic error if there is a mismatch between the declared and the actual return type" in {
     val parser = TestUtilities.setupParser("int f() is return 'c' end")
     val result = TestUtilities.buildSubProgram(parser.function, FunctionVisitor)
 
