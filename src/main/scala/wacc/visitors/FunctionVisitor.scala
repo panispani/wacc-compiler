@@ -21,7 +21,9 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
     val args: Seq[Param] = params map (_.accept(ParamVisitor))
     val returnType = ctx.`type`().accept(TypeVisitor)
 
-    SymbolTable.currentTable.addTyped(name, FunctionReference(name, returnType, args map (_.variable.vartype)))
+    if (SymbolTable.globalTable.lookup(name).isDefined)
+      return Left(SemanticError("Attempted redefinition of function " + name))
+    else SymbolTable.globalTable.addTyped(name, FunctionReference(name, returnType, args map (_.variable.vartype)))
 
     SymbolTable.openScope()
 
