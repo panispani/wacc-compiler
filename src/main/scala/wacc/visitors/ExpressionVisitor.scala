@@ -96,7 +96,7 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
     SymbolTable.currentTable.lookupAll(identifier) match {
       case Some(reference @ VariableReference(ArrayType(elemtype))) => for {
         indexes <- sequence(ctx.expression().toList map (e => e.accept(ExpressionVisitor))).right
-      } yield ArrayElement(reference, indexes, reference.vartype)
+      } yield ArrayElement(reference, indexes, elemtype)
       case Some(reference @ VariableReference(String)) => for {
         indexes <- sequence(ctx.expression().toList map (e => e.accept(ExpressionVisitor))).right
       } yield ArrayElement(reference, indexes, Character)
