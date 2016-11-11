@@ -12,9 +12,7 @@ case class ReadStatement(target: AssignTarget) extends Statement
 case class SkipStatement() extends Statement
 case class ConditionalStatement(expression: Expression,
                                 trueStatements: Seq[Statement],
-                                falseStatements: Seq[Statement]) extends Statement {
-
-}
+                                falseStatements: Seq[Statement]) extends Statement
 case class DeclareStatement(vartype: Type, identifier: String, value: AssignValue) extends Statement {
 }
 case class LoopStatement(condition: Expression, statements: Seq[Statement]) extends Statement {
