@@ -39,7 +39,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
 
     val matchReturnType: PartialFunction[Statement, Either[SemanticError, Statement]] = {
       case s @ ReturnStatement(expression) =>
-        if (expression.vartype == returnType) Right(s)
+        if (compatibleTypes(expression.vartype, returnType)) Right(s)
         else Left(SemanticError("The actual return type of a function should match the declared one"))
       case s @ ExitStatement(_) => Right(s)
     }
