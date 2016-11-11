@@ -10,42 +10,20 @@ import scala.collection.JavaConversions._
 
 object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Function]] {
 
-  private def defineFunction(ctx: FunctionContext): Either[SemanticError, _] = {
-    val params = Option(ctx.parameterList()) match {
-      case None => Seq()
-      case Some(ls) => ls.parameter().toList
-    }
+  override def visitFunction(ctx: FunctionContext): Either[CompilationError, Function] = {
 
-    val name = ctx.IDENT().getText
-    val args: Seq[Param] = params map (_.accept(ParamVisitor))
-    val returnType = ctx.`type`().accept(TypeVisitor)
-
-    if (SymbolTable.globalTable.lookup(name).isDefined)
-      return Left(SemanticError("Attempted redefinition of function " + name))
-    else SymbolTable.globalTable.addTyped(name, FunctionReference(name, returnType, args))
+    val FunctionReference(name, returnType, args) = SymbolTable.globalTable.lookup(ctx.IDENT().getText).get
+    SymbolTable.openScope()
 
     args map (arg => {
       val ident = arg.variable.identifier
 
       if (SymbolTable.currentTable.lookup(ident).isDefined) {
-        return Left(SemanticError("A function shouldn't have two or more parameters with the same"))
+        return Left(SemanticError("A function shouldn't have two or more parameters with the same name"))
       }
 
       SymbolTable.currentTable.addTyped(ident, VariableReference(ident, arg.variable.vartype))
     })
-    Right()
-  }
-
-  override def visitFunction(ctx: FunctionContext): Either[CompilationError, Function] = {
-
-    SymbolTable.openScope()
-
-    defineFunction(ctx) match {
-      case Left(error) => return Left(error)
-      case Right(_) => ;
-    }
-
-    val FunctionReference(name, returnType, args) = SymbolTable.globalTable.lookup(ctx.IDENT().getText).get
 
     val matchReturnType: PartialFunction[Statement, Either[SemanticError, Statement]] = {
       case s @ ReturnStatement(expression) =>
