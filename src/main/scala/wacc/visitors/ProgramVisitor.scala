@@ -10,7 +10,7 @@ import scala.collection.JavaConversions._
 
 object ProgramVisitor extends WACCParserBaseVisitor[Either[CompilationError, Program]] {
 
-  private def defineFunction(ctx: FunctionContext): Either[SemanticError, _] = {
+  private def defineFunction(ctx: FunctionContext): Option[SemanticError] = {
     val params = Option(ctx.parameterList()) match {
       case None => Seq()
       case Some(ls) => ls.parameter().toList
@@ -21,19 +21,19 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[CompilationError, Pro
     val returnType = ctx.`type`().accept(TypeVisitor)
 
     if (SymbolTable.globalTable.lookup(name).isDefined)
-      return Left(SemanticError("Attempted redefinition of function " + name))
+      return Some(SemanticError("Attempted redefinition of function " + name))
     else SymbolTable.globalTable.addTyped(name, FunctionReference(name, returnType, args))
 
     args map (arg => {
       val ident = arg.variable.identifier
 
       if (SymbolTable.currentTable.lookup(ident).isDefined) {
-        return Left(SemanticError("A function shouldn't have two or more parameters with the same name"))
+        return Some(SemanticError("A function shouldn't have two or more parameters with the same name"))
       }
 
       SymbolTable.currentTable.addTyped(ident, VariableReference(ident, arg.variable.vartype))
     })
-    Right()
+    None
   }
 
   override def visitProgram(ctx: ProgramContext): Either[CompilationError, Program] = {
@@ -47,9 +47,9 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[CompilationError, Pro
     ctx.function() foreach (f => {
       SymbolTable.openScope()
       defineFunction(f) match {
-        case Left(SemanticError(error)) => SymbolTable.closeScope();
+        case Some(SemanticError(error)) => SymbolTable.closeScope();
                                            return Left(SemanticError(error))
-        case Right(_) => ;
+        case None => ;
       }
       SymbolTable.closeScope()
     })
