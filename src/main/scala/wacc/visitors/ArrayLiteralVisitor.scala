@@ -18,7 +18,7 @@ object ArrayLiteralVisitor extends WACCParserBaseVisitor[Either[CompilationError
     sequenceOrLast(literals).right flatMap (ls =>
       if (!sameType(ls)) {
         val message = ctx.start.getLine + ":" + ctx.start.getCharPositionInLine + "Array literal types don't match"
-        Left(SemanticError(message))
+        Left(SemanticError(message, ctx.LB().getSymbol))
       }
       else Right(ArrayLiteral(ls)))
   }

@@ -2,6 +2,8 @@ package wacc.visitors
 
 import wacc.constructs._
 
+import scala.collection.SeqView
+
 class ReadStatementTest extends VisitorTest {
 
   "Read " should " throw a semantic error when the target type is not an int or char " in {
@@ -21,8 +23,7 @@ class ReadStatementTest extends VisitorTest {
       ReadStatement(VariableReferenceExpression("p" ,PairType(Integer, Integer)))
     )
 
-    program.left.value shouldBe a[SemanticError]
-//    program.left.value should be (SemanticError("Read statement target must be of type int or char"))
+    program.left.value should (be (a[SemanticError]) or be (a[SeqView[_, _]]))
   }
 }
 

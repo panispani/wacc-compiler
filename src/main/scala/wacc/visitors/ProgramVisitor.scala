@@ -21,14 +21,14 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
     val returnType = ctx.`type`().accept(TypeVisitor)
 
     if (SymbolTable.globalTable.lookup(name).isDefined)
-      return Some(SemanticError("Attempted redefinition of function " + name))
+      return Some(SemanticError("Attempted redefinition of function " + name, ctx.start))
     else SymbolTable.globalTable.addTyped(name, FunctionReference(name, returnType, args))
 
     args map (arg => {
       val ident = arg.variable.identifier
 
       if (SymbolTable.currentTable.lookup(ident).isDefined) {
-        return Some(SemanticError("A function shouldn't have two or more parameters with the same name"))
+        return Some(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
       }
 
       SymbolTable.currentTable.addTyped(ident, VariableReference(ident, arg.variable.vartype))
@@ -39,7 +39,7 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
   override def visitProgram(ctx: ProgramContext): Either[Seq[CompilationError], Program] = {
 
     def semanticErrorIfReturn(statement: Statement) : Either[SemanticError, Statement] = statement match {
-      case ReturnStatement(_) => Left(SemanticError("Return statement in main program"))
+      case ReturnStatement(_) => Left(SemanticError("Return statement in main program", ctx.start))
       case statement: Statement => Right(statement)
     }
 
@@ -47,8 +47,9 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
     ctx.function() foreach (f => {
       SymbolTable.openScope()
       defineFunction(f) match {
-        case Some(SemanticError(error)) => SymbolTable.closeScope();
-                                           return Left(Seq(SemanticError(error)))
+        case Some(SemanticError(error, symbol)) =>
+          SymbolTable.closeScope()
+          return Left(Seq(SemanticError(error, symbol)))
         case None => ;
       }
       SymbolTable.closeScope()

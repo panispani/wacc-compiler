@@ -79,7 +79,7 @@ class ExpressionVisitorTest extends VisitorTest {
     val parser = TestUtilities.setupParser("2+'a'")
     val result = TestUtilities.buildSubProgram(parser.expression, ExpressionVisitor)
 
-    result.left.value should be (SemanticError("+ operator needs 2 integers as its arguments"))
+    result.left.value shouldBe a[SemanticError]
   }
 
 }

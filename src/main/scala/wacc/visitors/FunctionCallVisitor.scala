@@ -26,10 +26,10 @@ object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError
       case Some(function) => {
         function match {
           case FunctionReference(f, returnType, arguments) => Right((returnType, arguments map (_.variable.vartype)))
-          case default => Left(SemanticError(ctx.IDENT().getText + " is not a function"))
+          case default => Left(SemanticError(ctx.IDENT().getText + " is not a function", ctx.start))
         }
       }
-      case None => Left(SemanticError("Function " + ctx.IDENT().getText + " is undefined"))
+      case None => Left(SemanticError("Function " + ctx.IDENT().getText + " is undefined", ctx.start))
     }
 
     typedArgList match {
@@ -37,7 +37,7 @@ object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError
         functionSignature match {
           case Right((returnType, argTypes)) =>
             if (matchArgumentLists(argTypes, argList)) Right(FunctionCall(ctx.IDENT().getText, argList, returnType))
-            else Left(SemanticError("Argument list types don't match up"))
+            else Left(SemanticError("Argument list types don't match up", ctx.start))
           case Left(error) => Left(error)
         }
       case Left(error) => Left(error)

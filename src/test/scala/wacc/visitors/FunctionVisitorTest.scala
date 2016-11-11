@@ -26,7 +26,7 @@ class FunctionVisitorTest extends VisitorTest {
     val parser = TestUtilities.setupParser("char f(int a, char a) is return 'c' end")
     val result = TestUtilities.buildSubProgram(parser.function, FunctionVisitor)
 
-    result.left.value should be (SemanticError("A function shouldn't have two or more parameters with the same"))
+    result.left.value shouldBe a[SemanticError]
   }
 
   it should "be valid when the last statement is exit" in {
@@ -40,14 +40,14 @@ class FunctionVisitorTest extends VisitorTest {
     val parser = TestUtilities.setupParser("int f() is bool b = true end")
     val result = TestUtilities.buildSubProgram(parser.function, FunctionVisitor)
 
-    result.left.value should be (SyntaxError("The last statement of a function should be a return"))
+    result.left.value shouldBe a[SyntaxError]
   }
 
   it should "be a syntax error if the last statement is not a return with conditionals" in {
     val parser = TestUtilities.setupParser("int f() is bool b = true ; if b then return 1 else println \"wrong\" fi end")
     val result = TestUtilities.buildSubProgram(parser.function, FunctionVisitor)
 
-    result.left.value should be (SyntaxError("The last statement of a function should be a return"))
+    result.left.value shouldBe a[SyntaxError]
   }
 
   it should "be a syntax error if the last statement is not a return with loops" in {
@@ -59,14 +59,14 @@ class FunctionVisitorTest extends VisitorTest {
 
     val result = TestUtilities.buildSubProgram(parser.function, FunctionVisitor)
 
-    result.left.value should be (SyntaxError("The last statement of a function should be a return"))
+    result.left.value shouldBe a[SyntaxError]
   }
 
   it should "be a semantic error if there is a mismatch between the declared and the actual return type" in {
     val parser = TestUtilities.setupParser("int f() is return 'c' end")
     val result = TestUtilities.buildSubProgram(parser.function, FunctionVisitor)
 
-    result.left.value should be (SemanticError("The actual return type of a function should match the declared one"))
+    result.left.value shouldBe a[SemanticError]
   }
 
   it should "be a semantic error if a function with the same name already exists" in {
