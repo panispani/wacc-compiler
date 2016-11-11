@@ -42,9 +42,7 @@ object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError
         functionSignature match {
           case Right((returnType, argTypes)) => {
             if (matchTypes(argTypes, argList)) {
-              val a = Right(FunctionCall(ctx.IDENT().getText, argList, returnType))
-              println(a.right.get.vartype)
-              a
+              Right(FunctionCall(ctx.IDENT().getText, argList, returnType))
             } else {
               Left(SemanticError("Argument list types don't match up"))
             }
