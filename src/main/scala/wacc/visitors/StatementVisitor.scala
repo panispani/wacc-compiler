@@ -17,14 +17,17 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
 
     ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(rhs => {
       if (compatibleTypes(varType, rhs.vartype)) {
-
         SymbolTable.currentTable.lookup(identifier) match {
           case None | Some(FunctionReference(_, _, _)) =>
             SymbolTable.currentTable.addTyped(identifier, VariableReference(identifier, varType))
             Right(DeclareStatement(varType, identifier, rhs))
-          case Some(_) => Left(SemanticError("Identifier " + identifier + " already declared in current scope"))
+          case Some(_) => Left(SemanticError(
+            "Identifier " + identifier + " already declared in current scope",
+            ctx.start))
         }
-      } else Left(SemanticError("Declare statement " + SemanticErrors.typeError("expression", rhs.vartype, varType)))
+      } else Left(
+        SemanticError("Declare statement " + SemanticErrors.typeError("expression", rhs.vartype, varType),
+          ctx.start))
     }
     )
   }
@@ -40,7 +43,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
       case (l, r) if compatibleTypes(l.vartype, r.vartype)
         => Right(AssignStatement(l, r))
       case (l, r)
-        => Left(SemanticError("Cannot assign " + r.vartype + " to " + l.vartype))
+        => Left(SemanticError("Cannot assign " + r.vartype + " to " + l.vartype, ctx.start))
     }
   }
 
@@ -52,14 +55,18 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
   override def visitExit(ctx: ExitContext): Either[CompilationError, ExitStatement] = {
     ctx.expression().accept(ExpressionVisitor).right.flatMap(e => e.vartype match {
       case Integer => Right(ExitStatement(e))
-      case default => Left(SemanticError("Exit statement " + SemanticErrors.typeError("expression", e.vartype, Integer)))
+      case default => Left(SemanticError(
+          "Exit statement " + SemanticErrors.typeError("expression", e.vartype, Integer),
+          ctx.start))
     })
   }
 
   override def visitRead(ctx: ReadContext): Either[CompilationError, ReadStatement] = {
     ctx.assignLhs().accept(AssignLhsVisitor).right.flatMap(lhs => lhs.vartype match {
       case Integer | Character | String => Right(ReadStatement(lhs))
-      case default => Left(SemanticError("Read statement " + SemanticErrors.typeError("target", lhs.vartype, Seq(Integer, Character))))
+      case default => Left(SemanticError(
+        "Read statement " + SemanticErrors.typeError("target", lhs.vartype, Seq(Integer, Character)),
+        ctx.start))
     })
   }
 
@@ -92,7 +99,10 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
       case Left(error)                                                => Left(error)
       case Right(Tuple3(expression, trueStatements, falseStatements)) => expression.vartype match {
         case Boolean => Right(ConditionalStatement(expression, trueStatements, falseStatements))
-        case default => Left(SemanticError("Conditional statement " + SemanticErrors.typeError("expression", expression.vartype, Boolean)))
+        case default => Left(
+          SemanticError(
+            "Conditional statement " + SemanticErrors.typeError("expression", expression.vartype, Boolean),
+            ctx.start))
       }
     }
   }
@@ -109,7 +119,9 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
       case Left(error)                         => Left(error)
       case Right((expression, statements))     => expression.vartype match {
         case Boolean => Right(LoopStatement(expression, statements))
-        case default => Left(SemanticError("Loop statement " + SemanticErrors.typeError("expression", expression.vartype, Boolean)))
+        case default => Left(SemanticError(
+          "Loop statement " + SemanticErrors.typeError("expression", expression.vartype, Boolean),
+          ctx.start))
       }
     }
   }
@@ -127,7 +139,9 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
       ctx.expression().accept(ExpressionVisitor).right flatMap (e => e.vartype match {
         case ArrayType(_) | PairType(_, _)    => Right(FreeStatement(e))
         case default                          =>
-          Left(SemanticError("Free statement " + SemanticErrors.typeError("expression", e.vartype.toString, Seq(ArrayType.toString, PairType.toString))))
+          Left(SemanticError(
+            "Free statement " + SemanticErrors.typeError("expression", e.vartype.toString, Seq(ArrayType.toString, PairType.toString)),
+            ctx.start))
       })
   }
 }

@@ -19,7 +19,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
       val ident = arg.variable.identifier
 
       if (SymbolTable.currentTable.lookup(ident).isDefined) {
-        return Left(SemanticError("A function shouldn't have two or more parameters with the same name"))
+        return Left(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
       }
 
       SymbolTable.currentTable.addTyped(ident, VariableReference(ident, arg.variable.vartype))
@@ -28,13 +28,13 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
     val matchReturnType: PartialFunction[Statement, Either[SemanticError, Statement]] = {
       case s @ ReturnStatement(expression) =>
         if (compatibleTypes(expression.vartype, returnType)) Right(s)
-        else Left(SemanticError("The actual return type of a function should match the declared one"))
+        else Left(SemanticError("The actual return type of a function should match the declared one", ctx.start))
       case s @ ExitStatement(_) => Right(s)
     }
 
     val matchReturnOrExit: PartialFunction[Statement, Either[SyntaxError, Statement]] = {
       case s @ (ReturnStatement(_) | ExitStatement(_)) => Right(s)
-      case default => Left(SyntaxError("The last statement of a function should be a return"))
+      case default => Left(SyntaxError("The last statement of a function should be a return", ctx.start))
     }
 
     val function = for {

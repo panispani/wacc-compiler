@@ -13,7 +13,7 @@ object LiteralVisitor extends WACCParserBaseVisitor[Either[CompilationError, Lit
     = try {
         Right(IntegerLiteral(ctx.getText.toInt))
       } catch {
-        case e: NumberFormatException => Left(SyntaxError("integer literal not in range"))
+        case e: NumberFormatException => Left(SyntaxError("integer literal not in range", ctx.start))
       }
 
   override def visitBoolLiteral(ctx: BoolLiteralContext): Either[CompilationError, BoolLiteral]

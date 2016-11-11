@@ -1,23 +1,31 @@
 package wacc.constructs
 
+import org.antlr.v4.runtime.Token
 
-abstract class CompilationError(val message: String) {
+
+trait CompilationError {
+  def message: String
+  def symbol: Token
+  def exitCode : Int
+
   def raiseAndExit(): Unit = {
     raise()
     System.exit(exitCode)
   }
 
-  val exitCode : Int
-
   def raise() = {
-    println(exitCode + " : " + message)
+    println("line " + symbol.getLine + ":" + symbol.getCharPositionInLine + " " + message)
   }
 }
 
-case class SyntaxError(override val message: String) extends CompilationError(message) {
+case class SyntaxError(message: String, symbol: Token) extends CompilationError {
   override val exitCode: Int = 100
+
+  override def raise(): Unit = super.raise(); println("Syntax error")
 }
 
-case class SemanticError(override val message: String) extends CompilationError(message) {
+case class SemanticError(message: String, symbol: Token) extends CompilationError {
   override val exitCode: Int = 200
+
+  override def raise(): Unit = super.raise(); println("Semantic error")
 }

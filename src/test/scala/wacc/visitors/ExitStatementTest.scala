@@ -22,7 +22,7 @@ class ExitStatementTest extends VisitorTest {
     val parser = TestUtilities.setupParser("exit x")
     val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
-    result.left.value should be (SemanticError("Identifier x not declared"))
+    result.left.value shouldBe a[SemanticError]
   }
 
   it should "create an exit statement with integer expression exit codes" in {

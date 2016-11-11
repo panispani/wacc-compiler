@@ -4,6 +4,8 @@ import wacc.VariableReference
 import wacc.constructs._
 import wacc.constructs.Integer
 
+import scala.collection.SeqView
+
 class AssignTest extends VisitorTest {
 
   "Assigning to a function" should "be a semantic error" in {
@@ -14,7 +16,7 @@ class AssignTest extends VisitorTest {
 
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
-    result.left.value shouldBe a[SemanticError]
+    result.left.value should (be (a[SemanticError]) or be (a[SeqView[_, _]]))
   }
 
   "Assigning to a string element" should "be possible with a character" in {

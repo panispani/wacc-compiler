@@ -2,6 +2,8 @@ package wacc.visitors
 
 import wacc.constructs._
 
+import scala.collection.SeqView
+
 class IfStatementTest extends VisitorTest {
 
   val input =
@@ -17,7 +19,7 @@ class IfStatementTest extends VisitorTest {
   val program = TestUtilities.buildProgram(input)
 
   "If " should " throw a semantic error if the expression given is not a bool " in {
-      program.left.value shouldBe a[SemanticError]
+      program.left.value should (be (a[SemanticError]) or be (a[SeqView[_, _]]))
   }
 }
 

@@ -1,7 +1,11 @@
 package wacc.visitors
 
 import wacc.constructs._
+import scala.collection.SeqView
 
+/**
+  * Created by panayiotis on 10/11/16.
+  */
 class FunctionCallTest extends VisitorTest{
 
   "Making function calls" should "succeed when empty argument list" in {
@@ -73,20 +77,20 @@ class FunctionCallTest extends VisitorTest{
     val parser = TestUtilities.setupParser("begin int foo(int a) is return a end int a = call foo('a') end")
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
-    result.left.value shouldBe a[SemanticError]
+    result.left.value should (be (a[SemanticError]) or be (a[SeqView[_, _]]))
   }
 
   it should "fail when argument number doesn't match the number of parameters" in {
     val parser = TestUtilities.setupParser("begin int foo(int a) is return a end int a = call foo(1, 2) end")
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
-    result.left.value shouldBe a[SemanticError]
+    result.left.value should (be (a[SemanticError]) or be (a[SeqView[_, _]]))
   }
 
   it should "fail when function return type and variable on lhs don't line up" in {
     val parser = TestUtilities.setupParser("begin int foo(int a) is return 1 end char a = call foo(1) end")
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
-    result.left.value shouldBe a[SemanticError]
+    result.left.value should (be (a[SemanticError]) or be (a[SeqView[_, _]]))
   }
 }
