@@ -17,7 +17,7 @@ class FunctionVisitorTest extends VisitorTest {
 
   it should "add the function reference to the symbol table" in {
     val parser = TestUtilities.setupParser("int f() is return 3 end")
-    val result = TestUtilities.buildSubProgram(parser.function, FunctionVisitor)
+    TestUtilities.buildSubProgram(parser.function, FunctionVisitor)
 
     SymbolTable.globalTable.lookup("f") should contain (FunctionReference("f", Integer, Seq()))
   }
