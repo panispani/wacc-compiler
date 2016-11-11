@@ -1,6 +1,6 @@
 package wacc.visitors
 
-import wacc.constructs.SemanticError
+import wacc.constructs.{SemanticError, SyntaxError}
 
 class AssignTest extends VisitorTest {
 
@@ -13,6 +13,14 @@ class AssignTest extends VisitorTest {
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
     result.left.value shouldBe a[SemanticError]
+  }
+
+  "Assigning to a string element" should "be possible with a character" in {
+    val parser = TestUtilities.setupParser("begin\n  string s = \"hello world!\" ;\n s[0] = 'H'\nend")
+    val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
+
+    result.right.value should not be a[SyntaxError]
+
   }
 
   "Assigning to an array element" should "build an AssignStatement" in {
