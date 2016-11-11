@@ -27,7 +27,7 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
   }
 
   override def visitUnaryOperatorExp(ctx: UnaryOperatorExpContext): Either[CompilationError, Expression] = {
-    val operator = ctx.unaryOperator.accept(UnaryOperatorVisitor)
+    val operator = UnaryOperator(ctx.unaryOperator.getText)
     val expr = ctx.expression().accept(ExpressionVisitor).right
 
     expr.flatMap(
@@ -95,10 +95,10 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
 
     SymbolTable.currentTable.lookupAll(identifier) match {
       case Some(reference @ VariableReference(x, ArrayType(elemtype))) => for {
-        indexes <- sequence(ctx.expression().toList map (e => e.accept(ExpressionVisitor))).right
+        indexes <- sequenceOrLast(ctx.expression().toList map (e => e.accept(ExpressionVisitor))).right
       } yield ArrayElement(reference, indexes, elemtype)
       case Some(reference @ VariableReference(x, String)) => for {
-        indexes <- sequence(ctx.expression().toList map (e => e.accept(ExpressionVisitor))).right
+        indexes <- sequenceOrLast(ctx.expression().toList map (e => e.accept(ExpressionVisitor))).right
       } yield ArrayElement(reference, indexes, Character)
       case None    => Left(SemanticError("Variable not declared"))
       case default => Left(SemanticError("Identifier is not an array reference"))

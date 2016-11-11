@@ -1,12 +1,18 @@
 package wacc
 
-import wacc.constructs.{ArrayType, AnyType, PairType, Type}
+import wacc.constructs.{AnyType, ArrayType, PairType, Type}
 
 package object visitor {
 
-  def sequence[A, B](s: Seq[Either[A, B]]): Either[A, Seq[B]] =
+  def sequenceOrLast[A, B](s: Seq[Either[A, B]]): Either[A, Seq[B]] =
     s.foldRight(Right(Nil): Either[A, List[B]]) {
       (e, acc) => for (xs <- acc.right; x <- e.right) yield x :: xs
+    }
+
+  def sequenceOrAll[A, B](s: Seq[Either[A, B]]): Either[Seq[A], Seq[B]] =
+    s.partition(_.isLeft) match {
+      case (Nil, xs) => Right(for(Right(x) <- xs.view) yield x)
+      case (es, _) => Left(for(Left(e) <- es.view) yield e)
     }
 
   def compatibleTypes(a: Type, b: Type): Boolean = {

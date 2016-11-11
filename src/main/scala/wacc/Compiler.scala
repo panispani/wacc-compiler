@@ -17,6 +17,6 @@ object Compiler extends App {
 
   program match {
     case Right(_) => System.exit(0)
-    case Left(error) => error.raise()
+    case Left(errors :+ last) => errors foreach(_.raise()) ; last.raiseAndExit()
   }
 }

@@ -38,7 +38,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
     }
 
     val function = for {
-      statements <- sequence(ctx.sequence.statement.toList map (_.accept(StatementVisitor))).right
+      statements <- sequenceOrLast(ctx.sequence.statement.toList map (_.accept(StatementVisitor))).right
 
       lastStatement <- mapLastStatements(
         statements.last,

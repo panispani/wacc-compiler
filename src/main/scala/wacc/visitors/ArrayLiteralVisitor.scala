@@ -15,7 +15,7 @@ object ArrayLiteralVisitor extends WACCParserBaseVisitor[Either[CompilationError
   override def visitArrayLiteral(ctx: ArrayLiteralContext): Either[CompilationError, ArrayLiteral] = {
     val literals = ctx.expression().toList map (_.accept(ExpressionVisitor))
 
-    sequence(literals).right flatMap (ls =>
+    sequenceOrLast(literals).right flatMap (ls =>
       if (!sameType(ls)) {
         val message = ctx.start.getLine + ":" + ctx.start.getCharPositionInLine + "Array literal types don't match"
         Left(SemanticError(message))
