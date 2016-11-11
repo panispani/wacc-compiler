@@ -20,7 +20,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
     val args: Seq[Param] = params map (_.accept(ParamVisitor))
     val returnType = ctx.`type`().accept(TypeVisitor)
 
-    SymbolTable.currentTable.addTyped(name, FunctionReference(returnType, args map (_.variable.vartype)))
+    SymbolTable.currentTable.addTyped(name, FunctionReference(name, returnType, args map (_.variable.vartype)))
 
     SymbolTable.openScope()
 
@@ -31,7 +31,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
         return Left(SemanticError("A function shouldn't have two or more parameters with the same"))
       }
 
-      SymbolTable.currentTable.addTyped(ident, VariableReference(arg.variable.vartype))
+      SymbolTable.currentTable.addTyped(ident, VariableReference(ident, arg.variable.vartype))
     })
 
     def syntaxErrorIfNotReturn(stat: Statement): Either[SyntaxError, Statement] = stat match {
