@@ -12,26 +12,14 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
 
   override def visitFunction(ctx: FunctionContext): Either[CompilationError, Function] = {
 
-    val params = Option(ctx.parameterList()) match {
-      case None => Seq()
-      case Some(ls) => ls.parameter().toList
-    }
-
-    val name = ctx.IDENT().getText
-    val args: Seq[Param] = params map (_.accept(ParamVisitor))
-    val returnType = ctx.`type`().accept(TypeVisitor)
-
-    if (SymbolTable.globalTable.lookup(name).isDefined)
-      return Left(SemanticError("Attempted redefinition of function " + name))
-    else SymbolTable.globalTable.addTyped(name, FunctionReference(name, returnType, args map (_.variable.vartype)))
-
+    val FunctionReference(name, returnType, args) = SymbolTable.globalTable.lookup(ctx.IDENT().getText).get
     SymbolTable.openScope()
 
     args map (arg => {
       val ident = arg.variable.identifier
 
       if (SymbolTable.currentTable.lookup(ident).isDefined) {
-        return Left(SemanticError("A function shouldn't have two or more parameters with the same"))
+        return Left(SemanticError("A function shouldn't have two or more parameters with the same name"))
       }
 
       SymbolTable.currentTable.addTyped(ident, VariableReference(ident, arg.variable.vartype))

@@ -1,19 +1,58 @@
 package wacc.visitors
 
-import antlr.WACCParser.ProgramContext
+import antlr.WACCParser.{FunctionContext, ProgramContext}
 import antlr.WACCParserBaseVisitor
+import wacc.{FunctionReference, SymbolTable, VariableReference}
 import wacc.constructs._
 import wacc.visitor._
 
 import scala.collection.JavaConversions._
 
 object ProgramVisitor extends WACCParserBaseVisitor[Either[CompilationError, Program]] {
+
+  private def defineFunction(ctx: FunctionContext): Either[SemanticError, _] = {
+    val params = Option(ctx.parameterList()) match {
+      case None => Seq()
+      case Some(ls) => ls.parameter().toList
+    }
+
+    val name = ctx.IDENT().getText
+    val args: Seq[Param] = params map (_.accept(ParamVisitor))
+    val returnType = ctx.`type`().accept(TypeVisitor)
+
+    if (SymbolTable.globalTable.lookup(name).isDefined)
+      return Left(SemanticError("Attempted redefinition of function " + name))
+    else SymbolTable.globalTable.addTyped(name, FunctionReference(name, returnType, args))
+
+    args map (arg => {
+      val ident = arg.variable.identifier
+
+      if (SymbolTable.currentTable.lookup(ident).isDefined) {
+        return Left(SemanticError("A function shouldn't have two or more parameters with the same name"))
+      }
+
+      SymbolTable.currentTable.addTyped(ident, VariableReference(ident, arg.variable.vartype))
+    })
+    Right()
+  }
+
   override def visitProgram(ctx: ProgramContext): Either[CompilationError, Program] = {
 
     def semanticErrorIfReturn(statement: Statement) : Either[SemanticError, Statement] = statement match {
       case ReturnStatement(_) => Left(SemanticError("Return statement in main program"))
       case statement: Statement => Right(statement)
     }
+
+    //define functions
+    ctx.function() foreach (f => {
+      SymbolTable.openScope()
+      defineFunction(f) match {
+        case Left(SemanticError(error)) => SymbolTable.closeScope();
+                                           return Left(SemanticError(error))
+        case Right(_) => ;
+      }
+      SymbolTable.closeScope()
+    })
 
     for {
       functions <- sequence(ctx.function().toList map (e => e.accept(FunctionVisitor))).right
