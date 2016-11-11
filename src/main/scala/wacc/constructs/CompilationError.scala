@@ -21,11 +21,17 @@ trait CompilationError {
 case class SyntaxError(message: String, symbol: Token) extends CompilationError {
   override val exitCode: Int = 100
 
-  override def raise(): Unit = super.raise(); println("Syntax error")
+  override def raise(): Unit = {
+    super.raise()
+    println("Syntax error")
+  }
 }
 
 case class SemanticError(message: String, symbol: Token) extends CompilationError {
   override val exitCode: Int = 200
 
-  override def raise(): Unit = super.raise(); println("Semantic error")
+  override def raise(): Unit = {
+    super.raise()
+    println("Semantic error")
+  }
 }
