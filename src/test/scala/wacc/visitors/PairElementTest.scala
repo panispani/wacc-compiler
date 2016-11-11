@@ -1,9 +1,7 @@
 package wacc.visitors
 
 import wacc.constructs._
-/**
-  * Created by panayiotis on 11/11/16.
-  */
+
 class PairElementTest extends VisitorTest {
 
   "Creating a new pair" should "be valid if both elements are defined pairs and are given the value null" in {

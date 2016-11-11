@@ -2,9 +2,6 @@ package wacc.visitors
 
 import wacc.constructs._
 
-/**
-  * Created by panayiotis on 10/11/16.
-  */
 class FunctionCallTest extends VisitorTest{
 
   "Making function calls" should "succeed when empty argument list" in {

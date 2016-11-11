@@ -1,6 +1,6 @@
 package wacc.visitors
 
-import wacc.constructs.{SemanticError, SyntaxError}
+import wacc.constructs.{SemanticError}
 
 class AssignTest extends VisitorTest {
 

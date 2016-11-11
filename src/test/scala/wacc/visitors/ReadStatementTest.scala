@@ -22,7 +22,6 @@ class ReadStatementTest extends VisitorTest {
     )
 
     program.left.value shouldBe a[SemanticError]
-//    program.left.value should be (SemanticError("Read statement target must be of type int or char"))
   }
 }
 

@@ -18,7 +18,6 @@ class IfStatementTest extends VisitorTest {
 
   "If " should " throw a semantic error if the expression given is not a bool " in {
       program.left.value shouldBe a[SemanticError]
-//    program.left.value should be (SemanticError("Conditional statement expected expression of type bool, got PairType(PrimitiveType(int),PrimitiveType(int))"))
   }
 }
 

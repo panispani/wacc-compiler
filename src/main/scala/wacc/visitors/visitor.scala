@@ -1,6 +1,6 @@
 package wacc
 
-import wacc.constructs.{ArrayType, AssignValue, AnyType, PairType, Type}
+import wacc.constructs.{ArrayType, AnyType, PairType, Type}
 
 package object visitor {
 

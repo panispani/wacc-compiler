@@ -4,10 +4,6 @@ import antlr.WACCParser.UnaryOperatorContext
 import antlr.WACCParserBaseVisitor
 import wacc.constructs._
 
-/**
-  * Created by panayiotis on 08/11/16.
-  */
-
 object UnaryOperatorVisitor extends WACCParserBaseVisitor[UnaryOperator] {
   override def visitUnaryOperator(ctx: UnaryOperatorContext): UnaryOperator = {
     UnaryOperator(ctx.getText)

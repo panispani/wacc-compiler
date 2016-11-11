@@ -67,7 +67,6 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     ctx.expression().accept(ExpressionVisitor).right map ReturnStatement
   }
 
-  //TODO: Any way to get rid of this duplication?
   override def visitPrint(ctx: PrintContext): Either[CompilationError, PrintStatement] = {
     ctx.expression().accept(ExpressionVisitor).right flatMap (e => Right(PrintStatement(e)))
   }

@@ -1,10 +1,7 @@
 package wacc.visitors
 
-import wacc.constructs.{SemanticError, _}
+import wacc.constructs._
 
-/**
-  * Created by panayiotis on 10/11/16.
-  */
 class ScopeStatementTest extends VisitorTest {
   "Visiting a new scope" should "allow re-declarations in new scopes" in {
     val parser = TestUtilities.setupParser("int a = 1; begin int a = 2 end")
@@ -44,7 +41,6 @@ class ScopeStatementTest extends VisitorTest {
     val result = TestUtilities.buildSubProgram(parser.sequence, SequenceVisitor)
 
     result.left.value shouldBe a[SemanticError]
-//    result.left.value should be (SemanticError("Re-declaration of variable a"))
   }
 
 }
