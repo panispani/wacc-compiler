@@ -36,11 +36,11 @@ class FunctionVisitorTest extends VisitorTest {
     result.left.value should be (SyntaxError("The last statement of a function should be a return"))
   }
 
-//  it should "be a semantic error if there is a mismatch between the declared and the actual return type" in {
-//    val parser = TestUtilities.setupParser("int f() is return 'c' end")
-//    val result = TestUtilities.buildSubProgram(parser.function, FunctionVisitor)
-//
-//    result.left.value should be (SemanticError("The actual return type of a function should match the declared one"))
-//  }
+  ignore should "be a semantic error if there is a mismatch between the declared and the actual return type" in {
+    val parser = TestUtilities.setupParser("int f() is return 'c' end")
+    val result = TestUtilities.buildSubProgram(parser.function, FunctionVisitor)
+
+    result.left.value should be (SemanticError("The actual return type of a function should match the declared one"))
+  }
 
 }
