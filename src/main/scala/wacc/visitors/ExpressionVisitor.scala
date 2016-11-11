@@ -108,8 +108,6 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
       case default => Left(SemanticError("Identifier is not an array reference", ctx.start))
     }
   }
-
-
 }
 
 

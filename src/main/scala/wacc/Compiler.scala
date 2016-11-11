@@ -4,7 +4,6 @@ import antlr.{WACCLexer, WACCParser}
 import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream}
 import wacc.visitors.ProgramVisitor
 
-/* This is an experimental compiler */
 object Compiler extends App {
   val input = new ANTLRInputStream(System.in)
   val lexer = new WACCLexer(input)

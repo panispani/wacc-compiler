@@ -2,9 +2,6 @@ package wacc.visitors
 
 import wacc.constructs._
 
-/**
-  * Created by panayiotis on 10/11/16.
-  */
 class DeclareStatementTest extends VisitorTest {
 
   "Declaration statement" should "be valid when lhs is pair and rhs is null" in {
