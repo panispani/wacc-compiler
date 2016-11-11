@@ -19,9 +19,9 @@ case class StringLiteral(value: String) extends Literal {
 }
 
 case class ArrayLiteral(elements: Seq[Expression]) extends AssignValue {
-  val vartype: ArrayType = ArrayType(if (elements.nonEmpty) elements.head.vartype else NullType)
+  val vartype: ArrayType = ArrayType(if (elements.nonEmpty) elements.head.vartype else AnyType)
 }
 
 case class PairLiteral() extends Literal {
-  override val vartype: Type = NullType
+  override val vartype: Type = PairType(AnyType, AnyType)
 }

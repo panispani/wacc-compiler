@@ -11,31 +11,14 @@ import scala.collection.JavaConversions._
 
 object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, Statement]] {
 
-  def compatibleTypes(lhs: AssignValue, rhs: AssignValue): Boolean = {
-    rhs.vartype match {
-      case NullType            => lhs.vartype.isInstanceOf[PairType] || lhs.vartype.isInstanceOf[ErasedPair]
-      case ArrayType(NullType) => lhs.vartype.isInstanceOf[ArrayType]
-      case PairType(x, y)      => {
-        lhs.vartype match {
-          case PairType(a, b) => compatibleTypes(new AssignValue {override val vartype: Type = a},
-                                                 new AssignValue {override val vartype: Type = x}) &&
-                                 compatibleTypes(new AssignValue {override val vartype: Type = b},
-                                                 new AssignValue {override val vartype: Type = y})
-          case default        => lhs.vartype == rhs.vartype
-        }
-      }
-      case default             => lhs.vartype == rhs.vartype
-    }
-  }
-
   override def visitDeclare(ctx: DeclareContext): Either[CompilationError, DeclareStatement] = {
     val varType = ctx.`type`().accept(TypeVisitor)
     val identifier = ctx.IDENT().toString
 
     ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(rhs => {
-      if (compatibleTypes(new AssignValue {override val vartype: Type = varType}, rhs)) {
+      if (compatibleTypes(varType, rhs.vartype)) {
 
-        SymbolTable.currentTable.lookup(ctx.IDENT().getText) match {
+        SymbolTable.currentTable.lookup(identifier) match {
           case None | Some(FunctionReference(_, _, _)) =>
             SymbolTable.currentTable.addTyped(identifier, VariableReference(identifier, varType))
             Right(DeclareStatement(varType, identifier, rhs))
@@ -54,7 +37,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     } yield (lhs, rhs)
 
     pair.right flatMap {
-      case (l, r) if compatibleTypes(new AssignValue {override val vartype: Type = l.vartype}, r)
+      case (l, r) if compatibleTypes(l.vartype, r.vartype)
         => Right(AssignStatement(l, r))
       case (l, r)
         => Left(SemanticError("Cannot assign " + r.vartype + " to " + l.vartype))
