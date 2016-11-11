@@ -40,7 +40,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
       case (l, r) if compatibleTypes(l.vartype, r.vartype)
         => Right(AssignStatement(l, r))
       case (l, r)
-        => Left(SemanticError("Cannot assign " + r.vartype + " to " + l.vartype + ", line:  " + ctx.ASSIGN().getSymbol.getLine))
+        => Left(SemanticError("Cannot assign " + r.vartype + " to " + l.vartype))
     }
   }
 
@@ -82,6 +82,8 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     val tuple = for {
       expression <- ctx.expression().accept(ExpressionVisitor).right
       trueStatements <- sequence(ctx.trueSequence.statement().toList map (s => s.accept(StatementVisitor))).right
+      _ <- Right(SymbolTable.closeScope()).right
+      _ <- Right(SymbolTable.openScope()).right
       falseStatements <- sequence(ctx.falseSequence.statement().toList map (s => s.accept(StatementVisitor))).right
     } yield Tuple3(expression, trueStatements, falseStatements)
 
