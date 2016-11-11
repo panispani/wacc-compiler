@@ -11,11 +11,6 @@ import scala.collection.JavaConversions._
 
 object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError, FunctionCall]] {
 
-  def matchTypes(l1: Seq[Type], l2: Seq[Expression]): Boolean = {
-    val matchList = (l1, l2).zipped map((e1, e2) => e1 == e2.vartype)
-    matchList.forall(b => b)
-  }
-
   override def visitFunctionCall(ctx: FunctionCallContext): Either[CompilationError, FunctionCall] = {
     val ctxArgList = Option(ctx.argumentList())
 
@@ -38,19 +33,21 @@ object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError
     }
 
     typedArgList match {
-      case Right(argList) => {
+      case Right(argList) =>
         functionSignature match {
-          case Right((returnType, argTypes)) => {
-            if (matchTypes(argTypes, argList)) {
-              Right(FunctionCall(ctx.IDENT().getText, argList, returnType))
-            } else {
-              Left(SemanticError("Argument list types don't match up"))
-            }
-          }
+          case Right((returnType, argTypes)) =>
+            if (matchArgumentLists(argTypes, argList)) Right(FunctionCall(ctx.IDENT().getText, argList, returnType))
+            else Left(SemanticError("Argument list types don't match up"))
           case Left(error) => Left(error)
         }
-      }
       case Left(error) => Left(error)
     }
+  }
+
+  private def matchArgumentLists(l1: Seq[Type], l2: Seq[Expression]) = l1.size == l2.size && matchTypes(l1, l2)
+
+  private def matchTypes(l1: Seq[Type], l2: Seq[Expression]): Boolean = {
+    val matchList = (l1, l2).zipped map((e1, e2) => e1 == e2.vartype)
+    matchList.forall(b => b)
   }
 }
