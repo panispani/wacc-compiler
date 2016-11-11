@@ -11,28 +11,37 @@ import scala.collection.JavaConversions._
 
 object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, Statement]] {
 
-  def compatibleTypes(ltype: Type, rhs: AssignValue): Boolean = {
+  def compatibleTypes(lhs: AssignValue, rhs: AssignValue): Boolean = {
     rhs.vartype match {
-      case NullType            => ltype.isInstanceOf[PairType]
-      case ArrayType(NullType) => ltype.isInstanceOf[ArrayType]
-      case default             => ltype == rhs.vartype
+      case NullType            => lhs.vartype.isInstanceOf[PairType] || lhs.vartype.isInstanceOf[ErasedPair]
+      case ArrayType(NullType) => lhs.vartype.isInstanceOf[ArrayType]
+      case PairType(x, y)      => {
+        lhs.vartype match {
+          case PairType(a, b) => compatibleTypes(new AssignValue {override val vartype: Type = a},
+                                                 new AssignValue {override val vartype: Type = x}) &&
+                                 compatibleTypes(new AssignValue {override val vartype: Type = b},
+                                                 new AssignValue {override val vartype: Type = y})
+          case default        => lhs.vartype == rhs.vartype
+        }
+      }
+      case default             => lhs.vartype == rhs.vartype
     }
   }
 
   override def visitDeclare(ctx: DeclareContext): Either[CompilationError, DeclareStatement] = {
-    val vartype = ctx.`type`().accept(TypeVisitor)
+    val varType = ctx.`type`().accept(TypeVisitor)
     val identifier = ctx.IDENT().toString
 
     ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(rhs => {
-      if (compatibleTypes(vartype, rhs)) {
+      if (compatibleTypes(new AssignValue {override val vartype: Type = varType}, rhs)) {
 
         SymbolTable.currentTable.lookup(ctx.IDENT().getText) match {
-          case None => SymbolTable.currentTable.addTyped(identifier, VariableReference(identifier, vartype))
-                       Right(DeclareStatement(vartype, identifier, rhs))
+          case None => SymbolTable.currentTable.addTyped(identifier, VariableReference(identifier, varType))
+                       Right(DeclareStatement(varType, identifier, rhs))
 
           case Some(_) => Left(SemanticError("Identifier " + identifier + " already declared in current scope"))
         }
-      } else Left(SemanticError("Declare statement " + SemanticErrors.typeError("expression", rhs.vartype, vartype)))
+      } else Left(SemanticError("Declare statement " + SemanticErrors.typeError("expression", rhs.vartype, varType)))
     }
     )
   }
@@ -45,7 +54,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     } yield (lhs, rhs)
 
     pair.right flatMap {
-      case (l, r) if compatibleTypes(l.vartype, r)
+      case (l, r) if compatibleTypes(new AssignValue {override val vartype: Type = l.vartype}, r)
         => Right(AssignStatement(l, r))
       case (l, r)
         => Left(SemanticError("Cannot assign " + r.vartype + " to " + l.vartype))
