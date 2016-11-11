@@ -6,6 +6,7 @@ import wacc.constructs._
   * Created by panayiotis on 10/11/16.
   */
 class FunctionCallTest extends VisitorTest{
+
   "Making function calls" should "succeed when empty argument list" in {
     val parser = TestUtilities.setupParser("begin int foo() is return 1 end int a = call foo() end ")
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
@@ -66,6 +67,13 @@ class FunctionCallTest extends VisitorTest{
 
   it should "fail when argument types don't match" in {
     val parser = TestUtilities.setupParser("begin int foo(int a) is return a end int a = call foo('a') end")
+    val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
+
+    result.left.value shouldBe a[SemanticError]
+  }
+
+  it should "fail when argument number doesn't match the number of parameters" in {
+    val parser = TestUtilities.setupParser("begin int foo(int a) is return a end int a = call foo(1, 2) end")
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
     result.left.value shouldBe a[SemanticError]
