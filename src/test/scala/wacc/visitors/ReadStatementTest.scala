@@ -18,7 +18,7 @@ class ReadStatementTest extends VisitorTest {
         "p",
         PairConstructor(IntegerLiteral(1), IntegerLiteral(2))
       ),
-      ReadStatement(VariableReferenceExpression(PairType(Integer, Integer)))
+      ReadStatement(VariableReferenceExpression("p" ,PairType(Integer, Integer)))
     )
 
     program.left.value shouldBe a[SemanticError]

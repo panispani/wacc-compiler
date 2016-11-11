@@ -34,7 +34,7 @@ class ScopeStatementTest extends VisitorTest {
             DeclareStatement(Integer, "a",IntegerLiteral(2))
           )
         ),
-        DeclareStatement(Integer,"b",VariableReferenceExpression(Integer))
+        DeclareStatement(Integer,"b",VariableReferenceExpression("a", Integer))
       )
     )
   }
