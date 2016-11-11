@@ -1,6 +1,6 @@
 package wacc
 
-import wacc.constructs.{ArrayType, AssignValue, ErasedPair, NullType, PairType, Type}
+import wacc.constructs.{ArrayType, AssignValue, AnyType, PairType, Type}
 
 package object visitor {
 
@@ -9,24 +9,14 @@ package object visitor {
       (e, acc) => for (xs <- acc.right; x <- e.right) yield x :: xs
     }
 
-  def compatibleTypes(lhs: AssignValue, rhs: AssignValue): Boolean = {
-    rhs.vartype match {
-      case NullType            => lhs.vartype.isInstanceOf[PairType] || lhs.vartype.isInstanceOf[ErasedPair]
-      case ArrayType(NullType) => lhs.vartype.isInstanceOf[ArrayType]
-      case PairType(x, y)      => {
-        lhs.vartype match {
-          case PairType(a, b) =>
-            val lhsFstType = new AssignValue {override val vartype: Type = a}
-            val rhsFstType = new AssignValue {override val vartype: Type = x}
-
-            val lhsSndType = new AssignValue {override val vartype: Type = b}
-            val rhsSndType = new AssignValue {override val vartype: Type = y}
-
-            compatibleTypes(lhsFstType, rhsFstType) && compatibleTypes(lhsSndType, rhsSndType)
-          case default        => lhs.vartype == rhs.vartype
-        }
+  def compatibleTypes(a: Type, b: Type): Boolean = {
+    b == AnyType || a == AnyType || (b match {
+      case ArrayType(AnyType) => a.isInstanceOf[ArrayType]
+      case PairType(aFst, aSnd) => a match {
+        case PairType(bFst, bSnd) => compatibleTypes(aFst, bFst) && compatibleTypes(aSnd, bSnd)
+        case default => a == b
       }
-      case default             => lhs.vartype == rhs.vartype
-    }
+      case default => a == b
+    })
   }
 }

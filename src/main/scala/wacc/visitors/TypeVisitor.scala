@@ -27,6 +27,6 @@ object TypeVisitor extends WACCParserBaseVisitor[Type] {
   }
 
   override def visitErasedPair(ctx: ErasedPairContext): Type = {
-    ErasedPair()
+    PairType(AnyType, AnyType)
   }
 }

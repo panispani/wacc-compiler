@@ -16,7 +16,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     val identifier = ctx.IDENT().toString
 
     ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(rhs => {
-      if (compatibleTypes(new AssignValue {override val vartype: Type = varType}, rhs)) {
+      if (compatibleTypes(varType, rhs.vartype)) {
 
         SymbolTable.currentTable.lookup(identifier) match {
           case None => SymbolTable.currentTable.addTyped(identifier, VariableReference(identifier, varType))
@@ -37,7 +37,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     } yield (lhs, rhs)
 
     pair.right flatMap {
-      case (l, r) if compatibleTypes(new AssignValue {override val vartype: Type = l.vartype}, r)
+      case (l, r) if compatibleTypes(l.vartype, r.vartype)
         => Right(AssignStatement(l, r))
       case (l, r)
         => Left(SemanticError("Cannot assign " + r.vartype + " to " + l.vartype))

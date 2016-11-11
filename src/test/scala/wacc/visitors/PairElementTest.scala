@@ -15,14 +15,14 @@ class PairElementTest extends VisitorTest {
         List(),
         List(
           DeclareStatement(
-            PairType(ErasedPair(),ErasedPair()),
+            PairType(PairType(AnyType, AnyType),PairType(AnyType, AnyType)),
             "p",
             PairConstructor(PairLiteral(),PairLiteral())
           ),
           PrintStatement(
             VariableReferenceExpression(
               "p",
-              PairType(ErasedPair(),ErasedPair())
+              PairType(PairType(AnyType, AnyType),PairType(AnyType, AnyType))
             )
           )
         )
