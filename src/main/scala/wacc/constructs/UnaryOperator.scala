@@ -5,7 +5,11 @@ package wacc.constructs
   */
 case class UnaryOperator(unaryOperator: String)
 case class UnaryOperatorExpr(unaryOperator: UnaryOperator, expression: Expression) extends Expression {
-  override val vartype = expression.vartype
+  override val vartype = unaryOperator match {
+    case NotOp | MinusOp => expression.vartype
+    case LenOp | OrdOp => Integer
+    case ChrOp => Character
+  }
 }
 
 object NotOp extends UnaryOperator("!")
