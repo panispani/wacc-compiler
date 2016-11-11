@@ -2,7 +2,7 @@ package wacc.visitors
 
 import wacc.constructs._
 
-class FreeTest extends VisitorTest {
+class FreeStatementTest extends VisitorTest {
 
   "Visiting free" should "create a FreeStatement" in {
     val parser = TestUtilities.setupParser("pair(int, int) p = null ; read fst p")
@@ -18,7 +18,7 @@ class FreeTest extends VisitorTest {
         ReadStatement(
           PairElement(
             FirstSelector,
-            VariableReferenceExpression(PairType(Integer, Integer)),
+            VariableReferenceExpression("p", PairType(Integer, Integer)),
             Integer
           )
         )

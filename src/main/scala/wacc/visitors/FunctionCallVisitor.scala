@@ -30,7 +30,7 @@ object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError
       SymbolTable.globalTable.lookup(ctx.IDENT().getText) match {
       case Some(function) => {
         function match {
-          case FunctionReference(returnType, argumentTypes) => Right((returnType, argumentTypes))
+          case FunctionReference(f, returnType, argumentTypes) => Right((returnType, argumentTypes))
           case default => Left(SemanticError(ctx.IDENT().getText + " is not a function"))
         }
       }

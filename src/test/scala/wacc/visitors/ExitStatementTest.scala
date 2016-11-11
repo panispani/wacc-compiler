@@ -2,7 +2,7 @@ package wacc.visitors
 
 import wacc.constructs._
 
-class ExitTest extends VisitorTest {
+class ExitStatementTest extends VisitorTest {
 
   "Visiting exit" should "create an exit statement" in {
     val parser = TestUtilities.setupParser("exit 10")

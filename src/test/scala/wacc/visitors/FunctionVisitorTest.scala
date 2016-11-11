@@ -19,7 +19,7 @@ class FunctionVisitorTest extends VisitorTest {
     val parser = TestUtilities.setupParser("int f() is return 3 end")
     val result = TestUtilities.buildSubProgram(parser.function, FunctionVisitor)
 
-    SymbolTable.globalTable.lookup("f") should contain (FunctionReference(Integer, Seq()))
+    SymbolTable.globalTable.lookup("f") should contain (FunctionReference("f", Integer, Seq()))
   }
 
   it should "be a semantic error if two or more parameters have the same name" in {

@@ -15,8 +15,8 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
   override def visitVariableReference(ctx: VariableReferenceContext): Either[CompilationError, VariableReferenceExpression] = {
     val identifier = ctx.IDENT().getText
     SymbolTable.currentTable.lookupAll(identifier) match {
-      case Some(VariableReference(t)) => Right(VariableReferenceExpression(t))
-      case Some(FunctionReference(_, _)) => Left(SemanticError("Expected identifier to be a variable, got function instead"))
+      case Some(VariableReference(x, t)) => Right(VariableReferenceExpression(x, t))
+      case Some(FunctionReference(f, _, _)) => Left(SemanticError("Expected identifier to be a variable, got function instead"))
       case Some(_: Typed) => Left(SemanticError("Compiler broken"))
       case None => Left(SemanticError("Identifier " + identifier + " not declared"))
     }
@@ -94,10 +94,10 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
     val identifier = ctx.variableReference().getText
 
     SymbolTable.currentTable.lookupAll(identifier) match {
-      case Some(reference @ VariableReference(ArrayType(elemtype))) => for {
+      case Some(reference @ VariableReference(x, ArrayType(elemtype))) => for {
         indexes <- sequence(ctx.expression().toList map (e => e.accept(ExpressionVisitor))).right
-      } yield ArrayElement(reference, indexes, reference.vartype)
-      case Some(reference @ VariableReference(String)) => for {
+      } yield ArrayElement(reference, indexes, elemtype)
+      case Some(reference @ VariableReference(x, String)) => for {
         indexes <- sequence(ctx.expression().toList map (e => e.accept(ExpressionVisitor))).right
       } yield ArrayElement(reference, indexes, Character)
       case None    => Left(SemanticError("Variable not declared"))
