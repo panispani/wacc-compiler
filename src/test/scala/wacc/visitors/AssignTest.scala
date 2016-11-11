@@ -1,6 +1,8 @@
 package wacc.visitors
 
-import wacc.constructs.{SemanticError}
+import wacc.VariableReference
+import wacc.constructs._
+import wacc.constructs.Integer
 
 import scala.collection.SeqView
 
@@ -35,22 +37,35 @@ class AssignTest extends VisitorTest {
     val parser = TestUtilities.setupParser("int [] x = [1, 2, 3] ; x [0] = 10")
     val result = TestUtilities.buildSubProgram(parser.sequence, SequenceVisitor)
 
-    /* TODO: Can't write this test case until ArrayElement is fixed
     result.right.value should be (
-      Seq(
+      List(
         DeclareStatement(
-          ArrayType(Integer),
+          ArrayType(PrimitiveType("int")),
           "x",
-          ArrayLiteral(Seq(IntegerLiteral(1), IntegerLiteral(2), IntegerLiteral(3)))
+          ArrayLiteral(
+            List(
+              IntegerLiteral(1),
+              IntegerLiteral(2),
+              IntegerLiteral(3)
+            )
+          )
         ),
         AssignStatement(
           ArrayElement(
-
-          )
+            VariableReference(
+              "x",
+              ArrayType(PrimitiveType("int"))
+            ),
+            List(
+              IntegerLiteral(0)
+            ),
+            PrimitiveType("int")
+          ),
+          IntegerLiteral(10)
         )
       )
     )
-    */
+
   }
 
 }
