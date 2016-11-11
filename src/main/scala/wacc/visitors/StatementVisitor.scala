@@ -11,23 +11,6 @@ import scala.collection.JavaConversions._
 
 object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, Statement]] {
 
-  def compatibleTypes(lhs: AssignValue, rhs: AssignValue): Boolean = {
-    rhs.vartype match {
-      case NullType            => lhs.vartype.isInstanceOf[PairType] || lhs.vartype.isInstanceOf[ErasedPair]
-      case ArrayType(NullType) => lhs.vartype.isInstanceOf[ArrayType]
-      case PairType(x, y)      => {
-        lhs.vartype match {
-          case PairType(a, b) => compatibleTypes(new AssignValue {override val vartype: Type = a},
-                                                 new AssignValue {override val vartype: Type = x}) &&
-                                 compatibleTypes(new AssignValue {override val vartype: Type = b},
-                                                 new AssignValue {override val vartype: Type = y})
-          case default        => lhs.vartype == rhs.vartype
-        }
-      }
-      case default             => lhs.vartype == rhs.vartype
-    }
-  }
-
   override def visitDeclare(ctx: DeclareContext): Either[CompilationError, DeclareStatement] = {
     val varType = ctx.`type`().accept(TypeVisitor)
     val identifier = ctx.IDENT().toString
