@@ -27,7 +27,7 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
   }
 
   override def visitUnaryOperatorExp(ctx: UnaryOperatorExpContext): Either[CompilationError, Expression] = {
-    val operator = ctx.unaryOperator.accept(UnaryOperatorVisitor)
+    val operator = UnaryOperator(ctx.unaryOperator.getText)
     val expr = ctx.expression().accept(ExpressionVisitor).right
 
     expr.flatMap(
