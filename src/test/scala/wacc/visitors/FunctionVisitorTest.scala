@@ -69,4 +69,13 @@ class FunctionVisitorTest extends VisitorTest {
     result.left.value should be (SemanticError("The actual return type of a function should match the declared one"))
   }
 
+  it should "be a semantic error if a function with the same name already exists" in {
+    val parser = TestUtilities.setupParser("int f() is return 1 end char f() is return 'a' end")
+
+    TestUtilities.buildSubProgram(parser.function, FunctionVisitor) // parses the first function
+    val result = TestUtilities.buildSubProgram(parser.function, FunctionVisitor)
+
+    result.left.value shouldBe a[SemanticError]
+  }
+
 }
