@@ -81,10 +81,10 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
 
     val tuple = for {
       expression <- ctx.expression().accept(ExpressionVisitor).right
-      trueStatements <- sequence(ctx.trueSequence.statement().toList map (s => s.accept(StatementVisitor))).right
+      trueStatements <- sequenceOrLast(ctx.trueSequence.statement().toList map (s => s.accept(StatementVisitor))).right
       _ <- Right(SymbolTable.closeScope()).right
       _ <- Right(SymbolTable.openScope()).right
-      falseStatements <- sequence(ctx.falseSequence.statement().toList map (s => s.accept(StatementVisitor))).right
+      falseStatements <- sequenceOrLast(ctx.falseSequence.statement().toList map (s => s.accept(StatementVisitor))).right
     } yield Tuple3(expression, trueStatements, falseStatements)
 
     SymbolTable.closeScope()
@@ -102,7 +102,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     SymbolTable.openScope()
     val pair = for {
       expression     <- ctx.expression().accept(ExpressionVisitor).right
-      statements     <- sequence(ctx.sequence().statement().toList map (s => s.accept(StatementVisitor))).right
+      statements     <- sequenceOrLast(ctx.sequence().statement().toList map (s => s.accept(StatementVisitor))).right
     } yield (expression, statements)
     SymbolTable.closeScope()
 

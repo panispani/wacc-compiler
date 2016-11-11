@@ -2,11 +2,16 @@ package wacc.constructs
 
 
 abstract class CompilationError(val message: String) {
-  def raise(): Unit = {
-    println(exitCode + " : " + message)
+  def raiseAndExit(): Unit = {
+    raise()
     System.exit(exitCode)
   }
+
   val exitCode : Int
+
+  def raise() = {
+    println(exitCode + " : " + message)
+  }
 }
 
 case class SyntaxError(override val message: String) extends CompilationError(message) {

@@ -8,7 +8,7 @@ import wacc.visitor._
 
 import scala.collection.JavaConversions._
 
-object ProgramVisitor extends WACCParserBaseVisitor[Either[CompilationError, Program]] {
+object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError], Program]] {
 
   private def defineFunction(ctx: FunctionContext): Option[SemanticError] = {
     val params = Option(ctx.parameterList()) match {
@@ -36,7 +36,7 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[CompilationError, Pro
     None
   }
 
-  override def visitProgram(ctx: ProgramContext): Either[CompilationError, Program] = {
+  override def visitProgram(ctx: ProgramContext): Either[Seq[CompilationError], Program] = {
 
     def semanticErrorIfReturn(statement: Statement) : Either[SemanticError, Statement] = statement match {
       case ReturnStatement(_) => Left(SemanticError("Return statement in main program"))
@@ -48,15 +48,15 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[CompilationError, Pro
       SymbolTable.openScope()
       defineFunction(f) match {
         case Some(SemanticError(error)) => SymbolTable.closeScope();
-                                           return Left(SemanticError(error))
+                                           return Left(Seq(SemanticError(error)))
         case None => ;
       }
       SymbolTable.closeScope()
     })
 
     for {
-      functions <- sequence(ctx.function().toList map (e => e.accept(FunctionVisitor))).right
-      statements <- sequence(ctx.sequence().statement().toList map (
+      functions <- sequenceOrAll(ctx.function().toList map (e => e.accept(FunctionVisitor))).right
+      statements <- sequenceOrAll(ctx.sequence().statement().toList map (
         _.accept(StatementVisitor).right.flatMap(semanticErrorIfReturn))).right
     } yield Program(functions, statements)
   }

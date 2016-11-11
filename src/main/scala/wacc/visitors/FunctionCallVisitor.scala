@@ -19,7 +19,7 @@ object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError
       case Some(ls) => ls.expression().toList
     }
 
-    val typedArgList = sequence(untypedArgList map (_.accept(ExpressionVisitor)))
+    val typedArgList = sequenceOrLast(untypedArgList map (_.accept(ExpressionVisitor)))
 
     val functionSignature: Either[CompilationError, (Type, Seq[Type])] =
       SymbolTable.globalTable.lookup(ctx.IDENT().getText) match {
