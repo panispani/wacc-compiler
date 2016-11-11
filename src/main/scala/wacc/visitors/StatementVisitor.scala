@@ -40,7 +40,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
       case (l, r) if compatibleTypes(l.vartype, r.vartype)
         => Right(AssignStatement(l, r))
       case (l, r)
-        => Left(SemanticError("Cannot assign " + r.vartype + " to " + l.vartype))
+        => Left(SemanticError("Cannot assign " + r.vartype + " to " + l.vartype + ", line:  " + ctx.ASSIGN().getSymbol.getLine))
     }
   }
 
@@ -77,11 +77,15 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
   }
 
   override def visitConditional(ctx: ConditionalContext): Either[CompilationError, ConditionalStatement] = {
+    SymbolTable.openScope()
+
     val tuple = for {
       expression <- ctx.expression().accept(ExpressionVisitor).right
       trueStatements <- sequence(ctx.trueSequence.statement().toList map (s => s.accept(StatementVisitor))).right
       falseStatements <- sequence(ctx.falseSequence.statement().toList map (s => s.accept(StatementVisitor))).right
     } yield Tuple3(expression, trueStatements, falseStatements)
+
+    SymbolTable.closeScope()
 
     tuple match {
       case Left(error)                                                => Left(error)
