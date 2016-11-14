@@ -17,6 +17,11 @@ before_script:
   # Log the sbt version
   - sbt sbt-version
 
+build:
+  stage: build
+  script:
+    - make  
+
 test:
   script:
     # Execute your project's tests
