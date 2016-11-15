@@ -17,11 +17,13 @@ class irCodegenerator {
     a match {
       case Program(functions, stmt)
         => transProgram(functions, stmt, registers)
+      case Function(ident, params, vartype, stmt)
+        => transFunction(ident, params, vartype, stmt, registers)
+      case DeclareStatement(vartype: Type, identifier: String, value: AssignValue)
+        => transDeclareStatement(vartype, identifier, value, registers)
       case default
-        => println("throw an error")
+        => println("can we even reach this point"); Seq[Instruction]()
     }
-
-    Seq[Instruction]()
   }
 
   def transProgram(functions: Seq[Function], stmts: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
@@ -31,6 +33,16 @@ class irCodegenerator {
     instruction
   }
 
+  def transFunction(ident: String, params: Seq[Param], vartype: Type, stmt: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
+    val instruction = Seq[Instruction]()
+    instruction
+  }
+
+  def transDeclareStatement(vartype: Type, identifier: String, value: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
+    val instruction = Seq[Instruction]()
+    println("declare " + identifier + " to be " + value + "(" + vartype + ")" )
+    instruction
+  }
 
 
 }
