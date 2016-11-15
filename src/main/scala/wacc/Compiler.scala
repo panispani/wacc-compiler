@@ -2,6 +2,7 @@ package wacc
 
 import antlr.{WACCLexer, WACCParser}
 import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream}
+import wacc.codegeneration.irCodegenerator
 import wacc.visitors.ProgramVisitor
 
 object Compiler extends App {
@@ -16,7 +17,12 @@ object Compiler extends App {
   val program = ProgramVisitor.visit(tree)
 
   program match {
-    case Right(_) => System.exit(0)
     case Left(errors :+ last) => errors foreach(_.raise()) ; last.raiseAndExit()
+    case Right(program) => {
+      val irCodegen = new irCodegenerator
+      val ir = irCodegen.codegen(program)
+      println(ir)
+    }
   }
+
 }
