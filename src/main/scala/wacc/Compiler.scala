@@ -21,7 +21,7 @@ object Compiler extends App {
     case Right(program) => {
       val irCodegen = new irCodegenerator
       val ir = irCodegen.codegen(program)
-      println(ir)
+      //peephole optimisations
     }
   }
 
