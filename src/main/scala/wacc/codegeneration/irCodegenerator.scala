@@ -1,6 +1,7 @@
 package wacc.codegeneration
 
 import wacc.constructs._
+import wacc.codegeneration.Weight.weight
 
 /**
   * Created by panayiotis on 15/11/16.
@@ -19,7 +20,7 @@ class irCodegenerator {
         => transProgram(functions, stmt, registers)
       case Function(ident, params, vartype, stmt)
         => transFunction(ident, params, vartype, stmt, registers)
-      case DeclareStatement(vartype: Type, identifier: String, value: AssignValue)
+      case DeclareStatement(vartype, identifier, value)
         => transDeclareStatement(vartype, identifier, value, registers)
       case default
         => println("can we even reach this point"); Seq[Instruction]()
@@ -40,8 +41,23 @@ class irCodegenerator {
 
   def transDeclareStatement(vartype: Type, identifier: String, value: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
     val instruction = Seq[Instruction]()
+    
     println("declare " + identifier + " to be " + value + "(" + vartype + ")" )
     instruction
+  }
+
+  //expressions
+  def transExpression(expr: Expression): Seq[Instruction] = {
+    expr match {
+      case BinaryOperatorExpr(e1, bOp, e2) => {
+        if (weight(e1) > weight(e2)) {
+          // e1 first
+        } else {
+          // e2 first
+        }
+      }
+    }
+    Seq()
   }
 
 
