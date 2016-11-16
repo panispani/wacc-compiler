@@ -69,18 +69,19 @@ class irCodegenerator {
   }
 
   def transExitStatement(exitCode: Expression, registers: Seq[Register]): Seq[Instruction] = {
-    val instruction = Seq[Instruction]()
-    println("Exiting with code " + exitCode)
-    instruction
+    val instruction = Seq()//transExpression(exitCode, registers)
+
+    instruction ++ Seq(MOV(R0, registers.head), BL(Label("exit")))
   }
 
   def transReturnStatement(returnValue: Expression, registers: Seq[Register]): Seq[Instruction] = {
-    val instruction = Seq[Instruction]()
-    println("Returning with value " + returnValue)
-    instruction
+    val instruction = transExpression(returnValue, registers)
+
+    instruction ++ Seq(MOV(R0, registers.head), BL(Label("exit")))
   }
+
   //expressions
-  def transExpression(expr: Expression): Seq[Instruction] = {
+  def transExpression(expr: Expression, registers: Seq[Register]): Seq[Instruction] = {
     expr match {
       case BinaryOperatorExpr(e1, bOp, e2) => {
         if (weight(e1) > weight(e2)) {

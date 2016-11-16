@@ -1,17 +1,23 @@
 package wacc.codegeneration
 
+import wacc.constructs.IntegerLiteral
+
 /**
   * Created by panayiotis on 15/11/16.
   */
 trait Instruction
+case class Label(name: String)
+
 case class ADC(Rd: Register, Rn: Register, Op2: Operand) extends Instruction
 case class ADD(Rd: Register, Rn: Register, Op2: Operand) extends Instruction
 case class ADDS(Rd: Register, Rn: Register, i12: Imm12) extends Instruction
 case class AND(Rd: Register, Rn: Register, Op2: Operand) extends Instruction
-case class BRANCH() extends Instruction
+case class BRANCH(label: Label) extends Instruction
+case class BL(label: Label) extends Instruction
 case class CMP(Rn: Register, Op2: Operand) extends Instruction
 case class EOR(Rn: Register, Op2: Operand) extends Instruction
 case class LDR(Rt: Register, Rn: Register, offset: Integer) extends Instruction // use stack pointer
+case class LDRIMM(Rt: Register, immediateOperand: Integer) extends Instruction
 case class MOV(Rd: Register, Op2: Operand) extends Instruction
 case class MOVS(Rd: Register, i16: Imm16) extends Instruction
 case class MUL(Rd: Register, Rn: Register, Rm: Register) extends Instruction

@@ -4,6 +4,7 @@ trait Operand
 trait Register extends Operand
 trait Imm16
 trait Imm12
+object R0 extends Register
 object R1 extends Register
 object R2 extends Register
 object R3 extends Register
