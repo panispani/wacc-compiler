@@ -10,4 +10,11 @@ class irCodegenTest extends CodeGenTest {
     val irCodegen = new irCodegenerator
     irCodegen.codegen(program.right.get)
   }
+
+  "Exiting" should "be possible" in {
+    val parser = TestUtilities.setupParser("begin exit 7 end")
+    val program = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
+    val irCodegen = new irCodegenerator
+    irCodegen.codegen(program.right.get)
+  }
 }
