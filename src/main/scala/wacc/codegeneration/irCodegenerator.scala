@@ -2,6 +2,7 @@ package wacc.codegeneration
 
 import wacc.constructs._
 import wacc.codegeneration.Weight.weight
+import wacc.codegeneration.varLog
 
 /**
   * Created by panayiotis on 15/11/16.
@@ -42,8 +43,12 @@ class irCodegenerator {
         stmt <- stmts
       } yield transNext(stmt, registers)
 
+    val stackBytes = varLog.byteCount()
     // add labels later
-    functionInstructions.flatten ++ mainInstructions.flatten
+    functionInstructions.flatten ++
+      Seq(SUB2(SP, SP, stackBytes)) ++
+      mainInstructions.flatten ++
+      Seq(ADDS(SP, SP, stackBytes), MOVS(R0, 0))
   }
 
   def transFunction(ident: String, params: Seq[Param], vartype: Type, stmt: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
@@ -74,19 +79,21 @@ class irCodegenerator {
       case ArrayType(elemtype: Type) => 4 //keep on heap
       case PairType(ftype, sType) => 4 //keep on heap
     }
+    varLog.add(identifier, bytes, vartype)
     val store =  vartype match {
       case PrimitiveType("int") => Seq(STR(registers.head, SP, 0))
       case PrimitiveType("bool") => Seq(STR(registers.head, SP, 0))
       case PrimitiveType("char") => Seq(STRB(registers.head, SP, 0))
+      case default => println("not impelemented"); Seq()
     }
     //result on first register in list
-    Seq(SUB2(SP, SP, bytes)) ++ transAssignValue(value, registers) ++ store
+    transAssignValue(value, registers) ++ store
   }
 
   def transAssignValue(value: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
     value match {
       case e: Expression => transExpression(e, registers)
-      case default  => println("unimplemented"); Seq()
+      case default  => println("not implemented"); Seq()
     }
   }
 
@@ -120,7 +127,7 @@ class irCodegenerator {
         Seq()
       }
       case IntegerLiteral(value) => Seq(MOVS(registers.head, value))
-      case BoolLiteral(value) => val v = if (value) 1 else 0;
+      case BoolLiteral(value) => val v = if (value) 1 else 0
                                  Seq(MOVS(registers.head, v))
       case CharLiteral(value) => Seq(MOVCH(registers.head, value))
     }

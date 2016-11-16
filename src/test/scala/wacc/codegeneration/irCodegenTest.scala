@@ -25,7 +25,15 @@ class irCodegenTest extends CodeGenTest {
     println(irCodegen.codegen(program.right.get))
   }
 
-//  "Exiting" should "produce the expected instructions" in {
+  "Creating a lot of variables" should "reserve and release them together" in {
+    val parser = TestUtilities.setupParser("begin int x = 1; char c = 'a' end")
+    val program = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
+    val irCodegen = new irCodegenerator
+    println(irCodegen.codegen(program.right.get))
+  }
+
+
+  //  "Exiting" should "produce the expected instructions" in {
 //    val parser = TestUtilities.setupParser("exit 7")
 //    val program: Either[CompilationError, Statement] = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 //    val irCodegen = new irCodegenerator

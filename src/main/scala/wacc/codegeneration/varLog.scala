@@ -5,7 +5,7 @@ import wacc.constructs.{ArrayType, PairType, PrimitiveType, Type}
 /**
   * Created by panayiotis on 16/11/16.
   */
-class varLog {
+object varLog {
   private var bytes: Integer = 0
   private var vars: Integer = 0
   def add(name: String, location: Integer, vartype: Type): Unit = {
