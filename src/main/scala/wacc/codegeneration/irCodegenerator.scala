@@ -8,9 +8,9 @@ import wacc.codegeneration.Weight.weight
   */
 //accumulator register approach
 class irCodegenerator {
+  val allRegisters = Seq(R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12)
 
   def codegen(program: Program): Seq[Instruction] = {
-    val allRegisters = Seq(R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12)
     transNext(program, allRegisters)
   }
 
@@ -65,10 +65,24 @@ class irCodegenerator {
   }
 
   def transDeclareStatement(vartype: Type, identifier: String, value: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
-    val instruction = Seq[Instruction]()
-    
     println("declare " + identifier + " to be " + value + "(" + vartype + ")" )
-    instruction
+    val bytes = vartype match {
+      case PrimitiveType("int") => 4
+      case PrimitiveType("bool") => 1
+      case PrimitiveType("char") => 1
+      case PrimitiveType("string") => 4 //keep on heap, this is a pointer
+      case ArrayType(elemtype: Type) => 4 //keep on heap
+      case PairType(ftype, sType) => 4 //keep on heap
+    }
+    //result on first register in list
+    Seq(SUB2(SP, SP, bytes)) ++ transAssignValue(value, registers) ++ Seq(STR(registers.head, SP, 0))
+  }
+
+  def transAssignValue(value: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
+    value match {
+      case e: Expression => transExpression(e, registers)
+      case default  => println("unimplemented"); Seq()
+    }
   }
 
   def transAssignStatement(lhs: AssignTarget, rhs: AssignValue, registers: Seq[Register]): Seq[Instruction] = {

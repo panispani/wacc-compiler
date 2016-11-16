@@ -3,7 +3,7 @@ package wacc.codegeneration
 trait Operand
 trait Register extends Operand
 trait Imm16
-trait Imm12
+
 object R0 extends Register
 object R1 extends Register
 object R2 extends Register
@@ -17,5 +17,6 @@ object R9 extends Register
 object R10 extends Register
 object R11 extends Register
 object R12 extends Register
-object R13 extends Register
-object R14 extends Register
+object SP extends Register
+object LR extends Register
+object PC extends Register
