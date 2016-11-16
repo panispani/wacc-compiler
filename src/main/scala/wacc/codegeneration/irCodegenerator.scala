@@ -8,9 +8,9 @@ import wacc.codegeneration.Weight.weight
   */
 //accumulator register approach
 class irCodegenerator {
-  val allRegisters = Seq(R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12, R13, R14)
 
   def codegen(program: Program): Seq[Instruction] = {
+    val allRegisters = Seq(R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12)
     transNext(program, allRegisters)
   }
 
@@ -32,9 +32,18 @@ class irCodegenerator {
 
   def transProgram(functions: Seq[Function], stmts: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
     val instruction = Seq[Instruction]()
-    for (f <- functions) instruction ++ transNext(f, registers)
-    for (stmt <- stmts) instruction ++ transNext(stmt, registers)
-    instruction
+    val functionInstructions =
+      for {
+      f <- functions
+    } yield transNext(f, registers)
+
+    val mainInstructions =
+      for {
+        stmt <- stmts
+      } yield transNext(stmt, registers)
+
+    // add labels later
+    functionInstructions.flatten ++ mainInstructions.flatten
   }
 
   def transFunction(ident: String, params: Seq[Param], vartype: Type, stmt: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
