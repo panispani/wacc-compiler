@@ -25,7 +25,7 @@ class FunctionVisitorTest extends VisitorTest {
     val parser = TestUtilities.setupParser("begin char f(int a, char a) is return 'c' end skip end")
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
-    result.left.value should (be (a[SemanticError]) or be (a[List[_]]))
+    result.left.value should (be (a[SemanticError]) or be (a[SeqView[_, _]]))
   }
 
   it should "be valid when the last statement is exit" in {
