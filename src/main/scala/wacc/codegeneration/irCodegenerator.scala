@@ -74,8 +74,13 @@ class irCodegenerator {
       case ArrayType(elemtype: Type) => 4 //keep on heap
       case PairType(ftype, sType) => 4 //keep on heap
     }
+    val store =  vartype match {
+      case PrimitiveType("int") => Seq(STR(registers.head, SP, 0))
+      case PrimitiveType("bool") => Seq(STR(registers.head, SP, 0))
+      case PrimitiveType("char") => Seq(STRB(registers.head, SP, 0))
+    }
     //result on first register in list
-    Seq(SUB2(SP, SP, bytes)) ++ transAssignValue(value, registers) ++ Seq(STR(registers.head, SP, 0))
+    Seq(SUB2(SP, SP, bytes)) ++ transAssignValue(value, registers) ++ store
   }
 
   def transAssignValue(value: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
@@ -112,9 +117,13 @@ class irCodegenerator {
         } else {
           // e2 first
         }
+        Seq()
       }
+      case IntegerLiteral(value) => Seq(MOVS(registers.head, value))
+      case BoolLiteral(value) => val v = if (value) 1 else 0;
+                                 Seq(MOVS(registers.head, v))
+      case CharLiteral(value) => Seq(MOVCH(registers.head, value))
     }
-    Seq()
   }
 
 

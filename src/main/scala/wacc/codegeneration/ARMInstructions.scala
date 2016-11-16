@@ -19,7 +19,8 @@ case class EOR(Rn: Register, Op2: Operand) extends Instruction
 case class LDR(Rt: Register, Rn: Register, offset: Integer) extends Instruction // use stack pointer
 case class LDRIMM(Rt: Register, immediateOperand: Integer) extends Instruction
 case class MOV(Rd: Register, Op2: Operand) extends Instruction
-case class MOVS(Rd: Register, i16: Imm16) extends Instruction
+case class MOVS(Rd: Register, i16: Int) extends Instruction
+case class MOVCH(Rd: Register, ch: Char) extends Instruction
 case class MUL(Rd: Register, Rn: Register, Rm: Register) extends Instruction
 case class MULS(Rn: Register, Rm: Register) extends Instruction
 case class ORR(Rd: Register, Rn: Register, Op2: Operand) extends Instruction
@@ -28,5 +29,6 @@ case class SUBS(Rn: Register, Op2: Operand) extends Instruction
 case class SUB2(Rd: Register, Rn: Register, i12: Integer) extends Instruction
 case class SUB2S(Rn: Register, i12: Integer) extends Instruction
 case class STR(Rt: Register, Rn: Register, offset: Integer) extends Instruction
+case class STRB(Rt: Register, Rn: Register, offset: Integer) extends Instruction
 case class PUSH(reglist: Seq[Register]) extends Instruction
 case class POP(reglist: Seq[Register]) extends Instruction

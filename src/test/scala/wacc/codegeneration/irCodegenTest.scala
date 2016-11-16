@@ -4,11 +4,25 @@ import wacc.constructs._
 import wacc.visitors.{ProgramVisitor, StatementVisitor, TestUtilities}
 
 class irCodegenTest extends CodeGenTest {
-  "Running a test" should "be possible" in {
+  "Creating an integer" should "be possible" in {
     val parser = TestUtilities.setupParser("begin int x = 1 end")
     val program = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
     val irCodegen = new irCodegenerator
-    irCodegen.codegen(program.right.get)
+    println(irCodegen.codegen(program.right.get))
+  }
+
+  "Creating an character" should "be possible" in {
+    val parser = TestUtilities.setupParser("begin char x = 'a' end")
+    val program = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
+    val irCodegen = new irCodegenerator
+    println(irCodegen.codegen(program.right.get))
+  }
+
+  "Creating an boolean" should "be possible" in {
+    val parser = TestUtilities.setupParser("begin bool x = true end")
+    val program = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
+    val irCodegen = new irCodegenerator
+    println(irCodegen.codegen(program.right.get))
   }
 
 //  "Exiting" should "produce the expected instructions" in {
