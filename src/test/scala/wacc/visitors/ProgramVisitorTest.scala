@@ -10,7 +10,7 @@ class ProgramVisitorTest extends VisitorTest {
     val parser = TestUtilities.setupParser("begin int x = 1 ; return x end")
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
-    result.left.value should (be (a[SemanticError]) or be (a[SeqView[_, _]]))
+    result.left.value should (be (a[SemanticError]) or be (a[List[_]]))
   }
 
 }

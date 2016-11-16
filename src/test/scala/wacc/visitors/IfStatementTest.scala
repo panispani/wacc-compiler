@@ -19,7 +19,7 @@ class IfStatementTest extends VisitorTest {
   val program = TestUtilities.buildProgram(input)
 
   "If " should " throw a semantic error if the expression given is not a bool " in {
-      program.left.value should (be (a[SemanticError]) or be (a[SeqView[_, _]]))
+      program.left.value should (be (a[SemanticError]) or be (a[List[_]]))
   }
 }
 

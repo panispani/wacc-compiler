@@ -16,7 +16,7 @@ class AssignTest extends VisitorTest {
 
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
-    result.left.value should (be (a[SemanticError]) or be (a[SeqView[_, _]]))
+    result.left.value should (be (a[SemanticError]) or be (a[List[_]]))
   }
 
   "Assigning to a string element" should "be possible with a character" in {

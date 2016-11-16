@@ -11,8 +11,8 @@ package object visitor {
 
   def sequenceOrAll[A, B](s: Seq[Either[A, B]]): Either[Seq[A], Seq[B]] =
     s.partition(_.isLeft) match {
-      case (Nil, xs) => Right(for(Right(x) <- xs.view) yield x)
-      case (es, _) => Left(for(Left(e) <- es.view) yield e)
+      case (Nil, xs) => Right(for(Right(x) <- xs) yield x)
+      case (es, _) => Left(for(Left(e) <- es) yield e)
     }
 
   def compatibleTypes(a: Type, b: Type): Boolean = {

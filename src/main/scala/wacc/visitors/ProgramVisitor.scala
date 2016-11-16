@@ -49,7 +49,6 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
       defineFunction(f) match {
         case Some(SemanticError(error, symbol)) =>
           SymbolTable.closeScope()
-          println("here")
           return Left(Seq(SemanticError(error, symbol)))
         case None => ;
       }

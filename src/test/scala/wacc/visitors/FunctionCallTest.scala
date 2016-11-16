@@ -77,20 +77,20 @@ class FunctionCallTest extends VisitorTest{
     val parser = TestUtilities.setupParser("begin int foo(int a) is return a end int a = call foo('a') end")
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
-    result.left.value should (be (a[SemanticError]) or be (a[SeqView[_, _]]))
+    result.left.value should (be (a[SemanticError]) or be (a[List[_]]))
   }
 
   it should "fail when argument number doesn't match the number of parameters" in {
     val parser = TestUtilities.setupParser("begin int foo(int a) is return a end int a = call foo(1, 2) end")
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
-    result.left.value should (be (a[SemanticError]) or be (a[SeqView[_, _]]))
+    result.left.value should (be (a[SemanticError]) or be (a[List[_]]))
   }
 
   it should "fail when function return type and variable on lhs don't line up" in {
     val parser = TestUtilities.setupParser("begin int foo(int a) is return 1 end char a = call foo(1) end")
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
-    result.left.value should (be (a[SemanticError]) or be (a[SeqView[_, _]]))
+    result.left.value should (be (a[SemanticError]) or be (a[List[_]]))
   }
 }
