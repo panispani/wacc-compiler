@@ -3,17 +3,12 @@ package wacc
 import wacc.codegeneration.Weight._
 import wacc.constructs._
 import wacc.codegeneration._
-import transStatements._
-import transFunctions._
-import transPrograms._
-import transAssigns._
-import transExpressions._
-import transBinaryOperators._
+import TransBinaryOperators._
 
 /**
   * Created by panayiotis on 16/11/16.
   */
-package object transExpressions{
+package object TransExpressions {
   def transExpression(expr: Expression, registers: Seq[Register]): Seq[Instruction] = {
       registers match {
         case (r1::r2::regs) => transExpressionReg(expr, r1, r2, regs)

@@ -2,17 +2,17 @@ package wacc
 
 import wacc.constructs._
 import wacc.codegeneration._
-import transStatements._
-import transFunctions._
-import transPrograms._
-import transAssigns._
-import transExpressions._
+import TransStatements._
+import TransFunctions._
+import TransPrograms._
+import TransAssigns._
+import TransExpressions._
 
 
 /**
   * Created by panayiotis on 16/11/16.
   */
-package object transStatements {
+package object TransStatements {
 
   def transStatement(stmt: Statement, registers: Seq[Register]) = {
     stmt match {

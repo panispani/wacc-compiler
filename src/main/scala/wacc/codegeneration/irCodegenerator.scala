@@ -1,12 +1,9 @@
 package wacc.codegeneration
 
 import wacc.constructs._
-import wacc.codegeneration.Weight.weight
-import wacc.transStatements._
-import wacc.transFunctions._
-import wacc.transPrograms._
-import wacc.transAssigns._
-import wacc.transExpressions._
+import wacc.TransPrograms
+import TransPrograms._
+
 
 /**
   * Created by panayiotis on 15/11/16.
