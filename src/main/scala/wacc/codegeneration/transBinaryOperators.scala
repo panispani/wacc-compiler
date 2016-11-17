@@ -14,7 +14,7 @@ import transExpressions._
   */
 package object transBinaryOperators {
 
-  def transBinaryOperator(r1: Register, binOp: BinaryOperator, r2: Register): Seq[Instruction] = {
+  def transBinaryOperatorReg(r1: Register, binOp: BinaryOperator, r2: Register): Seq[Instruction] = {
     binOp match {
       case BinaryOperator("*") =>
       case BinaryOperator("/") =>
@@ -32,4 +32,25 @@ package object transBinaryOperators {
     }
     Seq()
   }
+
+  def transBinaryOperatorAcc(r1: Register, binOp: BinaryOperator): Seq[Instruction] = {
+    // other operand is on top of the stack
+    binOp match {
+      case BinaryOperator("*") =>
+      case BinaryOperator("/") =>
+      case BinaryOperator("%") =>
+      case BinaryOperator("+") =>
+      case BinaryOperator("-") =>
+      case BinaryOperator(">") =>
+      case BinaryOperator(">=") =>
+      case BinaryOperator("<")  =>
+      case BinaryOperator("<=") =>
+      case BinaryOperator("==") =>
+      case BinaryOperator("!=") =>
+      case BinaryOperator("&&") =>
+      case BinaryOperator("||") =>
+    }
+    Seq()
+  }
+
 }
