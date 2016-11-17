@@ -8,26 +8,45 @@ import transFunctions._
 import transPrograms._
 import transAssigns._
 import transExpressions._
+import transBinaryOperators._
 
 /**
   * Created by panayiotis on 16/11/16.
   */
 package object transExpressions{
   def transExpression(expr: Expression, registers: Seq[Register]): Seq[Instruction] = {
+      registers match {
+        case (r1::r2::regs) => transExpressionRegister(expr, r1, r2, regs)
+        case (r1::regs) => transExpressionAccumulator(expr, r1, regs)
+      }
+  }
+
+  // Register machine approach
+  private def transExpressionRegister(expr: Expression, reg1: Register, reg2: Register, regs: Seq[Register]): Seq[Instruction] = {
     expr match {
-      case BinaryOperatorExpr(e1, bOp, e2) => {
+      case BinaryOperatorExpr(e1, binOp, e2) => {
         if (weight(e1) > weight(e2)) {
           // e1 first
+          val evalExpr = transExpression(e1, reg1+:reg2+:regs) ++
+                         transExpression(e2, reg2+:regs)
+          evalExpr ++ transBinaryOperator(reg1, binOp, reg2)
         } else {
           // e2 first
+          val evalExpr = transExpression(e1, reg2+:reg1+:regs) ++
+                         transExpression(e2, reg2+:regs)
+          evalExpr ++ transBinaryOperator(reg2, binOp, reg1)
         }
-        Seq()
       }
-      case IntegerLiteral(value) => Seq(MOVS(registers.head, value))
+      case IntegerLiteral(value) => Seq(MOVS(regs.head, value))
       case BoolLiteral(value) => val v = if (value) 1 else 0
-        Seq(MOVS(registers.head, v))
-      case CharLiteral(value) => Seq(MOVCH(registers.head, value))
+        Seq(MOVS(regs.head, v))
+      case CharLiteral(value) => Seq(MOVCH(regs.head, value))
     }
+  }
+
+  // Accumulator machine approach
+  private def transExpressionAccumulator(expr: Expression, r1: Register, regs: Seq[Register]): Seq[Instruction] = {
+    Seq()
   }
 
 }
