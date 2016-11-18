@@ -61,7 +61,7 @@ package object TransStatements {
   def transReturnStatement(returnValue: Expression, registers: Seq[Register]): Seq[Instruction] = {
     val instruction = transExpression(returnValue, registers)
 
-    instruction ++ Seq(MOV(R0, RegisterOperand(registers.head)), BL(Label("exit")))
+    instruction ++ Seq(MOV(R0, RegisterOperand(registers.head)))
   }
 
   def transStatementSequence(seq: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
