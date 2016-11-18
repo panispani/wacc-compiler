@@ -51,7 +51,7 @@ package object TransStatements {
   }
 
   def transExitStatement(exitCode: Expression, registers: Seq[Register]): Seq[Instruction] = {
-    val instruction = Seq()//transExpression(exitCode, registers)
+    val instruction = transExpression(exitCode, registers)
 
     instruction ++ Seq(MOV(R0, RegisterOperand(registers.head)), BL(Label("exit")))
   }
