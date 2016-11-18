@@ -32,7 +32,7 @@ package object TransExpressions {
           evalExpr ++ transBinaryOperatorReg(reg1, binOp, reg2)
         }
       }
-      case IntegerLiteral(value) => Seq(MOVS(reg1, value))
+      case IntegerLiteral(value) => Seq(MOV(reg1, ImmOperand(value)))
       case BoolLiteral(value) => val v = if (value) 1 else 0
                                  Seq(MOVS(reg1, v))
       case CharLiteral(value) => Seq(MOVCH(reg1, value))

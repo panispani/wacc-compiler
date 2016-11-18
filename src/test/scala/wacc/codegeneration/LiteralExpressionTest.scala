@@ -1,0 +1,18 @@
+package wacc.codegeneration
+
+import org.scalatest.{FlatSpec, Matchers}
+import wacc.TransExpressions._
+import wacc.constructs.IntegerLiteral
+/**
+  * Created by tt1215 on 18/11/16.
+  */
+class LiteralExpressionTest extends FlatSpec with Matchers {
+
+  "The value of an expression" should "be in the first available register" in {
+    val availableRegisters = Seq(R4, R5, R6)
+    val instructions = transExpression(IntegerLiteral(1), availableRegisters)
+
+    instructions.size should be (1)
+    instructions.head should be (MOV(R4, ImmOperand(1)))
+  }
+}
