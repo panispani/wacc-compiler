@@ -34,33 +34,32 @@ case class SUBS(Rd: Register, Rn: Register, Op2: Operand) extends Instruction
 // SUBC, RSB, RSC were not covered
 
 // Comparisons <Operation>{<cond>} Rn, Operand2
-case class CMP(Rn: Register, Op2: Operand) extends Instruction
+case class CMP(Rn: Register, Op2: Operand) extends Instruction // CPSR flags=Rn-Op2
+case class CMN(Rn: Register, Op2: Operand) extends Instruction // CPSR flags=Rn+Op2
+case class TST(Rn: Register, Op2: Operand) extends Instruction // CPSR flags=RnANDOp2
 // CMN, TST, TEQ
 
 // Logical <Operation>{<cond>}{S} Rd, Rn, Operand2
-case class AND(Rd: Register, Rn: Register, Op2: Operand) extends Instruction
+case class AND(Rd: Register, Rn: Register, Op2: Operand) extends Instruction //Rd=Rn AND Op2
 case class EOR(Rn: Register, Op2: Operand) extends Instruction
 case class ORR(Rd: Register, Rn: Register, Op2: Operand) extends Instruction
 // BIC
 
 // Data movement <Operation>{<cond>}{S} Rd, Operand2
 case class MOV(Rd: Register, Op2: Operand) extends Instruction
-case class MOVS(Rd: Register, i16: Int) extends Instruction
-case class MOVCH(Rd: Register, ch: Char) extends Instruction
 // MVN
 
 // Multiplication
 // MUL{<cond>}{S} Rd, Rm, Rs
 case class MUL(Rd: Register, Rn: Register, Rm: Register) extends Instruction
-case class MULS(Rn: Register, Rm: Register) extends Instruction
+case class MULS(Rd: Register, Rn: Register, Rm: Register) extends Instruction
 // MLA{<cond>}{S} Rd, Rm, Rs,Rn ; consider multiply long, too
 
 // Single register data transfer <LDR|STR>{<cond>}{<size>} Rd, <address>
-case class LDR(Rt: Register, Rn: Register, offset: Integer) extends Instruction // use stack pointer
-case class LDRIMM(Rt: Register, immediateOperand: Integer) extends Instruction
-case class STR(Rt: Register, Rn: Register, offset: Integer) extends Instruction
-case class STRB(Rt: Register, Rn: Register, offset: Integer) extends Instruction
+case class LDR(Rd: Register, address: Address) extends Instruction // Rd=<address>
+case class STR(Rd: Register, address: Address) extends Instruction // <address>=Rd
+case class STRB(Rt: Register, address: Address) extends Instruction
 
 // Stack
-case class PUSH(reglist: Seq[Register]) extends Instruction
+case class PUSH(reglist: Seq[Register]) extends Instruction // up to 8
 case class POP(reglist: Seq[Register]) extends Instruction

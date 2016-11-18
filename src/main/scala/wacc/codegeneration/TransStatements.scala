@@ -35,9 +35,9 @@ package object TransStatements {
     }
     VarLog.add(identifier, bytes, vartype)
     val store =  vartype match {
-      case PrimitiveType("int") => Seq(STR(registers.head, SP, 0))
-      case PrimitiveType("bool") => Seq(STR(registers.head, SP, 0))
-      case PrimitiveType("char") => Seq(STRB(registers.head, SP, 0))
+      case PrimitiveType("int") => Seq(STR(registers.head, RegisterAddress(SP)))
+      case PrimitiveType("bool") => Seq(STR(registers.head, RegisterAddress(SP)))
+      case PrimitiveType("char") => Seq(STRB(registers.head, RegisterAddress(SP)))
       case default => println("not impelemented"); Seq()
     }
     //result on first register in list

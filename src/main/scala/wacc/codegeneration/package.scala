@@ -25,7 +25,7 @@ package object codegeneration {
     functionInstructions.flatten ++
       Seq(SUB(SP, SP, ImmOperand(stackBytes))) ++
       mainInstructions.flatten ++
-      Seq(ADD(SP, SP, ImmOperand(stackBytes)), MOVS(R0, 0))
+      Seq(ADD(SP, SP, ImmOperand(stackBytes)), MOV(R0, ImmOperand(0)))
   }
 
   def transNext(a: Any, registers: Seq[Register]): Seq[Instruction] = {
