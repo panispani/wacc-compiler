@@ -65,7 +65,6 @@ package object TransStatements {
   }
 
   def transStatementSequence(seq: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
-
     val instructions
     = for {
       stmt <- seq

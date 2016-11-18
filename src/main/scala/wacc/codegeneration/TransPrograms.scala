@@ -10,22 +10,18 @@ import wacc.constructs._
   */
 package object TransPrograms {
   def transProgram(functions: Seq[Function], stmts: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
-    val instruction = Seq[Instruction]()
     val functionInstructions =
       for {
         f <- functions
       } yield transNext(f, registers)
 
-    val mainInstructions =
-      for {
-        stmt <- stmts
-      } yield transNext(stmt, registers)
+    val mainInstructions = transStatementSequence(stmts, registers)
 
     val stackBytes = VarLog.byteCount()
     // add labels later
     functionInstructions.flatten ++
       Seq(SUB(SP, SP, ImmOperand(stackBytes))) ++
-      mainInstructions.flatten ++
+      mainInstructions ++
       Seq(ADD(SP, SP, ImmOperand(stackBytes)), MOV(R0, ImmOperand(0)))
   }
 
@@ -35,8 +31,6 @@ package object TransPrograms {
       => transProgram(functions, stmt, registers)
       case Function(ident, params, vartype, stmt)
       => transFunction(ident, params, vartype, stmt, registers)
-      case seq @ s::stmts
-      => transStatementSequence(seq.asInstanceOf[Seq[Statement]], registers)
       case stmt:Statement
       => transStatement(stmt, registers)
       case default
