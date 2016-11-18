@@ -1,6 +1,6 @@
 package wacc
 
-import wacc.constructs.{Param, Type, Typed}
+import wacc.constructs._
 
 import scala.collection.mutable
 
@@ -11,22 +11,40 @@ case class FunctionReference(name: String, returnType: Type, arguments : Seq[Par
 
 case class SymbolTable(parent: Option[SymbolTable]) {
 
-  var map: mutable.Map[String, Typed] = mutable.Map()
+  var map: mutable.Map[String, MemoryObject] = mutable.Map()
 
   def addTyped(identifier: String, symbol: Typed)
-    = map += identifier -> symbol
+    = map += identifier -> MemoryObject(symbol)
 
-  def lookup(identifier: String): Option[Typed]
-    = map get identifier
+  def addMemoryObject(identifier: String, symbol: Typed, memoryLocation: MemoryLocation)
+  = map += identifier -> MemoryObject(symbol, memoryLocation)
 
-  def lookupAll(identifier: String): Option[Typed]
-    = lookup (identifier) match {
+  def lookupTyped(identifier: String): Option[Typed]
+    = map get identifier match {
+    case Some(memoryObject) => Some(memoryObject.typed)
+    case None => None
+  }
+
+  def lookupAllTyped(identifier: String): Option[Typed]
+    = lookupTyped (identifier) match {
       case Some (ident) => Some (ident)
       case None => parent match {
         case None => None
-        case Some (higherParent) => higherParent lookupAll identifier
+        case Some (higherParent) => higherParent lookupAllTyped identifier
       }
     }
+
+  def lookupMemoryObject(identifier: String): Option[MemoryObject]
+  = map get identifier
+
+  def lookupAllMemoryObject(identifier: String): Option[MemoryObject]
+  = lookupMemoryObject (identifier) match {
+    case Some (ident) => Some (ident)
+    case None => parent match {
+      case None => None
+      case Some (higherParent) => higherParent lookupAllMemoryObject identifier
+    }
+  }
 
   def clear() = map.clear()
 
