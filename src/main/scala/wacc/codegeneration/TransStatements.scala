@@ -63,4 +63,13 @@ package object TransStatements {
 
     instruction ++ Seq(MOV(R0, RegisterOperand(registers.head)), BL(Label("exit")))
   }
+
+  def transStatementSequence(seq: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
+
+    val instructions
+    = for {
+      stmt <- seq
+    } yield transStatement(stmt, registers)
+    instructions.flatten
+  }
 }
