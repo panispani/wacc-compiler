@@ -2,8 +2,7 @@ package wacc.visitors
 
 import antlr.WACCParser.FunctionContext
 import antlr.WACCParserBaseVisitor
-import wacc.constructs.{CompilationError, ConditionalStatement, ExitStatement, Function, LoopStatement, Param, ReturnStatement, SemanticError, Statement, SyntaxError}
-import wacc.visitor._
+import wacc.constructs.{CompilationError, ConditionalStatement, ExitStatement, Function, LoopStatement, ReturnStatement, SemanticError, Statement, SyntaxError}
 import wacc.{FunctionReference, SymbolTable, VariableReference}
 
 import scala.collection.JavaConversions._

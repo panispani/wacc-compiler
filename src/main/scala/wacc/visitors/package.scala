@@ -2,7 +2,7 @@ package wacc
 
 import wacc.constructs.{AnyType, ArrayType, PairType, Type}
 
-package object visitor {
+package object visitors {
 
   def sequenceOrLast[A, B](s: Seq[Either[A, B]]): Either[A, Seq[B]] =
     s.foldRight(Right(Nil): Either[A, List[B]]) {

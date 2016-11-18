@@ -3,7 +3,6 @@ package wacc.visitors
 import antlr.WACCParser.SequenceContext
 import antlr.WACCParserBaseVisitor
 import wacc.constructs._
-import wacc.visitor._
 
 import scala.collection.JavaConversions._
 
