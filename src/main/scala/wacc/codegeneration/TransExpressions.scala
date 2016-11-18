@@ -34,8 +34,8 @@ package object TransExpressions {
       }
       case IntegerLiteral(value) => Seq(MOV(reg1, ImmOperand(value)))
       case BoolLiteral(value) => val v = if (value) 1 else 0
-                                 Seq(MOVS(reg1, v))
-      case CharLiteral(value) => Seq(MOVCH(reg1, value))
+                                 Seq(MOV(reg1, ImmOperand(v)))
+      case CharLiteral(value) => Seq(MOV(reg1, CharOperand(value)))
     }
   }
 
@@ -49,10 +49,10 @@ package object TransExpressions {
 
           evalExpr ++ transBinaryOperatorAcc(reg1, binOp)
       }
-      case IntegerLiteral(value) => Seq(MOVS(reg1, value))
+      case IntegerLiteral(value) => Seq(MOV(reg1, ImmOperand(value)))
       case BoolLiteral(value) => val v = if (value) 1 else 0
-                                 Seq(MOVS(reg1, v))
-      case CharLiteral(value) => Seq(MOVCH(reg1, value))
+        Seq(MOV(reg1, ImmOperand(v)))
+      case CharLiteral(value) => Seq(MOV(reg1, CharOperand(value)))
     }
   }
 

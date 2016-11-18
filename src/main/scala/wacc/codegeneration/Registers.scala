@@ -1,9 +1,13 @@
 package wacc.codegeneration
 
-trait Operand
+trait Address
+case class IntAddress(address: Int) extends Address
+case class RegisterAddress(register: Register) extends Address
 
+trait Operand
 case class ImmOperand(value: Int) extends Operand
 case class RegisterOperand(register: Register) extends Operand
+case class CharOperand(value: Char) extends Operand //discuss
 
 class Register(name: String) {
   override def toString: String = name
