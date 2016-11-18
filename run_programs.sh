@@ -7,7 +7,7 @@ run_wacc_files() {
         if [ -d $f ]
         then
             cd $f
-            test_wacc_files
+            run_wacc_files
             cd ".."
         elif [ $extension = "wacc" ]
         then
@@ -17,24 +17,21 @@ run_wacc_files() {
 
             #find_output
             while read line; do
-                  if [ line -eq "# Output:" ]
+                  if [ "$line" == "# Output:" ]
                   then
                     read line
-                    if [ line -eq "# #empty#" ]
+                    if [ "$line" == "# #empty#" ]
                     then
-                        $expected=""
+                        expected=""
                     else
-                        $prefix="# "
-                        $expected=${string#$prefix}
+                        prefix="# "
+                        expected=${line#$prefix}
                     fi
                     break
                   fi
-                  echo $line
-            done <"file.s"
+            done <$f
 
-            expected=find_output $f
-
-            if [ $actual -eq $expected ]
+            if [ $actual == $expected ]
             then
                 correct=$((correct+1))
             else
@@ -57,7 +54,3 @@ total=0
 run_wacc_files
 echo "TOTAL FILES: "$total
 echo "CORRECT    : "$correct
-
-
-
-
