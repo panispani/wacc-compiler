@@ -39,6 +39,8 @@ package object TransStatements {
       case default => println("not impelemented"); Seq()
     }
 
+    //TODO: code to update the identifier in the symbol table with the memory location
+
     instruction ++ store
   }
 
