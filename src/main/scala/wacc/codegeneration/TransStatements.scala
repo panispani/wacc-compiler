@@ -32,10 +32,11 @@ package object TransStatements {
     //result on first register in list
     val instruction = transAssignRhs(value, registers)
 
+    val offset = SymbolTable.currentTable.lookupMemoryObject(identifier).get.offset
+
     val store =  vartype match {
-      case PrimitiveType("int") => Seq(STR(registers.head, RegisterAddress(SP)))
-      case PrimitiveType("bool") => Seq(STR(registers.head, RegisterAddress(SP)))
-      case PrimitiveType("char") => Seq(STRB(registers.head, RegisterAddress(SP)))
+      case Integer => Seq(STR(registers.head, RegisterAddress(SP, offset)))
+      case Boolean | Character => Seq(STRB(registers.head, RegisterAddress(SP, offset)))
       case default => println("not impelemented"); Seq()
     }
 

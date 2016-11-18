@@ -16,8 +16,8 @@ case class SymbolTable(parent: Option[SymbolTable]) {
   def addTyped(identifier: String, symbol: Typed)
     = map += identifier -> MemoryObject(symbol)
 
-  def addMemoryObject(identifier: String, symbol: Typed, memoryLocation: MemoryLocation)
-  = map += identifier -> MemoryObject(symbol, memoryLocation)
+  def addMemoryObject(identifier: String, symbol: Typed, offset: Int)
+  = map += identifier -> MemoryObject(symbol, offset)
 
   def lookupTyped(identifier: String): Option[Typed]
     = map get identifier match {
