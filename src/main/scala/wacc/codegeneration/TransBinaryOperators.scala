@@ -13,8 +13,8 @@ package object TransBinaryOperators {
       case BinaryOperator("*") => Seq(MULS(r1, r2))
       case BinaryOperator("/") => Seq() // We should implement this
       case BinaryOperator("%") => Seq()
-      case BinaryOperator("+") => Seq(ADD(r1, r1, r2))
-      case BinaryOperator("-") => Seq(SUB(r1, r1, r2))
+      case BinaryOperator("+") => Seq(ADD(r1, r1, RegisterOperand(r2)))
+      case BinaryOperator("-") => Seq(SUB(r1, r1, RegisterOperand(r2)))
       case BinaryOperator(">") =>
       case BinaryOperator(">=") =>
       case BinaryOperator("<")  =>

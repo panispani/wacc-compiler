@@ -23,9 +23,9 @@ package object codegeneration {
     val stackBytes = VarLog.byteCount()
     // add labels later
     functionInstructions.flatten ++
-      Seq(SUB2(SP, SP, stackBytes)) ++
+      Seq(SUB(SP, SP, ImmOperand(stackBytes))) ++
       mainInstructions.flatten ++
-      Seq(ADDS(SP, SP, stackBytes), MOVS(R0, 0))
+      Seq(ADD(SP, SP, ImmOperand(stackBytes)), MOVS(R0, 0))
   }
 
   def transNext(a: Any, registers: Seq[Register]): Seq[Instruction] = {

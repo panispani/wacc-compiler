@@ -53,13 +53,13 @@ package object TransStatements {
   def transExitStatement(exitCode: Expression, registers: Seq[Register]): Seq[Instruction] = {
     val instruction = Seq()//transExpression(exitCode, registers)
 
-    instruction ++ Seq(MOV(R0, registers.head), BL(Label("exit")))
+    instruction ++ Seq(MOV(R0, RegisterOperand(registers.head)), BL(Label("exit")))
   }
 
   def transReturnStatement(returnValue: Expression, registers: Seq[Register]): Seq[Instruction] = {
     val instruction = transExpression(returnValue, registers)
 
-    instruction ++ Seq(MOV(R0, registers.head), BL(Label("exit")))
+    instruction ++ Seq(MOV(R0, RegisterOperand(registers.head)), BL(Label("exit")))
   }
 
 }

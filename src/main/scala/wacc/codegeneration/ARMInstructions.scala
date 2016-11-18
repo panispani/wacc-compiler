@@ -23,18 +23,15 @@ trait Instruction {
 case class Label(name: String)
 
 // Branch
-case class BRANCH(label: Label) extends Instruction // B{<cond>} label
-case class BL(label: Label) extends Instruction // BL{<cond>} sub_routine_label
+case class B(label: Label) extends Instruction // B{<cond>} label, R15=<address>
+case class BL(label: Label) extends Instruction // BL{<cond>} sub_routine_label, R14=R15 R15=<address>
 
 // Arithmetic <Operation>{<cond>}{S} Rd, Rn, Operand2
-case class ADC(Rd: Register, Rn: Register, Op2: Operand) extends Instruction
-case class ADD(Rd: Register, Rn: Register, Op2: Operand) extends Instruction
-case class ADDS(Rd: Register, Rn: Register, i12: Integer) extends Instruction
+case class ADD(Rd: Register, Rn: Register, Op2: Operand) extends Instruction //Rd=Rn+Op2
+case class ADDS(Rd: Register, Rn: Register, Op2: Operand) extends Instruction
 case class SUB(Rd: Register, Rn: Register, Op2: Operand) extends Instruction
-case class SUBS(Rn: Register, Op2: Operand) extends Instruction
+case class SUBS(Rd: Register, Rn: Register, Op2: Operand) extends Instruction
 // SUBC, RSB, RSC were not covered
-case class SUB2(Rd: Register, Rn: Register, i12: Integer) extends Instruction
-case class SUB2S(Rn: Register, i12: Integer) extends Instruction
 
 // Comparisons <Operation>{<cond>} Rn, Operand2
 case class CMP(Rn: Register, Op2: Operand) extends Instruction
