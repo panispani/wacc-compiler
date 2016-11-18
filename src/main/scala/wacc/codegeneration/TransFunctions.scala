@@ -1,15 +1,7 @@
 package wacc
 
-import wacc.constructs._
 import wacc.codegeneration._
-
-import TransStatements._
-import TransFunctions._
-import TransPrograms._
-import TransAssigns._
-import TransExpressions._
-
-
+import wacc.constructs._
 
 /**
   * Created by panayiotis on 16/11/16.

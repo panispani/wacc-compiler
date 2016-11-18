@@ -1,13 +1,9 @@
 package wacc
 
-import wacc.constructs._
+import wacc.TransAssigns._
+import wacc.TransExpressions._
 import wacc.codegeneration._
-import TransStatements._
-import TransFunctions._
-import TransPrograms._
-import TransAssigns._
-import TransExpressions._
-
+import wacc.constructs._
 
 /**
   * Created by panayiotis on 16/11/16.
@@ -37,7 +33,7 @@ package object TransStatements {
       case ArrayType(elemtype: Type) => 4 //keep on heap
       case PairType(ftype, sType) => 4 //keep on heap
     }
-    varLog.add(identifier, bytes, vartype)
+    VarLog.add(identifier, bytes, vartype)
     val store =  vartype match {
       case PrimitiveType("int") => Seq(STR(registers.head, SP, 0))
       case PrimitiveType("bool") => Seq(STR(registers.head, SP, 0))

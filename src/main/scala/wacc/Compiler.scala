@@ -2,7 +2,7 @@ package wacc
 
 import antlr.{WACCLexer, WACCParser}
 import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream}
-import wacc.codegeneration.irCodegenerator
+import wacc.codegeneration.IrCodegenerator
 import wacc.visitors.ProgramVisitor
 
 object Compiler extends App {
@@ -19,7 +19,7 @@ object Compiler extends App {
   program match {
     case Left(errors :+ last) => errors foreach(_.raise()) ; last.raiseAndExit()
     case Right(program) => {
-      val irCodegen = new irCodegenerator
+      val irCodegen = new IrCodegenerator
       val ir = irCodegen.codegen(program)
       //peephole optimisations
     }

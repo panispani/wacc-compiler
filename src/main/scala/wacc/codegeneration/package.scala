@@ -1,18 +1,13 @@
 package wacc
 
+import wacc.TransFunctions._
+import wacc.TransStatements._
 import wacc.constructs._
-import wacc.codegeneration._
-import TransStatements._
-import TransFunctions._
-import TransPrograms._
-import TransAssigns._
-import TransExpressions._
-
 
 /**
   * Created by panayiotis on 16/11/16.
   */
-package object TransPrograms {
+package object codegeneration {
   def transProgram(functions: Seq[Function], stmts: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
     val instruction = Seq[Instruction]()
     val functionInstructions =
@@ -25,7 +20,7 @@ package object TransPrograms {
         stmt <- stmts
       } yield transNext(stmt, registers)
 
-    val stackBytes = varLog.byteCount()
+    val stackBytes = VarLog.byteCount()
     // add labels later
     functionInstructions.flatten ++
       Seq(SUB2(SP, SP, stackBytes)) ++
