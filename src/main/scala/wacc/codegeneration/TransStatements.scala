@@ -28,18 +28,24 @@ package object TransStatements {
   def transDeclareStatement(vartype: Type, identifier: String, value: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
     println("declare " + identifier + " to be " + value + "(" + vartype + ")" )
     VarLog.add(identifier, vartype)
+
+    //result on first register in list
+    val instruction = transAssignRhs(value, registers)
+
     val store =  vartype match {
       case PrimitiveType("int") => Seq(STR(registers.head, RegisterAddress(SP)))
       case PrimitiveType("bool") => Seq(STR(registers.head, RegisterAddress(SP)))
       case PrimitiveType("char") => Seq(STRB(registers.head, RegisterAddress(SP)))
       case default => println("not impelemented"); Seq()
     }
-    //result on first register in list
-    transAssignRhs(value, registers) ++ store
+
+    //TODO: code to update the identifier in the symbol table with the memory location
+
+    instruction ++ store
   }
 
   def transAssignStatement(lhs: AssignTarget, rhs: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
-    val instruction = Seq[Instruction]()
+    val instruction = transAssignRhs(rhs, registers)
     println("assign " + rhs + " to " + lhs)
     instruction
   }
