@@ -9,13 +9,7 @@ import wacc.constructs.{Program, Statement}
 object TestUtilities {
 
   def buildProgram(inputString: String) = {
-    val input = new ANTLRInputStream(inputString)
-    val lexer = new WACCLexer(input)
-    val tokens = new CommonTokenStream(lexer)
-    val parser = new WACCParser(tokens)
-
-    parser.addErrorListener(new SyntaxErrorListener())
-
+    val parser = setupParser(inputString)
     val tree = parser.program()
     val program = ProgramVisitor.visit(tree)
 
