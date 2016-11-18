@@ -1,5 +1,6 @@
 package wacc.codegeneration
 
+import wacc.TransStatements._
 import wacc.constructs._
 import wacc.visitors.{ProgramVisitor, StatementVisitor, TestUtilities}
 
@@ -33,11 +34,12 @@ class irCodegenTest extends CodeGenTest {
   }
 
 
-  //  "Exiting" should "produce the expected instructions" in {
-//    val parser = TestUtilities.setupParser("exit 7")
-//    val program: Either[CompilationError, Statement] = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
-//    val irCodegen = new irCodegenerator
-//    val allRegisters = Seq(R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12, R13, R14)
-//    irCodegen.transStatement(program.right.get, allRegisters) shouldBe Seq(LDRIMM(R4, 7), MOV(R0, R4), BL(Label("exit")))
-//  }
+    "Exiting" should "produce the expected instructions" in {
+    val parser = TestUtilities.setupParser("exit 7")
+    val program: Either[CompilationError, Statement] = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
+    val availableRegisters = Seq(R4, R5, R6)
+    val instructions = transStatement(program.right.get, availableRegisters)
+      println(instructions)
+    instructions shouldBe Seq(MOV(R4, ImmOperand(7)), MOV(R0, RegisterOperand(R4)), BL(Label("exit")))
+  }
 }
