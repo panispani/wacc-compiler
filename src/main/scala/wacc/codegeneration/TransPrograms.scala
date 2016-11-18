@@ -35,10 +35,10 @@ package object TransPrograms {
       => transProgram(functions, stmt, registers)
       case Function(ident, params, vartype, stmt)
       => transFunction(ident, params, vartype, stmt, registers)
+      case seq @ s::stmts
+      => transStatementSequence(seq.asInstanceOf[Seq[Statement]], registers)
       case stmt:Statement
       => transStatement(stmt, registers)
-      case seq @ Seq
-      => transStatementSequence(seq.asInstanceOf[Seq[Statement]], registers)
       case default
       => println("can we even reach this point"); Seq[Instruction]()
     }

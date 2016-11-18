@@ -18,10 +18,10 @@ class StatementSequenceTest extends  CodeGenTest {
     val instructions = transNext(result.right.get, availableRegisters)
 
     instructions.size should be (6)
-    instructions.head should be (LDR(R0, IntAddress(10)))
+    instructions.head should be (MOV(R0, ImmOperand(10)))
     instructions(1) should be (MOV(R0, RegisterOperand(R0)))
     instructions(2) should be (BL(Label("exit")))
-    instructions(3) should be (LDR(R0, IntAddress(6)))
+    instructions(3) should be (MOV(R0, ImmOperand(6)))
     instructions(4) should be (MOV(R0, RegisterOperand(R0)))
     instructions.last should be (BL(Label("exit")))
   }
