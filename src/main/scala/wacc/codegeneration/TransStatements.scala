@@ -27,15 +27,7 @@ package object TransStatements {
 
   def transDeclareStatement(vartype: Type, identifier: String, value: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
     println("declare " + identifier + " to be " + value + "(" + vartype + ")" )
-    val bytes = vartype match {
-      case PrimitiveType("int") => 4
-      case PrimitiveType("bool") => 1
-      case PrimitiveType("char") => 1
-      case PrimitiveType("string") => 4 //keep on heap, this is a pointer
-      case ArrayType(elemtype: Type) => 4 //keep on heap
-      case PairType(ftype, sType) => 4 //keep on heap
-    }
-    VarLog.add(identifier, bytes, vartype)
+    VarLog.add(identifier, vartype)
     val store =  vartype match {
       case PrimitiveType("int") => Seq(STR(registers.head, RegisterAddress(SP)))
       case PrimitiveType("bool") => Seq(STR(registers.head, RegisterAddress(SP)))

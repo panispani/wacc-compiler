@@ -8,7 +8,7 @@ import wacc.constructs.{ArrayType, PairType, PrimitiveType, Type}
 object VarLog {
   private var bytes: Integer = 0
   private var vars: Integer = 0
-  def add(name: String, location: Integer, vartype: Type): Unit = {
+  def add(name: String, vartype: Type): Unit = {
     val varsize = vartype match {
       case PrimitiveType("int") => 4
       case PrimitiveType("bool") => 1
