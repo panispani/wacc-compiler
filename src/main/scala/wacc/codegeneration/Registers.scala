@@ -1,8 +1,10 @@
 package wacc.codegeneration
 
+trait Register
 trait Operand
-trait Register extends Operand
-trait Imm16
+
+case class ImmOperand(value: Int) extends Operand
+case class RegisterOperand(register: Register) extends Operand
 
 object R0 extends Register
 object R1 extends Register
