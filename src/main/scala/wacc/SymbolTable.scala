@@ -35,7 +35,7 @@ case class SymbolTable(parent: Option[SymbolTable]) {
 object SymbolTable {
   def clearAll() = {
     globalTable.clear()
-    currentTable.clear()
+    currentTable = globalTable
   }
 
   def openScope() = {
