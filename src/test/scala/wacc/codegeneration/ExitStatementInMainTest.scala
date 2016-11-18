@@ -4,7 +4,7 @@ import org.scalatest.{FlatSpec, Matchers}
 import wacc.TransStatements._
 import wacc.constructs.{ExitStatement, IntegerLiteral}
 
-class ExitStatementInMain extends FlatSpec with Matchers {
+class ExitStatementInMainTest extends FlatSpec with Matchers {
 
   "An exit statement in main" should "BL to C exit" in {
     val availableRegisters = Seq(R4, R5, R6)

@@ -2,12 +2,13 @@ package wacc
 
 import wacc.TransFunctions._
 import wacc.TransStatements._
+import wacc.codegeneration._
 import wacc.constructs._
 
 /**
   * Created by panayiotis on 16/11/16.
   */
-package object codegeneration {
+package object TransPrograms {
   def transProgram(functions: Seq[Function], stmts: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
     val instruction = Seq[Instruction]()
     val functionInstructions =
@@ -34,8 +35,6 @@ package object codegeneration {
       => transProgram(functions, stmt, registers)
       case Function(ident, params, vartype, stmt)
       => transFunction(ident, params, vartype, stmt, registers)
-      case DeclareStatement(vartype, identifier, value)
-      => transDeclareStatement(vartype, identifier, value, registers)
       case stmt:Statement
       => transStatement(stmt, registers)
       case default

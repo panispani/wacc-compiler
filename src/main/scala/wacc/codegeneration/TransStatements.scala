@@ -20,6 +20,8 @@ package object TransStatements {
       => transExitStatement(exitCode, registers)
       case ReturnStatement(returnValue: Expression)
       => transReturnStatement(returnValue, registers)
+      case SkipStatement()
+      => Seq()
     }
   }
 
@@ -61,5 +63,4 @@ package object TransStatements {
 
     instruction ++ Seq(MOV(R0, RegisterOperand(registers.head)), BL(Label("exit")))
   }
-
 }

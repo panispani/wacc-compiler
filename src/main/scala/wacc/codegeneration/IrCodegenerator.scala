@@ -1,6 +1,7 @@
 package wacc.codegeneration
 
 import wacc.constructs.Program
+import wacc.TransPrograms._
 
 /**
   * Created by panayiotis on 15/11/16.
