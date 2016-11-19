@@ -18,7 +18,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
       if (compatibleTypes(varType, rhs.vartype)) {
         SymbolTable.currentTable.lookupTyped(identifier) match {
           case None | Some(FunctionReference(_, _, _)) =>
-            SymbolTable.currentTable.addTyped(identifier, VariableReference(identifier, varType))
+            SymbolTable.currentTable.addLocalVariable(identifier, varType)
             Right(DeclareStatement(varType, identifier, rhs))
           case Some(_) => Left(SemanticError(
             "Identifier " + identifier + " already declared in current scope",

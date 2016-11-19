@@ -1,5 +1,6 @@
 package wacc
 
+import sun.reflect.generics.tree.ReturnType
 import wacc.constructs._
 
 import scala.collection.mutable
@@ -18,9 +19,17 @@ case class SymbolTable(parent: Option[SymbolTable]) {
   private var currentOffset: Int = 0
   private var map: mutable.Map[String, Reference] = mutable.Map()
 
-  def addTyped(identifier: String, symbol: Typed) = {
-    map += identifier -> VariableReference(identifier, symbol.vartype, currentOffset)
-    currentOffset += variableSize(symbol.vartype)
+  def addFunctionArgument(ident: String, variable: VariableReference, reference: FunctionReference): Unit = {
+    // should have negative offsets, lookup funciton symbol table
+  }
+
+  def addFunction(identifier: String, function: FunctionReference): Unit = {
+    //TODO, add function symbol table
+  }
+
+  def addLocalVariable(identifier: String, vartype: Type) = {
+    map += identifier -> VariableReference(identifier, vartype, currentOffset)
+    currentOffset += variableSize(vartype)
   }
 
   def lookupTyped(identifier: String): Option[Reference]

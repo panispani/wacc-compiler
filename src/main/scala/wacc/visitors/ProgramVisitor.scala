@@ -21,19 +21,19 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
 
     if (SymbolTable.globalTable.lookupTyped(name).isDefined)
       return Some(SemanticError("Attempted redefinition of function " + name, ctx.start))
-    else SymbolTable.globalTable.addTyped(name, FunctionReference(name, returnType, args))
+    else SymbolTable.globalTable.addFunction(name, FunctionReference(name, returnType, args))
 
-    args map (arg => {
+    args foreach (arg => {
 
       val ident = arg.variable match {
-        case VariableReference(varname, vartype) => varname
+        case VariableReference(varname, _, _) => varname
       }
 
       if (SymbolTable.currentTable.lookupTyped(ident).isDefined) {
         return Some(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
       }
 
-      SymbolTable.currentTable.addTyped(ident, VariableReference(ident, arg.variable.vartype))
+      SymbolTable.currentTable.addFunctionArgument(ident, arg.variable, FunctionReference(name, returnType, args))
     })
     None
   }
