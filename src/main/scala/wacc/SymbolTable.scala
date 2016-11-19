@@ -23,7 +23,7 @@ case class SymbolTable(parent: Option[SymbolTable]) {
   }
 
   def addFunction(identifier: String, function: FunctionReference): Unit = {
-    //TODO, add function symbol table
+    map += identifier -> function
   }
 
   def addLocalVariable(identifier: String, vartype: Type) = {
