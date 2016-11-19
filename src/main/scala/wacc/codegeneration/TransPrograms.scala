@@ -27,14 +27,10 @@ package object TransPrograms {
 
   def transNext(a: Any, registers: Seq[Register]): Seq[Instruction] = {
     a match {
-      case Program(functions, stmt)
-      => transProgram(functions, stmt, registers)
-      case Function(ident, params, vartype, stmt)
-      => transFunction(ident, params, vartype, stmt, registers)
-      case stmt:Statement
-      => transStatement(stmt, registers)
-      case default
-      => println("can we even reach this point"); Seq[Instruction]()
+      case Program(functions, stmt)               => transProgram(functions, stmt, registers)
+      case Function(ident, params, vartype, stmt) => transFunction(ident, params, vartype, stmt, registers)
+      case stmt:Statement                         => transStatement(stmt, registers)
+      case default                                => println("can we even reach this point"); Seq[Instruction]()
     }
   }
 }
