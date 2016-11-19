@@ -1,5 +1,6 @@
 package wacc.visitors
 
+import wacc.VariableReference
 import wacc.constructs._
 
 class ScopeStatementTest extends VisitorTest {
@@ -31,7 +32,7 @@ class ScopeStatementTest extends VisitorTest {
             DeclareStatement(Integer, "a",IntegerLiteral(2))
           )
         ),
-        DeclareStatement(Integer,"b",VariableReferenceExpression("a", Integer, 0))
+        DeclareStatement(Integer,"b",VariableReference("a", Integer, 0))
       )
     )
   }

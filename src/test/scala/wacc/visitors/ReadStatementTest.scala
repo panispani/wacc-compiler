@@ -1,8 +1,7 @@
 package wacc.visitors
 
+import wacc.VariableReference
 import wacc.constructs._
-
-import scala.collection.SeqView
 
 class ReadStatementTest extends VisitorTest {
 
@@ -20,7 +19,7 @@ class ReadStatementTest extends VisitorTest {
         "p",
         PairConstructor(IntegerLiteral(1), IntegerLiteral(2))
       ),
-      ReadStatement(VariableReferenceExpression("p" ,PairType(Integer, Integer), 0))
+      ReadStatement(VariableReference("p" ,PairType(Integer, Integer), 0))
     )
 
     program.left.value should (be (a[SemanticError]) or be (a[List[_]]))

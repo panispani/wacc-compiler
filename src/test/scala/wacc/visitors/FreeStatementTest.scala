@@ -1,5 +1,6 @@
 package wacc.visitors
 
+import wacc.VariableReference
 import wacc.constructs._
 
 class FreeStatementTest extends VisitorTest {
@@ -18,7 +19,7 @@ class FreeStatementTest extends VisitorTest {
         ReadStatement(
           PairElement(
             FirstSelector,
-            VariableReferenceExpression("p", PairType(Integer, Integer), 0),
+            VariableReference("p", PairType(Integer, Integer), 0),
             Integer
           )
         )

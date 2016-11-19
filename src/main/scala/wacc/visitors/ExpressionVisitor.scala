@@ -10,12 +10,12 @@ import scala.util.Either
 
 object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Expression]] {
 
-  override def visitVariableReference(ctx: VariableReferenceContext): Either[CompilationError, VariableReferenceExpression] = {
+  override def visitVariableReference(ctx: VariableReferenceContext): Either[CompilationError, VariableReference] = {
     val identifier = ctx.IDENT()
 
     SymbolTable.currentTable.lookupAllTyped(identifier.getText) match {
-      case Some(VariableReference(x, t, offset)) =>
-        Right(VariableReferenceExpression(x, t, offset))
+      case Some(variable @ VariableReference(x, t, offset)) =>
+        Right(variable)
       case Some(FunctionReference(f, _, _)) =>
         Left(SemanticError("Expected identifier to be a variable, got function instead", identifier.getSymbol))
       case Some(_: Typed) =>

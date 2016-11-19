@@ -55,7 +55,7 @@ class FunctionCallTest extends VisitorTest{
             List(VariableReference("a",PrimitiveType("int"), 0)),
             PrimitiveType("int"),
             List(
-              ReturnStatement(VariableReferenceExpression("a", PrimitiveType("int"), 0)))
+              ReturnStatement(VariableReference("a", PrimitiveType("int"), 0)))
             )
           ),
           List(
