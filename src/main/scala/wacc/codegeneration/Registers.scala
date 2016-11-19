@@ -2,7 +2,7 @@ package wacc.codegeneration
 
 trait Address
 case class IntAddress(address: Int) extends Address
-case class RegisterAddress(register: Register) extends Address
+case class RegisterAddress(register: Register, offset: Int) extends Address
 
 trait Operand
 case class ImmOperand(value: Int) extends Operand
@@ -16,10 +16,10 @@ class Register(name: String) {
 case class GPRegister(index: Int) extends Register("R" + index.toString)
 
 object R0 extends GPRegister(0)
-object R2 extends GPRegister(1)
-object R3 extends GPRegister(2)
-object R4 extends GPRegister(3)
-object R1 extends GPRegister(4)
+object R1 extends GPRegister(1)
+object R2 extends GPRegister(2)
+object R3 extends GPRegister(3)
+object R4 extends GPRegister(4)
 object R5 extends GPRegister(5)
 object R6 extends GPRegister(6)
 object R7 extends GPRegister(7)

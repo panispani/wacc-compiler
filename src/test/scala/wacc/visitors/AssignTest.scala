@@ -54,7 +54,8 @@ class AssignTest extends VisitorTest {
           ArrayElement(
             VariableReference(
               "x",
-              ArrayType(PrimitiveType("int"))
+              ArrayType(PrimitiveType("int")),
+              0
             ),
             List(
               IntegerLiteral(0)

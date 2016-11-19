@@ -20,7 +20,7 @@ class ReadStatementTest extends VisitorTest {
         "p",
         PairConstructor(IntegerLiteral(1), IntegerLiteral(2))
       ),
-      ReadStatement(VariableReferenceExpression("p" ,PairType(Integer, Integer)))
+      ReadStatement(VariableReferenceExpression("p" ,PairType(Integer, Integer), 0))
     )
 
     program.left.value should (be (a[SemanticError]) or be (a[List[_]]))
