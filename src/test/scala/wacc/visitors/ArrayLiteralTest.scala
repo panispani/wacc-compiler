@@ -13,7 +13,7 @@ class ArrayLiteralTest extends VisitorTest {
         List(),
         List(
           DeclareStatement(
-            ArrayType(PrimitiveType("int")),
+            ArrayType(Integer),
             VariableReference("a", ArrayType(Integer), 0),
             ArrayLiteral(
               List(

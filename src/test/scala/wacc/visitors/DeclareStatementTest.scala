@@ -11,7 +11,7 @@ class DeclareStatementTest extends VisitorTest {
 
     result.right.value should be
       DeclareStatement(
-        PairType(PrimitiveType("int"),PrimitiveType("int")),
+        PairType(Integer,Integer),
         VariableReference("p", PairType(Integer, Integer), 0),
         PairLiteral())
   }
@@ -22,7 +22,7 @@ class DeclareStatementTest extends VisitorTest {
 
     result.right.value should be (
       DeclareStatement(
-        ArrayType(PrimitiveType("int")),
+        ArrayType(Integer),
         VariableReference("p", ArrayType(Integer), 0),
         ArrayLiteral(List())))
   }

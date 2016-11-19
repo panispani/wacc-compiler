@@ -18,18 +18,18 @@ class FunctionCallTest extends VisitorTest{
           Function(
             "foo",
             List(),
-            PrimitiveType("int"),
+            Integer,
             List(ReturnStatement(IntegerLiteral(1)))
           )
         ),
         List(
           DeclareStatement(
-            PrimitiveType("int"),
+            Integer,
             VariableReference("a", Integer, 0),
             FunctionCall(
               "foo",
               List(),
-              PrimitiveType("int")
+              Integer
             )
           )
         )
@@ -52,20 +52,20 @@ class FunctionCallTest extends VisitorTest{
         List(
           Function(
             "foo",
-            List(VariableReference("a",PrimitiveType("int"), 0)),
-            PrimitiveType("int"),
+            List(VariableReference("a",Integer, 0)),
+            Integer,
             List(
-              ReturnStatement(VariableReference("a", PrimitiveType("int"), 0)))
+              ReturnStatement(VariableReference("a", Integer, 0)))
             )
           ),
           List(
             DeclareStatement(
-              PrimitiveType("int"),
+              Integer,
               VariableReference("a", Integer, 0),
               FunctionCall(
                 "foo",
                 List(IntegerLiteral(2)),
-                PrimitiveType("int")
+                Integer
               )
             )
           )

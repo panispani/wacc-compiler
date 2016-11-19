@@ -14,13 +14,13 @@ class LoopStatementTest extends VisitorTest {
     result.right.value should be(
       List(
         DeclareStatement(
-          PrimitiveType("int"),
+          Integer,
           VariableReference("x", Integer, 0),
           IntegerLiteral(1)),
         LoopStatement(BoolLiteral(true),
           List(
             DeclareStatement(
-              PrimitiveType("int"),
+              Integer,
               VariableReference("x", Integer, 0),
               IntegerLiteral(1))
           )

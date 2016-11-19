@@ -1,13 +1,21 @@
 package wacc.constructs
 
-trait Type
+trait Type {
+  val size: Int
+}
 
-case class PrimitiveType(identifier: String) extends Type
-case class ArrayType(elemtype: Type) extends Type
-case class PairType(firstType: Type, secondType: Type) extends Type
+case class PrimitiveType(identifier: String, size: Int) extends Type
+case class ArrayType(elemtype: Type) extends Type {
+  override val size: Int = 4
+}
+case class PairType(firstType: Type, secondType: Type) extends Type {
+  override val size: Int = 4
+}
 
 object String extends ArrayType(Character)
-object Integer extends PrimitiveType("int")
-object Boolean extends PrimitiveType("bool")
-object Character extends PrimitiveType("char")
-object AnyType extends Type
+object Integer extends PrimitiveType("int", 4)
+object Boolean extends PrimitiveType("bool", 1)
+object Character extends PrimitiveType("char", 1)
+object AnyType extends Type {
+  override val size: Int = 0
+}

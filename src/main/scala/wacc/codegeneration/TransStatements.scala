@@ -5,6 +5,8 @@ import wacc.TransExpressions._
 import wacc.codegeneration._
 import wacc.constructs._
 
+import scala.collection.GenTraversableOnce
+
 /**
   * Created by panayiotis on 16/11/16.
   */
@@ -25,6 +27,18 @@ package object TransStatements {
     }
   }
 
+  def transArrayLiteral(literal: ArrayLiteral, registers: Seq[Register]): Seq[Instruction] = {
+    var offset = 4
+    var instructions: Seq[Instruction] = Seq()
+
+    for (elem <- literal.elements) {
+      instructions ++= transExpression(elem, registers.tail) :+ STR(registers(1), RegisterAddress(registers.head, offset))
+      offset += literal.vartype.elemtype.size
+    }
+
+    instructions
+  }
+
   def transDeclareStatement(vartype: Type, identifier: VariableReference, value: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
     println("declare " + identifier + " to be " + value + "(" + vartype + ")")
 
@@ -39,10 +53,20 @@ package object TransStatements {
     val store =  vartype match {
       case Integer => Seq(STR(registers.head, RegisterAddress(SP, offset)))
       case Boolean | Character => Seq(STRB(registers.head, RegisterAddress(SP, offset)))
+      case ArrayType(elemsType) => value match {
+        case literal @ ArrayLiteral(elements) => {
+          val arraySize = 4 + elements.size * elemsType.size
+          return Seq(
+            LDR(R0, Const(arraySize)),
+            BL(Label("malloc")),
+            MOV(registers.head, RegisterOperand(R0)),
+            LDR(registers(1), Const(elements.size)),
+            STR(registers(1), RegisterAddress(registers.head, 0))
+          ) ++ transArrayLiteral(literal, registers) :+ STR(registers.head, RegisterAddress(SP, 0))
+        }
+      }
       case default => println("not impelemented"); Seq()
     }
-
-    //TODO: code to update the identifier in the symbol table with the memory location
 
     instruction ++ store
   }

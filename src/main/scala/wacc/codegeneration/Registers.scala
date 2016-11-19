@@ -3,6 +3,7 @@ package wacc.codegeneration
 trait Address
 case class IntAddress(address: Int) extends Address
 case class RegisterAddress(register: Register, offset: Int) extends Address
+case class Const(value: Int) extends Address
 
 trait Operand
 case class ImmOperand(value: Int) extends Operand
