@@ -1,6 +1,5 @@
 package wacc
 
-import sun.reflect.generics.tree.ReturnType
 import wacc.constructs._
 
 import scala.collection.mutable
