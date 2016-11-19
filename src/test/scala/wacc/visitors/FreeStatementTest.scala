@@ -18,7 +18,7 @@ class FreeStatementTest extends VisitorTest {
         ReadStatement(
           PairElement(
             FirstSelector,
-            VariableReferenceExpression("p", PairType(Integer, Integer)),
+            VariableReferenceExpression("p", PairType(Integer, Integer), 0),
             Integer
           )
         )

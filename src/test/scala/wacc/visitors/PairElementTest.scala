@@ -20,7 +20,8 @@ class PairElementTest extends VisitorTest {
           PrintStatement(
             VariableReferenceExpression(
               "p",
-              PairType(PairType(AnyType, AnyType),PairType(AnyType, AnyType))
+              PairType(PairType(AnyType, AnyType),PairType(AnyType, AnyType)),
+              0
             )
           )
         )
