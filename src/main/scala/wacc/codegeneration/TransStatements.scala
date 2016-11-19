@@ -22,11 +22,15 @@ package object TransStatements {
       => transReturnStatement(returnValue, registers)
       case SkipStatement()
       => Seq()
+      case PrintStatement(expression)
+      => transExpression(expression, registers) :+ BL(Label("p_print_string"))
+      case PrintLnStatement(expression)
+      => transExpression(expression, registers) :+ BL(Label("p_print_ln"))
     }
   }
 
   def transDeclareStatement(vartype: Type, identifier: String, value: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
-    println("declare " + identifier + " to be " + value + "(" + vartype + ")" )
+    println("declare " + identifier + " to be " + value + "(" + vartype + ")")
     val bytes = vartype match {
       case PrimitiveType("int") => 4
       case PrimitiveType("bool") => 1
@@ -36,7 +40,7 @@ package object TransStatements {
       case PairType(ftype, sType) => 4 //keep on heap
     }
     VarLog.add(identifier, bytes, vartype)
-    val store =  vartype match {
+    val store = vartype match {
       case PrimitiveType("int") => Seq(STR(registers.head, RegisterAddress(SP)))
       case PrimitiveType("bool") => Seq(STR(registers.head, RegisterAddress(SP)))
       case PrimitiveType("char") => Seq(STRB(registers.head, RegisterAddress(SP)))
