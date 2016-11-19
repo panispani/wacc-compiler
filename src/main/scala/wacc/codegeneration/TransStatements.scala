@@ -15,12 +15,14 @@ package object TransStatements {
       case DeclareStatement(vartype: Type, identifier: String, value: AssignValue)
         => transDeclareStatement(vartype, identifier, value, registers)
 
-      case AssignStatement(lhs: AssignTarget, rhs: AssignValue) => transAssignStatement(lhs, rhs, registers)
-      case ExitStatement(exitCode: Expression)                  => transExitStatement(exitCode, registers)
-      case ReturnStatement(returnValue: Expression)             => transReturnStatement(returnValue, registers)
-      case SkipStatement()                                      => Seq()
-      case PrintStatement(expression)                           => transExpression(expression, registers) :+ BL(Label("p_print_string"))
-      case PrintLnStatement(expression)                         => transExpression(expression, registers) :+ BL(Label("p_print_ln"))
+      case AssignStatement(lhs: AssignTarget, rhs: AssignValue)
+        => transAssignStatement(lhs, rhs, registers)
+
+      case ExitStatement(exitCode: Expression)      => transExitStatement(exitCode, registers)
+      case ReturnStatement(returnValue: Expression) => transReturnStatement(returnValue, registers)
+      case SkipStatement()                          => Seq()
+      case PrintStatement(expression)               => transExpression(expression, registers) :+ BL(Label("p_print_string"))
+      case PrintLnStatement(expression)             => transExpression(expression, registers) :+ BL(Label("p_print_ln"))
     }
   }
 
