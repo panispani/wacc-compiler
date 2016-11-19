@@ -48,7 +48,10 @@ case class SymbolTable(parent: Option[SymbolTable]) {
       }
     }
 
-  def clear() = map.clear()
+  def clear() = {
+    map.clear()
+    currentOffset = 0
+  }
 
   private def variableSize(vartype: Type): Int = {
     vartype match {
