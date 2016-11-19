@@ -4,27 +4,32 @@ import wacc.constructs._
 
 import scala.collection.mutable
 
-case class VariableReference(name: String, vartype: Type) extends Typed
-case class FunctionReference(name: String, returnType: Type, arguments : Seq[Param]) extends Typed {
+trait Reference extends Typed {
+  val offset: Int
+}
+case class VariableReference(name: String, vartype: Type, offset: Int) extends Reference
+case class FunctionReference(name: String, returnType: Type, arguments : Seq[Param]) extends Reference {
   override val vartype: Type = returnType
+  override val offset: Int = 0
 }
 
 case class SymbolTable(parent: Option[SymbolTable]) {
 
-  
-  private var map: mutable.Map[String, MemoryObject] = mutable.Map()
+  private var currentOffset: Int = 0
+  private var map: mutable.Map[String, Reference] = mutable.Map()
 
-  def addTyped(identifier: String, symbol: Typed)
-    = map += identifier -> MemoryObject(symbol)
+  def addTyped(identifier: String, symbol: Typed) = {
+    map += identifier -> VariableReference(identifier, symbol.vartype, currentOffset)
+    currentOffset += variableSize(symbol.vartype)
+  }
 
-  def addMemoryObject(identifier: String, symbol: Typed, offset: Int)
-  = map += identifier -> MemoryObject(symbol, offset)
-
-  def lookupTyped(identifier: String): Option[Typed]
+  def lookupTyped(identifier: String): Option[Reference]
     = map get identifier match {
-    case Some(memoryObject) => Some(memoryObject.typed)
+    case Some(reference) => Some(reference)
     case None => None
   }
+
+  // change to reference
 
   def lookupAllTyped(identifier: String): Option[Typed]
     = lookupTyped (identifier) match {
@@ -34,18 +39,6 @@ case class SymbolTable(parent: Option[SymbolTable]) {
         case Some (higherParent) => higherParent lookupAllTyped identifier
       }
     }
-
-  def lookupMemoryObject(identifier: String): Option[MemoryObject]
-  = map get identifier
-
-  def lookupAllMemoryObject(identifier: String): Option[MemoryObject]
-  = lookupMemoryObject (identifier) match {
-    case Some (ident) => Some (ident)
-    case None => parent match {
-      case None => None
-      case Some (higherParent) => higherParent lookupAllMemoryObject identifier
-    }
-  }
 
   def clear() = map.clear()
 
