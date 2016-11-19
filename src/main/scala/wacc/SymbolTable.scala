@@ -11,7 +11,8 @@ case class FunctionReference(name: String, returnType: Type, arguments : Seq[Par
 
 case class SymbolTable(parent: Option[SymbolTable]) {
 
-  var map: mutable.Map[String, MemoryObject] = mutable.Map()
+  
+  private var map: mutable.Map[String, MemoryObject] = mutable.Map()
 
   def addTyped(identifier: String, symbol: Typed)
     = map += identifier -> MemoryObject(symbol)
@@ -47,6 +48,17 @@ case class SymbolTable(parent: Option[SymbolTable]) {
   }
 
   def clear() = map.clear()
+
+  private def variableSize(vartype: Type): Int = {
+    vartype match {
+      case Integer                   => 4
+      case Boolean                   => 1
+      case Character                 => 1
+      case String                    => 4 //keep on heap, this is a pointer
+      case ArrayType(elemtype: Type) => 4 //keep on heap
+      case PairType(ftype, sType)    => 4 //keep on heap
+    }
+  }
 
 }
 
