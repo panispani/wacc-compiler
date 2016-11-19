@@ -1,4 +1,6 @@
 package wacc.constructs
 
-case class Param(variable: Variable)
+import wacc.VariableReference
+
+case class Param(variable: VariableReference)
 

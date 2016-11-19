@@ -24,7 +24,10 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
     else SymbolTable.globalTable.addTyped(name, FunctionReference(name, returnType, args))
 
     args map (arg => {
-      val ident = arg.variable.identifier
+
+      val ident = arg.variable match {
+        case VariableReference(varname, vartype) => varname
+      }
 
       if (SymbolTable.currentTable.lookupTyped(ident).isDefined) {
         return Some(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
