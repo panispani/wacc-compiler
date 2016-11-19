@@ -15,7 +15,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
     SymbolTable.openScope()
 
     args foreach (arg => {
-      val ident = arg.variable match {
+      val ident = arg match {
         case VariableReference(varname, _ , _) => varname
       }
 
@@ -23,7 +23,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
         return Left(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
       }
 
-      SymbolTable.currentTable.addLocalVariable(ident, arg.variable.vartype)
+      SymbolTable.currentTable.addLocalVariable(ident, arg.vartype)
     })
 
     val matchReturnType: PartialFunction[Statement, Either[SemanticError, Statement]] = {

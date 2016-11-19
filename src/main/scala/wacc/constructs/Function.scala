@@ -1,6 +1,8 @@
 package wacc.constructs
 
+import wacc.VariableReference
+
 case class Function(identifier: String,
-                    params: Seq[Param],
+                    params: Seq[VariableReference],
                     vartype: Type,
                     stmt: Seq[Statement])

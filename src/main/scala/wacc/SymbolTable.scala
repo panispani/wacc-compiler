@@ -8,7 +8,7 @@ trait Reference extends Typed {
   val offset: Int
 }
 case class VariableReference(name: String, vartype: Type, offset: Int) extends Reference
-case class FunctionReference(name: String, returnType: Type, arguments : Seq[Param]) extends Reference {
+case class FunctionReference(name: String, returnType: Type, arguments : Seq[VariableReference]) extends Reference {
   override val vartype: Type = returnType
   override val offset: Int = 0
 }

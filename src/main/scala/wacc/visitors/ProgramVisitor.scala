@@ -16,7 +16,7 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
     }
 
     val name = ctx.IDENT().getText
-    val args: Seq[Param] = params map (_.accept(ParamVisitor))
+    val args: Seq[VariableReference] = params map (_.accept(ParamVisitor))
     val returnType = ctx.`type`().accept(TypeVisitor)
 
     if (SymbolTable.globalTable.lookupTyped(name).isDefined)
@@ -24,16 +24,11 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
     else SymbolTable.globalTable.addFunction(name, FunctionReference(name, returnType, args))
 
     args foreach (arg => {
-
-      val ident = arg.variable match {
-        case VariableReference(varname, _, _) => varname
-      }
-
-      if (SymbolTable.currentTable.lookupTyped(ident).isDefined) {
+      if (SymbolTable.currentTable.lookupTyped(arg.name).isDefined) {
         return Some(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
       }
 
-      SymbolTable.currentTable.addFunctionArgument(ident, arg.variable, FunctionReference(name, returnType, args))
+      SymbolTable.currentTable.addFunctionArgument(arg.name, arg, FunctionReference(name, returnType, args))
     })
     None
   }
