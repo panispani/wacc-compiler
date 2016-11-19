@@ -25,7 +25,7 @@ class FunctionCallTest extends VisitorTest{
         List(
           DeclareStatement(
             PrimitiveType("int"),
-            "a",
+            VariableReference("a", Integer, 0),
             FunctionCall(
               "foo",
               List(),
@@ -61,7 +61,7 @@ class FunctionCallTest extends VisitorTest{
           List(
             DeclareStatement(
               PrimitiveType("int"),
-              "a",
+              VariableReference("a", Integer, 0),
               FunctionCall(
                 "foo",
                 List(IntegerLiteral(2)),

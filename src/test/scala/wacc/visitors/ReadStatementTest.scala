@@ -16,7 +16,7 @@ class ReadStatementTest extends VisitorTest {
     val statements = Seq(
       DeclareStatement(
         PairType(Integer, Integer),
-        "p",
+        VariableReference("p", PairType(Integer, Integer), 0),
         PairConstructor(IntegerLiteral(1), IntegerLiteral(2))
       ),
       ReadStatement(VariableReference("p" ,PairType(Integer, Integer), 0))

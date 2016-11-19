@@ -1,5 +1,6 @@
 package wacc.visitors
 
+import wacc.VariableReference
 import wacc.constructs._
 
 /**
@@ -12,10 +13,16 @@ class LoopStatementTest extends VisitorTest {
 
     result.right.value should be(
       List(
-        DeclareStatement(PrimitiveType("int"),"x",IntegerLiteral(1)),
+        DeclareStatement(
+          PrimitiveType("int"),
+          VariableReference("x", Integer, 0),
+          IntegerLiteral(1)),
         LoopStatement(BoolLiteral(true),
           List(
-            DeclareStatement(PrimitiveType("int"),"x",IntegerLiteral(1))
+            DeclareStatement(
+              PrimitiveType("int"),
+              VariableReference("x", Integer, 0),
+              IntegerLiteral(1))
           )
         )
       )

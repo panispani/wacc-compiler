@@ -12,8 +12,8 @@ package object TransStatements {
 
   def transStatement(stmt: Statement, registers: Seq[Register]) = {
     stmt match {
-      case DeclareStatement(vartype: Type, identifier: String, value: AssignValue)
-      => transDeclareStatement(vartype, identifier, value, registers)
+      case DeclareStatement(vartype: Type, variable: VariableReference, value: AssignValue)
+      => transDeclareStatement(vartype, variable, value, registers)
       case AssignStatement(lhs: AssignTarget, rhs: AssignValue)
       => transAssignStatement(lhs, rhs, registers)
       case ExitStatement(exitCode: Expression)
@@ -29,9 +29,11 @@ package object TransStatements {
     }
   }
 
-  def transDeclareStatement(vartype: Type, identifier: String, value: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
+  def transDeclareStatement(vartype: Type, identifier: VariableReference, value: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
     println("declare " + identifier + " to be " + value + "(" + vartype + ")")
-    VarLog.add(identifier, vartype)
+
+    // TODO: See what this should do
+    //    VarLog.add(identifier, vartype)
 
     //result on first register in list
     val instruction = transAssignRhs(value, registers)

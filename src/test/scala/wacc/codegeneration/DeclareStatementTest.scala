@@ -5,7 +5,7 @@ import wacc.visitors.{StatementVisitor, TestUtilities}
 
 class DeclareStatementTest extends  CodeGenTest {
 
-  ignore should "produce the expected instructions" in {
+  it should "produce the expected instructions" in {
     val parser = TestUtilities.setupParser("int x = 42")
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
@@ -25,7 +25,7 @@ class DeclareStatementTest extends  CodeGenTest {
     val availableRegisters = Seq(R4, R5, R6)
     val instructions = transStatementSequence(Seq(program.right.get, program2.right.get), availableRegisters)
 
-    instructions(1) shouldBe STRB(availableRegisters.head, RegisterAddress(SP, 4))
-    instructions(3) shouldBe STR(availableRegisters.head, RegisterAddress(SP, 0))
+    instructions(1) shouldBe STRB(availableRegisters.head, RegisterAddress(SP, 0))
+    instructions(3) shouldBe STR(availableRegisters.head, RegisterAddress(SP, 1))
   }
 }

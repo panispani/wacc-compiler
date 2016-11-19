@@ -1,5 +1,6 @@
 package wacc.visitors
 
+import wacc.VariableReference
 import wacc.constructs._
 
 class DeclareStatementTest extends VisitorTest {
@@ -9,14 +10,21 @@ class DeclareStatementTest extends VisitorTest {
     val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
     result.right.value should be
-      DeclareStatement(PairType(PrimitiveType("int"),PrimitiveType("int")),"p",PairLiteral())
+      DeclareStatement(
+        PairType(PrimitiveType("int"),PrimitiveType("int")),
+        VariableReference("p", PairType(Integer, Integer), 0),
+        PairLiteral())
   }
 
   it should "be valid when lhs is array-type and rhs an empty array" in {
     val parser = TestUtilities.setupParser("int[] p = []")
     val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
-    result.right.value should be (DeclareStatement(ArrayType(PrimitiveType("int")),"p",ArrayLiteral(List())))
+    result.right.value should be (
+      DeclareStatement(
+        ArrayType(PrimitiveType("int")),
+        VariableReference("p", ArrayType(Integer), 0),
+        ArrayLiteral(List())))
   }
 
   it should "be invalid when lhs is pair and rhs empty array" in {
@@ -32,7 +40,7 @@ class DeclareStatementTest extends VisitorTest {
     val statements = Seq(
       DeclareStatement(
         Integer,
-        "x",
+        VariableReference("x", Integer, 0),
         IntegerLiteral(1)
       )
     )
@@ -47,7 +55,7 @@ class DeclareStatementTest extends VisitorTest {
     result.right.value should be (
       DeclareStatement(
         PairType(Integer, Integer),
-        "p",
+        VariableReference("p", PairType(Integer, Integer), 0),
         PairConstructor(IntegerLiteral(1), IntegerLiteral(2))
       )
     )
@@ -60,7 +68,7 @@ class DeclareStatementTest extends VisitorTest {
     result.right.value should be (
       DeclareStatement(
         ArrayType(Integer),
-        "x",
+        VariableReference("x", ArrayType(Integer), 0),
         ArrayLiteral(Seq(IntegerLiteral(1), IntegerLiteral(2)))))
   }
 

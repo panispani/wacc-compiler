@@ -10,10 +10,16 @@ class ScopeStatementTest extends VisitorTest {
 
     result.right.value should be (
       List(
-        DeclareStatement(Integer,"a",IntegerLiteral(1)),
+        DeclareStatement(
+          Integer,
+          VariableReference("a", Integer, 0),
+          IntegerLiteral(1)),
         ScopeStatement(
           List(
-            DeclareStatement(Integer, "a",IntegerLiteral(2))
+            DeclareStatement(
+              Integer,
+              VariableReference("a", Integer, 0),
+              IntegerLiteral(2))
           )
         )
       )
@@ -26,13 +32,22 @@ class ScopeStatementTest extends VisitorTest {
 
     result.right.value should be (
       List(
-        DeclareStatement(Integer,"a",IntegerLiteral(1)),
+        DeclareStatement(
+          Integer,
+          VariableReference("a", Integer, 0),
+          IntegerLiteral(1)),
         ScopeStatement(
           List(
-            DeclareStatement(Integer, "a",IntegerLiteral(2))
+            DeclareStatement(
+              Integer,
+              VariableReference("a", Integer, 0),
+              IntegerLiteral(2))
           )
         ),
-        DeclareStatement(Integer,"b",VariableReference("a", Integer, 0))
+        DeclareStatement(
+          Integer,
+          VariableReference("b", Integer, 4),
+          VariableReference("a", Integer, 0))
       )
     )
   }

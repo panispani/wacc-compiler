@@ -13,7 +13,7 @@ class FreeStatementTest extends VisitorTest {
       Seq(
         DeclareStatement(
           PairType(Integer, Integer),
-          "p",
+          VariableReference("p", PairType(Integer, Integer), 0),
           PairLiteral()
         ),
         ReadStatement(

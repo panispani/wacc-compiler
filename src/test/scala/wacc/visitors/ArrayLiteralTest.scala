@@ -1,5 +1,6 @@
 package wacc.visitors
 
+import wacc.VariableReference
 import wacc.constructs._
 
 class ArrayLiteralTest extends VisitorTest {
@@ -13,7 +14,7 @@ class ArrayLiteralTest extends VisitorTest {
         List(
           DeclareStatement(
             ArrayType(PrimitiveType("int")),
-            "a",
+            VariableReference("a", ArrayType(Integer), 0),
             ArrayLiteral(
               List(
                 IntegerLiteral(0),

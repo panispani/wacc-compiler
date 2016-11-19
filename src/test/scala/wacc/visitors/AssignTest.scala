@@ -41,7 +41,7 @@ class AssignTest extends VisitorTest {
       List(
         DeclareStatement(
           ArrayType(PrimitiveType("int")),
-          "x",
+          VariableReference("x", ArrayType(Integer), 0),
           ArrayLiteral(
             List(
               IntegerLiteral(1),
@@ -54,7 +54,7 @@ class AssignTest extends VisitorTest {
           ArrayElement(
             VariableReference(
               "x",
-              ArrayType(PrimitiveType("int")),
+              ArrayType(Integer),
               0
             ),
             List(

@@ -26,9 +26,11 @@ case class SymbolTable(parent: Option[SymbolTable]) {
     map += identifier -> function
   }
 
-  def addLocalVariable(identifier: String, vartype: Type) = {
-    map += identifier -> VariableReference(identifier, vartype, currentOffset)
+  def addLocalVariable(identifier: String, vartype: Type): VariableReference = {
+    val variableReference = VariableReference(identifier, vartype, currentOffset)
+    map += identifier -> variableReference
     currentOffset += variableSize(vartype)
+    variableReference
   }
 
   def lookupTyped(identifier: String): Option[Reference]
