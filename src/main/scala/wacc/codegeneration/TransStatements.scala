@@ -34,9 +34,7 @@ package object TransStatements {
     //result on first register in list
     val instruction = transAssignRhs(value, registers)
 
-    // will be in the tree TODO
-    val offset = 0
-    //val offset = SymbolTable.currentTable.lookupMemoryObject(identifier).get.offset
+    val offset = identifier.offset
 
     val store =  vartype match {
       case Integer => Seq(STR(registers.head, RegisterAddress(SP, offset)))

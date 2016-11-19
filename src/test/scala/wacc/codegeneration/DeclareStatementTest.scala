@@ -15,7 +15,7 @@ class DeclareStatementTest extends  CodeGenTest {
     instructions.last shouldBe STR(availableRegisters.head, RegisterAddress(SP, 0))
   }
 
-  ignore should "be able to handle two consecutive declarations" in {
+  it should "be able to handle two consecutive declarations" in {
     val parser = TestUtilities.setupParser("bool b = true")
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
