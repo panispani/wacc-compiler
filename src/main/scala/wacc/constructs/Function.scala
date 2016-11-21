@@ -1,8 +1,7 @@
 package wacc.constructs
 
-import wacc.VariableReference
+import wacc.{SymbolTable, VariableReference}
 
-case class Function(identifier: String,
-                    params: Seq[VariableReference],
-                    vartype: Type,
-                    statements: Seq[Statement])
+case class Function(identifier: String, params: Seq[VariableReference],
+                    vartype: Type, statements: Seq[Statement],
+                    symbolTable: SymbolTable)

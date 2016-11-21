@@ -33,10 +33,10 @@ package object TransStatements {
       case PrintLnStatement(expression)
         => transExpression(expression, registers) :+ BL(Label("p_print_ln"))
 
-      case ConditionalStatement(expression, trueStatements, falseStatements)
+      case ConditionalStatement(expression, trueStatements, falseStatements, symbolTable)
         => transConditionalStatement(expression, trueStatements, falseStatements, registers)
 
-      case LoopStatement(condition, statements)
+      case LoopStatement(condition, statements, symbolTable)
         => transLoopStatement(condition, statements, registers)
     }
   }

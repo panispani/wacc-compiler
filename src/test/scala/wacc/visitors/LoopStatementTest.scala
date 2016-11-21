@@ -11,21 +11,22 @@ class LoopStatementTest extends VisitorTest {
     val parser = TestUtilities.setupParser("int x = 1; while true do int x = 1 done")
     val result = TestUtilities.buildSubProgram(parser.sequence, SequenceVisitor)
 
-    result.right.value should be(
+    result.right.value should matchPattern { case
       List(
-        DeclareStatement(
-          Integer,
-          VariableReference("x", Integer, 0),
-          IntegerLiteral(1)),
-        LoopStatement(BoolLiteral(true),
-          List(
-            DeclareStatement(
-              Integer,
-              VariableReference("x", Integer, 0),
-              IntegerLiteral(1))
-          )
-        )
+      DeclareStatement(
+      Integer,
+      VariableReference("x", Integer, 0),
+      IntegerLiteral(1)),
+      LoopStatement(BoolLiteral(true),
+      List(
+      DeclareStatement(
+      Integer,
+      VariableReference("x", Integer, 0),
+      IntegerLiteral(1))
+      ),
+      _
       )
-    )
+      ) =>
+    }
   }
 }
