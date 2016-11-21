@@ -38,6 +38,9 @@ package object TransStatements {
 
       case LoopStatement(condition, statements, symbolTable)
         => transLoopStatement(condition, statements, registers)
+
+      case ScopeStatement(sequence, symbolTable)
+        => transScopeStatement(sequence, symbolTable, registers)
     }
   }
 
@@ -141,5 +144,19 @@ package object TransStatements {
     } yield transStatement(stmt, registers)
     instructions.flatten
   }
+
+  def transScopeStatement(seq: Seq[Statement], symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
+    val instructions
+    = for {
+      stmt <- seq
+    } yield transStatement(stmt, registers)
+    val stackBytes = VarLog.byteCount() // have way of creating new varlog like new symbol table
+
+    new CodeSegment()
+      .append(SUB(SP, SP, ImmOperand(stackBytes)))
+      .extend(instructions.flatten)
+      .append(ADD(SP, SP, ImmOperand(stackBytes))).instructions
+  }
+
 
 }

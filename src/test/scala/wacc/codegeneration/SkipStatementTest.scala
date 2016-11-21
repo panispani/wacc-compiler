@@ -3,9 +3,6 @@ package wacc.codegeneration
 import wacc.TransStatements._
 import wacc.constructs.{SkipStatement}
 
-/**
-  * Created by panayiotis on 18/11/16.
-  */
 class SkipStatementTest extends CodeGenTest {
   "A skip statement" should "translate to nothing" in {
     val availableRegisters = Seq(R4, R5, R6)
