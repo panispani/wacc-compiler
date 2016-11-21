@@ -6,7 +6,7 @@ import wacc.visitors.{StatementVisitor, TestUtilities}
 /**
   * Created by panayiotis on 21/11/16.
   */
-class ConditionalStatementTest extends  CodeGenTest {
+class ConditionalStatementTest extends CodeGenTest {
 
   it should "chack condition and provide alternative branches" in {
     val parser = TestUtilities.setupParser("if (1 == 1) then exit 5 else skip fi")

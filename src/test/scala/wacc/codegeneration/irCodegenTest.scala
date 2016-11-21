@@ -1,7 +1,5 @@
 package wacc.codegeneration
 
-import wacc.TransStatements._
-import wacc.constructs._
 import wacc.visitors.{ProgramVisitor, StatementVisitor, TestUtilities}
 
 class irCodegenTest extends CodeGenTest {
