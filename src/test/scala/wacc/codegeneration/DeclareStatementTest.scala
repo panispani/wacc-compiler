@@ -49,4 +49,20 @@ class DeclareStatementTest extends  CodeGenTest {
     instructions(9) shouldBe STR(availableRegisters.head, RegisterAddress(SP, 0))
 
   }
+
+  it should "be able to handle declaring an int with assign value another variable" in {
+    val parser = TestUtilities.setupParser("int a = 0")
+    val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
+
+    val parser2 = TestUtilities.setupParser("int b = a")
+    val program2 = TestUtilities.buildSubProgram(parser2.statement, StatementVisitor)
+
+    val availableRegisters = Seq(R4, R5, R6)
+    val instructions = transStatementSequence(Seq(program.right.get, program2.right.get), availableRegisters)
+
+    //Don't care about instructions(0) because it's up to translateExpression
+    instructions(1) shouldBe STR(availableRegisters.head, RegisterAddress(SP, 0))
+    instructions(2) shouldBe LDR(availableRegisters.head, RegisterAddress(SP, 0))
+    instructions(3) shouldBe STR(availableRegisters.head, RegisterAddress(SP, 4))
+  }
 }
