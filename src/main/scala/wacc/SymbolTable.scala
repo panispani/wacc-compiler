@@ -30,7 +30,7 @@ case class SymbolTable(parent: Option[SymbolTable]) {
   def addLocalVariable(identifier: String, vartype: Type): VariableReference = {
     val variableReference = VariableReference(identifier, vartype, currentOffset)
     map += identifier -> variableReference
-    currentOffset += variableSize(vartype)
+    currentOffset += vartype.size
     variableReference
   }
 
@@ -70,17 +70,6 @@ case class SymbolTable(parent: Option[SymbolTable]) {
   def clear() = {
     map.clear()
     currentOffset = 0
-  }
-
-  private def variableSize(vartype: Type): Int = {
-    vartype match {
-      case Integer                   => 4
-      case Boolean                   => 1
-      case Character                 => 1
-      case String                    => 4 //keep on heap, this is a pointer
-      case ArrayType(elemtype: Type) => 4 //keep on heap
-      case PairType(ftype, sType)    => 4 //keep on heap
-    }
   }
 }
 
