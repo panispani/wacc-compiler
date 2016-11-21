@@ -8,3 +8,11 @@ libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.0"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test"
 
 logBuffered in Test := false
+
+ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) }
+
+scalacOptions ++= Seq(
+  "-deprecation",
+  "-feature",
+  "-language:implicitConversions"
+)
