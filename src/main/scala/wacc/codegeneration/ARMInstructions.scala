@@ -86,5 +86,18 @@ case class STRB(Rt: Register, address: Address) extends Instruction
 case class PUSH(reglist: Seq[Register]) extends Instruction // up to 8
 case class POP(reglist: Seq[Register]) extends Instruction
 
-object RETURN extends MOV(PC, RegisterOperand(LR))
+object RETURN extends MOV(PC, LR)
 object NEW_STACK_FRAME extends PUSH(Seq(LR))
+
+// Data
+trait DataInstruction extends Instruction {
+  def size = 0
+}
+
+case class AsciiData(labelAddress: LabelAddress, data: String) extends DataInstruction {
+  override def size = 4 * data.length
+}
+
+case class IntegerData(labelAddress: LabelAddress, data: Int) extends DataInstruction {
+  override def size = 4
+}
