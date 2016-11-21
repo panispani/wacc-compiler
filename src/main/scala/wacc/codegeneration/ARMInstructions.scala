@@ -32,10 +32,10 @@ case class ALWAYS() extends Condition
 case class Label(name: String)
 object LabelCreator {
   private var currentLabelNumber: Int = 0
-  def newLabel(): Int = {
+  def newLabel(): Label = {
     val labelNum = currentLabelNumber
     currentLabelNumber = currentLabelNumber + 1
-    return labelNum
+    Label("L" + labelNum)
   }
 }
 
