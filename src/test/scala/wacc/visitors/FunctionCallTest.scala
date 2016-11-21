@@ -12,14 +12,15 @@ class FunctionCallTest extends VisitorTest{
     val parser = TestUtilities.setupParser("begin int foo() is return 1 end int a = call foo() end ")
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
-    result.right.value should be
-      Program(
+    result.right.value should matchPattern {
+      case Program(
         List(
           Function(
             "foo",
             List(),
             Integer,
-            List(ReturnStatement(IntegerLiteral(1)))
+            List(ReturnStatement(IntegerLiteral(1))),
+            _ // ignore symbol table
           )
         ),
         List(
@@ -33,7 +34,8 @@ class FunctionCallTest extends VisitorTest{
             )
           )
         )
-      )
+      ) =>
+    }
   }
 
   it should "succeed when an argument has tha same name as the function" in {
@@ -47,30 +49,26 @@ class FunctionCallTest extends VisitorTest{
     val parser = TestUtilities.setupParser("begin int foo(int a) is return a end int a = call foo(2) end")
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
-    result.right.value should be(
-      Program(
-        List(
-          Function(
+    result.right.value.functions.head should matchPattern {
+      case Function(
             "foo",
             List(VariableReference("a",Integer, 0)),
             Integer,
             List(
-              ReturnStatement(VariableReference("a", Integer, 0)))
-            )
-          ),
-          List(
-            DeclareStatement(
-              Integer,
-              VariableReference("a", Integer, 0),
-              FunctionCall(
-                "foo",
-                List(IntegerLiteral(2)),
-                Integer
-              )
-            )
-          )
-        )
-    )
+              ReturnStatement(VariableReference("a", Integer, 0))),
+            _ // ignore symbol table
+            ) =>
+    }
+
+    result.right.value.statements.head should be (DeclareStatement(
+      Integer,
+      VariableReference("a", Integer, 0),
+      FunctionCall(
+        "foo",
+        List(IntegerLiteral(2)),
+        Integer
+      )
+    ))
   }
 
   it should "fail when argument types don't match" in {
