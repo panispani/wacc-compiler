@@ -75,25 +75,49 @@ package object TransStatements {
 
   private def transDeclareStatementWithLiteralRhs(vartype: Type, variableRef: VariableReference, assignValue: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
     val instructions = vartype match {
-      case Integer => Seq(STR(registers.head, RegisterAddress(SP, variableRef.offset)))
-      case Boolean | Character => Seq(STRB(registers.head, RegisterAddress(SP, variableRef.offset)))
+      case Integer => transAssignRhs(assignValue, registers) ++ Seq(STR(registers.head, RegisterAddress(SP, variableRef.offset)))
+      case Boolean | Character => transAssignRhs(assignValue, registers) ++ Seq(STRB(registers.head, RegisterAddress(SP, variableRef.offset)))
       case ArrayType(elemsType) => assignValue match {
         case literal @ ArrayLiteral(elements) => {
           val arraySize = 4 + elements.size * elemsType.size
           Seq(
             LDR(R0, Const(arraySize)),
             BL(Label("malloc")),
-            MOV(registers.head, RegisterOperand(R0)),
+            MOV(registers.head, R0),
             LDR(registers(1), Const(elements.size)),
             STR(registers(1), RegisterAddress(registers.head, 0))
           ) ++ transArrayLiteral(literal, registers) :+ STR(registers.head, RegisterAddress(SP, 0))
         }
         case default => println("not impelemented"); Seq()
       }
+      case PairType(firstType, secondType) => assignValue match {
+        case PairConstructor(firstExp, secondExp) => {
+          Seq(
+            LDR(R0, Const(firstType.size + secondType.size)),      //Load the size of the pair (always 8) in R0
+            BL(Label("malloc")),
+            MOV(registers.head, RegisterOperand(R0))
+          ) ++ transExpression(firstExp, registers.tail) ++
+            Seq (
+              LDR(R0, Const(firstType.size)),
+              BL(Label("malloc")),
+              STR(registers(1), RegisterAddress(R0, 0)),  //Store the value for the first element in its memory
+              STR(R0, RegisterAddress(registers(0), 0)) //Put address of first element in memory of pair
+            ) ++ transExpression(secondExp, registers.tail) ++
+              Seq(
+                LDR(R0, Const(secondType.size)),
+                BL(Label("malloc")),
+                STR(registers(1), RegisterAddress(R0, 0)),  //Store the value for the second element in its memory
+                STR(R0, RegisterAddress(registers(0), firstType.size)),   //Put address of second element in memory of pair with offset
+                STR(registers.head, RegisterAddress(SP, 0))
+              )
+        }
+
+
+      }
       case default => println("not impelemented"); Seq()
     }
 
-    transAssignRhs(assignValue, registers) ++ instructions
+    instructions
   }
 
   def transAssignStatement(lhs: AssignTarget, rhs: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
@@ -106,18 +130,18 @@ package object TransStatements {
   def transExitStatement(exitCode: Expression, registers: Seq[Register]): Seq[Instruction] = {
     val instruction = transExpression(exitCode, registers)
 
-    instruction ++ Seq(MOV(R0, RegisterOperand(registers.head)), BL(Label("exit")))
+    instruction ++ Seq(MOV(R0, registers.head), BL(Label("exit")))
   }
 
   def transReturnStatement(returnValue: Expression, registers: Seq[Register]): Seq[Instruction] = {
     val instruction = transExpression(returnValue, registers)
 
-    instruction ++ Seq(MOV(R0, RegisterOperand(registers.head)))
+    instruction ++ Seq(MOV(R0, registers.head))
   }
 
   def transConditionalStatement(expression: Expression, trueStatements: Seq[Statement], falseStatements: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
-    val L0: Label = LabelCreator.newLabel()
-    val L1: Label = LabelCreator.newLabel()
+    val L0 = Label()
+    val L1 = Label()
 
     transExpression(expression, registers) ++
       Seq(CMP(registers.head, ImmOperand(0)), B(L0, EQ())) ++
@@ -128,8 +152,8 @@ package object TransStatements {
   }
 
   def transLoopStatement(condition: Expression, stmts: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
-    val L0: Label = LabelCreator.newLabel()
-    val L1: Label = LabelCreator.newLabel()
+    val L0 = Label()
+    val L1 = Label()
 
     Seq(B(L0), DefineLabel(L1)) ++
     transStatementSequence(stmts, registers) ++
@@ -159,5 +183,13 @@ package object TransStatements {
       .append(ADD(SP, SP, ImmOperand(stackBytes))).instructions
   }
 
+  def transReadStatement(read: ReadStatement, registers: Seq[Register]): CodeSegment = {
+    val target: Integer = read.target match {
+      case vr: VariableReference => vr.offset
+    }
 
+    new CodeSegment()
+      .append(ADD(R0, SP, ImmOperand(target)))         // r0 = address of target
+      .append(BL(Label(StaticCode.readFunctionLabel))) // reads input into desired variable
+  }
 }

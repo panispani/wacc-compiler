@@ -18,7 +18,7 @@ class ConditionalStatementTest extends CodeGenTest {
     println(instructions)
     instructions.head shouldBe MOV(R1,ImmOperand(1),ALWAYS())
     instructions(1) shouldBe MOV(R0,ImmOperand(1),ALWAYS())
-    instructions(2) shouldBe CMP(R0,RegisterOperand(R1))
+    instructions(2) shouldBe CMP(R0,R1)
     instructions(3) shouldBe MOV(R0,ImmOperand(1),EQ())
     instructions(4) shouldBe MOV(R0,ImmOperand(0),NE())
     instructions(5) shouldBe CMP(R0,ImmOperand(0))

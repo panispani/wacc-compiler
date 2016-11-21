@@ -11,6 +11,7 @@ package object TransFunctions {
   def transFunction(function: Function, registers: Seq[Register]): Seq[Instruction] = {
     new CodeSegment()
       .append(DefineLabel(Label(function.identifier)))
+      .append(NEW_STACK_FRAME)
       .extend(function.statements flatMap (s => transStatement (s, registers)))
       .append(RETURN)
       .instructions

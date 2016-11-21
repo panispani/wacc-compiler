@@ -14,13 +14,11 @@ object Compiler extends App {
   parser.addErrorListener(new SyntaxErrorListener())
 
   val tree = parser.program()
-  val program = ProgramVisitor.visit(tree)
+  val programAST = ProgramVisitor.visit(tree)
 
-  program match {
+  programAST match {
     case Left(errors :+ last) => errors foreach(_.raise()) ; last.raiseAndExit()
-    case Right(program) => {
-      val ir = transProgram(program)
-    }
+    case Right(program) => transProgram(program).release()
   }
 
 }

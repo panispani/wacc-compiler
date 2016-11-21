@@ -11,6 +11,6 @@ class ReturnStatementTest extends  CodeGenTest {
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
     val availableRegisters = Seq(R4, R5, R6)
     val instructions = transStatement(program.right.get, availableRegisters)
-    instructions shouldBe Seq(MOV(R4, ImmOperand(7)), MOV(R0, RegisterOperand(R4)))
+    instructions shouldBe Seq(MOV(R4, ImmOperand(7)), MOV(R0, R4))
   }
 }
