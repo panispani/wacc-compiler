@@ -21,8 +21,8 @@ package object TransBinaryOperators {
       case BinaryOperator("<=") => Seq(CMP(r1, RegisterOperand(r2)), MOV(r1, ImmOperand(1), LE()), MOV(r1, ImmOperand(0)), GT())
       case BinaryOperator("==") => Seq(CMP(r1, RegisterOperand(r2)), MOV(r1, ImmOperand(1), EQ()), MOV(r1, ImmOperand(0)), NE())
       case BinaryOperator("!=") => Seq(CMP(r1, RegisterOperand(r2)), MOV(r1, ImmOperand(1), NE()), MOV(r1, ImmOperand(0)), EQ())
-      case BinaryOperator("&&") =>
-      case BinaryOperator("||") =>
+      case BinaryOperator("&&") => Seq(AND(r1, r1, RegisterOperand(r2)))
+      case BinaryOperator("||") => Seq(ORR(r1, r1, RegisterOperand(r2)))
     }
     Seq()
   }
@@ -35,7 +35,7 @@ package object TransBinaryOperators {
       case BinaryOperator("%")  =>
       case BinaryOperator("+")  =>
       case BinaryOperator("-")  =>
-      case BinaryOperator(">")  =>
+      case BinaryOperator(">")  => // how can CMP implement this
       case BinaryOperator(">=") =>
       case BinaryOperator("<")  =>
       case BinaryOperator("<=") =>
