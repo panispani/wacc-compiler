@@ -11,20 +11,20 @@ class SymbolTableTest extends FlatSpec
 
   override def beforeEach(): Unit = {
     // Seed the global table with some variables
-    SymbolTable.currentTable.addLocalVariable("x", Boolean) // 0
-    SymbolTable.currentTable.addLocalVariable("y", Integer) // 1
-    SymbolTable.currentTable.addLocalVariable("z", Integer) // 5
+    SymbolTable().addLocalVariable("x", Boolean) // 0
+    SymbolTable().addLocalVariable("y", Integer) // 1
+    SymbolTable().addLocalVariable("z", Integer) // 5
   }
 
   "A parent lookup" should "have the correct offset" in {
     SymbolTable.openScope()
 
-    SymbolTable.currentTable.addLocalVariable("a", Integer) // 0
+    SymbolTable().addLocalVariable("a", Integer) // 0
 
-    val xLookup = SymbolTable.currentTable.lookupDeep("x")
+    val xLookup = SymbolTable().lookupDeep("x")
     xLookup.get.offset should be (-9)
 
-    val yLookup = SymbolTable.currentTable.lookupDeep("y")
+    val yLookup = SymbolTable().lookupDeep("y")
     yLookup.get.offset should be (-8)
 
     SymbolTable.closeScope()
@@ -33,22 +33,22 @@ class SymbolTableTest extends FlatSpec
   it should "preserve the type and identifier of the looked up variable" in {
     SymbolTable.openScope()
 
-    SymbolTable.currentTable.lookupDeep("x").get.name should be ("x")
-    SymbolTable.currentTable.lookupDeep("x").get.vartype should be (Boolean)
+    SymbolTable().lookupDeep("x").get.name should be ("x")
+    SymbolTable().lookupDeep("x").get.vartype should be (Boolean)
 
-    SymbolTable.currentTable.lookupDeep("y").get.name should be ("y")
-    SymbolTable.currentTable.lookupDeep("y").get.vartype should be (Integer)
+    SymbolTable().lookupDeep("y").get.name should be ("y")
+    SymbolTable().lookupDeep("y").get.vartype should be (Integer)
   }
 
   "A deeper lookup" should "have the correct offset" in {
     SymbolTable.openScope()
 
-    SymbolTable.currentTable.addLocalVariable("a", Integer) // 0
-    SymbolTable.currentTable.addLocalVariable("b", Integer) // 4
+    SymbolTable().addLocalVariable("a", Integer) // 0
+    SymbolTable().addLocalVariable("b", Integer) // 4
 
     SymbolTable.openScope()
 
-    SymbolTable.currentTable.lookupDeep("x").get.offset should be (-8 + (-9))
+    SymbolTable.lookupDeep("x").get.offset should be (-8 + (-9))
 
     SymbolTable.closeScope()
 

@@ -19,11 +19,11 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
         case VariableReference(varname, _ , _) => varname
       }
 
-      if (SymbolTable.currentTable.lookup(ident).isDefined) {
+      if (SymbolTable().lookup(ident).isDefined) {
         return Left(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
       }
 
-      SymbolTable.currentTable.addLocalVariable(ident, arg.vartype)
+      SymbolTable().addLocalVariable(ident, arg.vartype)
     })
 
     val matchReturnType: PartialFunction[Statement, Either[SemanticError, Statement]] = {

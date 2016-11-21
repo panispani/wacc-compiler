@@ -13,7 +13,7 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
   override def visitVariableReference(ctx: VariableReferenceContext): Either[CompilationError, VariableReference] = {
     val identifier = ctx.IDENT()
 
-    SymbolTable.currentTable.lookupDeep(identifier.getText) match {
+    SymbolTable().lookupDeep(identifier.getText) match {
       case Some(variable @ VariableReference(x, t, offset)) =>
         Right(variable)
       case Some(FunctionReference(f, _, _)) =>
@@ -95,7 +95,7 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
   override def visitArrayElement(ctx: ArrayElementContext): Either[CompilationError, ArrayElement] = {
     val identifier = ctx.variableReference().getText
 
-    SymbolTable.currentTable.lookupDeep(identifier) match {
+    SymbolTable().lookupDeep(identifier) match {
       case Some(reference @ VariableReference(x, ArrayType(elemtype), offset)) => for {
         indexes <- sequenceOrLast(ctx.expression().toList map (e => e.accept(ExpressionVisitor))).right
       } yield ArrayElement(reference, indexes, elemtype)

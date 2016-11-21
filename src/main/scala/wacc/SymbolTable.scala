@@ -90,7 +90,7 @@ object SymbolTable {
   }
 
   val globalTable: SymbolTable = SymbolTable(None)
-  var currentTable: SymbolTable = globalTable
+  private var currentTable: SymbolTable = globalTable
 
   def apply(): SymbolTable = currentTable
 }

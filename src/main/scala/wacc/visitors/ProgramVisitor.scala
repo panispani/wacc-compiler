@@ -25,20 +25,20 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
 
 //    params foreach( param => {
 //      val paramName = param.IDENT().getText
-//      if(SymbolTable.currentTable.lookupTyped(paramName).isDefined) {
+//      if(SymbolTable().lookupTyped(paramName).isDefined) {
 //        return Some(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
 //      }
 //
 //      val arg = VariableReference(paramName, )
-//      SymbolTable.currentTable.addFunctionArgument(arg.name, arg, FunctionReference(name, returnType, args))
+//      SymbolTable().addFunctionArgument(arg.name, arg, FunctionReference(name, returnType, args))
 //    }
 
     args foreach (arg => {
-      if (SymbolTable.currentTable.lookup(arg.name).isDefined) {
+      if (SymbolTable().lookup(arg.name).isDefined) {
         return Some(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
       }
 
-      SymbolTable.currentTable.addFunctionArgument(arg.name, arg, FunctionReference(name, returnType, args))
+      SymbolTable().addFunctionArgument(arg.name, arg, FunctionReference(name, returnType, args))
     })
     None
   }
