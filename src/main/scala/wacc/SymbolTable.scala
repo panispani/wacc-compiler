@@ -5,6 +5,7 @@ import wacc.constructs._
 import scala.collection.mutable
 
 trait Reference extends Typed {
+  val name: String
   val offset: Int
 }
 case class VariableReference(name: String, vartype: Type, offset: Int) extends Reference with Expression
@@ -39,16 +40,18 @@ case class SymbolTable(parent: Option[SymbolTable]) {
     case None => None
   }
 
-  // change to reference
+  def lookupAllTyped(identifier: String): Option[Reference]
+  = lookupTyped(identifier) match {
+    case Some(ident) => Some(ident)
+    case None => parent flatMap (_.lookupWithOffsetAccumulator(identifier, 0))
+  }
 
-  def lookupAllTyped(identifier: String): Option[Typed]
-    = lookupTyped (identifier) match {
-      case Some (ident) => Some (ident)
-      case None => parent match {
-        case None => None
-        case Some (higherParent) => higherParent lookupAllTyped identifier
-      }
-    }
+  private def lookupWithOffsetAccumulator(identifier: String, offset: Int): Option[Reference]
+  = lookupTyped(identifier) match {
+    case None => parent flatMap (_.lookupWithOffsetAccumulator(identifier, offset + currentOffset))
+    case Some(ref) =>
+      Some(VariableReference(identifier, ref.vartype, ref.offset - currentOffset - offset))
+  }
 
   def clear() = {
     map.clear()

@@ -1,5 +1,6 @@
 package wacc.visitors
 
+import wacc.TestUtilities
 import wacc.constructs._
 
 class ExitStatementTest extends VisitorTest {

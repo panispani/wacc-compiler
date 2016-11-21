@@ -1,6 +1,7 @@
 package wacc.codegeneration
 
-import wacc.visitors.{ProgramVisitor, TestUtilities}
+import wacc.TestUtilities
+import wacc.visitors.ProgramVisitor
 
 /**
   * Created by panayiotis on 18/11/16.

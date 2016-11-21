@@ -1,5 +1,6 @@
 package wacc.visitors
 
+import wacc.TestUtilities
 import wacc.constructs.SemanticError
 
 class IfStatementTest extends VisitorTest {

@@ -1,7 +1,7 @@
 package wacc.visitors
 
 import wacc.constructs._
-import wacc.{FunctionReference, SymbolTable}
+import wacc.{FunctionReference, SymbolTable, TestUtilities}
 
 import scala.collection.SeqView
 
