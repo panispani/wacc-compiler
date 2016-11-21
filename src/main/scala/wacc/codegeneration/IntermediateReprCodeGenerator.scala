@@ -1,17 +1,26 @@
 package wacc.codegeneration
 
 import wacc.constructs.Program
-import wacc.TransPrograms._
+import wacc.TransFunctions._
+import wacc.TransStatements._
 
 /**
   * Created by panayiotis on 15/11/16.
   */
 //accumulator register approach
 class IntermediateReprCodeGenerator {
-  val allRegisters = Seq(R0, R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12)
+  def generateCode(program: Program, registers: Seq[Register]): Seq[Instruction] = {
+    val functionInstructions = program.functions map (s => transFunction (s, registers))
+    val mainInstructions     = program.statements map (s => transStatement (s, registers))
+    val stackBytes = VarLog.byteCount()
 
-  def generateCode(program: Program): Seq[Instruction] = {
-    transNext(program, allRegisters)
+    // add labels later
+    new CodeSegment()
+      .extend(functionInstructions.flatten)
+      .append(SUB(SP, SP, ImmOperand(stackBytes)))
+      .extend(mainInstructions.flatten)
+      .append(ADD(SP, SP, ImmOperand(stackBytes)))
+      .append(MOV(R0, ImmOperand(0))).instructions
   }
 
 }

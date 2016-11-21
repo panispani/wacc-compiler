@@ -32,3 +32,7 @@ object R12 extends GPRegister(12)
 object SP extends Register("SP")
 object LR extends Register("LR")
 object PC extends Register("PC")
+
+package object Registers {
+  val expressionRegs: Seq[Register] = Seq(R4, R5, R6, R7, R8, R9, R10, R11, R12)
+}

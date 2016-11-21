@@ -5,4 +5,4 @@ import wacc.VariableReference
 case class Function(identifier: String,
                     params: Seq[VariableReference],
                     vartype: Type,
-                    stmt: Seq[Statement])
+                    statements: Seq[Statement])

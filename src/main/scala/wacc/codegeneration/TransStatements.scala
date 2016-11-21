@@ -10,27 +10,39 @@ import wacc.constructs._
   */
 package object TransStatements {
 
-  def transStatement(stmt: Statement, registers: Seq[Register]) = {
-    stmt match {
+  def transStatement(statement: Statement, registers: Seq[Register]): Seq[Instruction] = {
+    statement match {
       case DeclareStatement(vartype: Type, variable: VariableReference, value: AssignValue)
         => transDeclareStatement(vartype, variable, value, registers)
+
       case AssignStatement(lhs: AssignTarget, rhs: AssignValue)
         => transAssignStatement(lhs, rhs, registers)
+
       case ExitStatement(exitCode: Expression)
         => transExitStatement(exitCode, registers)
+
       case ReturnStatement(returnValue: Expression)
         => transReturnStatement(returnValue, registers)
+
       case SkipStatement()
-        => Seq()
+        => transSkipStatement();
+
       case PrintStatement(expression)
         => transExpression(expression, registers) :+ BL(Label("p_print_string"))
+
       case PrintLnStatement(expression)
         => transExpression(expression, registers) :+ BL(Label("p_print_ln"))
+
       case ConditionalStatement(expression, trueStatements, falseStatements)
         => transConditionalStatement(expression, trueStatements, falseStatements, registers)
+
       case LoopStatement(condition, statements)
         => transLoopStatement(condition, statements, registers)
     }
+  }
+
+  def transSkipStatement() : Seq[Instruction] = {
+    Seq()
   }
 
   def transArrayLiteral(literal: ArrayLiteral, registers: Seq[Register]): Seq[Instruction] = {

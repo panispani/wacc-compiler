@@ -85,3 +85,5 @@ case class STRB(Rt: Register, address: Address) extends Instruction
 // Stack
 case class PUSH(reglist: Seq[Register]) extends Instruction // up to 8
 case class POP(reglist: Seq[Register]) extends Instruction
+
+object RETURN extends MOV(PC, RegisterOperand(LR))
