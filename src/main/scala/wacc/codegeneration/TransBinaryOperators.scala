@@ -15,12 +15,12 @@ package object TransBinaryOperators {
       case BinaryOperator("%")  => Seq()
       case BinaryOperator("+")  => Seq(ADD(r1, r1, RegisterOperand(r2)))
       case BinaryOperator("-")  => Seq(SUB(r1, r1, RegisterOperand(r2)))
-      case BinaryOperator(">")  => Seq(CMP(r1, RegisterOperand(r2)), MOVGT(r1, ImmOperand(1)), MOVLE(r1, ImmOperand(0)))
-      case BinaryOperator(">=") => Seq(CMP(r1, RegisterOperand(r2)), MOVGE(r1, ImmOperand(1)), MOVLT(r1, ImmOperand(0)))
-      case BinaryOperator("<")  => Seq(CMP(r1, RegisterOperand(r2)), MOVLT(r1, ImmOperand(1)), MOVGE(r1, ImmOperand(0)))
-      case BinaryOperator("<=") => Seq(CMP(r1, RegisterOperand(r2)), MOVLE(r1, ImmOperand(1)), MOVGT(r1, ImmOperand(0)))
-      case BinaryOperator("==") => Seq(CMP(r1, RegisterOperand(r2)), MOVEQ(r1, ImmOperand(1)), MOVNE(r1, ImmOperand(0)))
-      case BinaryOperator("!=") => Seq(CMP(r1, RegisterOperand(r2)), MOVNE(r1, ImmOperand(1)), MOVEQ(r1, ImmOperand(0)))
+      case BinaryOperator(">")  => Seq(CMP(r1, RegisterOperand(r2)), MOV(r1, ImmOperand(1), GT()), MOV(r1, ImmOperand(0)), LE())
+      case BinaryOperator(">=") => Seq(CMP(r1, RegisterOperand(r2)), MOV(r1, ImmOperand(1), GE()), MOV(r1, ImmOperand(0)), LT())
+      case BinaryOperator("<")  => Seq(CMP(r1, RegisterOperand(r2)), MOV(r1, ImmOperand(1), LT()), MOV(r1, ImmOperand(0)), GE())
+      case BinaryOperator("<=") => Seq(CMP(r1, RegisterOperand(r2)), MOV(r1, ImmOperand(1), LE()), MOV(r1, ImmOperand(0)), GT())
+      case BinaryOperator("==") => Seq(CMP(r1, RegisterOperand(r2)), MOV(r1, ImmOperand(1), EQ()), MOV(r1, ImmOperand(0)), NE())
+      case BinaryOperator("!=") => Seq(CMP(r1, RegisterOperand(r2)), MOV(r1, ImmOperand(1), NE()), MOV(r1, ImmOperand(0)), EQ())
       case BinaryOperator("&&") =>
       case BinaryOperator("||") =>
     }

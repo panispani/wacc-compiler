@@ -20,6 +20,15 @@ trait Instruction {
 //    (if (setsConditionCodes) "S" else "")
 }
 
+trait Condition
+case class GT() extends Condition
+case class GE() extends Condition
+case class LT() extends Condition
+case class LE() extends Condition
+case class EQ() extends Condition
+case class NE() extends Condition
+case class ALWAYS() extends Condition
+
 case class Label(name: String)
 
 // Branch
@@ -46,13 +55,7 @@ case class ORR(Rd: Register, Rn: Register, Op2: Operand) extends Instruction
 // BIC
 
 // Data movement <Operation>{<cond>}{S} Rd, Operand2
-case class MOV(Rd: Register, Op2: Operand) extends Instruction
-case class MOVGT(Rd: Register, Op2: Operand) extends Instruction
-case class MOVGE(Rd: Register, Op2: Operand) extends Instruction
-case class MOVLE(Rd: Register, Op2: Operand) extends Instruction
-case class MOVLT(Rd: Register, Op2: Operand) extends Instruction
-case class MOVEQ(Rd: Register, Op2: Operand) extends Instruction
-case class MOVNE(Rd: Register, Op2: Operand) extends Instruction
+case class MOV(Rd: Register, Op2: Operand, S: Condition = ALWAYS()) extends Instruction
 // MVN
 
 // Multiplication
