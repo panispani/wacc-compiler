@@ -21,10 +21,10 @@ class SymbolTableTest extends FlatSpec
 
     SymbolTable.currentTable.addLocalVariable("a", Integer) // 0
 
-    val xLookup = SymbolTable.currentTable.lookupAllTyped("x")
+    val xLookup = SymbolTable.currentTable.lookupDeep("x")
     xLookup.get.offset should be (-9)
 
-    val yLookup = SymbolTable.currentTable.lookupAllTyped("y")
+    val yLookup = SymbolTable.currentTable.lookupDeep("y")
     yLookup.get.offset should be (-8)
 
     SymbolTable.closeScope()
@@ -33,11 +33,11 @@ class SymbolTableTest extends FlatSpec
   it should "preserve the type and identifier of the looked up variable" in {
     SymbolTable.openScope()
 
-    SymbolTable.currentTable.lookupAllTyped("x").get.name should be ("x")
-    SymbolTable.currentTable.lookupAllTyped("x").get.vartype should be (Boolean)
+    SymbolTable.currentTable.lookupDeep("x").get.name should be ("x")
+    SymbolTable.currentTable.lookupDeep("x").get.vartype should be (Boolean)
 
-    SymbolTable.currentTable.lookupAllTyped("y").get.name should be ("y")
-    SymbolTable.currentTable.lookupAllTyped("y").get.vartype should be (Integer)
+    SymbolTable.currentTable.lookupDeep("y").get.name should be ("y")
+    SymbolTable.currentTable.lookupDeep("y").get.vartype should be (Integer)
   }
 
   "A deeper lookup" should "have the correct offset" in {
@@ -48,7 +48,7 @@ class SymbolTableTest extends FlatSpec
 
     SymbolTable.openScope()
 
-    SymbolTable.currentTable.lookupAllTyped("x").get.offset should be (-8 + (-9))
+    SymbolTable.currentTable.lookupDeep("x").get.offset should be (-8 + (-9))
 
     SymbolTable.closeScope()
 

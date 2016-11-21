@@ -11,7 +11,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
 
   override def visitFunction(ctx: FunctionContext): Either[CompilationError, Function] = {
 
-    val FunctionReference(name, returnType, args) = SymbolTable.globalTable.lookupTyped(ctx.IDENT().getText).get
+    val FunctionReference(name, returnType, args) = SymbolTable.globalTable.lookup(ctx.IDENT().getText).get
     SymbolTable.openScope()
 
     args foreach (arg => {
@@ -19,7 +19,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
         case VariableReference(varname, _ , _) => varname
       }
 
-      if (SymbolTable.currentTable.lookupTyped(ident).isDefined) {
+      if (SymbolTable.currentTable.lookup(ident).isDefined) {
         return Left(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
       }
 

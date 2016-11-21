@@ -19,7 +19,7 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
     val args: Seq[VariableReference] = params map (_.accept(ParamVisitor))
     val returnType = ctx.`type`().accept(TypeVisitor)
 
-    if (SymbolTable.globalTable.lookupTyped(name).isDefined)
+    if (SymbolTable.globalTable.lookup(name).isDefined)
       return Some(SemanticError("Attempted redefinition of function " + name, ctx.start))
     else SymbolTable.globalTable.addFunction(name, FunctionReference(name, returnType, args))
 
@@ -34,7 +34,7 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
 //    }
 
     args foreach (arg => {
-      if (SymbolTable.currentTable.lookupTyped(arg.name).isDefined) {
+      if (SymbolTable.currentTable.lookup(arg.name).isDefined) {
         return Some(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
       }
 

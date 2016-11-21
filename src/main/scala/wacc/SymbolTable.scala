@@ -34,20 +34,34 @@ case class SymbolTable(parent: Option[SymbolTable]) {
     variableReference
   }
 
-  def lookupTyped(identifier: String): Option[Reference]
+  def lookup(identifier: String): Option[Reference]
     = map get identifier match {
     case Some(reference) => Some(reference)
     case None => None
   }
 
-  def lookupAllTyped(identifier: String): Option[Reference]
-  = lookupTyped(identifier) match {
+  def lookupDeep(identifier: String): Option[Reference]
+  = lookup(identifier) match {
     case Some(ident) => Some(ident)
     case None => parent flatMap (_.lookupWithOffsetAccumulator(identifier, 0))
   }
 
+  /**
+    * Compute the offset of a variable relative to the scope which initiates the lookup
+    *  ---
+    * |x:0|
+    * |y:1|
+    * |z:5| <- parent <- ---  <-- lookup relative to here
+    *  --- size=9       |a:0|
+    *                    ---
+    *
+    * lookup(x).offset = -9
+    * lookup(y).offset = -8
+    * lookup(z).offset = -4
+    * lookup(a).offset = 0
+    * */
   private def lookupWithOffsetAccumulator(identifier: String, offset: Int): Option[Reference]
-  = lookupTyped(identifier) match {
+  = lookup(identifier) match {
     case None => parent flatMap (_.lookupWithOffsetAccumulator(identifier, offset + currentOffset))
     case Some(ref) =>
       Some(VariableReference(identifier, ref.vartype, ref.offset - currentOffset - offset))
@@ -68,7 +82,6 @@ case class SymbolTable(parent: Option[SymbolTable]) {
       case PairType(ftype, sType)    => 4 //keep on heap
     }
   }
-
 }
 
 object SymbolTable {
