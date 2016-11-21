@@ -36,7 +36,7 @@ class CodeSegmentTest extends FlatSpec with Matchers {
 
     def registerAccesses(codeSegment: CodeSegment): Unit = {
       registers = codeSegment.instructions map {
-        case MOV(r, _, ALWAYS()) => r
+        case MOV(r, _, _) => r
       }
     }
     new CodeSegment().extend(instructions).release()(registerAccesses)
