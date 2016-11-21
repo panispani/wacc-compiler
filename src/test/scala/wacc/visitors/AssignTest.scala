@@ -40,8 +40,8 @@ class AssignTest extends VisitorTest {
     result.right.value should be (
       List(
         DeclareStatement(
-          ArrayType(PrimitiveType("int")),
-          "x",
+          ArrayType(Integer),
+          VariableReference("x", ArrayType(Integer), 0),
           ArrayLiteral(
             List(
               IntegerLiteral(1),
@@ -54,12 +54,13 @@ class AssignTest extends VisitorTest {
           ArrayElement(
             VariableReference(
               "x",
-              ArrayType(PrimitiveType("int"))
+              ArrayType(Integer),
+              0
             ),
             List(
               IntegerLiteral(0)
             ),
-            PrimitiveType("int")
+            Integer
           ),
           IntegerLiteral(10)
         )

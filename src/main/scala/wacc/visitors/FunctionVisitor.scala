@@ -14,14 +14,16 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
     val FunctionReference(name, returnType, args) = SymbolTable.globalTable.lookupTyped(ctx.IDENT().getText).get
     SymbolTable.openScope()
 
-    args map (arg => {
-      val ident = arg.variable.identifier
+    args foreach (arg => {
+      val ident = arg match {
+        case VariableReference(varname, _ , _) => varname
+      }
 
       if (SymbolTable.currentTable.lookupTyped(ident).isDefined) {
         return Left(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
       }
 
-      SymbolTable.currentTable.addTyped(ident, VariableReference(ident, arg.variable.vartype))
+      SymbolTable.currentTable.addLocalVariable(ident, arg.vartype)
     })
 
     val matchReturnType: PartialFunction[Statement, Either[SemanticError, Statement]] = {

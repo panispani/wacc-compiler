@@ -4,26 +4,42 @@ import wacc.constructs._
 
 import scala.collection.mutable
 
-case class VariableReference(name: String, vartype: Type) extends Typed
-case class FunctionReference(name: String, returnType: Type, arguments : Seq[Param]) extends Typed {
+trait Reference extends Typed {
+  val offset: Int
+}
+case class VariableReference(name: String, vartype: Type, offset: Int) extends Reference with Expression
+case class FunctionReference(name: String, returnType: Type, arguments : Seq[VariableReference]) extends Reference {
   override val vartype: Type = returnType
+  override val offset: Int = 0
 }
 
 case class SymbolTable(parent: Option[SymbolTable]) {
 
-  var map: mutable.Map[String, MemoryObject] = mutable.Map()
+  private var currentOffset: Int = 0
+  private var map: mutable.Map[String, Reference] = mutable.Map()
 
-  def addTyped(identifier: String, symbol: Typed)
-    = map += identifier -> MemoryObject(symbol)
+  def addFunctionArgument(ident: String, variable: VariableReference, reference: FunctionReference): Unit = {
+    // should have negative offsets, lookup funciton symbol table
+  }
 
-  def addMemoryObject(identifier: String, symbol: Typed, offset: Int)
-  = map += identifier -> MemoryObject(symbol, offset)
+  def addFunction(identifier: String, function: FunctionReference): Unit = {
+    map += identifier -> function
+  }
 
-  def lookupTyped(identifier: String): Option[Typed]
+  def addLocalVariable(identifier: String, vartype: Type): VariableReference = {
+    val variableReference = VariableReference(identifier, vartype, currentOffset)
+    map += identifier -> variableReference
+    currentOffset += variableSize(vartype)
+    variableReference
+  }
+
+  def lookupTyped(identifier: String): Option[Reference]
     = map get identifier match {
-    case Some(memoryObject) => Some(memoryObject.typed)
+    case Some(reference) => Some(reference)
     case None => None
   }
+
+  // change to reference
 
   def lookupAllTyped(identifier: String): Option[Typed]
     = lookupTyped (identifier) match {
@@ -34,19 +50,21 @@ case class SymbolTable(parent: Option[SymbolTable]) {
       }
     }
 
-  def lookupMemoryObject(identifier: String): Option[MemoryObject]
-  = map get identifier
-
-  def lookupAllMemoryObject(identifier: String): Option[MemoryObject]
-  = lookupMemoryObject (identifier) match {
-    case Some (ident) => Some (ident)
-    case None => parent match {
-      case None => None
-      case Some (higherParent) => higherParent lookupAllMemoryObject identifier
-    }
+  def clear() = {
+    map.clear()
+    currentOffset = 0
   }
 
-  def clear() = map.clear()
+  private def variableSize(vartype: Type): Int = {
+    vartype match {
+      case Integer                   => 4
+      case Boolean                   => 1
+      case Character                 => 1
+      case String                    => 4 //keep on heap, this is a pointer
+      case ArrayType(elemtype: Type) => 4 //keep on heap
+      case PairType(ftype, sType)    => 4 //keep on heap
+    }
+  }
 
 }
 

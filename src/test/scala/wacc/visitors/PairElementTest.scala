@@ -1,5 +1,6 @@
 package wacc.visitors
 
+import wacc.VariableReference
 import wacc.constructs._
 
 class PairElementTest extends VisitorTest {
@@ -13,14 +14,15 @@ class PairElementTest extends VisitorTest {
         List(),
         List(
           DeclareStatement(
-            PairType(PairType(AnyType, AnyType),PairType(AnyType, AnyType)),
-            "p",
+            PairType(PairType(AnyType, AnyType), PairType(AnyType, AnyType)),
+            VariableReference("p", PairType(PairType(AnyType, AnyType),PairType(AnyType, AnyType)), 0),
             PairConstructor(PairLiteral(),PairLiteral())
           ),
           PrintStatement(
-            VariableReferenceExpression(
+            VariableReference(
               "p",
-              PairType(PairType(AnyType, AnyType),PairType(AnyType, AnyType))
+              PairType(PairType(AnyType, AnyType),PairType(AnyType, AnyType)),
+              0
             )
           )
         )

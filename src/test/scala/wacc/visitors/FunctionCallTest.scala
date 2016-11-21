@@ -1,7 +1,7 @@
 package wacc.visitors
 
 import wacc.constructs._
-import scala.collection.SeqView
+import wacc.VariableReference
 
 /**
   * Created by panayiotis on 10/11/16.
@@ -18,18 +18,18 @@ class FunctionCallTest extends VisitorTest{
           Function(
             "foo",
             List(),
-            PrimitiveType("int"),
+            Integer,
             List(ReturnStatement(IntegerLiteral(1)))
           )
         ),
         List(
           DeclareStatement(
-            PrimitiveType("int"),
-            "a",
+            Integer,
+            VariableReference("a", Integer, 0),
             FunctionCall(
               "foo",
               List(),
-              PrimitiveType("int")
+              Integer
             )
           )
         )
@@ -52,20 +52,20 @@ class FunctionCallTest extends VisitorTest{
         List(
           Function(
             "foo",
-            List(Param(Variable("a",PrimitiveType("int")))),
-            PrimitiveType("int"),
+            List(VariableReference("a",Integer, 0)),
+            Integer,
             List(
-              ReturnStatement(VariableReferenceExpression("a", PrimitiveType("int"))))
+              ReturnStatement(VariableReference("a", Integer, 0)))
             )
           ),
           List(
             DeclareStatement(
-              PrimitiveType("int"),
-              "a",
+              Integer,
+              VariableReference("a", Integer, 0),
               FunctionCall(
                 "foo",
                 List(IntegerLiteral(2)),
-                PrimitiveType("int")
+                Integer
               )
             )
           )

@@ -1,5 +1,6 @@
 package wacc.visitors
 
+import wacc.VariableReference
 import wacc.constructs._
 
 class ExpressionVisitorTest extends VisitorTest {
@@ -68,9 +69,9 @@ class ExpressionVisitorTest extends VisitorTest {
     val result = TestUtilities.buildSubProgram(parser.sequence, SequenceVisitor)
 
     result.right.value should be (List(
-      DeclareStatement(Integer, "a", IntegerLiteral(5)),
-      DeclareStatement(Boolean, "b",
-        BinaryOperatorExpr(VariableReferenceExpression("a", Integer), EqualsBinOp, IntegerLiteral(5))
+      DeclareStatement(Integer, VariableReference("a", Integer, 0), IntegerLiteral(5)),
+      DeclareStatement(Boolean, VariableReference("b", Boolean, 4),
+        BinaryOperatorExpr(VariableReference("a", Integer, 0), EqualsBinOp, IntegerLiteral(5))
       )
     ))
   }

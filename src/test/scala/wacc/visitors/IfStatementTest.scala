@@ -1,25 +1,22 @@
 package wacc.visitors
 
-import wacc.constructs._
-
-import scala.collection.SeqView
+import wacc.constructs.SemanticError
 
 class IfStatementTest extends VisitorTest {
-
-  val input =
-    "begin " +
-      "  pair(int, int) p = newpair(1,2); " +
-      "  if (p) then " +
-      "    skip " +
-      "  else " +
-      "    skip " +
-      "  fi " +
-      "end"
-
-  val program = TestUtilities.buildProgram(input)
-
   "If " should " throw a semantic error if the expression given is not a bool " in {
-      program.left.value should (be (a[SemanticError]) or be (a[List[_]]))
+    val input =
+      "begin " +
+        "  pair(int, int) p = newpair(1,2); " +
+        "  if (p) then " +
+        "    skip " +
+        "  else " +
+        "    skip " +
+        "  fi " +
+        "end"
+
+    val program = TestUtilities.buildProgram(input)
+
+    program.left.value should (be (a[SemanticError]) or be (a[List[_]]))
   }
 }
 

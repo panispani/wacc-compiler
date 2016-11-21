@@ -5,6 +5,8 @@ import wacc.TransExpressions._
 import wacc.codegeneration._
 import wacc.constructs._
 
+import scala.collection.GenTraversableOnce
+
 /**
   * Created by panayiotis on 16/11/16.
   */
@@ -12,35 +14,59 @@ package object TransStatements {
 
   def transStatement(stmt: Statement, registers: Seq[Register]) = {
     stmt match {
-      case DeclareStatement(vartype: Type, identifier: String, value: AssignValue)
-      => transDeclareStatement(vartype, identifier, value, registers)
+      case DeclareStatement(vartype: Type, variable: VariableReference, value: AssignValue)
+      => transDeclareStatement(vartype, variable, value, registers)
       case AssignStatement(lhs: AssignTarget, rhs: AssignValue)
-      => transAssignStatement(lhs, rhs, registers)
-      case ExitStatement(exitCode: Expression)
-      => transExitStatement(exitCode, registers)
-      case ReturnStatement(returnValue: Expression)
-      => transReturnStatement(returnValue, registers)
-      case SkipStatement()
-      => Seq()
+        => transAssignStatement(lhs, rhs, registers)
+
+      case ExitStatement(exitCode: Expression)      => transExitStatement(exitCode, registers)
+      case ReturnStatement(returnValue: Expression) => transReturnStatement(returnValue, registers)
+      case SkipStatement()                          => Seq()
+      case PrintStatement(expression)               => transExpression(expression, registers) :+ BL(Label("p_print_string"))
+      case PrintLnStatement(expression)             => transExpression(expression, registers) :+ BL(Label("p_print_ln"))
     }
   }
 
-  def transDeclareStatement(vartype: Type, identifier: String, value: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
-    println("declare " + identifier + " to be " + value + "(" + vartype + ")" )
-    VarLog.add(identifier, vartype)
+  def transArrayLiteral(literal: ArrayLiteral, registers: Seq[Register]): Seq[Instruction] = {
+    var offset = 4
+    var instructions: Seq[Instruction] = Seq()
+
+    for (elem <- literal.elements) {
+      instructions ++= transExpression(elem, registers.tail) :+ STR(registers(1), RegisterAddress(registers.head, offset))
+      offset += literal.vartype.elemtype.size
+    }
+
+    instructions
+  }
+
+  def transDeclareStatement(vartype: Type, identifier: VariableReference, value: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
+    println("declare " + identifier + " to be " + value + "(" + vartype + ")")
+
+    // TODO: See what this should do
+    //    VarLog.add(identifier, vartype)
 
     //result on first register in list
     val instruction = transAssignRhs(value, registers)
 
-    val offset = SymbolTable.currentTable.lookupMemoryObject(identifier).get.offset
+    val offset = identifier.offset
 
     val store =  vartype match {
       case Integer => Seq(STR(registers.head, RegisterAddress(SP, offset)))
       case Boolean | Character => Seq(STRB(registers.head, RegisterAddress(SP, offset)))
+      case ArrayType(elemsType) => value match {
+        case literal @ ArrayLiteral(elements) => {
+          val arraySize = 4 + elements.size * elemsType.size
+          return Seq(
+            LDR(R0, Const(arraySize)),
+            BL(Label("malloc")),
+            MOV(registers.head, RegisterOperand(R0)),
+            LDR(registers(1), Const(elements.size)),
+            STR(registers(1), RegisterAddress(registers.head, 0))
+          ) ++ transArrayLiteral(literal, registers) :+ STR(registers.head, RegisterAddress(SP, 0))
+        }
+      }
       case default => println("not impelemented"); Seq()
     }
-
-    //TODO: code to update the identifier in the symbol table with the memory location
 
     instruction ++ store
   }
