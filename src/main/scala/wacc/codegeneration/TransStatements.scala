@@ -57,24 +57,27 @@ package object TransStatements {
     instructions
   }
 
-  def transDeclareStatement(vartype: Type, identifier: VariableReference, value: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
-    println("declare " + identifier + " to be " + value + "(" + vartype + ")")
-
+  def transDeclareStatement(vartype: Type, variableRef: VariableReference, assignValue: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
     // TODO: See what this should do
     //    VarLog.add(identifier, vartype)
 
-    //result on first register in list
-    val instruction = transAssignRhs(value, registers)
+    assignValue match {
+      case VariableReference(_, _, offset) => Seq(
+        LDR(registers.head, RegisterAddress(SP, offset)),
+        STR(R4, RegisterAddress(SP, variableRef.offset))
+      )
+      case default => transDeclareStatementWithLiteralRhs(vartype, variableRef, assignValue, registers)
+    }
+  }
 
-    val offset = identifier.offset
-
-    val store =  vartype match {
-      case Integer => Seq(STR(registers.head, RegisterAddress(SP, offset)))
-      case Boolean | Character => Seq(STRB(registers.head, RegisterAddress(SP, offset)))
-      case ArrayType(elemsType) => value match {
+  private def transDeclareStatementWithLiteralRhs(vartype: Type, variableRef: VariableReference, assignValue: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
+    val instructions = vartype match {
+      case Integer => Seq(STR(registers.head, RegisterAddress(SP, variableRef.offset)))
+      case Boolean | Character => Seq(STRB(registers.head, RegisterAddress(SP, variableRef.offset)))
+      case ArrayType(elemsType) => assignValue match {
         case literal @ ArrayLiteral(elements) => {
           val arraySize = 4 + elements.size * elemsType.size
-          return Seq(
+          Seq(
             LDR(R0, Const(arraySize)),
             BL(Label("malloc")),
             MOV(registers.head, RegisterOperand(R0)),
@@ -82,11 +85,12 @@ package object TransStatements {
             STR(registers(1), RegisterAddress(registers.head, 0))
           ) ++ transArrayLiteral(literal, registers) :+ STR(registers.head, RegisterAddress(SP, 0))
         }
+        case default => println("not impelemented"); Seq()
       }
       case default => println("not impelemented"); Seq()
     }
 
-    instruction ++ store
+    transAssignRhs(assignValue, registers) ++ instructions
   }
 
   def transAssignStatement(lhs: AssignTarget, rhs: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
