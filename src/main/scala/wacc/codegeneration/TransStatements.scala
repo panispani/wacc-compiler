@@ -45,21 +45,19 @@ package object TransStatements {
     instructions
   }
 
-  def transDeclareStatement(vartype: Type, identifier: VariableReference, value: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
-    println("declare " + identifier + " to be " + value + "(" + vartype + ")")
-
+  def transDeclareStatement(vartype: Type, variableRef: VariableReference, assignValue: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
     // TODO: See what this should do
     //    VarLog.add(identifier, vartype)
 
     //result on first register in list
-    val instruction = transAssignRhs(value, registers)
+    val instruction = transAssignRhs(assignValue, registers)
 
-    val offset = identifier.offset
+    val offset = variableRef.offset
 
     val store =  vartype match {
       case Integer => Seq(STR(registers.head, RegisterAddress(SP, offset)))
       case Boolean | Character => Seq(STRB(registers.head, RegisterAddress(SP, offset)))
-      case ArrayType(elemsType) => value match {
+      case ArrayType(elemsType) => assignValue match {
         case literal @ ArrayLiteral(elements) => {
           val arraySize = 4 + elements.size * elemsType.size
           return Seq(
