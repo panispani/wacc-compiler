@@ -2,8 +2,8 @@ package wacc
 
 import antlr.{WACCLexer, WACCParser}
 import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream}
-import wacc.codegeneration.IntermediateReprCodeGenerator
 import wacc.visitors.ProgramVisitor
+import wacc.TransProgram._
 
 object Compiler extends App {
   val input = new ANTLRInputStream(System.in)
@@ -19,9 +19,7 @@ object Compiler extends App {
   program match {
     case Left(errors :+ last) => errors foreach(_.raise()) ; last.raiseAndExit()
     case Right(program) => {
-      val irCodegen = new IntermediateReprCodeGenerator
-      val ir = irCodegen.generateCode(program)
-      //peephole optimisations
+      val ir = transProgram(program)
     }
   }
 
