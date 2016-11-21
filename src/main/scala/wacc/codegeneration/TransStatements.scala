@@ -72,8 +72,8 @@ package object TransStatements {
 
   private def transDeclareStatementWithLiteralRhs(vartype: Type, variableRef: VariableReference, assignValue: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
     val instructions = vartype match {
-      case Integer => Seq(STR(registers.head, RegisterAddress(SP, variableRef.offset)))
-      case Boolean | Character => Seq(STRB(registers.head, RegisterAddress(SP, variableRef.offset)))
+      case Integer => transAssignRhs(assignValue, registers) ++ Seq(STR(registers.head, RegisterAddress(SP, variableRef.offset)))
+      case Boolean | Character => transAssignRhs(assignValue, registers) ++ Seq(STRB(registers.head, RegisterAddress(SP, variableRef.offset)))
       case ArrayType(elemsType) => assignValue match {
         case literal @ ArrayLiteral(elements) => {
           val arraySize = 4 + elements.size * elemsType.size
@@ -87,10 +87,34 @@ package object TransStatements {
         }
         case default => println("not impelemented"); Seq()
       }
+      case PairType(firstType, secondType) => assignValue match {
+        case PairConstructor(firstExp, secondExp) => {
+          Seq(
+            LDR(R0, Const(firstType.size + secondType.size)),      //Load the size of the pair (always 8) in R0
+            BL(Label("malloc")),
+            MOV(registers.head, RegisterOperand(R0))
+          ) ++ transExpression(firstExp, registers.tail) ++
+            Seq (
+              LDR(R0, Const(firstType.size)),
+              BL(Label("malloc")),
+              STR(registers(1), RegisterAddress(R0, 0)),  //Store the value for the first element in its memory
+              STR(R0, RegisterAddress(registers(0), 0)) //Put address of first element in memory of pair
+            ) ++ transExpression(secondExp, registers.tail) ++
+              Seq(
+                LDR(R0, Const(secondType.size)),
+                BL(Label("malloc")),
+                STR(registers(1), RegisterAddress(R0, 0)),  //Store the value for the second element in its memory
+                STR(R0, RegisterAddress(registers(0), firstType.size)),   //Put address of second element in memory of pair with offset
+                STR(registers.head, RegisterAddress(SP, 0))
+              )
+        }
+
+
+      }
       case default => println("not impelemented"); Seq()
     }
 
-    transAssignRhs(assignValue, registers) ++ instructions
+    instructions
   }
 
   def transAssignStatement(lhs: AssignTarget, rhs: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
