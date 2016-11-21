@@ -1,7 +1,7 @@
 package wacc.visitors
 
 import wacc.constructs._
-import wacc.{FunctionReference, SymbolTable}
+import wacc.{FunctionReference, SymbolTable, TestUtilities}
 
 import scala.collection.SeqView
 
@@ -18,7 +18,7 @@ class FunctionVisitorTest extends VisitorTest {
     val parser = TestUtilities.setupParser("begin int f() is return 3 end skip end")
     TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
-    SymbolTable.globalTable.lookupTyped("f") should contain (FunctionReference("f", Integer, Seq()))
+    SymbolTable.globalTable.lookup("f") should contain (FunctionReference("f", Integer, Seq()))
   }
 
   it should "be a semantic error if two or more parameters have the same name" in {

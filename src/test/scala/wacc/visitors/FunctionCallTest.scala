@@ -1,7 +1,7 @@
 package wacc.visitors
 
 import wacc.constructs._
-import wacc.VariableReference
+import wacc.{TestUtilities, VariableReference}
 
 /**
   * Created by panayiotis on 10/11/16.

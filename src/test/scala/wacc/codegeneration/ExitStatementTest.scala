@@ -1,8 +1,9 @@
 package wacc.codegeneration
 
+import wacc.TestUtilities
 import wacc.TransStatements._
 import wacc.constructs.{CompilationError, Statement}
-import wacc.visitors.{StatementVisitor, TestUtilities}
+import wacc.visitors.StatementVisitor
 
 class ExitStatementTest extends  CodeGenTest {
 

@@ -19,26 +19,26 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
     val args: Seq[VariableReference] = params map (_.accept(ParamVisitor))
     val returnType = ctx.`type`().accept(TypeVisitor)
 
-    if (SymbolTable.globalTable.lookupTyped(name).isDefined)
+    if (SymbolTable.globalTable.lookup(name).isDefined)
       return Some(SemanticError("Attempted redefinition of function " + name, ctx.start))
     else SymbolTable.globalTable.addFunction(name, FunctionReference(name, returnType, args))
 
 //    params foreach( param => {
 //      val paramName = param.IDENT().getText
-//      if(SymbolTable.currentTable.lookupTyped(paramName).isDefined) {
+//      if(SymbolTable().lookupTyped(paramName).isDefined) {
 //        return Some(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
 //      }
 //
 //      val arg = VariableReference(paramName, )
-//      SymbolTable.currentTable.addFunctionArgument(arg.name, arg, FunctionReference(name, returnType, args))
+//      SymbolTable().addFunctionArgument(arg.name, arg, FunctionReference(name, returnType, args))
 //    }
 
     args foreach (arg => {
-      if (SymbolTable.currentTable.lookupTyped(arg.name).isDefined) {
+      if (SymbolTable().lookup(arg.name).isDefined) {
         return Some(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
       }
 
-      SymbolTable.currentTable.addFunctionArgument(arg.name, arg, FunctionReference(name, returnType, args))
+      SymbolTable().addFunctionArgument(arg.name, arg, FunctionReference(name, returnType, args))
     })
     None
   }

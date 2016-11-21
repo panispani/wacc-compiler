@@ -1,6 +1,7 @@
 package wacc.codegeneration
 
-import wacc.visitors.{ProgramVisitor, StatementVisitor, TestUtilities}
+import wacc.TestUtilities
+import wacc.visitors.{ProgramVisitor}
 
 class irCodegenTest extends CodeGenTest {
   "Creating an integer" should "be possible" in {

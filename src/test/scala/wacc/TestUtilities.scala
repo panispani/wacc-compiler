@@ -1,10 +1,10 @@
-package wacc.visitors
+package wacc
 
 import antlr.{WACCLexer, WACCParser, WACCParserBaseVisitor}
 import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream, ParserRuleContext}
 import org.scalatest._
-import wacc.{SymbolTable, SyntaxErrorListener}
 import wacc.constructs.{Program, Statement}
+import wacc.visitors.ProgramVisitor
 
 object TestUtilities {
 

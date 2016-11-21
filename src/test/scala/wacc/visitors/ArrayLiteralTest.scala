@@ -1,6 +1,6 @@
 package wacc.visitors
 
-import wacc.VariableReference
+import wacc.{TestUtilities, VariableReference}
 import wacc.constructs._
 
 class ArrayLiteralTest extends VisitorTest {
