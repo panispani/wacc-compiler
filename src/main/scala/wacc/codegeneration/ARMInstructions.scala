@@ -47,6 +47,12 @@ case class ORR(Rd: Register, Rn: Register, Op2: Operand) extends Instruction
 
 // Data movement <Operation>{<cond>}{S} Rd, Operand2
 case class MOV(Rd: Register, Op2: Operand) extends Instruction
+case class MOVGT(Rd: Register, Op2: Operand) extends Instruction
+case class MOVGE(Rd: Register, Op2: Operand) extends Instruction
+case class MOVLE(Rd: Register, Op2: Operand) extends Instruction
+case class MOVLT(Rd: Register, Op2: Operand) extends Instruction
+case class MOVEQ(Rd: Register, Op2: Operand) extends Instruction
+case class MOVNE(Rd: Register, Op2: Operand) extends Instruction
 // MVN
 
 // Multiplication
