@@ -97,7 +97,7 @@ class DeclareStatementTest extends  CodeGenTest {
 
     instructions.head shouldBe LDR(R0, Const(8))
     instructions(1) shouldBe BL(Label("malloc"))
-    instructions(2) shouldBe MOV(availableRegisters.head, RegisterOperand(R0))
+    instructions(2) shouldBe MOV(availableRegisters.head, R0)
     //instructions(3) shouldBe MOV(availableRegisters(1), ImmOperand(10))
     instructions(4) shouldBe LDR(R0, Const(4))
     instructions(5) shouldBe BL(Label("malloc"))
