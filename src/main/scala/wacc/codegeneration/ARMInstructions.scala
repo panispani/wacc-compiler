@@ -30,6 +30,14 @@ case class NE() extends Condition
 case class ALWAYS() extends Condition
 
 case class Label(name: String)
+object LabelCreator {
+  private var currentLabelNumber: Int = 0
+  def newLabel(): Int = {
+    val labelNum = currentLabelNumber
+    currentLabelNumber = currentLabelNumber + 1
+    return labelNum
+  }
+}
 
 // Define label, pseudo-instruction
 case class DefineLabel(label: Label) extends Instruction
