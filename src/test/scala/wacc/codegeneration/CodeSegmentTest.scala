@@ -1,0 +1,45 @@
+package wacc.codegeneration
+
+import org.scalatest.{FlatSpec, Matchers}
+
+class CodeSegmentTest extends FlatSpec with Matchers {
+
+  "A code segment" should "be initialised empty" in {
+     new CodeSegment().instructions shouldBe empty
+  }
+
+  it should "build a code segment when appending instructions" in {
+    val instruction = MOV(R0, RegisterOperand(R1))
+    new CodeSegment().append(instruction).instructions should contain (instruction)
+  }
+
+  it should "build a code segment when chaining append and extend" in {
+    val instruction = MOV(R0, RegisterOperand(R1))
+    val instructions = Seq(
+      MOV(R1, RegisterOperand(R2)),
+      MOV(R2, RegisterOperand(R3))
+    )
+
+    new CodeSegment()
+      .append(instruction)
+      .extend(instructions)
+      .instructions should be (instruction +: instructions)
+  }
+
+  it should "accept custom consumers" in {
+    val instructions = Seq(
+      MOV(R1, RegisterOperand(R2)),
+      MOV(R2, RegisterOperand(R3))
+    )
+
+    var registers : Seq[Register] = Seq()
+
+    def registerAccesses(codeSegment: CodeSegment): Unit = {
+      registers = codeSegment.instructions map {
+        case MOV(r, _) => r
+      }
+    }
+    new CodeSegment().extend(instructions).release()(registerAccesses)
+    registers should be (Seq(R1, R2))
+  }
+}
