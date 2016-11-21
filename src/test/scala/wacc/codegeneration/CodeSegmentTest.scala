@@ -9,15 +9,15 @@ class CodeSegmentTest extends FlatSpec with Matchers {
   }
 
   it should "build a code segment when appending instructions" in {
-    val instruction = MOV(R0, RegisterOperand(R1))
+    val instruction = MOV(R0, R1)
     new CodeSegment().append(instruction).instructions should contain (instruction)
   }
 
   it should "build a code segment when chaining append and extend" in {
-    val instruction = MOV(R0, RegisterOperand(R1))
+    val instruction = MOV(R0, R1)
     val instructions = Seq(
-      MOV(R1, RegisterOperand(R2)),
-      MOV(R2, RegisterOperand(R3))
+      MOV(R1, R2),
+      MOV(R2, R3)
     )
 
     new CodeSegment()
@@ -28,15 +28,15 @@ class CodeSegmentTest extends FlatSpec with Matchers {
 
   it should "accept custom consumers" in {
     val instructions = Seq(
-      MOV(R1, RegisterOperand(R2)),
-      MOV(R2, RegisterOperand(R3))
+      MOV(R1, R2),
+      MOV(R2, R3)
     )
 
     var registers : Seq[Register] = Seq()
 
     def registerAccesses(codeSegment: CodeSegment): Unit = {
       registers = codeSegment.instructions map {
-        case MOV(r, _, ALWAYS()) => r
+        case MOV(r, _, _) => r
       }
     }
     new CodeSegment().extend(instructions).release()(registerAccesses)

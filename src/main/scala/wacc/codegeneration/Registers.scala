@@ -4,13 +4,13 @@ trait Address
 case class IntAddress(address: Int) extends Address
 case class RegisterAddress(register: Register, offset: Int) extends Address
 case class Const(value: Int) extends Address
+case class LabelAddress(label: String) extends Address
 
 trait Operand
 case class ImmOperand(value: Int) extends Operand
-case class RegisterOperand(register: Register) extends Operand
 case class CharOperand(value: Char) extends Operand //discuss
 
-class Register(name: String) {
+class Register(name: String) extends Operand {
   override def toString: String = name
 }
 

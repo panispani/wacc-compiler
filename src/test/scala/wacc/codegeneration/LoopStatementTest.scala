@@ -22,7 +22,7 @@ class LoopStatementTest extends CodeGenTest {
     instructions(2) shouldBe DefineLabel(Label("L0"))
     instructions(3) shouldBe MOV(R1,ImmOperand(1),ALWAYS())
     instructions(4) shouldBe MOV(R0,ImmOperand(1),ALWAYS())
-    instructions(5) shouldBe CMP(R0,RegisterOperand(R1))
+    instructions(5) shouldBe CMP(R0,R1)
     instructions(6) shouldBe MOV(R0,ImmOperand(1),EQ())
     instructions(7) shouldBe MOV(R0,ImmOperand(0),NE())
     instructions(8) shouldBe CMP(R0,ImmOperand(1))
