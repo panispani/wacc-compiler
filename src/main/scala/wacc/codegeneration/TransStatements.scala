@@ -80,7 +80,7 @@ package object TransStatements {
           Seq(
             LDR(R0, Const(arraySize)),
             BL(Label("malloc")),
-            MOV(registers.head, RegisterOperand(R0)),
+            MOV(registers.head, R0),
             LDR(registers(1), Const(elements.size)),
             STR(registers(1), RegisterAddress(registers.head, 0))
           ) ++ transArrayLiteral(literal, registers) :+ STR(registers.head, RegisterAddress(SP, 0))
@@ -102,13 +102,13 @@ package object TransStatements {
   def transExitStatement(exitCode: Expression, registers: Seq[Register]): Seq[Instruction] = {
     val instruction = transExpression(exitCode, registers)
 
-    instruction ++ Seq(MOV(R0, RegisterOperand(registers.head)), BL(Label("exit")))
+    instruction ++ Seq(MOV(R0, registers.head), BL(Label("exit")))
   }
 
   def transReturnStatement(returnValue: Expression, registers: Seq[Register]): Seq[Instruction] = {
     val instruction = transExpression(returnValue, registers)
 
-    instruction ++ Seq(MOV(R0, RegisterOperand(registers.head)))
+    instruction ++ Seq(MOV(R0, registers.head))
   }
 
   def transConditionalStatement(expression: Expression, trueStatements: Seq[Statement], falseStatements: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
@@ -142,4 +142,13 @@ package object TransStatements {
     instructions.flatten
   }
 
+  def transReadStatement(read: ReadStatement, registers: Seq[Register]): CodeSegment = {
+    val target: Integer = read.target match {
+      case vr: VariableReference => vr.offset
+    }
+
+    new CodeSegment()
+      .append(ADD(R0, SP, ImmOperand(target)))         // r0 = address of target
+      .append(BL(Label(StaticCode.readFunctionLabel))) // reads input into desired variable
+  }
 }
