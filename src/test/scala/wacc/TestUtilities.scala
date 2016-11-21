@@ -3,6 +3,7 @@ package wacc
 import antlr.{WACCLexer, WACCParser, WACCParserBaseVisitor}
 import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream, ParserRuleContext}
 import org.scalatest._
+import wacc.codegeneration.LabelCreator
 import wacc.constructs.{Program, Statement}
 import wacc.visitors.ProgramVisitor
 
@@ -39,10 +40,17 @@ object TestUtilities {
   }
 
   trait SymbolTableState extends BeforeAndAfterEach { this: Suite =>
-
     override def afterEach(): Unit = {
       try super.afterEach()
       finally SymbolTable.clearAll()
     }
+  }
+
+  trait LabelCreationState extends BeforeAndAfterEach { this: Suite =>
+    override def afterEach(): Unit = {
+      try super.afterEach()
+      finally LabelCreator.clear()
+    }
+
   }
 }

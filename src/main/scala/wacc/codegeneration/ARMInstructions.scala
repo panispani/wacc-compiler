@@ -37,6 +37,9 @@ object LabelCreator {
     currentLabelNumber = currentLabelNumber + 1
     Label("L" + labelNum)
   }
+  def clear(): Unit = {
+    currentLabelNumber = 0
+  }
 }
 
 // Define label, pseudo-instruction
