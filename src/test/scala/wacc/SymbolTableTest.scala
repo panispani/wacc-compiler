@@ -48,7 +48,7 @@ class SymbolTableTest extends FlatSpec
 
     SymbolTable.openScope()
 
-    SymbolTable.lookupDeep("x").get.offset should be (-8 + (-9))
+    SymbolTable().lookupDeep("x").get.offset should be (-8 + (-9))
 
     SymbolTable.closeScope()
 
