@@ -20,11 +20,33 @@ trait Instruction {
 //    (if (setsConditionCodes) "S" else "")
 }
 
-case class Label(name: String)
+trait Condition
+case class GT() extends Condition
+case class GE() extends Condition
+case class LT() extends Condition
+case class LE() extends Condition
+case class EQ() extends Condition
+case class NE() extends Condition
+case class ALWAYS() extends Condition
 
+case class Label(name: String)
+object LabelCreator {
+  private var currentLabelNumber: Int = 0
+  def newLabel(): Label = {
+    val labelNum = currentLabelNumber
+    currentLabelNumber = currentLabelNumber + 1
+    Label("L" + labelNum)
+  }
+  def clear(): Unit = {
+    currentLabelNumber = 0
+  }
+}
+
+// Define label, pseudo-instruction
+case class DefineLabel(label: Label) extends Instruction
 // Branch
-case class B(label: Label) extends Instruction // B{<cond>} label, R15=<address>
-case class BL(label: Label) extends Instruction // BL{<cond>} sub_routine_label, R14=R15 R15=<address>
+case class B(label: Label, S: Condition = ALWAYS()) extends Instruction // B{<cond>} label, R15=<address>
+case class BL(label: Label, S: Condition = ALWAYS()) extends Instruction // BL{<cond>} sub_routine_label, R14=R15 R15=<address>
 
 // Arithmetic <Operation>{<cond>}{S} Rd, Rn, Operand2
 case class ADD(Rd: Register, Rn: Register, Op2: Operand) extends Instruction //Rd=Rn+Op2
@@ -46,7 +68,7 @@ case class ORR(Rd: Register, Rn: Register, Op2: Operand) extends Instruction
 // BIC
 
 // Data movement <Operation>{<cond>}{S} Rd, Operand2
-case class MOV(Rd: Register, Op2: Operand) extends Instruction
+case class MOV(Rd: Register, Op2: Operand, S: Condition = ALWAYS()) extends Instruction
 // MVN
 
 // Multiplication

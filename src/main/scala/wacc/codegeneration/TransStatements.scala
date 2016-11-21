@@ -5,8 +5,6 @@ import wacc.TransExpressions._
 import wacc.codegeneration._
 import wacc.constructs._
 
-import scala.collection.GenTraversableOnce
-
 /**
   * Created by panayiotis on 16/11/16.
   */
@@ -15,15 +13,23 @@ package object TransStatements {
   def transStatement(stmt: Statement, registers: Seq[Register]) = {
     stmt match {
       case DeclareStatement(vartype: Type, variable: VariableReference, value: AssignValue)
-      => transDeclareStatement(vartype, variable, value, registers)
+        => transDeclareStatement(vartype, variable, value, registers)
       case AssignStatement(lhs: AssignTarget, rhs: AssignValue)
         => transAssignStatement(lhs, rhs, registers)
-
-      case ExitStatement(exitCode: Expression)      => transExitStatement(exitCode, registers)
-      case ReturnStatement(returnValue: Expression) => transReturnStatement(returnValue, registers)
-      case SkipStatement()                          => Seq()
-      case PrintStatement(expression)               => transExpression(expression, registers) :+ BL(Label("p_print_string"))
-      case PrintLnStatement(expression)             => transExpression(expression, registers) :+ BL(Label("p_print_ln"))
+      case ExitStatement(exitCode: Expression)
+        => transExitStatement(exitCode, registers)
+      case ReturnStatement(returnValue: Expression)
+        => transReturnStatement(returnValue, registers)
+      case SkipStatement()
+        => Seq()
+      case PrintStatement(expression)
+        => transExpression(expression, registers) :+ BL(Label("p_print_string"))
+      case PrintLnStatement(expression)
+        => transExpression(expression, registers) :+ BL(Label("p_print_ln"))
+      case ConditionalStatement(expression, trueStatements, falseStatements)
+        => transConditionalStatement(expression, trueStatements, falseStatements, registers)
+      case LoopStatement(condition, statements)
+        => transLoopStatement(condition, statements, registers)
     }
   }
 
@@ -87,6 +93,29 @@ package object TransStatements {
     val instruction = transExpression(returnValue, registers)
 
     instruction ++ Seq(MOV(R0, RegisterOperand(registers.head)))
+  }
+
+  def transConditionalStatement(expression: Expression, trueStatements: Seq[Statement], falseStatements: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
+    val L0: Label = LabelCreator.newLabel()
+    val L1: Label = LabelCreator.newLabel()
+
+    transExpression(expression, registers) ++
+      Seq(CMP(registers.head, ImmOperand(0)), B(L0, EQ())) ++
+      transStatementSequence(falseStatements, registers) ++
+      Seq(B(L1), DefineLabel(L0)) ++
+      transStatementSequence(trueStatements, registers) ++
+      Seq(DefineLabel(L1))
+  }
+
+  def transLoopStatement(condition: Expression, stmts: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
+    val L0: Label = LabelCreator.newLabel()
+    val L1: Label = LabelCreator.newLabel()
+
+    Seq(B(L0), DefineLabel(L1)) ++
+    transStatementSequence(stmts, registers) ++
+    Seq(DefineLabel(L0)) ++
+    transExpression(condition, registers) ++
+    Seq(CMP(registers.head, ImmOperand(1)), B(L1, EQ()))
   }
 
   def transStatementSequence(seq: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
