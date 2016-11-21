@@ -2,7 +2,7 @@ package wacc.constructs
 
 trait Literal extends Expression
 
-case class IntegerLiteral(value: Integer) extends Literal {
+case class IntegerLiteral(value: Int) extends Literal {
   override val vartype: Type = Integer
 }
 
