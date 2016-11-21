@@ -39,7 +39,7 @@ class DeclareStatementTest extends  CodeGenTest {
 
     instructions.head shouldBe LDR(R0, Const(12))
     instructions(1) shouldBe BL(Label("malloc"))
-    instructions(2) shouldBe MOV(availableRegisters.head, RegisterOperand(R0))
+    instructions(2) shouldBe MOV(availableRegisters.head, R0)
     instructions(3) shouldBe LDR(availableRegisters(1), Const(2))
     instructions(4) shouldBe STR(availableRegisters(1), RegisterAddress(availableRegisters.head, 0))
     //Don't care about instruction(5) because it's up to translateExpression
@@ -78,7 +78,7 @@ class DeclareStatementTest extends  CodeGenTest {
 
     instructions.head shouldBe LDR(R0, Const(8))
     instructions(1) shouldBe BL(Label("malloc"))
-    instructions(2) shouldBe MOV(availableRegisters.head, RegisterOperand(R0))
+    instructions(2) shouldBe MOV(availableRegisters.head, R0)
     instructions(3) shouldBe LDR(availableRegisters(1), Const(1))
     instructions(4) shouldBe STR(availableRegisters(1), RegisterAddress(availableRegisters.head, 0))
     //Don't care about instruction(5) because it's up to translateExpression
