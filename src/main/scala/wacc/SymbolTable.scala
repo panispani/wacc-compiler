@@ -43,28 +43,31 @@ case class SymbolTable(parent: Option[SymbolTable]) {
   def lookupDeep(identifier: String): Option[Reference]
   = lookup(identifier) match {
     case Some(ident) => Some(ident)
-    case None => parent flatMap (_.lookupWithOffsetAccumulator(identifier, 0))
+    case None => parent flatMap (_.lookupWithOffsetAccumulator(identifier, currentOffset))
   }
 
   /**
     * Compute the offset of a variable relative to the scope which initiates the lookup
-    *  ---
-    * |x:0|
-    * |y:1|
-    * |z:5| <- parent <- ---  <-- lookup relative to here
-    *  --- size=9       |a:0|
+    *
+    * Symbol table                                           ARM11 Stack (offsets relative to SP at time of adding)
+    *
+    *  ---                                                   |z:5|       |
+    * |x:0|                                                  |y:1|       | stack grows this way by subtraction
+    * |y:1|                                                  |x:0|       v
+    * |z:5| <- parent <- ---  <-- lookup relative to here     ---  - no real separation (just for display purposes)
+    *  --- size=9       |a:0|                                |a:0| <- SP is here when lookup needs to happen
     *                    ---
     *
-    * lookup(x).offset = -9
-    * lookup(y).offset = -8
-    * lookup(z).offset = -4
+    * lookup(x).offset = +4
+    * lookup(y).offset = +5
+    * lookup(z).offset = +9
     * lookup(a).offset = 0
     * */
   private def lookupWithOffsetAccumulator(identifier: String, offset: Int): Option[Reference]
   = lookup(identifier) match {
     // Base case does the offset computation
     case Some(ref) =>
-      Some(VariableReference(identifier, ref.vartype, ref.offset - currentOffset - offset))
+      Some(VariableReference(identifier, ref.vartype, ref.offset + offset))
     // Recursive case just accumulates the offset
     case None => parent flatMap (_.lookupWithOffsetAccumulator(identifier, offset + currentOffset))
   }

@@ -11,7 +11,8 @@ class FunctionVisitorTest extends VisitorTest {
     val parser = TestUtilities.setupParser("begin int f() is return 3 end skip end")
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
-    result.right.value.functions should be (List(Function("f", Seq(), Integer, Seq(ReturnStatement(IntegerLiteral(3))))))
+    result.right.value.functions should matchPattern {
+      case List(Function("f", Seq(), Integer, Seq(ReturnStatement(IntegerLiteral(3))), _)) => }
   }
 
   it should "add the function reference to the symbol table" in {

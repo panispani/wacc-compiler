@@ -90,20 +90,21 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
       _ <- Right(SymbolTable.closeScope()).right
       _ <- Right(SymbolTable.openScope()).right
       falseStatements <- sequenceOrLast(ctx.falseSequence.statement().toList map (s => s.accept(StatementVisitor))).right
-    } yield Tuple3(expression, trueStatements, falseStatements)
+    } yield (expression, trueStatements, falseStatements)
 
-    SymbolTable.closeScope()
-
-    tuple match {
+    val conditional = tuple match {
       case Left(error)                                                => Left(error)
       case Right(Tuple3(expression, trueStatements, falseStatements)) => expression.vartype match {
-        case Boolean => Right(ConditionalStatement(expression, trueStatements, falseStatements))
+        case Boolean => Right(ConditionalStatement(expression, trueStatements, falseStatements, SymbolTable()))
         case default => Left(
           SemanticError(
             "Conditional statement " + SemanticErrors.typeError("expression", expression.vartype, Boolean),
             ctx.start))
       }
     }
+
+    SymbolTable.closeScope()
+    conditional
   }
 
   override def visitLoop(ctx: LoopContext): Either[CompilationError, LoopStatement] = {
@@ -112,26 +113,31 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
       expression     <- ctx.expression().accept(ExpressionVisitor).right
       statements     <- sequenceOrLast(ctx.sequence().statement().toList map (s => s.accept(StatementVisitor))).right
     } yield (expression, statements)
-    SymbolTable.closeScope()
 
-    pair match {
+    val loop = pair match {
       case Left(error)                         => Left(error)
       case Right((expression, statements))     => expression.vartype match {
-        case Boolean => Right(LoopStatement(expression, statements))
+        case Boolean => Right(LoopStatement(expression, statements, SymbolTable()))
         case default => Left(SemanticError(
           "Loop statement " + SemanticErrors.typeError("expression", expression.vartype, Boolean),
           ctx.start))
       }
     }
+
+    SymbolTable.closeScope()
+    loop
   }
 
   override def visitScope(ctx: ScopeContext): Either[CompilationError, ScopeStatement] = {
     SymbolTable.openScope()
-    val stmt = ctx.sequence().accept(SequenceVisitor).right
+
+    val scope = for {
+      block <- sequenceOrLast(ctx.sequence().statement().toList map(_.accept(StatementVisitor))).right
+    } yield ScopeStatement(block, SymbolTable())
+
     SymbolTable.closeScope()
-    for (
-      s <- stmt
-    ) yield ScopeStatement(s)
+
+    scope
   }
 
   override def visitFree(ctx: FreeContext): Either[CompilationError, FreeStatement] = {

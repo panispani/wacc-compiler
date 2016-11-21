@@ -46,7 +46,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
         matchReturnOrExit(_).right flatMap matchReturnType).right
 
       body <- Right(statements.dropRight(1) :+ lastStatement).right
-    } yield Function(name, args, returnType, body)
+    } yield Function(name, args, returnType, body, SymbolTable())
 
     SymbolTable.closeScope()
 
@@ -55,11 +55,11 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
 
   private def mapLastStatements(lastStatement: Statement, f: Statement => Either[CompilationError, Statement])
   : Either[CompilationError, Statement] = lastStatement match {
-    case ConditionalStatement(expr, trueStats, falseStats) =>
+    case ConditionalStatement(expr, trueStats, falseStats, _) =>
       val trueRes = mapLastStatements(trueStats.last, f)
       val falseRes = mapLastStatements(falseStats.last, f)
       trueRes.right flatMap (_ => falseRes)
-    case LoopStatement(expr, stats) => mapLastStatements(stats.last, f)
+    case LoopStatement(expr, stats, _) => mapLastStatements(stats.last, f)
     case statement => f(statement)
   }
 }

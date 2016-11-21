@@ -12,7 +12,7 @@ class StatementSequenceTest extends  CodeGenTest {
   "Translating a sequence of statements" should "be possible" in {
     val parser = TestUtilities.setupParser("begin exit 10; exit 6 end")
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
-    val instructions = transProgram(result.right.get)
+    val instructions = transProgram(result.right.get).instructions
 
     instructions.head should be (SUB(SP, SP, ImmOperand(0)))
     instructions(1) should be (MOV(R4, ImmOperand(10)))

@@ -33,10 +33,10 @@ package object TransStatements {
       case PrintLnStatement(expression)
         => transExpression(expression, registers) :+ BL(Label("p_print_ln"))
 
-      case ConditionalStatement(expression, trueStatements, falseStatements)
+      case ConditionalStatement(expression, trueStatements, falseStatements, symbolTable)
         => transConditionalStatement(expression, trueStatements, falseStatements, registers)
 
-      case LoopStatement(condition, statements)
+      case LoopStatement(condition, statements, symbolTable)
         => transLoopStatement(condition, statements, registers)
     }
   }
@@ -112,8 +112,8 @@ package object TransStatements {
   }
 
   def transConditionalStatement(expression: Expression, trueStatements: Seq[Statement], falseStatements: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
-    val L0: Label = LabelCreator.newLabel()
-    val L1: Label = LabelCreator.newLabel()
+    val L0 = Label()
+    val L1 = Label()
 
     transExpression(expression, registers) ++
       Seq(CMP(registers.head, ImmOperand(0)), B(L0, EQ())) ++
@@ -124,8 +124,8 @@ package object TransStatements {
   }
 
   def transLoopStatement(condition: Expression, stmts: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
-    val L0: Label = LabelCreator.newLabel()
-    val L1: Label = LabelCreator.newLabel()
+    val L0 = Label()
+    val L1 = Label()
 
     Seq(B(L0), DefineLabel(L1)) ++
     transStatementSequence(stmts, registers) ++
