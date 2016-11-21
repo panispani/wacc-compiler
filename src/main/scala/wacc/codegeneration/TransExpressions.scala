@@ -24,12 +24,12 @@ package object TransExpressions {
           // e1 first
           val evalExpr = transExpression(e1, reg1+:reg2+:regs) ++
                          transExpression(e2, reg2+:regs)
-          evalExpr ++ transBinaryOperatorReg(reg1, binOp, reg2)
+          evalExpr ++ transBinaryOperator(reg1, binOp, reg2)
         } else {
           // e2 first
           val evalExpr = transExpression(e2, reg2+:reg1+:regs) ++
                          transExpression(e1, reg1+:regs)
-          evalExpr ++ transBinaryOperatorReg(reg1, binOp, reg2)
+          evalExpr ++ transBinaryOperator(reg1, binOp, reg2)
         }
       }
       case IntegerLiteral(value) => Seq(MOV(reg1, ImmOperand(value)))
@@ -40,20 +40,15 @@ package object TransExpressions {
   }
 
   // Accumulator machine approach
-  private def transExpressionAcc(expr: Expression, reg1: Register, regs: Seq[Register]): Seq[Instruction] = {
-    expr match {
-      case BinaryOperatorExpr(e1, binOp, e2) => {
-        val evalExpr = transExpression(e2, reg1+:regs) ++
-                       Seq(PUSH(Seq(reg1))) ++
-                       transExpression(e1, reg1+:regs)
-
-          evalExpr ++ transBinaryOperatorAcc(reg1, binOp)
-      }
-      case IntegerLiteral(value) => Seq(MOV(reg1, ImmOperand(value)))
-      case BoolLiteral(value) => val v = if (value) 1 else 0
-        Seq(MOV(reg1, ImmOperand(v)))
-      case CharLiteral(value) => Seq(MOV(reg1, CharOperand(value)))
-    }
+  private def getAnotherRegister(reg: Register) = {
+    if (reg == R0)
+      R1
+    else
+      R0
   }
 
+  private def transExpressionAcc(expr: Expression, reg1: Register, regs: Seq[Register]): Seq[Instruction] = {
+    val reg2 = getAnotherRegister(reg1)
+    transExpressionReg(expr, reg1, reg2, regs)
+  }
 }

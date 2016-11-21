@@ -98,6 +98,7 @@ package object TransStatements {
 
   def transAssignStatement(lhs: AssignTarget, rhs: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
     val instruction = transAssignRhs(rhs, registers)
+
     println("assign " + rhs + " to " + lhs)
     instruction
   }

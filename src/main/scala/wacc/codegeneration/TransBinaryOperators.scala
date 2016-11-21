@@ -8,7 +8,7 @@ import wacc.codegeneration._
   */
 package object TransBinaryOperators {
 
-  def transBinaryOperatorReg(r1: Register, binOp: BinaryOperator, r2: Register): Seq[Instruction] = {
+  def transBinaryOperator(r1: Register, binOp: BinaryOperator, r2: Register): Seq[Instruction] = {
     binOp match {
       case BinaryOperator("*")  => Seq(MUL(r1, r1, r2))
       case BinaryOperator("/")  => Seq() // We should implement this
@@ -24,26 +24,6 @@ package object TransBinaryOperators {
       case BinaryOperator("&&") => Seq(AND(r1, r1, RegisterOperand(r2)))
       case BinaryOperator("||") => Seq(ORR(r1, r1, RegisterOperand(r2)))
     }
-  }
-
-  def transBinaryOperatorAcc(r1: Register, binOp: BinaryOperator): Seq[Instruction] = {
-    // other operand is on top of the stack
-    binOp match {
-      case BinaryOperator("*")  =>
-      case BinaryOperator("/")  =>
-      case BinaryOperator("%")  =>
-      case BinaryOperator("+")  =>
-      case BinaryOperator("-")  =>
-      case BinaryOperator(">")  => // how can CMP implement this
-      case BinaryOperator(">=") =>
-      case BinaryOperator("<")  =>
-      case BinaryOperator("<=") =>
-      case BinaryOperator("==") =>
-      case BinaryOperator("!=") =>
-      case BinaryOperator("&&") =>
-      case BinaryOperator("||") =>
-    }
-    Seq()
   }
 
 }
