@@ -62,9 +62,11 @@ case class SymbolTable(parent: Option[SymbolTable]) {
     * */
   private def lookupWithOffsetAccumulator(identifier: String, offset: Int): Option[Reference]
   = lookup(identifier) match {
-    case None => parent flatMap (_.lookupWithOffsetAccumulator(identifier, offset + currentOffset))
+    // Base case does the offset computation
     case Some(ref) =>
       Some(VariableReference(identifier, ref.vartype, ref.offset - currentOffset - offset))
+    // Recursive case just accumulates the offset
+    case None => parent flatMap (_.lookupWithOffsetAccumulator(identifier, offset + currentOffset))
   }
 
   def clear() = {
