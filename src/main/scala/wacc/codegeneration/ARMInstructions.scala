@@ -87,3 +87,4 @@ case class PUSH(reglist: Seq[Register]) extends Instruction // up to 8
 case class POP(reglist: Seq[Register]) extends Instruction
 
 object RETURN extends MOV(PC, RegisterOperand(LR))
+object NEW_STACK_FRAME extends PUSH(Seq(LR))
