@@ -13,8 +13,8 @@ package object StaticCode {
     readFunction
     .extend(printFunction)
     .extend(printLnFunction)
-    .extend(outputCheckDivideByZero)
-    .extend(outputThrowRuntimeError)
+    .extend(CheckDivideByZero)
+    .extend(ThrowRuntimeError)
 
   def readFunctionLabel: Label = Label("read")
   def printFunctionLabel: Label = Label("print")
@@ -46,7 +46,7 @@ package object StaticCode {
       .append(RETURN)
   }
 
-  def outputCheckDivideByZero: CodeSegment = {
+  def CheckDivideByZero: CodeSegment = {
     new CodeSegment()
       .append(DefineLabel(checkDivideByZeroLabel))
       .append(NEW_STACK_FRAME)
@@ -56,7 +56,7 @@ package object StaticCode {
       .append(RETURN)
   }
 
-  def outputThrowRuntimeError: CodeSegment = {
+  def ThrowRuntimeError: CodeSegment = {
     new CodeSegment()
       .append(DefineLabel(throwRuntimeErrorLabel))
       .append(BL(printFunctionLabel))
