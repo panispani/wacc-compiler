@@ -1,7 +1,7 @@
 package wacc.codegeneration
 
 import wacc.{SymbolTable, TestUtilities}
-import wacc.TransProgram._
+import wacc.TransStatements._
 import wacc.arm._
 import wacc.visitors.{ProgramVisitor, StatementVisitor}
 
@@ -9,11 +9,10 @@ class FunctionTest extends CodeGenTest {
 
   it should "define a function and local variables relative to function SP" in {
     val parser = TestUtilities.setupParser("begin int foo() is int a = 1; int x = 32; return 1 end skip end")
-    val program = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
+    val program = TestUtilities.buildSubProgram(parser.program, ProgramVisitor).right.get
+    val instructions = TestUtilities.translateWithoutSections(program.functions)
 
-    val instructions = transProgram(program.right.get).instructions
-
-    //println(instructions)
+    println(instructions)
     instructions.head shouldBe DefineLabel(Label("foo"))
     instructions(1) shouldBe PUSH(Seq(LR))
     // dont care about body instructions since they are up to transStatement
@@ -30,9 +29,8 @@ class FunctionTest extends CodeGenTest {
 
   it should "define a function with arguments and be able to reference them" in {
     val parser = TestUtilities.setupParser("begin int goo(int a, int b) is bool c = true; return a end skip end")
-    val program = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
-
-    val instructions = transProgram(program.right.get).instructions
+    val program = TestUtilities.buildSubProgram(parser.program, ProgramVisitor).right.get
+    val instructions = TestUtilities.translateWithoutSections(program)
 
     println(instructions)
     instructions.head shouldBe DefineLabel(Label("goo"))
