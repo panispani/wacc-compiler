@@ -12,7 +12,7 @@ package object TransProgram {
     val mainInstructions     = program.main.statements map (
       s => transStatement (s, program.main.symbolTable, Registers.expressionRegs))
 
-    val data = LabelTable.outputLabels
+    val data = new CodeSegment().extend(StaticCode.staticData).extend(LabelTable.outputLabels)
     val text = new CodeSegment()
                    .append(COMMENT("Static code"))
                    .extend(StaticCode.staticFunctions)
