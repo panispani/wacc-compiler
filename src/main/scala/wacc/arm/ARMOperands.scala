@@ -21,3 +21,7 @@ case class LabelAddress(label: Label) extends Address {
   override def toString: String = s"=$label"
 }
 
+case class Const(value: Int) extends Address {
+  override def toString: String = s"=$value"
+}
+

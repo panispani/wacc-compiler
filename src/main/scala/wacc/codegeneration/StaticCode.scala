@@ -25,6 +25,10 @@ package object StaticCode {
   def readFormatLabel: Label = Label("read_format")
   def printFormatLabel: Label = Label("print_format")
   def emptyStringLabel: Label = Label("empty_string")
+  def throwRuntimeErrorLabel: Label = Label("throw_runtime_error")
+  def checkDivideByZeroLabel: Label = Label("check_divide_by_zero")
+  def divisionLabel: Label = Label("__aeabi_idiv")
+  def moduleLabel: Label = Label("__aeabi_idivmod")
 
   def readFunction: CodeSegment = {
     new CodeSegment()
@@ -46,6 +50,24 @@ package object StaticCode {
       .append(MOV(R0, ImmOperand(0)))             // TODO: No idea
       .append(BL(Label("fflush")))                // TODO: Flush buffer?
       .append(RETURN)
+  }
+
+  def outputCheckDivideByZero: CodeSegment = {
+    new CodeSegment()
+      .append(DefineLabel(checkDivideByZeroLabel))
+      .append(NEW_STACK_FRAME)
+      .append(CMP(R1, ImmOperand(0))) // Check if the dividend is 0
+      .append(LDR(R0, LabelAddress(Label("msg_0")), EQ)) //Todo: Label Address needs to be dynamic //If it is 0, load in R0 the error string
+      .append(BL(throwRuntimeErrorLabel, EQ)) //Branch to the function to throw a runtime error
+      .append(RETURN)
+  }
+
+  def outputThrowRuntimeError: CodeSegment = {
+    new CodeSegment()
+      .append(DefineLabel(throwRuntimeErrorLabel))
+      .append(BL(printFunctionLabel))
+      .append(MOV(R0, ImmOperand(-1)))
+      .append(BL(Label("exit")))
   }
 
   def printLnFunction: CodeSegment = {
