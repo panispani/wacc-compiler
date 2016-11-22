@@ -4,7 +4,7 @@ import antlr.{WACCLexer, WACCParser, WACCParserBaseVisitor}
 import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream, ParserRuleContext}
 import org.scalatest._
 import wacc.codegeneration.Label
-import wacc.constructs.{Program, Statement}
+import wacc.constructs.{Program, ScopeStatement, Statement}
 import wacc.visitors.ProgramVisitor
 
 object TestUtilities {
@@ -36,7 +36,7 @@ object TestUtilities {
   }
 
   def functionlessProgram(statements: Seq[Statement]): Program = {
-    Program(Seq(), statements)
+    Program(Seq(), ScopeStatement(statements, SymbolTable.globalTable))
   }
 
   trait SymbolTableState extends BeforeAndAfterEach { this: Suite =>

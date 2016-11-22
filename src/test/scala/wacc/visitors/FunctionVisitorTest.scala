@@ -1,18 +1,26 @@
 package wacc.visitors
 
 import wacc.constructs._
-import wacc.{FunctionReference, SymbolTable, TestUtilities}
-
-import scala.collection.SeqView
+import wacc.{FunctionReference, SymbolTable, TestUtilities, VariableReference}
 
 class FunctionVisitorTest extends VisitorTest {
 
-  "Visiting a function" should "create function construct" in {
-    val parser = TestUtilities.setupParser("begin int f() is return 3 end skip end")
+  "Visiting a function" should "create function construct with the correct symbol table" in {
+    // Needs to be parsed with program because we declare all functions before parsing the bodies
+    val parser = TestUtilities.setupParser("begin int f() is int x = 1; return 1 end int a = 1 end")
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
-    result.right.value.functions should matchPattern {
-      case List(Function("f", Seq(), Integer, Seq(ReturnStatement(IntegerLiteral(3))), _)) => }
+    val function = result.right.value.functions.head
+    function.identifier should be ("f")
+    function.params should be (empty)
+    function.vartype should be (Integer)
+
+    function.statements should be (Seq(
+      DeclareStatement(Integer, VariableReference("x", Integer, 0), IntegerLiteral(1)),
+      ReturnStatement(IntegerLiteral(1))))
+
+    function.symbolTable.lookup("x") should be (defined)
+    function.symbolTable.lookup("a") should not be defined
   }
 
   it should "add the function reference to the symbol table" in {

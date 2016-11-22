@@ -3,6 +3,8 @@ package wacc.visitors
 import wacc.constructs._
 import wacc.{TestUtilities, VariableReference}
 
+import scala.collection.generic.SeqFactory
+
 /**
   * Created by panayiotis on 10/11/16.
   */
@@ -12,30 +14,17 @@ class FunctionCallTest extends VisitorTest{
     val parser = TestUtilities.setupParser("begin int foo() is return 1 end int a = call foo() end ")
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
-    result.right.value should matchPattern {
-      case Program(
-        List(
-          Function(
-            "foo",
-            List(),
-            Integer,
-            List(ReturnStatement(IntegerLiteral(1))),
-            _ // ignore symbol table
-          )
-        ),
-        List(
-          DeclareStatement(
-            Integer,
-            VariableReference("a", Integer, 0),
-            FunctionCall(
-              "foo",
-              List(),
-              Integer
-            )
-          )
+    result.right.value.main.statements should be (Seq(
+      DeclareStatement(
+        Integer,
+        VariableReference("a", Integer, 0),
+        FunctionCall(
+          "foo",
+          List(),
+          Integer
         )
-      ) =>
-    }
+      )
+    ))
   }
 
   it should "succeed when an argument has tha same name as the function" in {
@@ -49,18 +38,7 @@ class FunctionCallTest extends VisitorTest{
     val parser = TestUtilities.setupParser("begin int foo(int a) is return a end int a = call foo(2) end")
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
-    result.right.value.functions.head should matchPattern {
-      case Function(
-            "foo",
-            List(VariableReference("a",Integer, 0)),
-            Integer,
-            List(
-              ReturnStatement(VariableReference("a", Integer, 0))),
-            _ // ignore symbol table
-            ) =>
-    }
-
-    result.right.value.statements.head should be (DeclareStatement(
+    result.right.value.main.statements.head should be (DeclareStatement(
       Integer,
       VariableReference("a", Integer, 0),
       FunctionCall(
