@@ -19,7 +19,7 @@ package object TransExpressions {
 
   // Register machine approach
   private def transExpressionReg(expr: Expression, reg1: Register, reg2: Register, regs: Seq[Register]): Seq[Instruction] = {
-    expr match {
+      expr match {
       case BinaryOperatorExpr(e1, binOp, e2) => {
         if (weight(e1) > weight(e2)) {
           // e1 first
@@ -37,6 +37,8 @@ package object TransExpressions {
       case BoolLiteral(value) => val v = if (value) 1 else 0
                                  Seq(MOV(reg1, ImmOperand(v)))
       case CharLiteral(value) => Seq(MOV(reg1, CharOperand(value)))
+
+      case VariableReferenceExpression(_, _) => println("Not implemented"); Seq()
     }
   }
 

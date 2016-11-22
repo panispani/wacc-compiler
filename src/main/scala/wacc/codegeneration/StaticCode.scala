@@ -14,6 +14,8 @@ package object StaticCode {
   def readFunctionLabel: String = "read_4_bytes"
   def printFunctionLabel: String = "print_string"
   def throwRuntimeErrorLabel: String = "throw_runtime_error"
+  def checkDivideByZeroLabel: String = "check_divide_by_zero"
+  def divisionLabel: String = "__aeabi_idiv"
 
   /* TODO: This will be called and embedded in every program we compile, or we do something smarter and only output
      the functions which actually get called at least once */
@@ -45,11 +47,11 @@ package object StaticCode {
 
   def outputCheckDivideByZero: CodeSegment = {
     new CodeSegment()
-      .append(DefineLabel(Label(throwRuntimeErrorLabel)))
+      .append(DefineLabel(Label(checkDivideByZeroLabel)))
       .append(NEW_STACK_FRAME)
       .append(CMP(R1, ImmOperand(0))) // Check if the dividend is 0
-      .append(LDR(R0, LabelAddress("msg_0"), EQ())) //Todo: Label Address needs to be dynamic //If it is 0, load in R0 the error string
-      .append(BL(Label(throwRuntimeErrorLabel), EQ())) //Branch to the function to throw a runtime error
+      .append(LDR(R0, LabelAddress("msg_0"), EQ)) //Todo: Label Address needs to be dynamic //If it is 0, load in R0 the error string
+      .append(BL(Label(throwRuntimeErrorLabel), EQ)) //Branch to the function to throw a runtime error
       .append(RETURN)
   }
 
