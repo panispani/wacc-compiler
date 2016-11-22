@@ -34,9 +34,9 @@ package object TransExpressions {
         }
       }
       case IntegerLiteral(value) => Seq(MOV(reg1, ImmOperand(value)))
-      case BoolLiteral(value) => val v = if (value) 1 else 0
-                                 Seq(MOV(reg1, ImmOperand(v)))
-      case CharLiteral(value) => Seq(MOV(reg1, CharOperand(value)))
+      case BoolLiteral(value)    => Seq(MOV(reg1, ImmOperand(if (value) 1 else 0)))
+      case CharLiteral(value)    => Seq(MOV(reg1, CharOperand(value)))
+      case StringLiteral(value)  => Seq(MOV(reg1, LabelAddress(DefineStringLabel(value).label)))
     }
   }
 
