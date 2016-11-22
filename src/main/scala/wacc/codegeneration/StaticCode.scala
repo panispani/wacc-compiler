@@ -4,8 +4,8 @@ import wacc.arm._
 import wacc.codegeneration._
 
 package object StaticCode {
-  def readFormat: AsciiData     = AsciiData(LabelAddress("_read_format"), "%d")
-  def printFormat: AsciiData    = AsciiData(LabelAddress("_print_format"), "%%.*s")
+  def readFormat: AsciiData     = AsciiData(LabelAddress(Label()), "%d")
+  def printFormat: AsciiData    = AsciiData(LabelAddress(Label()), "%%.*s")
   def staticData: CodeSegment   = new CodeSegment()
                                      .append(readFormat)
 
