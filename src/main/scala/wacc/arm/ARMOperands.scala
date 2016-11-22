@@ -9,9 +9,14 @@ case class CharOperand(value: Char) extends Operand {
 }
 
 trait Address extends Operand
-case class IntAddress(address: Int) extends Address
-case class RegisterAddress(register: Register, offset: Int) extends Address
-case class Const(value: Int) extends Address
+case class ImmAddress(address: Int) extends Address {
+  override def toString: String = s"[${ImmOperand(address)}]"
+}
+
+case class RegisterAddress(register: Register, offset: Int) extends Address {
+  override def toString: String = s"[$register, ${ImmOperand(offset)}]"
+}
+
 case class LabelAddress(label: Label) extends Address {
   override def toString: String = s"=$label"
 }

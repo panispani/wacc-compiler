@@ -89,10 +89,10 @@ package object TransStatements {
         case literal @ ArrayLiteral(elements) => {
           val arraySize = 4 + elements.size * elemsType.size
           Seq(
-            LDR(R0, Const(arraySize)),
+            LDR(R0, ImmAddress(arraySize)),
             BL(Label("malloc")),
             MOV(registers.head, R0),
-            LDR(registers(1), Const(elements.size)),
+            LDR(registers(1), ImmAddress(elements.size)),
             STR(registers(1), RegisterAddress(registers.head, 0))
           ) ++ transArrayLiteral(literal, symbolTable, registers) :+ STR(registers.head, RegisterAddress(SP, 0))
         }
@@ -101,18 +101,18 @@ package object TransStatements {
       case PairType(firstType, secondType) => assignValue match {
         case PairConstructor(firstExp, secondExp) => {
           Seq(
-            LDR(R0, Const(firstType.size + secondType.size)),      //Load the size of the pair (always 8) in R0
+            LDR(R0, ImmAddress(firstType.size + secondType.size)),      //Load the size of the pair (always 8) in R0
             BL(Label("malloc")),
             MOV(registers.head, R0)
           ) ++ transExpression(firstExp, symbolTable, registers.tail) ++
             Seq (
-              LDR(R0, Const(firstType.size)),
+              LDR(R0, ImmAddress(firstType.size)),
               BL(Label("malloc")),
               STR(registers(1), RegisterAddress(R0, 0)),  //Store the value for the first element in its memory
               STR(R0, RegisterAddress(registers(0), 0)) //Put address of first element in memory of pair
             ) ++ transExpression(secondExp, symbolTable, registers.tail) ++
               Seq(
-                LDR(R0, Const(secondType.size)),
+                LDR(R0, ImmAddress(secondType.size)),
                 BL(Label("malloc")),
                 STR(registers(1), RegisterAddress(R0, 0)),  //Store the value for the second element in its memory
                 STR(R0, RegisterAddress(registers(0), firstType.size)),   //Put address of second element in memory of pair with offset
