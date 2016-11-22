@@ -3,9 +3,6 @@ package wacc
 import wacc.constructs._
 import wacc.codegeneration._
 
-/**
-  * Created by panayiotis on 17/11/16.
-  */
 package object TransBinaryOperators {
 
   def transBinaryOperator(r1: Register, binOp: BinaryOperator, r2: Register): Seq[Instruction] = {
