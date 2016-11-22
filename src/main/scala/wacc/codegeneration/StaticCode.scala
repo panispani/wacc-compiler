@@ -10,6 +10,7 @@ package object StaticCode {
   //TODO: Perhaps these need to be generated with the LabelCreator to avoid clashes
   def readFunctionLabel: String = "read_4_bytes"
   def printFunctionLabel: String = "print_string"
+  def throwRuntimeErrorLabel: String = "throw_runtime_error"
 
   /* TODO: This will be called and embedded in every program we compile, or we do something smarter and only output
      the functions which actually get called at least once */
@@ -37,5 +38,23 @@ package object StaticCode {
       .append(MOV(R0, ImmOperand(0)))             // TODO: No idea
       .append(BL(Label("fflush")))                // TODO: Flush buffer?
       .append(RETURN)
+  }
+
+  def outputCheckDivideByZero: CodeSegment = {
+    new CodeSegment()
+      .append(DefineLabel(Label(throwRuntimeErrorLabel)))
+      .append(NEW_STACK_FRAME)
+      .append(CMP(R1, ImmOperand(0))) // Check if the dividend is 0
+      .append(LDR(R0, LabelAddress("msg_0"), EQ())) //Todo: Label Address needs to be dynamic //If it is 0, load in R0 the error string
+      .append(BL(Label(throwRuntimeErrorLabel), EQ())) //Branch to the function to throw a runtime error
+      .append(RETURN)
+  }
+
+  def outputThrowRuntimeError: CodeSegment = {
+    new CodeSegment()
+      .append(DefineLabel(Label(throwRuntimeErrorLabel)))
+      .append(BL(Label(printFunctionLabel)))
+      .append(MOV(R0, ImmOperand(-1)))
+      .append(BL(Label("exit")))
   }
 }

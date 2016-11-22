@@ -78,7 +78,7 @@ case class MULS(Rd: Register, Rn: Register, Rm: Register) extends Instruction
 // MLA{<cond>}{S} Rd, Rm, Rs,Rn ; consider multiply long, too
 
 // Single register data transfer <LDR|STR>{<cond>}{<size>} Rd, <address>
-case class LDR(Rd: Register, address: Address) extends Instruction // Rd=<address>
+case class LDR(Rd: Register, address: Address, condition: Condition = ALWAYS()) extends Instruction // Rd=<address>
 case class STR(Rd: Register, address: Address) extends Instruction // <address>=Rd
 case class STRB(Rt: Register, address: Address) extends Instruction
 
