@@ -16,22 +16,22 @@ package object TransStatements {
         => transDeclareStatement(vartype, variable, value, symbolTable, registers)
 
       case AssignStatement(lhs: AssignTarget, rhs: AssignValue)
-        => transAssignStatement(lhs, rhs, registers)
+        => transAssignStatement(lhs, rhs, symbolTable, registers)
 
       case ExitStatement(exitCode: Expression)
-        => transExitStatement(exitCode, registers)
+        => transExitStatement(exitCode, symbolTable, registers)
 
       case ReturnStatement(returnValue: Expression)
-        => transReturnStatement(returnValue, registers)
+        => transReturnStatement(returnValue, symbolTable, registers)
 
       case SkipStatement()
         => transSkipStatement();
 
       case PrintStatement(expression)
-        => transExpression(expression, registers) :+ BL(Label("p_print_string"))
+        => transExpression(expression, symbolTable,  registers) :+ BL(Label("p_print_string"))
 
       case PrintLnStatement(expression)
-        => transExpression(expression, registers) :+ BL(Label("p_print_ln"))
+        => transExpression(expression, symbolTable, registers) :+ BL(Label("p_print_ln"))
 
       case ConditionalStatement(expression, trueStatements, falseStatements, symbolTable)
         => transConditionalStatement(expression, trueStatements, falseStatements, symbolTable, registers)
@@ -48,12 +48,12 @@ package object TransStatements {
     Seq()
   }
 
-  def transArrayLiteral(literal: ArrayLiteral, registers: Seq[Register]): Seq[Instruction] = {
+  def transArrayLiteral(literal: ArrayLiteral, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     var offset = 4
     var instructions: Seq[Instruction] = Seq()
 
     for (elem <- literal.elements) {
-      instructions ++= transExpression(elem, registers.tail) :+ STR(registers(1), RegisterAddress(registers.head, offset))
+      instructions ++= transExpression(elem, symbolTable, registers.tail) :+ STR(registers(1), RegisterAddress(registers.head, offset))
       offset += literal.vartype.elemtype.size
     }
 
@@ -76,14 +76,14 @@ package object TransStatements {
           LDR(registers.head, RegisterAddress(SP, reference.offset)),
           STR(R4, RegisterAddress(SP, variableRef.offset))
         )
-      case default => transDeclareStatementWithLiteralRhs(vartype, variableRef, assignValue, registers)
+      case default => transDeclareStatementWithLiteralRhs(vartype, variableRef, assignValue, symbolTable, registers)
     }
   }
 
-  private def transDeclareStatementWithLiteralRhs(vartype: Type, variableRef: VariableReference, assignValue: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
+  private def transDeclareStatementWithLiteralRhs(vartype: Type, variableRef: VariableReference, assignValue: AssignValue, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     val instructions = vartype match {
-      case Integer => transAssignRhs(assignValue, registers) ++ Seq(STR(registers.head, RegisterAddress(SP, variableRef.offset)))
-      case Boolean | Character => transAssignRhs(assignValue, registers) ++ Seq(STRB(registers.head, RegisterAddress(SP, variableRef.offset)))
+      case Integer => transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STR(registers.head, RegisterAddress(SP, variableRef.offset)))
+      case Boolean | Character => transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STRB(registers.head, RegisterAddress(SP, variableRef.offset)))
       case ArrayType(elemsType) => assignValue match {
         case literal @ ArrayLiteral(elements) => {
           val arraySize = 4 + elements.size * elemsType.size
@@ -93,7 +93,7 @@ package object TransStatements {
             MOV(registers.head, R0),
             LDR(registers(1), Const(elements.size)),
             STR(registers(1), RegisterAddress(registers.head, 0))
-          ) ++ transArrayLiteral(literal, registers) :+ STR(registers.head, RegisterAddress(SP, 0))
+          ) ++ transArrayLiteral(literal, symbolTable, registers) :+ STR(registers.head, RegisterAddress(SP, 0))
         }
         case default => println("not impelemented"); Seq()
       }
@@ -103,13 +103,13 @@ package object TransStatements {
             LDR(R0, Const(firstType.size + secondType.size)),      //Load the size of the pair (always 8) in R0
             BL(Label("malloc")),
             MOV(registers.head, R0)
-          ) ++ transExpression(firstExp, registers.tail) ++
+          ) ++ transExpression(firstExp, symbolTable, registers.tail) ++
             Seq (
               LDR(R0, Const(firstType.size)),
               BL(Label("malloc")),
               STR(registers(1), RegisterAddress(R0, 0)),  //Store the value for the first element in its memory
               STR(R0, RegisterAddress(registers(0), 0)) //Put address of first element in memory of pair
-            ) ++ transExpression(secondExp, registers.tail) ++
+            ) ++ transExpression(secondExp, symbolTable, registers.tail) ++
               Seq(
                 LDR(R0, Const(secondType.size)),
                 BL(Label("malloc")),
@@ -127,21 +127,21 @@ package object TransStatements {
     instructions
   }
 
-  def transAssignStatement(lhs: AssignTarget, rhs: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
-    val instruction = transAssignRhs(rhs, registers)
+  def transAssignStatement(lhs: AssignTarget, rhs: AssignValue, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
+    val instruction = transAssignRhs(rhs, symbolTable, registers)
 
     println("assign " + rhs + " to " + lhs)
     instruction
   }
 
-  def transExitStatement(exitCode: Expression, registers: Seq[Register]): Seq[Instruction] = {
-    val instruction = transExpression(exitCode, registers)
+  def transExitStatement(exitCode: Expression, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
+    val instruction = transExpression(exitCode, symbolTable, registers)
 
     instruction ++ Seq(MOV(R0, registers.head), BL(Label("exit")))
   }
 
-  def transReturnStatement(returnValue: Expression, registers: Seq[Register]): Seq[Instruction] = {
-    val instruction = transExpression(returnValue, registers)
+  def transReturnStatement(returnValue: Expression, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
+    val instruction = transExpression(returnValue, symbolTable, registers)
 
     instruction ++ Seq(MOV(R0, registers.head))
   }
@@ -154,12 +154,12 @@ package object TransStatements {
     val L0 = Label()
     val L1 = Label()
 
-    transExpression(expression, registers) ++
-      Seq(CMP(registers.head, ImmOperand(0)), B(L0, EQ())) ++
-      transStatementSequence(falseStatements, symbolTable, registers) ++
-      Seq(B(L1), DefineLabel(L0)) ++
-      transStatementSequence(trueStatements, symbolTable, registers) ++
-      Seq(DefineLabel(L1))
+    transExpression(expression, symbolTable, registers) ++
+    Seq(CMP(registers.head, ImmOperand(0)), B(L0, EQ())) ++
+    transStatementSequence(falseStatements, symbolTable, registers) ++
+    Seq(B(L1), DefineLabel(L0)) ++
+    transStatementSequence(trueStatements, symbolTable, registers) ++
+    Seq(DefineLabel(L1))
   }
 
   def transLoopStatement(condition: Expression,
@@ -172,7 +172,7 @@ package object TransStatements {
     Seq(B(L0), DefineLabel(L1), SUB(SP, SP, ImmOperand(symbolTable.sizeInBytes))) ++
     transStatementSequence(stmts, symbolTable, registers) ++
     Seq(ADD(SP, SP, ImmOperand(symbolTable.sizeInBytes)), DefineLabel(L0)) ++
-    transExpression(condition, registers) ++
+    transExpression(condition, symbolTable, registers) ++
     Seq(CMP(registers.head, ImmOperand(1)), B(L1, EQ()))
   }
 
