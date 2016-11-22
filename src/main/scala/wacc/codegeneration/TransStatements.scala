@@ -171,16 +171,13 @@ package object TransStatements {
   }
 
   def transScopeStatement(seq: Seq[Statement], symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
-    val instructions
-    = for {
-      stmt <- seq
-    } yield transStatement(stmt, registers)
-    val stackBytes = VarLog.byteCount() // have way of creating new varlog like new symbol table
+    // Make sure the same registers are available after each statement is translated!
+    val instructions = seq.map(transStatement(_, registers))
 
     new CodeSegment()
-      .append(SUB(SP, SP, ImmOperand(stackBytes)))
+      .append(SUB(SP, SP, ImmOperand(symbolTable.sizeInBytes)))
       .extend(instructions.flatten)
-      .append(ADD(SP, SP, ImmOperand(stackBytes))).instructions
+      .append(ADD(SP, SP, ImmOperand(symbolTable.sizeInBytes))).instructions
   }
 
   def transReadStatement(read: ReadStatement, registers: Seq[Register]): CodeSegment = {

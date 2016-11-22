@@ -76,6 +76,8 @@ case class SymbolTable(parent: Option[SymbolTable]) {
     map.clear()
     currentOffset = 0
   }
+
+  def sizeInBytes = currentOffset
 }
 
 object SymbolTable {
