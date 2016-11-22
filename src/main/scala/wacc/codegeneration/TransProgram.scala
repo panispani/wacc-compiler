@@ -8,7 +8,7 @@ import wacc.codegeneration._
 package object TransProgram {
   def transProgram(program: Program): CodeSegment = {
     val functionInstructions = program.functions map (s => transFunction (s, Registers.expressionRegs))
-    val mainInstructions     = program.statements map (s => transStatement (s, Registers.expressionRegs))
+    val mainInstructions     = program.main.statements map (s => transStatement (s, Registers.expressionRegs))
     val stackBytes = VarLog.byteCount()
 
     new CodeSegment()

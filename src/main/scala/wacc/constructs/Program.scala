@@ -1,3 +1,3 @@
 package wacc.constructs
 
-case class Program(functions: Seq[Function], statements: Seq[Statement])
+case class Program(functions: Seq[Function], main: ScopeStatement)
