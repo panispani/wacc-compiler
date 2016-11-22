@@ -49,6 +49,8 @@ package object TransExpressions {
 
   private def transExpressionAcc(expr: Expression, reg1: Register, regs: Seq[Register]): Seq[Instruction] = {
     val reg2 = getAnotherRegister(reg1)
-    transExpressionReg(expr, reg1, reg2, regs)
+    Seq(PUSH(Seq(reg2))) ++
+    transExpressionReg(expr, reg1, reg2, regs) ++
+    Seq(POP(Seq(reg2)))
   }
 }
