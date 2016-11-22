@@ -35,17 +35,14 @@ class DeclareStatementTest extends VisitorTest {
   }
 
   "Integer declaration " should " be built correctly " in {
-    val input = "begin int x = 1 end"
-    val program = TestUtilities.buildProgram(input)
-    val statements = Seq(
-      DeclareStatement(
-        Integer,
-        VariableReference("x", Integer, 0),
-        IntegerLiteral(1)
-      )
-    )
+    val parser = TestUtilities.setupParser("int x = 1")
+    val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
-    program.right.value should be (Program(Seq(), statements))
+    program.right.value should be (DeclareStatement(
+      Integer,
+      VariableReference("x", Integer, 0),
+      IntegerLiteral(1)
+    ))
   }
 
   "Pair declaration " should " be built correctly " in {

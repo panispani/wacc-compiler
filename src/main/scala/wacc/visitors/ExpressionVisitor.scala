@@ -10,12 +10,29 @@ import scala.util.Either
 
 object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Expression]] {
 
-  override def visitVariableReference(ctx: VariableReferenceContext): Either[CompilationError, VariableReference] = {
+  /**
+    * An expression variable reference needs to be looked up during code generation
+    * because the offset cannot be computed on the fly during parsing. Consider the case:
+    *
+    * begin
+    *   int x = 1 ;
+    *   begin
+    *     print x;
+    *     int y = 1
+    *   end
+    * end
+    *
+    * We would move the stack pointer on entry in the child scope but "print x" would have an offset of 0
+    * while it should be 4. See the implementation of SymbolTable.lookupDeep. An additional lookupDeep during
+    * code generation would recompute the offset taking into account the correct size of the child scope.
+    * */
+  override def visitVariableReference(ctx: VariableReferenceContext)
+  : Either[CompilationError, VariableReferenceExpression] = {
     val identifier = ctx.IDENT()
 
     SymbolTable().lookupDeep(identifier.getText) match {
-      case Some(variable @ VariableReference(x, t, offset)) =>
-        Right(variable)
+      case Some(variable @ VariableReference(name, vartype, _)) =>
+        Right(VariableReferenceExpression(name, vartype))
       case Some(FunctionReference(f, _, _)) =>
         Left(SemanticError("Expected identifier to be a variable, got function instead", identifier.getSymbol))
       case Some(_: Typed) =>
@@ -96,12 +113,15 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
     val identifier = ctx.variableReference().getText
 
     SymbolTable().lookupDeep(identifier) match {
-      case Some(reference @ VariableReference(x, ArrayType(elemtype), offset)) => for {
+      case Some(VariableReference(x, ArrayType(elemtype), offset)) => for {
         indexes <- sequenceOrLast(ctx.expression().toList map (e => e.accept(ExpressionVisitor))).right
-      } yield ArrayElement(reference, indexes, elemtype)
-      case Some(reference @ VariableReference(x, String, offset)) => for {
+      } yield ArrayElement(identifier, indexes, elemtype)
+
+      // Special case for string indexing
+      case Some(VariableReference(x, String, offset)) => for {
         indexes <- sequenceOrLast(ctx.expression().toList map (e => e.accept(ExpressionVisitor))).right
-      } yield ArrayElement(reference, indexes, Character)
+      } yield ArrayElement(identifier, indexes, Character)
+
       case None    => Left(SemanticError("Variable not declared", ctx.start))
       case default => Left(SemanticError("Identifier is not an array reference", ctx.start))
     }

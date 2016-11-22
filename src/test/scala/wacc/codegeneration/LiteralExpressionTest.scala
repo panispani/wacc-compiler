@@ -6,7 +6,7 @@ import wacc.constructs.IntegerLiteral
 /**
   * Created by tt1215 on 18/11/16.
   */
-class LiteralExpressionTest extends FlatSpec with Matchers {
+class LiteralExpressionTest extends CodeGenTest {
 
   "The value of an expression" should "be in the first available register" in {
     val availableRegisters = Seq(R4, R5, R6)

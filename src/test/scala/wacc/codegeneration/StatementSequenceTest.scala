@@ -7,7 +7,7 @@ import wacc.TransProgram._
 /**
   * Created by panayiotis on 18/11/16.
   */
-class StatementSequenceTest extends  CodeGenTest {
+class StatementSequenceTest extends CodeGenTest {
 
   "Translating a sequence of statements" should "be possible" in {
     val parser = TestUtilities.setupParser("begin exit 10; exit 6 end")
