@@ -156,12 +156,12 @@ package object TransStatements {
     val L1 = Label()
 
 
-    //stack allocation is not done TODO
+    //stack allocation is not done TODO- experimental
     transExpression(expression, symbolTable, registers) ++
       Seq(CMP(registers.head, ImmOperand(0)), B(L0, EQ)) ++
-      transStatementSequence(falseStatements, symbolTable, registers) ++
+      transScopeStatement(falseStatements, symbolTable, registers) ++
       Seq(B(L1), DefineLabel(L0)) ++
-      transStatementSequence(trueStatements, symbolTable, registers) ++
+      transScopeStatement(trueStatements, symbolTable, registers) ++
       Seq(DefineLabel(L1))
   }
 
