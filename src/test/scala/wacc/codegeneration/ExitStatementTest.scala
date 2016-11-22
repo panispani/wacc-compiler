@@ -1,6 +1,7 @@
 package wacc.codegeneration
 
 import wacc.TransStatements._
+import wacc.arm.{BL, Label, MOV}
 import wacc.visitors.StatementVisitor
 import wacc.{SymbolTable, TestUtilities}
 

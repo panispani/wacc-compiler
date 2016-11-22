@@ -1,6 +1,6 @@
 package wacc.util
 
-import wacc.constructs.{SemanticError, Type}
+import wacc.constructs.Type
 
 object SemanticErrors {
 

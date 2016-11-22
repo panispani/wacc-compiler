@@ -2,8 +2,8 @@ package wacc
 
 import antlr.{WACCLexer, WACCParser}
 import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream}
-import wacc.visitors.ProgramVisitor
 import wacc.TransProgram._
+import wacc.visitors.ProgramVisitor
 
 object Compiler extends App {
   val input = new ANTLRInputStream(System.in)

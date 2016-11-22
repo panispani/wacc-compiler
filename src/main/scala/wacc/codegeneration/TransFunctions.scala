@@ -1,8 +1,9 @@
 package wacc
 
-import wacc.codegeneration._
-import wacc.constructs._
 import wacc.TransStatements._
+import wacc.codegeneration._
+import wacc.arm._
+import wacc.constructs._
 
 /**
   * Created by panayiotis on 16/11/16.

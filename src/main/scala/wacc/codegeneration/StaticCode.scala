@@ -1,11 +1,14 @@
 package wacc
 
+import wacc.arm._
 import wacc.codegeneration._
 
 package object StaticCode {
   def readFormat: AsciiData     = AsciiData(LabelAddress("_read_format"), "%d")
   def printFormat: AsciiData    = AsciiData(LabelAddress("_print_format"), "%%.*s")
-  def staticData: CodeSegment   = new CodeSegment().append(readFormat)
+  def staticData: CodeSegment   = new CodeSegment()
+                                     .append(readFormat)
+
 
   //TODO: Perhaps these need to be generated with the LabelCreator to avoid clashes
   def readFunctionLabel: String = "read_4_bytes"

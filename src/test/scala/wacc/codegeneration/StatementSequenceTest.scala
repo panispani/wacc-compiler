@@ -3,6 +3,7 @@ package wacc.codegeneration
 import wacc.TestUtilities
 import wacc.visitors.ProgramVisitor
 import wacc.TransProgram._
+import wacc.arm.{BL, Label, MOV, SUB}
 
 /**
   * Created by panayiotis on 18/11/16.

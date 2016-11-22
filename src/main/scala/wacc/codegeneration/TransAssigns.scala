@@ -2,6 +2,7 @@ package wacc
 
 import wacc.TransExpressions._
 import wacc.codegeneration._
+import wacc.arm.{ConditionalInstruction, Instruction}
 import wacc.constructs._
 
 /**

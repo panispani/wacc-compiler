@@ -2,6 +2,7 @@ package wacc.codegeneration
 
 import wacc.{SymbolTable, TestUtilities}
 import wacc.TransStatements._
+import wacc.arm._
 import wacc.visitors.StatementVisitor
 
 /**
@@ -16,14 +17,14 @@ class ConditionalStatementTest extends CodeGenTest {
 
     val instructions = transStatement(program.right.get, SymbolTable.globalTable, availableRegisters)
     println(instructions)
-    instructions.head shouldBe MOV(R1,ImmOperand(1),ALWAYS())
-    instructions(1) shouldBe MOV(R0,ImmOperand(1),ALWAYS())
+    instructions.head shouldBe MOV(R1,ImmOperand(1),ALWAYS)
+    instructions(1) shouldBe MOV(R0,ImmOperand(1),ALWAYS)
     instructions(2) shouldBe CMP(R0,R1)
-    instructions(3) shouldBe MOV(R0,ImmOperand(1),EQ())
-    instructions(4) shouldBe MOV(R0,ImmOperand(0),NE())
+    instructions(3) shouldBe MOV(R0,ImmOperand(1),EQ)
+    instructions(4) shouldBe MOV(R0,ImmOperand(0),NE)
     instructions(5) shouldBe CMP(R0,ImmOperand(0))
-    instructions(6) shouldBe B(Label("L0"),EQ())
-    instructions(7) shouldBe B(Label("L1"),ALWAYS())
+    instructions(6) shouldBe B(Label("L0"),EQ)
+    instructions(7) shouldBe B(Label("L1"),ALWAYS)
     instructions(8) shouldBe DefineLabel(Label("L0"))
     // dont care about branch instructions since they are up to transStatement
     instructions.last shouldBe DefineLabel(Label("L1"))

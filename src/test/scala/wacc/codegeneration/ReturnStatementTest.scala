@@ -2,6 +2,7 @@ package wacc.codegeneration
 
 import wacc.{SymbolTable, TestUtilities}
 import wacc.TransStatements._
+import wacc.arm.MOV
 import wacc.visitors.StatementVisitor
 
 class ReturnStatementTest extends  CodeGenTest {
