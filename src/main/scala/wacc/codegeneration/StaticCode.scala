@@ -7,7 +7,7 @@ package object StaticCode {
   def readFormat: AsciiData        = AsciiData("%d")
   def printFormat: AsciiData       = AsciiData("%%.*s")
   def emptyString: AsciiData       = AsciiData("")
-  def divideOrModuleByZeroString: AsciiData = AsciiData("DivideByZeroError: divide or modulo by zero\n")
+  def divideOrModuleByZeroString: AsciiData = AsciiData("DivideByZeroError: divide or modulo by zero")
   def staticFunctions: CodeSegment =
     readFunction
     .extend(printFunction)
