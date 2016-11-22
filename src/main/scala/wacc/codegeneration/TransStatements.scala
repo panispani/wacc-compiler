@@ -28,11 +28,11 @@ package object TransStatements {
       case SkipStatement()
         => transSkipStatement();
 
-      case PrintStatement(expression)
-        => transExpression(expression, symbolTable,  registers) :+ BL(Label("p_print_string"))
+      case stat @ PrintStatement(expression)
+        => transPrintStatement(stat, registers);
 
-      case PrintLnStatement(expression)
-        => transExpression(expression, symbolTable, registers) :+ BL(Label("p_print_ln"))
+      case stat @ PrintLnStatement(expression)
+        => transPrintLnStatement(stat, registers);
 
       case ConditionalStatement(expression, trueStatements, falseStatements, symbolTable)
         => transConditionalStatement(expression, trueStatements, falseStatements, symbolTable, registers)
@@ -42,6 +42,8 @@ package object TransStatements {
 
       case ScopeStatement(sequence, symbolTable)
         => transScopeStatement(sequence, symbolTable, registers)
+
+      case stat @ ReadStatement(_) => transReadStatement(stat, registers)
     }
   }
 
@@ -198,13 +200,22 @@ package object TransStatements {
       .append(ADD(SP, SP, ImmOperand(symbolTable.sizeInBytes))).instructions
   }
 
-  def transReadStatement(read: ReadStatement, registers: Seq[Register]): CodeSegment = {
+  def transReadStatement(read: ReadStatement, registers: Seq[Register]): Seq[Instruction] = {
     val target: Integer = read.target match {
       case vr: VariableReference => vr.offset
     }
 
     new CodeSegment()
-      .append(ADD(R0, SP, ImmOperand(target)))         // r0 = address of target
-      .append(BL(Label(StaticCode.readFunctionLabel))) // reads input into desired variable
+      .append(ADD(R0, SP, ImmOperand(target)))  // r0 = address of target
+      .append(BL(StaticCode.readFunctionLabel)) // reads input into desired variable
+      .instructions
+  }
+
+  def transPrintStatement(read: PrintStatement, registers: Seq[Register]): Seq[Instruction] = {
+    new CodeSegment().append(BL(StaticCode.printFunctionLabel)).instructions
+  }
+
+  def transPrintLnStatement(read: PrintLnStatement, registers: Seq[Register]): Seq[Instruction] = {
+    new CodeSegment().append(BL(StaticCode.printLnFunctionLabel)).instructions
   }
 }
