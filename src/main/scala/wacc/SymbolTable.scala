@@ -17,18 +17,17 @@ case class FunctionReference(name: String, returnType: Type, arguments : Seq[Var
 case class SymbolTable(parent: Option[SymbolTable]) {
 
   private var currentOffset: Int = 0
+  private var argOffset: Int = 4 // PC is at 0
   private var map: mutable.Map[String, Reference] = mutable.Map()
 
-  def addFunctionArgument(ident: String, variable: VariableReference, reference: FunctionReference): Unit = {
-    // should have negative offsets, lookup funciton symbol table
-  }
-
-  def addFunction(identifier: String, function: FunctionReference): Unit = {
-    map += identifier -> function
+  def addFunctionArgument(arg: VariableReference): Unit = {
+    map += arg.name -> VariableReference(arg.name, arg.vartype, argOffset)
+    argOffset += arg.vartype.size
   }
 
   def addLocalVariable(identifier: String, vartype: Type): VariableReference = {
     val variableReference = VariableReference(identifier, vartype, currentOffset)
+    println(identifier)
     map += identifier -> variableReference
     currentOffset += vartype.size
     variableReference
@@ -81,6 +80,11 @@ case class SymbolTable(parent: Option[SymbolTable]) {
 }
 
 object SymbolTable {
+
+  val globalTable: SymbolTable = SymbolTable(None)
+  var functionTable: Map[String, SymbolTable] = Map()
+  private var currentTable: SymbolTable = globalTable
+
   def clearAll() = {
     globalTable.clear()
     currentTable = globalTable
@@ -94,8 +98,14 @@ object SymbolTable {
     currentTable = currentTable.parent.get
   }
 
-  val globalTable: SymbolTable = SymbolTable(None)
-  private var currentTable: SymbolTable = globalTable
+  /**
+    * Adds the name to the global table and creates an entry in the function table
+    * associated to this name.
+    * */
+  def addFunction(identifier: String, function: FunctionReference): Unit = {
+    globalTable.map += identifier -> function
+    functionTable += identifier -> SymbolTable()
+  }
 
   def apply(): SymbolTable = currentTable
 }

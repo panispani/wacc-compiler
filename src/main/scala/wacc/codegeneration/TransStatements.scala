@@ -156,7 +156,7 @@ package object TransStatements {
     val L1 = Label()
 
 
-    transExpression(expression, symbolTable, registers) ++
+    transExpression(expression, symbolTableregisters) ++
       Seq(CMP(registers.head, ImmOperand(0)), B(L0, EQ)) ++
       transStatementSequence(falseStatements, symbolTable, registers) ++
       Seq(B(L1), DefineLabel(L0)) ++
@@ -174,7 +174,7 @@ package object TransStatements {
     Seq(B(L0), DefineLabel(L1), SUB(SP, SP, ImmOperand(symbolTable.sizeInBytes))) ++
     transStatementSequence(stmts, symbolTable, registers) ++
     Seq(ADD(SP, SP, ImmOperand(symbolTable.sizeInBytes)), DefineLabel(L0)) ++
-    transExpression(condition, symbolTable, registers) ++
+    transExpression(condition, registers) ++
     Seq(CMP(registers.head, ImmOperand(1)), B(L1, EQ))
   }
 

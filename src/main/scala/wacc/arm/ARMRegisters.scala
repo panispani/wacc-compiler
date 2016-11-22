@@ -24,5 +24,5 @@ object LR extends Register("LR")
 object PC extends Register("PC")
 
 package object Registers {
-  val expressionRegs: Seq[Register] = Seq(R4, R5, R6, R7, R8, R9, R10, R11, R12)
+  val expressionRegs: Seq[Register] = Seq(R4, R5, R6, R7, R8, R9, R10, R12) // R11 acts as frame pointer
 }
