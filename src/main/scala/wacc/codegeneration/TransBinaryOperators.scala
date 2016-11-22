@@ -12,15 +12,15 @@ package object TransBinaryOperators {
       case BinaryOperator("/")  => Seq(
         MOV(R0, r1),
         MOV(R1, r2),
-        BL(Label(StaticCode.checkDivideByZeroLabel)),
-        BL(Label(StaticCode.divisionLabel))
+        BL(StaticCode.checkDivideByZeroLabel),
+        BL(StaticCode.divisionLabel)
       )
 
       case BinaryOperator("%")  => Seq(
         MOV(R0, r1),
         MOV(R1, r2),
-        BL(Label(StaticCode.checkDivideByZeroLabel)),
-        BL(Label(StaticCode.moduleLabel))
+        BL(StaticCode.checkDivideByZeroLabel),
+        BL(StaticCode.moduleLabel)
       )
 
       case BinaryOperator("+")  => Seq(ADD(r1, r1, r2))

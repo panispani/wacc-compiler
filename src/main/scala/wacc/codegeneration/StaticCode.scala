@@ -4,29 +4,23 @@ import wacc.arm._
 import wacc.codegeneration._
 
 package object StaticCode {
-  def readFormat: AsciiData     = AsciiData(LabelAddress(Label()), "%d")
-  def printFormat: AsciiData    = AsciiData(LabelAddress(Label()), "%%.*s")
-  def staticData: CodeSegment   = new CodeSegment()
-                                     .append(readFormat)
+  def readFormat: AsciiData        = AsciiData(LabelAddress(Label()), "%d")
+  def printFormat: AsciiData       = AsciiData(LabelAddress(Label()), "%%.*s")
+  def emptyString: AsciiData       = AsciiData(LabelAddress(Label()), "")
+  def staticData: CodeSegment      = new CodeSegment().extend(Seq(readFormat, printFormat, emptyString))
+  def staticFunctions: CodeSegment = readFunction.extend(printFunction).extend(printLnFunction)
 
+  def readFunctionLabel: Label = Label("read")
+  def printFunctionLabel: Label = Label("print")
+  def printLnFunctionLabel: Label = Label("print_ln")
+  def throwRuntimeErrorLabel: Label = Label("throw_runtime_error")
+  def checkDivideByZeroLabel: Label = Label("check_divide_by_zero")
+  def divisionLabel: Label = Label("__aeabi_idiv")
+  def moduleLabel: Label = Label("__aeabi_idivmod")
 
-  //TODO: Perhaps these need to be generated with the LabelCreator to avoid clashes
-  def readFunctionLabel: String = "read_4_bytes"
-  def printFunctionLabel: String = "print_string"
-  def throwRuntimeErrorLabel: String = "throw_runtime_error"
-  def checkDivideByZeroLabel: String = "check_divide_by_zero"
-  def divisionLabel: String = "__aeabi_idiv"
-  def moduleLabel: String = "__aeabi_idivmod"
-
-  /* TODO: This will be called and embedded in every program we compile, or we do something smarter and only output
-     the functions which actually get called at least once */
-  def outputStaticFunctions: CodeSegment = {
-    outputReadFunction
-  }
-
-  def outputReadFunction: CodeSegment = {
+  def readFunction: CodeSegment = {
     new CodeSegment()
-      .append(DefineLabel(Label(readFunctionLabel)))
+      .append(DefineLabel(readFunctionLabel))
       .append(NEW_STACK_FRAME)
       .append(MOV(R1, R0))                      // Move address of variable into r1 as expected by scanf
       .append(LDR(R0, readFormat.labelAddress)) // Load the constant address of the format string into r1
@@ -34,9 +28,9 @@ package object StaticCode {
       .append(RETURN)
   }
 
-  def outputPrintFunction: CodeSegment = {
+  def printFunction: CodeSegment = {
     new CodeSegment()
-      .append(DefineLabel(Label(printFunctionLabel)))
+      .append(DefineLabel(printFunctionLabel))
       .append(NEW_STACK_FRAME)
       .append(MOV(R1, R0))                        // Move the address of the string to print into r1 as expected by printf
       .append(LDR(R0, printFormat.labelAddress))  // Load the constant address of the format string into r0
@@ -48,19 +42,29 @@ package object StaticCode {
 
   def outputCheckDivideByZero: CodeSegment = {
     new CodeSegment()
-      .append(DefineLabel(Label(checkDivideByZeroLabel)))
+      .append(DefineLabel(checkDivideByZeroLabel))
       .append(NEW_STACK_FRAME)
       .append(CMP(R1, ImmOperand(0))) // Check if the dividend is 0
       .append(LDR(R0, LabelAddress(Label("msg_0")), EQ)) //Todo: Label Address needs to be dynamic //If it is 0, load in R0 the error string
-      .append(BL(Label(throwRuntimeErrorLabel), EQ)) //Branch to the function to throw a runtime error
+      .append(BL(throwRuntimeErrorLabel, EQ)) //Branch to the function to throw a runtime error
       .append(RETURN)
   }
 
   def outputThrowRuntimeError: CodeSegment = {
     new CodeSegment()
-      .append(DefineLabel(Label(throwRuntimeErrorLabel)))
-      .append(BL(Label(printFunctionLabel)))
+      .append(DefineLabel(throwRuntimeErrorLabel))
+      .append(BL(printFunctionLabel))
       .append(MOV(R0, ImmOperand(-1)))
       .append(BL(Label("exit")))
+  }
+  def printLnFunction: CodeSegment = {
+    new CodeSegment()
+      .append(DefineLabel(printLnFunctionLabel))
+      .append(NEW_STACK_FRAME)
+      .append(LDR(R0, emptyString.labelAddress))  // Load the constant address of the empty string into r0
+      .append(BL(Label("puts")))                  // Print empty string, appended with newline
+      .append(MOV(R0, ImmOperand(0)))             // TODO: No idea
+      .append(BL(Label("fflush")))                // TODO: Flush buffer?
+      .append(RETURN)
   }
 }

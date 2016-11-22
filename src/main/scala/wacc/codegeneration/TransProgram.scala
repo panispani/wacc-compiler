@@ -15,7 +15,7 @@ package object TransProgram {
     val data = LabelTable.outputLabels
     val text = new CodeSegment()
                    .append(COMMENT("Static code"))
-                   .extend(StaticCode.outputStaticFunctions)
+                   .extend(StaticCode.staticFunctions)
 
                    .append(COMMENT("Function definitions"))
                    .extend(functionInstructions.flatten)
