@@ -38,7 +38,7 @@ package object TransExpressions {
                                  Seq(MOV(reg1, ImmOperand(v)))
       case CharLiteral(value) => Seq(MOV(reg1, CharOperand(value)))
 
-      case VariableReferenceExpression(_, _) => println("Not implemented"); Seq()
+      case VariableReferenceExpression(_, _) => println("Not implemented"); Seq() //Todo: Implement (should VariableReferenceExpression contain VariableReference?)
     }
   }
 

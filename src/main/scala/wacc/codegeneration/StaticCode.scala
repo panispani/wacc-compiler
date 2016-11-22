@@ -16,6 +16,7 @@ package object StaticCode {
   def throwRuntimeErrorLabel: String = "throw_runtime_error"
   def checkDivideByZeroLabel: String = "check_divide_by_zero"
   def divisionLabel: String = "__aeabi_idiv"
+  def moduleLabel: String = "__aeabi_idivmod"
 
   /* TODO: This will be called and embedded in every program we compile, or we do something smarter and only output
      the functions which actually get called at least once */

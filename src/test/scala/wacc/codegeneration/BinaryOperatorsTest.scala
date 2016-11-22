@@ -5,7 +5,7 @@ import wacc.arm._
 import wacc.visitors.StatementVisitor
 import wacc.{StaticCode, SymbolTable, TestUtilities}
 
-class DivisionOperatorTest extends CodeGenTest {
+class BinaryOperatorsTest extends CodeGenTest {
 
   ignore should "produce the expected instructions" in {
     val parser = TestUtilities.setupParser("int x = 5")
@@ -65,5 +65,22 @@ class DivisionOperatorTest extends CodeGenTest {
     instructions(5) shouldBe BL(Label(StaticCode.divisionLabel))
     //instruction(6) is up to declaration
     //instruction(7) is up to declaration
+  }
+
+  "Module operator between two integers" should "produce the expected instructions" in {
+    val parser = TestUtilities.setupParser("int x = 5 % 2")
+    val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
+
+    val registers = Seq(R4, R5, R6)
+    val instructions = transStatement(program.right.get, SymbolTable.globalTable, registers)
+
+    //instruction(0) is not up to module
+    //instruction(1) is not up to module
+    instructions(2) shouldBe MOV(R0, registers.head)
+    instructions(3) shouldBe MOV(R1, registers(1))
+    instructions(4) shouldBe BL(Label(StaticCode.checkDivideByZeroLabel))
+    instructions(5) shouldBe BL(Label(StaticCode.moduleLabel))
+    //instruction(6) is up to module
+    //instruction(7) is up to module
   }
 }

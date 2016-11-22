@@ -10,12 +10,18 @@ package object TransBinaryOperators {
       case BinaryOperator("*")  => Seq(MUL(r1, r1, r2))
 
       case BinaryOperator("/")  => Seq(
-        MOV(R0, r1), MOV(R1, r2),
+        MOV(R0, r1),
+        MOV(R1, r2),
         BL(Label(StaticCode.checkDivideByZeroLabel)),
         BL(Label(StaticCode.divisionLabel))
       )
 
-      case BinaryOperator("%")  => Seq()   //Todo
+      case BinaryOperator("%")  => Seq(
+        MOV(R0, r1),
+        MOV(R1, r2),
+        BL(Label(StaticCode.checkDivideByZeroLabel)),
+        BL(Label(StaticCode.moduleLabel))
+      )
 
       case BinaryOperator("+")  => Seq(ADD(r1, r1, r2))
 
