@@ -5,7 +5,7 @@ import wacc.TransStatements._
 import wacc.constructs.{CompilationError, Statement}
 import wacc.visitors.StatementVisitor
 
-class ExitStatementTest extends  CodeGenTest {
+class ExitStatementTest extends CodeGenTest {
 
   "Exiting" should "produce the expected instructions" in {
     val parser = TestUtilities.setupParser("exit 7")

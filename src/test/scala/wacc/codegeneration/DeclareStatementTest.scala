@@ -4,7 +4,7 @@ import wacc.TestUtilities
 import wacc.TransStatements._
 import wacc.visitors.StatementVisitor
 
-class DeclareStatementTest extends  CodeGenTest {
+class DeclareStatementTest extends CodeGenTest {
 
   it should "produce the expected instructions" in {
     val parser = TestUtilities.setupParser("int x = 42")

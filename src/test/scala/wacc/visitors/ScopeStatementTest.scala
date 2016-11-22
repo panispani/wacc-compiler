@@ -13,8 +13,6 @@ class ScopeStatementTest extends VisitorTest {
       VariableReference("a", Integer, 0),
       IntegerLiteral(1)))
 
-
-
     result.right.value(1) should be (a[ScopeStatement])
     val scope = result.right.value(1).asInstanceOf[ScopeStatement]
 
