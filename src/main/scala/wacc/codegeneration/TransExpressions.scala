@@ -32,7 +32,7 @@ package object TransExpressions {
       case VariableReferenceExpression(name, _) => {
         // It is safe to .get the option (semantic check)
         val reference = symbolTable.lookupDeep(name).get
-        Seq(LDR(reg1, RegisterAddress(R11, reference.offset)))
+        Seq(LDR(reg1, RegisterAddress(BP, reference.offset)))
       }
       case IntegerLiteral(value) => Seq(MOV(reg1, ImmOperand(value)))
       case BoolLiteral(value)    => Seq(MOV(reg1, ImmOperand(if (value) 1 else 0)))

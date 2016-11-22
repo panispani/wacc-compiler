@@ -10,12 +10,12 @@ package object TransFunctions {
     new CodeSegment()
       .append(DefineLabel(Label(function.identifier)))
       .append(NEW_STACK_FRAME)
-      .append(PUSH(Seq(R11))) // R11 will act as the frame pointer
-      .append(MOV(R11, SP))
+      .append(PUSH(Seq(BP))) // R11 will act as the frame pointer
+      .append(MOV(BP, SP))
       .append(SUB(SP, SP, ImmOperand(function.symbolTable.sizeInBytes)))
       .extend(function.statements flatMap (s => transStatement (s, function.symbolTable, registers)))
       .append(ADD(SP, SP, ImmOperand(function.symbolTable.sizeInBytes)))
-      .append(POP(Seq(R11)))
+      .append(POP(Seq(BP)))
       .append(RETURN)
       .instructions
   }

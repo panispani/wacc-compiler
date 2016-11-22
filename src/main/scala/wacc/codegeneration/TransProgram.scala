@@ -19,7 +19,7 @@ package object TransProgram {
                    .append(NEWLINE)
 
                    .append(COMMENT("Stack setup"))
-                   .append(MOV(R11, SP))
+                   .append(MOV(BP, SP))
                    .append(SUB(SP, SP, ImmOperand(program.main.symbolTable.sizeInBytes)))
                    .append(NEWLINE)
 
