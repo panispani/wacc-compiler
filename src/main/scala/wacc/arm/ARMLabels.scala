@@ -36,7 +36,7 @@ case class DefineLabel(label: Label) extends Instruction {
 
 case class DefineStringLabel(string: String) extends Instruction {
   val label: Label = Label()
-  override val name: String = s"$label: " + AsciiData(LabelAddress(label), string)
+  override val name: String = s"$label: " + AsciiData(string)
 
   LabelTable.labels.append(this)
 }
