@@ -101,7 +101,7 @@ package object TransStatements {
       case PairType(firstType, secondType) => assignValue match {
         case PairConstructor(firstExp, secondExp) => {
           Seq(
-            LDR(R0, Const(firstType.size + secondType.size)),      //Load the size of the pair (always 8) in R0
+            LDR(R0, Const(firstType.size + secondType.size)),      //Load the size of the pair in R0
             BL(Label("malloc")),
             MOV(registers.head, R0)
           ) ++ transExpression(firstExp, registers.tail) ++
