@@ -169,9 +169,9 @@ package object TransStatements {
     val L0 = Label()
     val L1 = Label()
 
-    Seq(B(L0), DefineLabel(L1)) ++
+    Seq(B(L0), DefineLabel(L1), SUB(SP, SP, ImmOperand(symbolTable.sizeInBytes))) ++
     transStatementSequence(stmts, symbolTable, registers) ++
-    Seq(DefineLabel(L0)) ++
+    Seq(ADD(SP, SP, ImmOperand(symbolTable.sizeInBytes)), DefineLabel(L0)) ++
     transExpression(condition, registers) ++
     Seq(CMP(registers.head, ImmOperand(1)), B(L1, EQ()))
   }
@@ -187,7 +187,7 @@ package object TransStatements {
   }
 
   def transScopeStatement(seq: Seq[Statement], symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
-    // Make sure the same registers are available after each statement is translated!
+    // Make sure the same registers are available after each statement is translated! TODO
     val instructions = seq.map(transStatement(_, symbolTable, registers))
 
     new CodeSegment()
