@@ -35,7 +35,7 @@ run_wacc_files() {
             then
                 correct=$((correct+1))
             else
-                echo "error for "$f
+                echo "error for "$f" expected: "$expected" actual: "$actual
             fi
             total=$((total+1))
         fi
