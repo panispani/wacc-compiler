@@ -1,8 +1,6 @@
 package wacc.codegeneration
 
-import org.scalatest.{FlatSpec, Matchers}
-
-class CodeSegmentTest extends FlatSpec with Matchers {
+class CodeSegmentTest extends CodeGenTest {
 
   "A code segment" should "be initialised empty" in {
      new CodeSegment().instructions shouldBe empty
