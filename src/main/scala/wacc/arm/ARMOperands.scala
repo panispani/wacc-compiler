@@ -12,5 +12,7 @@ trait Address extends Operand
 case class IntAddress(address: Int) extends Address
 case class RegisterAddress(register: Register, offset: Int) extends Address
 case class Const(value: Int) extends Address
-case class LabelAddress(label: String) extends Address
+case class LabelAddress(label: Label) extends Address {
+  override def toString: String = s"=$label"
+}
 
