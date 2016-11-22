@@ -1,7 +1,5 @@
 package wacc.codegeneration
 
-import wacc.constructs.{ArrayType, PairType, PrimitiveType, Type}
-
 object VarLog {
   private var bytes: Integer = 0
   private var vars: Integer = 0

@@ -1,8 +1,9 @@
 package wacc
 
-import wacc.codegeneration._
-import wacc.constructs._
 import wacc.TransStatements._
+import wacc.codegeneration._
+import wacc.arm._
+import wacc.constructs._
 
 package object TransFunctions {
   def transFunction(function: Function, registers: Seq[Register]): Seq[Instruction] = {

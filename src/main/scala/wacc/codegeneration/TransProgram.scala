@@ -1,9 +1,10 @@
 package wacc
 
-import wacc.constructs.Program
 import wacc.TransFunctions._
 import wacc.TransStatements._
 import wacc.codegeneration._
+import wacc.arm._
+import wacc.constructs.Program
 
 package object TransProgram {
   def transProgram(program: Program): CodeSegment = {

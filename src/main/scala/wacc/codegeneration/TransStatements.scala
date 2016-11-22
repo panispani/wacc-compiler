@@ -3,6 +3,7 @@ package wacc
 import wacc.TransAssigns._
 import wacc.TransExpressions._
 import wacc.codegeneration._
+import wacc.arm._
 import wacc.constructs._
 
 /**
@@ -154,12 +155,13 @@ package object TransStatements {
     val L0 = Label()
     val L1 = Label()
 
+
     transExpression(expression, symbolTable, registers) ++
-    Seq(CMP(registers.head, ImmOperand(0)), B(L0, EQ())) ++
-    transStatementSequence(falseStatements, symbolTable, registers) ++
-    Seq(B(L1), DefineLabel(L0)) ++
-    transStatementSequence(trueStatements, symbolTable, registers) ++
-    Seq(DefineLabel(L1))
+      Seq(CMP(registers.head, ImmOperand(0)), B(L0, EQ)) ++
+      transStatementSequence(falseStatements, symbolTable, registers) ++
+      Seq(B(L1), DefineLabel(L0)) ++
+      transStatementSequence(trueStatements, symbolTable, registers) ++
+      Seq(DefineLabel(L1))
   }
 
   def transLoopStatement(condition: Expression,
@@ -173,7 +175,7 @@ package object TransStatements {
     transStatementSequence(stmts, symbolTable, registers) ++
     Seq(ADD(SP, SP, ImmOperand(symbolTable.sizeInBytes)), DefineLabel(L0)) ++
     transExpression(condition, symbolTable, registers) ++
-    Seq(CMP(registers.head, ImmOperand(1)), B(L1, EQ()))
+    Seq(CMP(registers.head, ImmOperand(1)), B(L1, EQ))
   }
 
   def transStatementSequence(seq: Seq[Statement],

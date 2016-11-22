@@ -1,5 +1,7 @@
 package wacc.codegeneration
 
+import wacc.arm._
+
 class CodeSegmentTest extends CodeGenTest {
 
   "A code segment" should "be initialised empty" in {

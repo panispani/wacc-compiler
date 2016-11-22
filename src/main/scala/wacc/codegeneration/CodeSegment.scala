@@ -1,5 +1,7 @@
 package wacc.codegeneration
 
+import wacc.arm.Instruction
+
 case class CodeSegment private(instructions: Seq[Instruction]) {
 
   def this() {

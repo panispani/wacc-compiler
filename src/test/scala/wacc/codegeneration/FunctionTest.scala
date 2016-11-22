@@ -2,6 +2,7 @@ package wacc.codegeneration
 
 import wacc.{SymbolTable, TestUtilities}
 import wacc.TransProgram._
+import wacc.arm._
 import wacc.visitors.{ProgramVisitor, StatementVisitor}
 
 class FunctionTest extends CodeGenTest {
@@ -17,12 +18,12 @@ class FunctionTest extends CodeGenTest {
     instructions(1) shouldBe PUSH(Seq(LR))
     // dont care about body instructions since they are up to transStatement
     instructions(2) shouldBe SUB(SP, SP, ImmOperand(8))
-    instructions(3) shouldBe MOV(R4,ImmOperand(1),ALWAYS())
+    instructions(3) shouldBe MOV(R4,ImmOperand(1),ALWAYS)
     instructions(4) shouldBe STR(R4, RegisterAddress(SP, 0))
-    instructions(5) shouldBe MOV(R4,ImmOperand(32),ALWAYS())
+    instructions(5) shouldBe MOV(R4,ImmOperand(32),ALWAYS)
     instructions(6) shouldBe STR(R4, RegisterAddress(SP, 4))
-    instructions(7) shouldBe MOV(R4,ImmOperand(1),ALWAYS())
-    instructions(8) shouldBe MOV(R0, R4, ALWAYS())
+    instructions(7) shouldBe MOV(R4,ImmOperand(1),ALWAYS)
+    instructions(8) shouldBe MOV(R0, R4, ALWAYS)
     instructions(9) shouldBe ADD(SP, SP, ImmOperand(8))
     instructions(10) shouldBe POP(Seq(PC))
   }
@@ -38,7 +39,7 @@ class FunctionTest extends CodeGenTest {
     instructions(1) shouldBe PUSH(Seq(LR))
     // dont care about body instructions since they are up to transStatement
     instructions(2) shouldBe SUB(SP, SP, ImmOperand(1))
-    instructions(3) shouldBe MOV(R4,ImmOperand(1),ALWAYS())
+    instructions(3) shouldBe MOV(R4,ImmOperand(1),ALWAYS)
     instructions(4) shouldBe STRB(R4, RegisterAddress(SP, 0))
     instructions(5) shouldBe LDR(R4, RegisterAddress(SP, 5))
     instructions(6) shouldBe MOV(R0, R4)
