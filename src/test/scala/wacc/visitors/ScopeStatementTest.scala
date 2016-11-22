@@ -32,7 +32,7 @@ class ScopeStatementTest extends VisitorTest {
     result.right.value.last should be (DeclareStatement(
           Integer,
           VariableReference("b", Integer, 4),
-          VariableReference("a", Integer, 0))
+          VariableReferenceExpression("a", Integer))
       )
   }
 
