@@ -22,7 +22,7 @@ package object StaticCode {
       .append(printFormat)
       .append(DefineLabel(emptyStringLabel))
       .append(emptyString)
-      .append(DefineLabel(checkDivideByZeroLabel))
+      .append(DefineLabel(DivideByZeroErrorLabel))
       .append(divideOrModuleByZeroString)
 
   def readFunctionLabel: Label = Label("read")
@@ -32,6 +32,7 @@ package object StaticCode {
   def printFormatLabel: Label = Label("print_format")
   def emptyStringLabel: Label = Label("empty_string")
   def throwRuntimeErrorLabel: Label = Label("throw_runtime_error")
+  def DivideByZeroErrorLabel: Label = Label("throw_runtime_error")
   def checkDivideByZeroLabel: Label = Label("check_divide_by_zero")
   def divisionLabel: Label = Label("__aeabi_idiv")
   def moduleLabel: Label = Label("__aeabi_idivmod")
