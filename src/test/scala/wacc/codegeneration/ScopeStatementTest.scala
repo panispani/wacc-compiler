@@ -15,18 +15,16 @@ class ScopeStatementTest extends CodeGenTest {
 
     val instructions = transStatement(program.right.get, SymbolTable.globalTable, availableRegisters)
 
-    println(instructions)
     instructions.head shouldBe SUB(SP, SP, ImmOperand(4))
     instructions(1) shouldBe MOV(R0, ImmOperand(1))
     // dont care about body instructions since they are up to transStatement
     instructions(2) shouldBe STR(R0, RegisterAddress(SP, 0))
     instructions(3) shouldBe SUB(SP, SP, ImmOperand(5))
     instructions(4) shouldBe MOV(R0, ImmOperand(1))
-    instructions(5) shouldBe STRB(R0, RegisterAddress(SP, 4))
+    instructions(5) shouldBe STRB(R0, RegisterAddress(SP, 0))
     instructions(6) shouldBe MOV(R0, ImmOperand(2))
-    instructions(7) shouldBe STR(R0, RegisterAddress(SP, 0))
+    instructions(7) shouldBe STR(R0, RegisterAddress(SP, 1))
     instructions(8) shouldBe ADD(SP, SP, ImmOperand(5))
     instructions(9) shouldBe ADD(SP, SP, ImmOperand(4))
   }
 }
-// scope, function, symbol table, program, toString
