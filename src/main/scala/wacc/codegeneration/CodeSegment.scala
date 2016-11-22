@@ -16,6 +16,10 @@ case class CodeSegment private(instructions: Seq[Instruction]) {
     CodeSegment(instructions ++ extension)
   }
 
+  def extend(extension: CodeSegment) = {
+    CodeSegment(instructions ++ extension.instructions)
+  }
+
   /**
     * The consumer will be a function composed of several stages
     * consumer = optimisation1 andThen ... andThen optimisationN andThen print

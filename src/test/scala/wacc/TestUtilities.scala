@@ -3,11 +3,24 @@ package wacc
 import antlr.{WACCLexer, WACCParser, WACCParserBaseVisitor}
 import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream, ParserRuleContext}
 import org.scalatest._
-import wacc.arm.Label
-import wacc.constructs.{Program, ScopeStatement, Statement}
+import wacc.arm.{Instruction, Label, Registers}
+import wacc.constructs.{CompilationError, Program, Function, ScopeStatement, Statement}
 import wacc.visitors.ProgramVisitor
+import wacc.TransFunctions._
+import wacc.TransStatements._
 
 object TestUtilities {
+  def translateWithoutSections(program: Program): Seq[Instruction] = {
+    translateWithoutSections(program.functions) ++ translateWithoutSections(program.main)
+  }
+
+  def translateWithoutSections(functions: Seq[Function]): Seq[Instruction] = {
+    functions flatMap (f => transFunction(f, Registers.expressionRegs))
+  }
+
+  def translateWithoutSections(statement: ScopeStatement): Seq[Instruction] = {
+    transStatement(statement, statement.symbolTable, Registers.expressionRegs)
+  }
 
   def buildProgram(inputString: String) = {
     val parser = setupParser(inputString)

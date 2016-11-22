@@ -10,9 +10,9 @@ import wacc.constructs._
   */
 package object TransAssigns {
 
-  def transAssignRhs(value: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
+  def transAssignRhs(value: AssignValue, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     value match {
-      case e: Expression => transExpression(e, registers)
+      case e: Expression => transExpression(e, symbolTable, registers)
       case default  => println("not implemented"); Seq()
     }
   }

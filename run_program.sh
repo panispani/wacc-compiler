@@ -1,0 +1,27 @@
+#!/bin/bash
+$(pwd)/compile $1>"file.s"
+arm-linux-gnueabi-gcc -o FILENAME1 -mcpu=arm1176jzf-s -mtune=arm1176jzf-s "file.s"
+actual=$(qemu-arm -L /usr/arm-linux-gnueabi/ FILENAME1)
+
+#find_output
+while read line; do
+  if [ "$line" == "# Output:" ]
+  then
+    read line
+    if [ "$line" == "# #empty#" ]
+    then
+      expected=""
+    else
+      prefix="# "
+      expected=${line#$prefix}
+    fi
+    break
+  fi
+done <$f
+
+if [ $actual == $expected ]
+then
+  echo "output correct for "$f" expected: "$expected" "
+else
+  echo "error for "$f" expected: "$expected" actual: "$actual
+fi

@@ -4,8 +4,8 @@ import wacc.arm._
 import wacc.codegeneration._
 
 package object StaticCode {
-  def readFormat: AsciiData     = AsciiData(LabelAddress("_read_format"), "%d")
-  def printFormat: AsciiData    = AsciiData(LabelAddress("_print_format"), "%%.*s")
+  def readFormat: AsciiData     = AsciiData(LabelAddress(Label()), "%d")
+  def printFormat: AsciiData    = AsciiData(LabelAddress(Label()), "%%.*s")
   def staticData: CodeSegment   = new CodeSegment()
                                      .append(readFormat)
 
@@ -51,7 +51,7 @@ package object StaticCode {
       .append(DefineLabel(Label(checkDivideByZeroLabel)))
       .append(NEW_STACK_FRAME)
       .append(CMP(R1, ImmOperand(0))) // Check if the dividend is 0
-      .append(LDR(R0, LabelAddress("msg_0"), EQ)) //Todo: Label Address needs to be dynamic //If it is 0, load in R0 the error string
+      .append(LDR(R0, LabelAddress(Label("msg_0")), EQ)) //Todo: Label Address needs to be dynamic //If it is 0, load in R0 the error string
       .append(BL(Label(throwRuntimeErrorLabel), EQ)) //Branch to the function to throw a runtime error
       .append(RETURN)
   }
