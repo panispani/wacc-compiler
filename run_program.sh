@@ -17,11 +17,12 @@ while read line; do
     fi
     break
   fi
-done <$f
+done <$1
 
 if [ $actual == $expected ]
 then
-  echo "output correct for "$f" expected: "$expected" "
+  echo "output correct for "$1"."
+  echo "expected: "$expected""
 else
-  echo "error for "$f" expected: "$expected" actual: "$actual
+  echo "error for "$1" expected: "$expected" actual: "$actual
 fi
