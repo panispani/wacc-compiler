@@ -1,6 +1,6 @@
 package wacc.codegeneration
 
-import wacc.arm.MOV
+import wacc.arm._
 
 class CodeSegmentTest extends CodeGenTest {
 

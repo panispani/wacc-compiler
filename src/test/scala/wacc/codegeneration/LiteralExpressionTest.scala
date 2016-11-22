@@ -2,7 +2,7 @@ package wacc.codegeneration
 
 import org.scalatest.{FlatSpec, Matchers}
 import wacc.TransExpressions._
-import wacc.arm.MOV
+import wacc.arm._
 import wacc.constructs.IntegerLiteral
 /**
   * Created by tt1215 on 18/11/16.

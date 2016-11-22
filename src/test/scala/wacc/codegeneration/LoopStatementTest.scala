@@ -19,13 +19,13 @@ class LoopStatementTest extends CodeGenTest {
     instructions(2) shouldBe SUB(SP, SP, ImmOperand(0))
     instructions(3) shouldBe ADD(SP, SP, ImmOperand(0))
     instructions(4) shouldBe DefineLabel(Label("L0"))
-    instructions(5) shouldBe MOV(R1,ImmOperand(1),ALWAYS))
-    instructions(6) shouldBe MOV(R0,ImmOperand(1),ALWAYS))
+    instructions(5) shouldBe MOV(R1,ImmOperand(1),ALWAYS)
+    instructions(6) shouldBe MOV(R0,ImmOperand(1),ALWAYS)
     instructions(7) shouldBe CMP(R0,R1)
-    instructions(8) shouldBe MOV(R0,ImmOperand(1),EQ))
-    instructions(9) shouldBe MOV(R0,ImmOperand(0),NE))
+    instructions(8) shouldBe MOV(R0,ImmOperand(1),EQ)
+    instructions(9) shouldBe MOV(R0,ImmOperand(0),NE)
     instructions(10) shouldBe CMP(R0,ImmOperand(1))
-    instructions.last shouldBe B(Label("L1"),EQ))
+    instructions.last shouldBe B(Label("L1"),EQ)
   }
 
 

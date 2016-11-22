@@ -1,12 +1,8 @@
 package wacc
 
 import wacc.arm._
-import wacc.codegeneration.{ImmOperand, Register}
 import wacc.constructs._
 
-/**
-  * Created by panayiotis on 17/11/16.
-  */
 package object TransBinaryOperators {
 
   def transBinaryOperator(r1: Register, binOp: BinaryOperator, r2: Register): Seq[Instruction] = {

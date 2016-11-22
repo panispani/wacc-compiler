@@ -1,7 +1,5 @@
 package wacc.arm
 
-import wacc.codegeneration.LabelAddress
-
 abstract class DataInstruction extends Instruction {
   val size: Int = 0
 }
