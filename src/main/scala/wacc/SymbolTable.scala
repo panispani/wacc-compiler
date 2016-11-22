@@ -16,13 +16,13 @@ case class FunctionReference(name: String, returnType: Type, arguments : Seq[Var
 
 case class SymbolTable(parent: Option[SymbolTable]) {
 
-  private var currentOffset: Int = 0
-  private var argOffset: Int = 4 // PC is at 0
+  private var currentOffset: Int = 4
+  private var argOffset: Int = 0 // PC is at 0
   private var map: mutable.Map[String, Reference] = mutable.Map()
 
   def addFunctionArgument(arg: VariableReference): Unit = {
+    argOffset -= arg.vartype.size
     map += arg.name -> VariableReference(arg.name, arg.vartype, argOffset)
-    argOffset += arg.vartype.size
   }
 
   def addLocalVariable(identifier: String, vartype: Type): VariableReference = {

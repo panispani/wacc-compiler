@@ -12,7 +12,9 @@ class FunctionTest extends CodeGenTest {
     val program = TestUtilities.buildSubProgram(parser.program, ProgramVisitor).right.get
     val instructions = TestUtilities.translateWithoutSections(program.functions)
 
-    println(instructions)
+
+    for (i <- instructions)
+      println(i)
     instructions.head shouldBe DefineLabel(Label("foo"))
     instructions(1) shouldBe PUSH(Seq(LR))
     // dont care about body instructions since they are up to transStatement
@@ -32,7 +34,8 @@ class FunctionTest extends CodeGenTest {
     val program = TestUtilities.buildSubProgram(parser.program, ProgramVisitor).right.get
     val instructions = TestUtilities.translateWithoutSections(program)
 
-    println(instructions)
+    for (i <- instructions)
+      println(i)
     instructions.head shouldBe DefineLabel(Label("goo"))
     instructions(1) shouldBe PUSH(Seq(LR))
     // dont care about body instructions since they are up to transStatement
