@@ -12,12 +12,31 @@ package object TransProgram {
     val mainInstructions     = program.main.statements map (
       s => transStatement (s, program.main.symbolTable, Registers.expressionRegs))
 
+    val data = LabelTable.outputLabels
+    val text = new CodeSegment()
+                   .append(COMMENT("Function definitions"))
+                   .extend(functionInstructions.flatten)
+                   .append(NEWLINE)
+
+                   .append(COMMENT("Stack setup"))
+                   .append(SUB(SP, SP, ImmOperand(program.main.symbolTable.sizeInBytes)))
+                   .append(NEWLINE)
+
+                   .append(COMMENT("Main"))
+                   .extend(mainInstructions.flatten)
+                   .append(NEWLINE)
+
+                   .append(COMMENT("Stack setup"))
+                   .append(ADD(SP, SP, ImmOperand(program.main.symbolTable.sizeInBytes)))
+                   .append(MOV(R0, ImmOperand(0)))
+
     new CodeSegment()
-      .extend(functionInstructions.flatten)
-      .append(SUB(SP, SP, ImmOperand(program.main.symbolTable.sizeInBytes)))
-      .extend(mainInstructions.flatten)
-      .append(ADD(SP, SP, ImmOperand(program.main.symbolTable.sizeInBytes)))
-      .append(MOV(R0, ImmOperand(0)))
+      .append(ARMSection("data"))
+      .extend(data)
+
+      .append(ARMSection("text"))
+      .extend(StaticCode.outputStaticFunctions)
+      .extend(text)
   }
 
 }
