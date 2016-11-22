@@ -8,10 +8,10 @@ import wacc.constructs._
 
 package object TransExpressions {
   def transExpression(expr: Expression, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
-      registers match {
-        case (r1::r2::regs) => transExpressionReg(expr, r1, r2, symbolTable, regs)
-        case (r1::regs) => transExpressionAcc(expr, r1, symbolTable: SymbolTable, regs)
-      }
+    registers match {
+      case (r1::r2::regs) => transExpressionReg(expr, r1, r2, symbolTable, regs)
+      case (r1::regs) => transExpressionAcc(expr, r1, symbolTable: SymbolTable, regs)
+    }
   }
 
   // Register machine approach
@@ -21,12 +21,12 @@ package object TransExpressions {
         if (weight(e1) > weight(e2)) {
           // e1 first
           val evalExpr = transExpression(e1, symbolTable, reg1+:reg2+:regs) ++
-                         transExpression(e2, symbolTable, reg2+:regs)
+            transExpression(e2, symbolTable, reg2+:regs)
           evalExpr ++ transBinaryOperator(reg1, binOp, reg2)
         } else {
           // e2 first
           val evalExpr = transExpression(e2, symbolTable, reg2+:reg1+:regs) ++
-                         transExpression(e1, symbolTable, reg1+:regs)
+            transExpression(e1, symbolTable, reg1+:regs)
           evalExpr ++ transBinaryOperator(reg1, binOp, reg2)
         }
       case VariableReferenceExpression(name, _) => {
@@ -52,7 +52,7 @@ package object TransExpressions {
   private def transExpressionAcc(expr: Expression, reg1: Register, symbolTable: SymbolTable, regs: Seq[Register]): Seq[Instruction] = {
     val reg2 = getAnotherRegister(reg1)
     Seq(PUSH(Seq(reg2))) ++
-    transExpressionReg(expr, reg1, reg2, symbolTable, regs) ++
-    Seq(POP(Seq(reg2)))
+      transExpressionReg(expr, reg1, reg2, symbolTable, regs) ++
+      Seq(POP(Seq(reg2)))
   }
 }

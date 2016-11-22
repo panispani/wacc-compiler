@@ -14,18 +14,20 @@ package object TransProgram {
 
     val data = LabelTable.outputLabels
     val text = new CodeSegment()
+                   .append(COMMENT("Static code"))
+                   .extend(StaticCode.staticFunctions)
+
                    .append(COMMENT("Function definitions"))
                    .extend(functionInstructions.flatten)
-                   .append(NEWLINE)
 
                    .append(COMMENT("Stack setup"))
                    .append(MOV(BP, SP))
                    .append(SUB(SP, SP, ImmOperand(program.main.symbolTable.sizeInBytes)))
-                   .append(NEWLINE)
 
                    .append(COMMENT("Main"))
+                   .append(GLOBAL("main"))
+                   .append(DefineLabel(Label("main")))
                    .extend(mainInstructions.flatten)
-                   .append(NEWLINE)
 
                    .append(COMMENT("Stack setup"))
                    .append(ADD(SP, SP, ImmOperand(program.main.symbolTable.sizeInBytes)))
@@ -34,9 +36,9 @@ package object TransProgram {
     new CodeSegment()
       .append(ARMSection("data"))
       .extend(data)
+      .append(NEWLINE)
 
       .append(ARMSection("text"))
-      .extend(StaticCode.outputStaticFunctions)
       .extend(text)
   }
 
