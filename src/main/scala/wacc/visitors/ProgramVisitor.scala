@@ -66,6 +66,6 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
       functions <- sequenceOrAll(ctx.function().toList map (e => e.accept(FunctionVisitor))).right
       statements <- sequenceOrAll(ctx.sequence().statement().toList map (
         _.accept(StatementVisitor).right.flatMap(semanticErrorIfReturn))).right
-    } yield Program(functions, statements)
+    } yield Program(functions, ScopeStatement(statements, SymbolTable.globalTable))
   }
 }

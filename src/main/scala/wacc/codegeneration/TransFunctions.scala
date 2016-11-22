@@ -12,7 +12,7 @@ package object TransFunctions {
     new CodeSegment()
       .append(DefineLabel(Label(function.identifier)))
       .append(NEW_STACK_FRAME)
-      .extend(function.statements flatMap (s => transStatement (s, registers)))
+      .extend(function.statements flatMap (s => transStatement (s, function.symbolTable, registers)))
       .append(RETURN)
       .instructions
   }

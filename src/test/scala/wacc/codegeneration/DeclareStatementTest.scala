@@ -1,17 +1,17 @@
 package wacc.codegeneration
 
-import wacc.TestUtilities
+import wacc.{SymbolTable, TestUtilities}
 import wacc.TransStatements._
 import wacc.visitors.StatementVisitor
 
-class DeclareStatementTest extends  CodeGenTest {
+class DeclareStatementTest extends CodeGenTest {
 
   it should "produce the expected instructions" in {
     val parser = TestUtilities.setupParser("int x = 42")
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
     val availableRegisters = Seq(R4, R5, R6)
-    val instructions = transStatement(program.right.get, availableRegisters)
+    val instructions = transStatement(program.right.get, SymbolTable.globalTable, availableRegisters)
 
     instructions.last shouldBe STR(availableRegisters.head, RegisterAddress(SP, 0))
   }
@@ -24,7 +24,10 @@ class DeclareStatementTest extends  CodeGenTest {
     val program2 = TestUtilities.buildSubProgram(parser2.statement, StatementVisitor)
 
     val availableRegisters = Seq(R4, R5, R6)
-    val instructions = transStatementSequence(Seq(program.right.get, program2.right.get), availableRegisters)
+    val instructions = transStatementSequence(
+      Seq(program.right.get, program2.right.get),
+      SymbolTable.globalTable,
+      availableRegisters)
 
     instructions(1) shouldBe STRB(availableRegisters.head, RegisterAddress(SP, 0))
     instructions(3) shouldBe STR(availableRegisters.head, RegisterAddress(SP, 1))
@@ -35,7 +38,7 @@ class DeclareStatementTest extends  CodeGenTest {
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
     val availableRegisters = Seq(R4, R5, R6)
-    val instructions = transStatement(program.right.get, availableRegisters)
+    val instructions = transStatement(program.right.get, SymbolTable.globalTable, availableRegisters)
 
     instructions.head shouldBe LDR(R0, Const(12))
     instructions(1) shouldBe BL(Label("malloc"))
@@ -58,7 +61,10 @@ class DeclareStatementTest extends  CodeGenTest {
     val program2 = TestUtilities.buildSubProgram(parser2.statement, StatementVisitor)
 
     val availableRegisters = Seq(R4, R5, R6)
-    val instructions = transStatementSequence(Seq(program.right.get, program2.right.get), availableRegisters)
+    val instructions = transStatementSequence(
+      Seq(program.right.get, program2.right.get),
+      SymbolTable.globalTable,
+      availableRegisters)
 
     //Don't care about instructions(0) because it's up to translateExpression
     instructions(1) shouldBe STR(availableRegisters.head, RegisterAddress(SP, 0))
@@ -74,7 +80,10 @@ class DeclareStatementTest extends  CodeGenTest {
     val program2 = TestUtilities.buildSubProgram(parser2.statement, StatementVisitor)
 
     val availableRegisters = Seq(R4, R5, R6)
-    val instructions = transStatementSequence(Seq(program.right.get, program2.right.get), availableRegisters)
+    val instructions = transStatementSequence(
+      Seq(program.right.get, program2.right.get),
+      SymbolTable.globalTable,
+      availableRegisters)
 
     instructions.head shouldBe LDR(R0, Const(8))
     instructions(1) shouldBe BL(Label("malloc"))
@@ -93,7 +102,7 @@ class DeclareStatementTest extends  CodeGenTest {
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
     val availableRegisters = Seq(R4, R5, R6)
-    val instructions = transStatement(program.right.get, availableRegisters)
+    val instructions = transStatement(program.right.get, SymbolTable.globalTable, availableRegisters)
 
     instructions.head shouldBe LDR(R0, Const(8))
     instructions(1) shouldBe BL(Label("malloc"))

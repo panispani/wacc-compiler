@@ -10,10 +10,10 @@ import wacc.constructs._
   */
 package object TransStatements {
 
-  def transStatement(statement: Statement, registers: Seq[Register]): Seq[Instruction] = {
+  def transStatement(statement: Statement, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     statement match {
       case DeclareStatement(vartype: Type, variable: VariableReference, value: AssignValue)
-        => transDeclareStatement(vartype, variable, value, registers)
+        => transDeclareStatement(vartype, variable, value, symbolTable, registers)
 
       case AssignStatement(lhs: AssignTarget, rhs: AssignValue)
         => transAssignStatement(lhs, rhs, registers)
@@ -34,10 +34,10 @@ package object TransStatements {
         => transExpression(expression, registers) :+ BL(Label("p_print_ln"))
 
       case ConditionalStatement(expression, trueStatements, falseStatements, symbolTable)
-        => transConditionalStatement(expression, trueStatements, falseStatements, registers)
+        => transConditionalStatement(expression, trueStatements, falseStatements, symbolTable, registers)
 
       case LoopStatement(condition, statements, symbolTable)
-        => transLoopStatement(condition, statements, registers)
+        => transLoopStatement(condition, statements, symbolTable, registers)
 
       case ScopeStatement(sequence, symbolTable)
         => transScopeStatement(sequence, symbolTable, registers)
@@ -60,15 +60,22 @@ package object TransStatements {
     instructions
   }
 
-  def transDeclareStatement(vartype: Type, variableRef: VariableReference, assignValue: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
+  def transDeclareStatement(vartype: Type,
+                            variableRef: VariableReference,
+                            assignValue: AssignValue,
+                            symbolTable: SymbolTable,
+                            registers: Seq[Register]): Seq[Instruction] = {
     // TODO: See what this should do
     //    VarLog.add(identifier, vartype)
 
     assignValue match {
-      case VariableReference(_, _, offset) => Seq(
-        LDR(registers.head, RegisterAddress(SP, offset)),
-        STR(R4, RegisterAddress(SP, variableRef.offset))
-      )
+      case VariableReferenceExpression(name, _) =>
+        // It is safe to .get the option (semantic check)
+        val reference = symbolTable.lookupDeep(name).get
+        Seq(
+          LDR(registers.head, RegisterAddress(SP, reference.offset)),
+          STR(R4, RegisterAddress(SP, variableRef.offset))
+        )
       case default => transDeclareStatementWithLiteralRhs(vartype, variableRef, assignValue, registers)
     }
   }
@@ -139,40 +146,49 @@ package object TransStatements {
     instruction ++ Seq(MOV(R0, registers.head))
   }
 
-  def transConditionalStatement(expression: Expression, trueStatements: Seq[Statement], falseStatements: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
+  def transConditionalStatement(expression: Expression,
+                                trueStatements: Seq[Statement],
+                                falseStatements: Seq[Statement],
+                                symbolTable: SymbolTable,
+                                registers: Seq[Register]): Seq[Instruction] = {
     val L0 = Label()
     val L1 = Label()
 
     transExpression(expression, registers) ++
       Seq(CMP(registers.head, ImmOperand(0)), B(L0, EQ())) ++
-      transStatementSequence(falseStatements, registers) ++
+      transStatementSequence(falseStatements, symbolTable, registers) ++
       Seq(B(L1), DefineLabel(L0)) ++
-      transStatementSequence(trueStatements, registers) ++
+      transStatementSequence(trueStatements, symbolTable, registers) ++
       Seq(DefineLabel(L1))
   }
 
-  def transLoopStatement(condition: Expression, stmts: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
+  def transLoopStatement(condition: Expression,
+                         stmts: Seq[Statement],
+                         symbolTable: SymbolTable,
+                         registers: Seq[Register]): Seq[Instruction] = {
     val L0 = Label()
     val L1 = Label()
 
     Seq(B(L0), DefineLabel(L1)) ++
-    transStatementSequence(stmts, registers) ++
+    transStatementSequence(stmts, symbolTable, registers) ++
     Seq(DefineLabel(L0)) ++
     transExpression(condition, registers) ++
     Seq(CMP(registers.head, ImmOperand(1)), B(L1, EQ()))
   }
 
-  def transStatementSequence(seq: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
+  def transStatementSequence(seq: Seq[Statement],
+                             symbolTable: SymbolTable,
+                             registers: Seq[Register]): Seq[Instruction] = {
     val instructions
     = for {
       stmt <- seq
-    } yield transStatement(stmt, registers)
+    } yield transStatement(stmt, symbolTable, registers)
     instructions.flatten
   }
 
   def transScopeStatement(seq: Seq[Statement], symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     // Make sure the same registers are available after each statement is translated!
-    val instructions = seq.map(transStatement(_, registers))
+    val instructions = seq.map(transStatement(_, symbolTable, registers))
 
     new CodeSegment()
       .append(SUB(SP, SP, ImmOperand(symbolTable.sizeInBytes)))

@@ -6,8 +6,8 @@ import wacc.constructs.{Program, SkipStatement}
 class SkipStatementTest extends VisitorTest {
 
   "Skip " should " be built correctly " in {
-    val input = "begin skip end"
-    val program = TestUtilities.buildProgram(input)
-    program.right.value should be (Program(Seq(), Seq(SkipStatement())))
+    val parser = TestUtilities.setupParser("skip")
+    val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
+    program.right.value should be (SkipStatement())
   }
 }
