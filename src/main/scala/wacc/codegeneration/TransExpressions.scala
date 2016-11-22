@@ -1,9 +1,10 @@
 package wacc
 
+import wacc.TransBinaryOperators._
 import wacc.codegeneration.Weight._
-import wacc.constructs._
 import wacc.codegeneration._
-import TransBinaryOperators._
+import wacc.arm._
+import wacc.constructs._
 
 /**
   * Created by panayiotis on 16/11/16.

@@ -4,7 +4,7 @@ import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
 import wacc.constructs._
 import wacc.util.SemanticErrors
-import wacc.{FunctionReference, SymbolTable, VariableReference}
+import wacc.{FunctionReference, SymbolTable}
 
 import scala.collection.JavaConversions._
 

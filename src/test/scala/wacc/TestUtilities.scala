@@ -3,7 +3,7 @@ package wacc
 import antlr.{WACCLexer, WACCParser, WACCParserBaseVisitor}
 import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream, ParserRuleContext}
 import org.scalatest._
-import wacc.codegeneration.Label
+import wacc.arm.Label
 import wacc.constructs.{Program, ScopeStatement, Statement}
 import wacc.visitors.ProgramVisitor
 

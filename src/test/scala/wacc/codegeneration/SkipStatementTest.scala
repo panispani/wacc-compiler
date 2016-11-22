@@ -2,6 +2,7 @@ package wacc.codegeneration
 
 import wacc.SymbolTable
 import wacc.TransStatements._
+import wacc.arm.{R4, R5, R6}
 import wacc.constructs.SkipStatement
 
 class SkipStatementTest extends CodeGenTest {
