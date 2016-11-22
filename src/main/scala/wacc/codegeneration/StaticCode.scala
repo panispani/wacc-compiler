@@ -7,7 +7,8 @@ package object StaticCode {
   def readFormat: AsciiData        = AsciiData(LabelAddress(Label()), "%d")
   def printFormat: AsciiData       = AsciiData(LabelAddress(Label()), "%%.*s")
   def emptyString: AsciiData       = AsciiData(LabelAddress(Label()), "")
-  def staticData: CodeSegment      = new CodeSegment().extend(Seq(readFormat, printFormat, emptyString))
+  def divideOrModuleByZeroString: AsciiData = AsciiData(LabelAddress(Label()), "DivideByZeroError: divide or modulo by zero\n")
+  def staticData: CodeSegment      = new CodeSegment().extend(Seq(readFormat, printFormat, emptyString, divideOrModuleByZeroString))
   def staticFunctions: CodeSegment = readFunction.extend(printFunction).extend(printLnFunction)
 
   def readFunctionLabel: Label = Label("read")
