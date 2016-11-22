@@ -9,7 +9,12 @@ package object StaticCode {
   def emptyString: AsciiData       = AsciiData(LabelAddress(Label()), "")
   def divideOrModuleByZeroString: AsciiData = AsciiData(LabelAddress(Label()), "DivideByZeroError: divide or modulo by zero\n")
   def staticData: CodeSegment      = new CodeSegment().extend(Seq(readFormat, printFormat, emptyString, divideOrModuleByZeroString))
-  def staticFunctions: CodeSegment = readFunction.extend(printFunction).extend(printLnFunction)
+  def staticFunctions: CodeSegment =
+    readFunction
+    .extend(printFunction)
+    .extend(printLnFunction)
+    .extend(outputCheckDivideByZero)
+    .extend(outputThrowRuntimeError)
 
   def readFunctionLabel: Label = Label("read")
   def printFunctionLabel: Label = Label("print")
