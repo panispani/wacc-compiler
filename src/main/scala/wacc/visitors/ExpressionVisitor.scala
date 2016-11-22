@@ -96,12 +96,15 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
     val identifier = ctx.variableReference().getText
 
     SymbolTable().lookupDeep(identifier) match {
-      case Some(reference @ VariableReference(x, ArrayType(elemtype), offset)) => for {
+      case Some(VariableReference(x, ArrayType(elemtype), offset)) => for {
         indexes <- sequenceOrLast(ctx.expression().toList map (e => e.accept(ExpressionVisitor))).right
-      } yield ArrayElement(reference, indexes, elemtype)
-      case Some(reference @ VariableReference(x, String, offset)) => for {
+      } yield ArrayElement(identifier, indexes, elemtype)
+
+      // Special case for string indexing
+      case Some(VariableReference(x, String, offset)) => for {
         indexes <- sequenceOrLast(ctx.expression().toList map (e => e.accept(ExpressionVisitor))).right
-      } yield ArrayElement(reference, indexes, Character)
+      } yield ArrayElement(identifier, indexes, Character)
+
       case None    => Left(SemanticError("Variable not declared", ctx.start))
       case default => Left(SemanticError("Identifier is not an array reference", ctx.start))
     }
