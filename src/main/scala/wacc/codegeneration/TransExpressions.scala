@@ -32,6 +32,10 @@ package object TransExpressions {
           evalExpr ++ transBinaryOperator(reg1, binOp, reg2)
         }
       }
+      case VariableReferenceExpression(name, _) =>
+        // It is safe to .get the option (semantic check)
+        val reference = SymbolTable.globalTable.lookupDeep(name).get //TODO symbolTable.lookupDeep(name).get
+        Seq(LDR(reg1, RegisterAddress(SP, reference.offset)))
       case IntegerLiteral(value) => Seq(MOV(reg1, ImmOperand(value)))
       case BoolLiteral(value) => val v = if (value) 1 else 0
                                  Seq(MOV(reg1, ImmOperand(v)))
