@@ -5,6 +5,6 @@ abstract class DataInstruction extends Instruction {
 }
 
 case class AsciiData(data: String) extends DataInstruction {
-  override val name: String = ".asciz \"" + data + "\""
+  override val name: String = ".asciz " + data
   override val size: Int    = 4 * data.length
 }
