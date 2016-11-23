@@ -1,5 +1,6 @@
 package wacc.codegeneration
 
+import org.scalatest.Ignore
 import wacc.{SymbolTable, TestUtilities}
 import wacc.TransStatements._
 import wacc.visitors.{SequenceVisitor, StatementVisitor}
@@ -8,6 +9,7 @@ import wacc.arm._
 /**
   * Created by pp3414 on 22/11/16.
   */
+@Ignore
 class ScopeStatementTest extends CodeGenTest {
   "Visiting a new scope" should "allow re-declarations in new scopes" in {
     val parser = TestUtilities.setupParser("begin int a = 1; begin bool b = true; int a = 2 end end")
