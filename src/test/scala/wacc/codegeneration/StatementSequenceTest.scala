@@ -12,12 +12,14 @@ class StatementSequenceTest extends CodeGenTest {
     val program = TestUtilities.buildSubProgram(parser.program, ProgramVisitor).right.get
     val instructions = TestUtilities.translateWithoutSections(program.main)
 
-    instructions.head should be (SUB(SP, SP, ImmOperand(0)))
-    instructions(1) should be (MOV(R4, ImmOperand(10)))
-    instructions(2) should be (MOV(R0, R4))
-    instructions(3) should be (BL(Label("exit")))
-    instructions(4) should be (MOV(R4, ImmOperand(6)))
-    instructions(5) should be (MOV(R0, R4))
-    instructions(6) should be (BL(Label("exit")))
+    instructions.head should be (PUSH(Seq(BP)))
+    instructions(1) should be (MOV(BP, SP))
+    instructions(2) should be (SUB(SP, SP, ImmOperand(0)))
+    instructions(3) should be (MOV(R4, ImmOperand(10)))
+    instructions(4) should be (MOV(R0, R4))
+    instructions(5) should be (BL(Label("exit")))
+    instructions(6) should be (MOV(R4, ImmOperand(6)))
+    instructions(7) should be (MOV(R0, R4))
+    instructions(8) should be (BL(Label("exit")))
   }
 }

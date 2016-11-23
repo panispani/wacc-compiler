@@ -21,10 +21,10 @@ object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError
     val typedArgList = sequenceOrLast(untypedArgList map (_.accept(ExpressionVisitor)))
 
     val functionSignature: Either[CompilationError, (Type, Seq[Type])] =
-      SymbolTable.globalTable.lookup(ctx.IDENT().getText) match {
+      SymbolTable.functionsTable.get(ctx.IDENT().getText) match {
       case Some(function) => {
-        function match {
-          case FunctionReference(f, returnType, arguments) => Right((returnType, arguments map (_.vartype)))
+        function.reference match {
+          case FunctionReference(f, returnType, argumentTypes) => Right((returnType, argumentTypes))
           case default => Left(SemanticError(ctx.IDENT().getText + " is not a function", ctx.start))
         }
       }

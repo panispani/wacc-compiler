@@ -76,8 +76,8 @@ package object TransStatements {
         // It is safe to .get the option (semantic check)
         val reference = symbolTable.lookupDeep(name).get
         Seq(
-          LDR(registers.head, RegisterAddress(SP, reference.offset)),
-          STR(R4, RegisterAddress(SP, variableRef.offset))
+          LDR(registers.head, RegisterAddress(BP, reference.offset)),
+          STR(R4, RegisterAddress(BP, variableRef.offset))
         )
       case default => transDeclareStatementWithLiteralRhs(vartype, variableRef, assignValue, symbolTable, registers)
     }
@@ -85,8 +85,8 @@ package object TransStatements {
 
   private def transDeclareStatementWithLiteralRhs(vartype: Type, variableRef: VariableReference, assignValue: AssignValue, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     val instructions = vartype match {
-      case Integer => transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STR(registers.head, RegisterAddress(SP, variableRef.offset)))
-      case Boolean | Character => transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STRB(registers.head, RegisterAddress(SP, variableRef.offset)))
+      case Integer => transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STR(registers.head, RegisterAddress(BP, variableRef.offset)))
+      case Boolean | Character => transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STRB(registers.head, RegisterAddress(BP, variableRef.offset)))
       case ArrayType(elemsType) => assignValue match {
         case literal @ ArrayLiteral(elements) => {
           val arraySize = 4 + elements.size * elemsType.size
@@ -96,7 +96,7 @@ package object TransStatements {
             MOV(registers.head, R0),
             LDR(registers(1), Const(elements.size)),
             STR(registers(1), RegisterAddress(registers.head, 0))
-          ) ++ transArrayLiteral(literal, symbolTable, registers) :+ STR(registers.head, RegisterAddress(SP, 0))
+          ) ++ transArrayLiteral(literal, symbolTable, registers) :+ STR(registers.head, RegisterAddress(BP, 0))
         }
         case default => println("not impelemented"); Seq()
       }
@@ -118,7 +118,7 @@ package object TransStatements {
                 BL(Label("malloc")),
                 STR(registers(1), RegisterAddress(R0, 0)),  //Store the value for the second element in its memory
                 STR(R0, RegisterAddress(registers(0), firstType.size)),   //Put address of second element in memory of pair with offset
-                STR(registers.head, RegisterAddress(SP, 0))
+                STR(registers.head, RegisterAddress(BP, 0))
               )
         }
 
@@ -158,11 +158,12 @@ package object TransStatements {
     val L1 = Label()
 
 
+    //stack allocation is not done TODO- experimental
     transExpression(expression, symbolTable, registers) ++
       Seq(CMP(registers.head, ImmOperand(0)), B(L0, EQ)) ++
-      transStatementSequence(falseStatements, symbolTable, registers) ++
+      transScopeStatement(falseStatements, symbolTable, registers) ++
       Seq(B(L1), DefineLabel(L0)) ++
-      transStatementSequence(trueStatements, symbolTable, registers) ++
+      transScopeStatement(trueStatements, symbolTable, registers) ++
       Seq(DefineLabel(L1))
   }
 
@@ -173,9 +174,9 @@ package object TransStatements {
     val L0 = Label()
     val L1 = Label()
 
-    Seq(B(L0), DefineLabel(L1), SUB(SP, SP, ImmOperand(symbolTable.sizeInBytes))) ++
+    Seq(B(L0), DefineLabel(L1), PUSH(Seq(BP)), MOV(BP, SP), SUB(SP, SP, ImmOperand(symbolTable.sizeInBytes))) ++
     transStatementSequence(stmts, symbolTable, registers) ++
-    Seq(ADD(SP, SP, ImmOperand(symbolTable.sizeInBytes)), DefineLabel(L0)) ++
+    Seq(ADD(SP, SP, ImmOperand(symbolTable.sizeInBytes)), POP(Seq(BP)), DefineLabel(L0)) ++
     transExpression(condition, symbolTable, registers) ++
     Seq(CMP(registers.head, ImmOperand(1)), B(L1, EQ))
   }
@@ -195,8 +196,11 @@ package object TransStatements {
     val instructions = seq.map(transStatement(_, symbolTable, registers))
 
     new CodeSegment()
+      .append(PUSH(Seq(BP)))
+      .append(MOV(BP, SP))
       .append(SUB(SP, SP, ImmOperand(symbolTable.sizeInBytes)))
       .extend(instructions.flatten)
+      .append(POP(Seq(BP)))
       .append(ADD(SP, SP, ImmOperand(symbolTable.sizeInBytes))).instructions
   }
 
@@ -206,7 +210,7 @@ package object TransStatements {
     }
 
     new CodeSegment()
-      .append(ADD(R0, SP, ImmOperand(target)))  // r0 = address of target
+      .append(ADD(R0, BP, ImmOperand(target)))         // r0 = address of target
       .append(BL(StaticCode.readFunctionLabel)) // reads input into desired variable
       .instructions
   }
@@ -217,5 +221,6 @@ package object TransStatements {
 
   def transPrintLnStatement(read: PrintLnStatement, registers: Seq[Register]): Seq[Instruction] = {
     new CodeSegment().append(BL(StaticCode.printLnFunctionLabel)).instructions
+
   }
 }

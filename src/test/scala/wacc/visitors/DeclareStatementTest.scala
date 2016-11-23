@@ -12,7 +12,7 @@ class DeclareStatementTest extends VisitorTest {
     result.right.value should be
       DeclareStatement(
         PairType(Integer,Integer),
-        VariableReference("p", PairType(Integer, Integer), 0),
+        VariableReference("p", PairType(Integer, Integer), -4),
         PairLiteral())
   }
 
@@ -23,7 +23,7 @@ class DeclareStatementTest extends VisitorTest {
     result.right.value should be (
       DeclareStatement(
         ArrayType(Integer),
-        VariableReference("p", ArrayType(Integer), 0),
+        VariableReference("p", ArrayType(Integer), -4),
         ArrayLiteral(List())))
   }
 
@@ -40,7 +40,7 @@ class DeclareStatementTest extends VisitorTest {
 
     program.right.value should be (DeclareStatement(
       Integer,
-      VariableReference("x", Integer, 0),
+      VariableReference("x", Integer, -4),
       IntegerLiteral(1)
     ))
   }
@@ -52,7 +52,7 @@ class DeclareStatementTest extends VisitorTest {
     result.right.value should be (
       DeclareStatement(
         PairType(Integer, Integer),
-        VariableReference("p", PairType(Integer, Integer), 0),
+        VariableReference("p", PairType(Integer, Integer), -4),
         PairConstructor(IntegerLiteral(1), IntegerLiteral(2))
       )
     )
@@ -65,7 +65,7 @@ class DeclareStatementTest extends VisitorTest {
     result.right.value should be (
       DeclareStatement(
         ArrayType(Integer),
-        VariableReference("x", ArrayType(Integer), 0),
+        VariableReference("x", ArrayType(Integer), -4),
         ArrayLiteral(Seq(IntegerLiteral(1), IntegerLiteral(2)))))
   }
 

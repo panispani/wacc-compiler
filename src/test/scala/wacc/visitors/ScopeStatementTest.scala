@@ -10,7 +10,7 @@ class ScopeStatementTest extends VisitorTest {
 
     result.right.value.head should be (DeclareStatement(
       Integer,
-      VariableReference("a", Integer, 0),
+      VariableReference("a", Integer, -4),
       IntegerLiteral(1)))
 
     result.right.value(1) should be (a[ScopeStatement])
@@ -18,7 +18,7 @@ class ScopeStatementTest extends VisitorTest {
 
     scope.statements(1) should be (DeclareStatement(
               Integer,
-              VariableReference("a", Integer, 1),
+              VariableReference("a", Integer, -5),
               IntegerLiteral(2))
           )
 
@@ -31,7 +31,7 @@ class ScopeStatementTest extends VisitorTest {
 
     result.right.value.last should be (DeclareStatement(
           Integer,
-          VariableReference("b", Integer, 4),
+          VariableReference("b", Integer, -8),
           VariableReferenceExpression("a", Integer))
       )
   }

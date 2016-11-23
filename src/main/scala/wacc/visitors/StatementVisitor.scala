@@ -17,7 +17,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(rhs => {
       if (compatibleTypes(varType, rhs.vartype)) {
         SymbolTable().lookup(identifier) match {
-          case None | Some(FunctionReference(_, _, _)) =>
+          case None =>
             val variableReference = SymbolTable().addLocalVariable(identifier, varType)
             Right(DeclareStatement(varType, variableReference, rhs))
           case Some(_) => Left(SemanticError(

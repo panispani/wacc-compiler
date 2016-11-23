@@ -13,7 +13,7 @@ class PairElementTest extends VisitorTest {
         List(
           DeclareStatement(
             PairType(PairType(AnyType, AnyType), PairType(AnyType, AnyType)),
-            VariableReference("p", PairType(PairType(AnyType, AnyType),PairType(AnyType, AnyType)), 0),
+            VariableReference("p", PairType(PairType(AnyType, AnyType),PairType(AnyType, AnyType)), -4),
             PairConstructor(PairLiteral(),PairLiteral())
           ),
           PrintStatement(

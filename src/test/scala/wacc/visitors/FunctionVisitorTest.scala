@@ -16,7 +16,7 @@ class FunctionVisitorTest extends VisitorTest {
     function.vartype should be (Integer)
 
     function.statements should be (Seq(
-      DeclareStatement(Integer, VariableReference("x", Integer, 0), IntegerLiteral(1)),
+      DeclareStatement(Integer, VariableReference("x", Integer, -4), IntegerLiteral(1)),
       ReturnStatement(IntegerLiteral(1))))
 
     function.symbolTable.lookup("x") should be (defined)
@@ -27,7 +27,7 @@ class FunctionVisitorTest extends VisitorTest {
     val parser = TestUtilities.setupParser("begin int f() is return 3 end skip end")
     TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
-    SymbolTable.globalTable.lookup("f") should be (defined) //contain (FunctionReference("f", Integer, Seq()))
+    SymbolTable.functionsTable.get("f") should be (defined) //contain (FunctionReference("f", Integer, Seq()))
   }
 
   it should "be a semantic error if two or more parameters have the same name" in {

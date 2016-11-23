@@ -10,36 +10,33 @@ import scala.collection.JavaConversions._
 object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError], Program]] {
 
   private def defineFunction(ctx: FunctionContext): Option[SemanticError] = {
+
+    val name = ctx.IDENT().getText
+
+    // Check for duplicate function name
+    if (SymbolTable.functionsTable contains name)
+      return Some(SemanticError("Attempted redefinition of function " + name, ctx.start))
+
+    val returnType = ctx.`type`().accept(TypeVisitor)
+
+    // Parameters could be null so convert to empty sequence in that case
     val params = Option(ctx.parameterList()) match {
       case None => Seq()
       case Some(ls) => ls.parameter().toList
     }
 
-    val name = ctx.IDENT().getText
-    val args: Seq[VariableReference] = params map (_.accept(ParamVisitor))
-    val returnType = ctx.`type`().accept(TypeVisitor)
+    // Validate parameters
+    val parameterNames = params.map(_.IDENT().getText)
+    if (parameterNames.distinct.size != parameterNames.size)
+      return Some(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
 
-    if (SymbolTable.globalTable.lookup(name).isDefined)
-      return Some(SemanticError("Attempted redefinition of function " + name, ctx.start))
-    else SymbolTable.globalTable.addFunction(name, FunctionReference(name, returnType, args))
+    val argumentTypes = params.map(_.`type`().accept(TypeVisitor))
 
-//    params foreach( param => {
-//      val paramName = param.IDENT().getText
-//      if(SymbolTable().lookupTyped(paramName).isDefined) {
-//        return Some(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
-//      }
-//
-//      val arg = VariableReference(paramName, )
-//      SymbolTable().addFunctionArgument(arg.name, arg, FunctionReference(name, returnType, args))
-//    }
+    // The function signature is as follows
+    SymbolTable.declareFunction(FunctionReference(name, returnType, argumentTypes))
+    (parameterNames, argumentTypes).zipped map SymbolTable().addFunctionArgument
+    SymbolTable.completeFunctionDeclaration()
 
-    args foreach (arg => {
-      if (SymbolTable().lookup(arg.name).isDefined) {
-        return Some(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
-      }
-
-      SymbolTable().addFunctionArgument(arg.name, arg, FunctionReference(name, returnType, args))
-    })
     None
   }
 
@@ -52,14 +49,11 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
 
     //define functions
     ctx.function() foreach (f => {
-      SymbolTable.openScope()
       defineFunction(f) match {
         case Some(SemanticError(error, symbol)) =>
-          SymbolTable.closeScope()
           return Left(Seq(SemanticError(error, symbol)))
-        case None => ;
+        case None =>
       }
-      SymbolTable.closeScope()
     })
 
     for {

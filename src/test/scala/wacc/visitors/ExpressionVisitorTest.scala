@@ -69,8 +69,8 @@ class ExpressionVisitorTest extends VisitorTest {
     val result = TestUtilities.buildSubProgram(parser.sequence, SequenceVisitor)
 
     result.right.value should be (List(
-      DeclareStatement(Integer, VariableReference("a", Integer, 0), IntegerLiteral(5)),
-      DeclareStatement(Boolean, VariableReference("b", Boolean, 4),
+      DeclareStatement(Integer, VariableReference("a", Integer, -4), IntegerLiteral(5)),
+      DeclareStatement(Boolean, VariableReference("b", Boolean, -8),
         BinaryOperatorExpr(VariableReferenceExpression("a", Integer), EqualsBinOp, IntegerLiteral(5))
       )
     ))
