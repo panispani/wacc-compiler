@@ -35,16 +35,15 @@ package object TransExpressions {
         transExpression(e, symbolTable, reg1 +: reg2 +: regs) ++ transUnaryOperator(reg1, op)
       }
 
-      case VariableReference(name, _, offset) => Seq(LDR(reg1, RegisterAddress(FP, offset)))
-
+      case VariableReference(name, vartype, offset) =>
+        vartype match {
+          case Boolean | Character => Seq(LDRB(reg1, RegisterAddress(FP, offset)))
+          case default             => Seq(LDR(reg1, RegisterAddress(FP, offset)))
+        }
       case IntegerLiteral(value) => Seq(MOV(reg1, ImmOperand(value)))
-
       case BoolLiteral(value)    => Seq(MOV(reg1, ImmOperand(if (value) 1 else 0)))
-
       case CharLiteral(value)    => Seq(MOV(reg1, CharOperand(value)))
-
       case StringLiteral(value)  => Seq(LDR(reg1, LabelAddress(DefineStringLabel(value).label)))
-
       case PairLiteral()         => Seq(MOV(reg1, ImmOperand(0)))
     }
   }
