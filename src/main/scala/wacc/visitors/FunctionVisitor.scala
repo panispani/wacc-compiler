@@ -11,20 +11,9 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
 
   override def visitFunction(ctx: FunctionContext): Either[CompilationError, Function] = {
 
-    val f @ FunctionReference(name, returnType, args) = SymbolTable.globalTable.lookup(ctx.IDENT().getText).get
-    SymbolTable.openScope()
-
-    args foreach (arg => {
-      val ident = arg match {
-        case VariableReference(varname, _ , _) => varname
-      }
-
-      if (SymbolTable().lookup(ident).isDefined) {
-        return Left(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
-      }
-
-      SymbolTable().addFunctionArgument(arg)
-    })
+    val name = ctx.IDENT().getText
+    val returnType = ctx.`type`().accept(TypeVisitor)
+    val arguments = SymbolTable.defineFunction(name)
 
     val matchReturnType: PartialFunction[Statement, Either[SemanticError, Statement]] = {
       case s @ ReturnStatement(expression) =>
@@ -38,19 +27,17 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
       case default => Left(SyntaxError("The last statement of a function should be a return", ctx.start))
     }
 
-    val function = for {
+    def validateFunctionReturn(lastStatement: Statement): Either[CompilationError, Statement]
+    = mapLastStatements(lastStatement, matchReturnOrExit(_).right flatMap matchReturnType)
+
+    for {
       statements <- sequenceOrLast(ctx.sequence.statement.toList map (_.accept(StatementVisitor))).right
 
-      lastStatement <- mapLastStatements(
-        statements.last,
-        matchReturnOrExit(_).right flatMap matchReturnType).right
+      lastStatement <- validateFunctionReturn(statements.last).right
 
       body <- Right(statements.dropRight(1) :+ lastStatement).right
-    } yield Function(name, args, returnType, body, SymbolTable())
+    } yield Function(name, arguments, returnType, body, SymbolTable.completeFunctionDefinition())
 
-    SymbolTable.closeScope()
-
-    function
   }
 
   private def mapLastStatements(lastStatement: Statement, f: Statement => Either[CompilationError, Statement])
