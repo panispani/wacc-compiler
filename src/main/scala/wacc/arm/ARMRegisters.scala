@@ -17,7 +17,7 @@ object R7 extends GPRegister(7)
 object R8 extends GPRegister(8)
 object R9 extends GPRegister(9)
 object R10 extends GPRegister(10)
-object BP extends Register("BP")
+object BP extends Register("FP")
 
 object R12 extends GPRegister(12)
 object SP extends Register("SP")

@@ -35,7 +35,7 @@ class FunctionTest extends CodeGenTest {
     val parser = TestUtilities.setupParser("begin int goo(int a, int b) is bool c = true; return b end skip end")
     val program = TestUtilities.buildSubProgram(parser.program, ProgramVisitor).right.get
     val instructions = TestUtilities.translateWithoutSections(program)
-
+println()
     for (i <- instructions)
       println(i)
     /*

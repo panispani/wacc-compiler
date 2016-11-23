@@ -11,10 +11,6 @@ run_wacc_files() {
             cd ".."
         elif [ $extension = "wacc" ]
         then
-            $BASE_DIR/compile $f>"file.s"
-            arm-linux-gnueabi-gcc -o FILENAME1 -mcpu=arm1176jzf-s -mtune=arm1176jzf-s "file.s"
-            actual=$(qemu-arm -L /usr/arm-linux-gnueabi/ FILENAME1)
-
             #find_output
             while read line; do
                   if [ "$line" == "# Output:" ]
@@ -30,12 +26,20 @@ run_wacc_files() {
                     break
                   fi
             done <$f
+            actual="COMPILERROR "$expected
+            $BASE_DIR/compile $f>"file.s"
+            >&2 arm-linux-gnueabi-gcc -o FILENAME1 -mcpu=arm1176jzf-s -mtune=arm1176jzf-s "file.s" && actual=$(qemu-arm -L /usr/arm-linux-gnueabi/ FILENAME1)
 
             if [ "$actual" == "$expected" ]
             then
+                echo "success "$f
+                if [ "$expected" == "" ]
+                then
+                    echo "it was empty though!"
+                fi
                 correct=$((correct+1))
             else
-                echo "error for "$f" expected: "$expected" actual: "$actual
+                >&2 echo "error for "$f" expected: "$expected" actual: "$actual
             fi
             total=$((total+1))
         fi
