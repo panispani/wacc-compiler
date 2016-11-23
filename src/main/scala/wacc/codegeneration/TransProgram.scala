@@ -24,11 +24,10 @@ package object TransProgram {
                   .append(COMMENT("Main"))
                   .append(GLOBAL("main"))
                   .append(DefineLabel(Label("main")))
-                  .append(COMMENT("Stack setup"))
-
                   .extend(beginFrame)
+                  .append(COMMENT("----------- MAIN  ------------"))
                   .extend(mainInstructions.flatten)
-                  .append(COMMENT("Stack setup"))
+                  .append(COMMENT("----------- /MAIN ------------"))
                   .append(MOV(R0, ImmOperand(0)))
                   .extend(endFrame)
 

@@ -81,8 +81,8 @@ package object TransStatements {
 
   private def transDeclareStatementWithLiteralRhs(vartype: Type, variableRef: VariableReference, assignValue: AssignValue, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     val instructions = vartype match {
-      case Integer => transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STR(registers.head, RegisterAddress(FP, variableRef.offset)))
-      case Boolean | Character => transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STRB(registers.head, RegisterAddress(FP, variableRef.offset)))
+      case Integer | String     => transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STR(registers.head, RegisterAddress(FP, variableRef.offset)))
+      case Boolean | Character  => transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STRB(registers.head, RegisterAddress(FP, variableRef.offset)))
       case ArrayType(elemsType) => assignValue match {
         case literal @ ArrayLiteral(elements) => {
           val arraySize = 4 + elements.size * elemsType.size
