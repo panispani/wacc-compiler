@@ -19,4 +19,12 @@ class ARMInstructionsTest extends CodeGenTest {
   "MUL" should "be translated correctly" in {
     MUL(R1, R2, R3).toString shouldBe "MUL R1, R2, R3"
   }
+
+  "RETURN" should "be translated correctly" in {
+    RETURN.toString shouldBe "POP {PC}"
+  }
+
+  "NEW_STACK_FRAME" should "be translated correctly" in {
+    NEW_STACK_FRAME.toString shouldBe "PUSH {LR}"
+  }
 }

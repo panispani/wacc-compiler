@@ -7,6 +7,14 @@ package object StaticCode {
   def readFormat: AsciiData        = AsciiData("%d")
   def printFormat: AsciiData       = AsciiData("%%.*s")
   def emptyString: AsciiData       = AsciiData("")
+  def divideOrModuleByZeroString: AsciiData = AsciiData("DivideByZeroError: divide or modulo by zero")
+  def staticFunctions: CodeSegment =
+    readFunction
+    .extend(printFunction)
+    .extend(printLnFunction)
+    .extend(CheckDivideByZero)
+    .extend(ThrowRuntimeError)
+
   def staticData: CodeSegment      = new CodeSegment()
       .append(DefineLabel(readFormatLabel))
       .append(readFormat)
@@ -14,8 +22,8 @@ package object StaticCode {
       .append(printFormat)
       .append(DefineLabel(emptyStringLabel))
       .append(emptyString)
-
-  def staticFunctions: CodeSegment = readFunction.extend(printFunction).extend(printLnFunction)
+      .append(DefineLabel(DivideByZeroErrorLabel))
+      .append(divideOrModuleByZeroString)
 
   def readFunctionLabel: Label = Label("read")
   def printFunctionLabel: Label = Label("print")
@@ -24,6 +32,7 @@ package object StaticCode {
   def printFormatLabel: Label = Label("print_format")
   def emptyStringLabel: Label = Label("empty_string")
   def throwRuntimeErrorLabel: Label = Label("throw_runtime_error")
+  def DivideByZeroErrorLabel: Label = Label("divide_by_zero")
   def checkDivideByZeroLabel: Label = Label("check_divide_by_zero")
   def divisionLabel: Label = Label("__aeabi_idiv")
   def moduleLabel: Label = Label("__aeabi_idivmod")
@@ -50,17 +59,17 @@ package object StaticCode {
       .append(RETURN)
   }
 
-  def outputCheckDivideByZero: CodeSegment = {
+  def CheckDivideByZero: CodeSegment = {
     new CodeSegment()
       .append(DefineLabel(checkDivideByZeroLabel))
       .append(NEW_STACK_FRAME)
       .append(CMP(R1, ImmOperand(0))) // Check if the dividend is 0
-      .append(LDR(R0, LabelAddress(Label("msg_0")), EQ)) //Todo: Label Address needs to be dynamic //If it is 0, load in R0 the error string
+      .append(LDR(R0, LabelAddress(DivideByZeroErrorLabel), EQ)) //If it is 0, load in R0 the error string
       .append(BL(throwRuntimeErrorLabel, EQ)) //Branch to the function to throw a runtime error
       .append(RETURN)
   }
 
-  def outputThrowRuntimeError: CodeSegment = {
+  def ThrowRuntimeError: CodeSegment = {
     new CodeSegment()
       .append(DefineLabel(throwRuntimeErrorLabel))
       .append(BL(printFunctionLabel))
