@@ -20,7 +20,7 @@ class LoopStatementTest extends CodeGenTest {
     instructions.head shouldBe B(Label("L0"), ALWAYS)
     instructions(1) shouldBe DefineLabel(Label("L1"))
 
-    instructions.slice(2, 4) should be (Seq(PUSH(Seq(BP)), MOV(BP, SP)))
+    instructions.slice(2, 4) should be (Seq(PUSH(Seq(FP)), MOV(FP, SP)))
     // dont care about body instructions since they are up to transStatement
     instructions(4) shouldBe SUB(SP, SP, ImmOperand(0))
     instructions(5) shouldBe ADD(SP, SP, ImmOperand(0))
