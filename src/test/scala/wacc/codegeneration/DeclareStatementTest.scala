@@ -109,7 +109,7 @@ class DeclareStatementTest extends CodeGenTest {
     instructions(9) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -8))
   }
 
-  ignore should "be able to handle declaring pairs" in {
+  it should "be able to handle declaring pairs" in {
     val parser = TestUtilities.setupParser("pair(int, int) p = newpair(10, 3)")
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
@@ -129,7 +129,7 @@ class DeclareStatementTest extends CodeGenTest {
     instructions(10) shouldBe BL(Label("malloc"))
     instructions(11) shouldBe STR(availableRegisters(1), RegisterAddress(R0, 0))
     instructions(12) shouldBe STR(R0, RegisterAddress(availableRegisters.head, 4))
-    instructions(13) shouldBe STR(R4, RegisterAddress(SP, 0))
+    instructions(13) shouldBe STR(R4, RegisterAddress(FP, -4))
 
 //    6   LDR r0, =8
 //    7		BL malloc
