@@ -43,7 +43,7 @@ package object TransExpressions {
 
       case CharLiteral(value)    => Seq(MOV(reg1, CharOperand(value)))
 
-      case StringLiteral(value)  => Seq(MOV(reg1, LabelAddress(DefineStringLabel(value).label)))
+      case StringLiteral(value)  => Seq(LDR(reg1, LabelAddress(DefineStringLabel(value).label)))
 
       case PairLiteral()         => Seq(MOV(reg1, ImmOperand(0)))
     }

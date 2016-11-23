@@ -19,10 +19,12 @@ while read line; do
   fi
 done <$1
 
-if [ "$actual" == "$expected" ]
+if [ "$actual" == "correct" ]
 then
   echo "output correct for "$1"."
   echo "expected: "$expected""
 else
-  echo "error for "$1" expected: "$expected" actual: "$actual
+  echo "error for "$1" expected: !"$expected"! actual: !"$actual"!"
+  size=${#actual}
+  echo $size
 fi
