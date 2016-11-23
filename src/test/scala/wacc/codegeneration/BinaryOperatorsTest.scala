@@ -81,7 +81,8 @@ class BinaryOperatorsTest extends CodeGenTest {
     instructions(3) shouldBe MOV(R1, registers(1))
     instructions(4) shouldBe BL(StaticCode.checkDivideByZeroLabel)
     instructions(5) shouldBe BL(StaticCode.moduleLabel)
-    //instruction(6) is up to module
-    //instruction(7) is up to module
+    instructions(6) shouldBe MOV(registers.head, R1)
+    //instruction(7) is up to declaration
+    //instruction(8) is up to declaration
   }
 }
