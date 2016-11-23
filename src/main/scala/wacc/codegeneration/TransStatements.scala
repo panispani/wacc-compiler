@@ -96,7 +96,7 @@ package object TransStatements {
             MOV(registers.head, R0),
             LDR(registers(1), Const(elements.size)),
             STR(registers(1), RegisterAddress(registers.head, 0))
-          ) ++ transArrayLiteral(literal, symbolTable, registers) :+ STR(registers.head, RegisterAddress(FP, 0))
+          ) ++ transArrayLiteral(literal, symbolTable, registers) :+ STR(registers.head, RegisterAddress(FP, variableRef.offset))
         }
         case default => println("not impelemented"); Seq()
       }

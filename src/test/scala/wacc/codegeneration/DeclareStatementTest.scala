@@ -45,7 +45,7 @@ class DeclareStatementTest extends CodeGenTest {
     instructions(3) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -5))
   }
 
-  ignore should "be able to handle array declarations" in {
+  it should "be able to handle array declarations" in {
     val parser = TestUtilities.setupParser("int[] a = [0, 1]")
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
@@ -61,7 +61,7 @@ class DeclareStatementTest extends CodeGenTest {
     instructions(6) shouldBe STR(availableRegisters(1), RegisterAddress(availableRegisters.head, 4))
     //Don't care about instruction(7) because it's up to translateExpression
     instructions(8) shouldBe STR(availableRegisters(1), RegisterAddress(availableRegisters.head, 8))
-    instructions(9) shouldBe STR(availableRegisters.head, RegisterAddress(SP, 0))
+    instructions(9) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -4))
 
   }
 
