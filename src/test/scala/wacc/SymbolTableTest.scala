@@ -22,10 +22,10 @@ class SymbolTableTest extends FlatSpec
     SymbolTable().addLocalVariable("a", Integer) // 0
 
     val xLookup = SymbolTable().lookupDeep("x")
-    xLookup.get.offset should be (4)
+    xLookup.get.offset should be (9)
 
     val yLookup = SymbolTable().lookupDeep("y")
-    yLookup.get.offset should be (5)
+    yLookup.get.offset should be (8)
 
     SymbolTable.closeScope()
   }
@@ -48,7 +48,7 @@ class SymbolTableTest extends FlatSpec
 
     SymbolTable.openScope()
 
-    SymbolTable().lookupDeep("x").get.offset should be (8)
+    SymbolTable().lookupDeep("x").get.offset should be (8 + 4 + 9) // size(a,b) + fp + size(x,y,z) - off(x)
 
     SymbolTable.closeScope()
 

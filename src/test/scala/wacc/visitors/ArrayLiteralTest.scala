@@ -11,7 +11,7 @@ class ArrayLiteralTest extends VisitorTest {
     result.right.value should be (
           DeclareStatement(
             ArrayType(Integer),
-            VariableReference("a", ArrayType(Integer), 0),
+            VariableReference("a", ArrayType(Integer), -4),
             ArrayLiteral(
               List(
                 IntegerLiteral(0),

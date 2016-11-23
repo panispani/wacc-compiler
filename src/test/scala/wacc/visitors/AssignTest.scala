@@ -41,7 +41,7 @@ class AssignTest extends VisitorTest {
       List(
         DeclareStatement(
           ArrayType(Integer),
-          VariableReference("x", ArrayType(Integer), 0),
+          VariableReference("x", ArrayType(Integer), -4),
           ArrayLiteral(
             List(
               IntegerLiteral(1),

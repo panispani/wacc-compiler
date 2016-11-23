@@ -17,7 +17,7 @@ class FunctionCallTest extends VisitorTest{
     result.right.value.main.statements should be (Seq(
       DeclareStatement(
         Integer,
-        VariableReference("a", Integer, 0),
+        VariableReference("a", Integer, -4),
         FunctionCall(
           "foo",
           List(),
@@ -40,7 +40,7 @@ class FunctionCallTest extends VisitorTest{
 
     result.right.value.main.statements.head should be (DeclareStatement(
       Integer,
-      VariableReference("a", Integer, 0),
+      VariableReference("a", Integer, -4),
       FunctionCall(
         "foo",
         List(IntegerLiteral(2)),
