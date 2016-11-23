@@ -174,11 +174,18 @@ package object TransStatements {
     val L0 = Label()
     val L1 = Label()
 
-    Seq(B(L0), DefineLabel(L1), PUSH(Seq(FP)), MOV(FP, SP), SUB(SP, SP, ImmOperand(symbolTable.sizeInBytes))) ++
-    transStatementSequence(stmts, symbolTable, registers) ++
-    Seq(ADD(SP, SP, ImmOperand(symbolTable.sizeInBytes)), POP(Seq(FP)), DefineLabel(L0)) ++
-    transExpression(condition, symbolTable, registers) ++
-    Seq(CMP(registers.head, ImmOperand(1)), B(L1, EQ))
+    val (beginFrame, endFrame) = Macros.frame(symbolTable.sizeInBytes)
+
+    new CodeSegment()
+        .append(B(L0))
+        .append(DefineLabel(L1))
+        .extend(beginFrame)
+        .extend(transStatementSequence(stmts, symbolTable, registers))
+        .extend(endFrame)
+        .append(DefineLabel(L0))
+        .extend(transExpression(condition, symbolTable, registers))
+        .append(CMP(registers.head, ImmOperand(1)))
+        .append(B(L1, EQ)).instructions
   }
 
   def transStatementSequence(seq: Seq[Statement],
