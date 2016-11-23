@@ -33,6 +33,8 @@ package object StaticCode {
       .append(readFormat)
       .append(DefineLabel(printStringFormatLabel))
       .append(printStringFormat)
+      .append(DefineLabel(printIntFormatLabel))
+      .append(printIntFormat)
       .append(DefineLabel(emptyStringLabel))
       .append(emptyString)
       .append(DefineLabel(trueStringLabel))
@@ -54,7 +56,9 @@ package object StaticCode {
 
   def printBoolLabel: Label = Label("print_bool_label")
 
-  def printStringFormatLabel: Label = Label("print_format")
+  def printStringFormatLabel: Label = Label("print_string_format")
+
+  def printIntFormatLabel: Label = Label("print_int_format")
 
   def readFormatLabel: Label = Label("read_format")
 
@@ -121,7 +125,7 @@ package object StaticCode {
         .append(DefineLabel(printIntLabel))
         .append(NEW_STACK_FRAME)
         .append(MOV(R1, R0))
-        .append(LDR(R0, LabelAddress(printIntLabel)))
+        .append(LDR(R0, LabelAddress(printIntFormatLabel)))
         .append(ADD(R0, R0, ImmOperand(4)))
         .append(BL(Label("printf")))
         .append(MOV(R0, ImmOperand(0)))
