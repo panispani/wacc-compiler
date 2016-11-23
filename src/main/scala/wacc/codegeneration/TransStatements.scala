@@ -92,7 +92,7 @@ package object TransStatements {
             MOV(registers.head, R0),
             LDR(registers(1), Const(elements.size)),
             STR(registers(1), RegisterAddress(registers.head, 0))
-          ) ++ transArrayLiteral(literal, symbolTable, registers) :+ STR(registers.head, RegisterAddress(FP, 0))
+          ) ++ transArrayLiteral(literal, symbolTable, registers) :+ STR(registers.head, RegisterAddress(FP, variableRef.offset))
         }
         case default => println("not impelemented"); Seq()
       }
@@ -114,9 +114,10 @@ package object TransStatements {
                 BL(Label("malloc")),
                 STR(registers(1), RegisterAddress(R0, 0)),  //Store the value for the second element in its memory
                 STR(R0, RegisterAddress(registers(0), firstType.size)),   //Put address of second element in memory of pair with offset
-                STR(registers.head, RegisterAddress(FP, 0))
+                STR(registers.head, RegisterAddress(FP, variableRef.offset))
               )
         }
+        case PairLiteral() => transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STR(registers.head, RegisterAddress(FP, variableRef.offset)))
 
 
       }
