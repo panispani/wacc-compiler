@@ -5,7 +5,7 @@ case class ImmOperand(value: Int) extends Operand {
   override def toString: String = s"#$value"
 }
 case class CharOperand(value: Char) extends Operand {
-  override def toString: String = s"'$value'"
+  override def toString: String = s"#'$value'"
 }
 
 trait Address extends Operand

@@ -157,7 +157,6 @@ package object TransStatements {
     val L0 = Label()
     val L1 = Label()
 
-
     //stack allocation is not done TODO- experimental
     transExpression(expression, symbolTable, registers) ++
       Seq(CMP(registers.head, ImmOperand(0)), B(L0, EQ)) ++
@@ -174,11 +173,18 @@ package object TransStatements {
     val L0 = Label()
     val L1 = Label()
 
-    Seq(B(L0), DefineLabel(L1), PUSH(Seq(FP)), MOV(FP, SP), SUB(SP, SP, ImmOperand(symbolTable.sizeInBytes))) ++
-    transStatementSequence(stmts, symbolTable, registers) ++
-    Seq(ADD(SP, SP, ImmOperand(symbolTable.sizeInBytes)), POP(Seq(FP)), DefineLabel(L0)) ++
-    transExpression(condition, symbolTable, registers) ++
-    Seq(CMP(registers.head, ImmOperand(1)), B(L1, EQ))
+    val (beginFrame, endFrame) = Macros.frame(symbolTable.sizeInBytes)
+
+    new CodeSegment()
+        .append(B(L0))
+        .append(DefineLabel(L1))
+        .extend(beginFrame)
+        .extend(transStatementSequence(stmts, symbolTable, registers))
+        .extend(endFrame)
+        .append(DefineLabel(L0))
+        .extend(transExpression(condition, symbolTable, registers))
+        .append(CMP(registers.head, ImmOperand(1)))
+        .append(B(L1, EQ)).instructions
   }
 
   def transStatementSequence(seq: Seq[Statement],
@@ -194,14 +200,12 @@ package object TransStatements {
   def transScopeStatement(seq: Seq[Statement], symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     // Make sure the same registers are available after each statement is translated! TODO
     val instructions = seq.map(transStatement(_, symbolTable, registers))
+    val (beginFrame, endFrame) = Macros.frame(symbolTable.sizeInBytes)
 
     new CodeSegment()
-      .append(PUSH(Seq(FP)))
-      .append(MOV(FP, SP))
-      .append(SUB(SP, SP, ImmOperand(symbolTable.sizeInBytes)))
+      .extend(beginFrame)
       .extend(instructions.flatten)
-      .append(POP(Seq(FP)))
-      .append(ADD(SP, SP, ImmOperand(symbolTable.sizeInBytes))).instructions
+      .extend(endFrame).instructions
   }
 
   def transReadStatement(read: ReadStatement, registers: Seq[Register]): Seq[Instruction] = {
