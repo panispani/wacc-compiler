@@ -28,7 +28,7 @@ class DeclareStatementTest extends CodeGenTest {
     instructions.last shouldBe STR(availableRegisters.head, RegisterAddress(FP, -4))
   }
 
-  ignore should "be able to handle two consecutive declarations" in {
+  it should "be able to handle two consecutive declarations" in {
     val parser = TestUtilities.setupParser("bool b = true")
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
@@ -41,8 +41,8 @@ class DeclareStatementTest extends CodeGenTest {
       SymbolTable.globalTable,
       availableRegisters)
 
-    instructions(1) shouldBe STRB(availableRegisters.head, RegisterAddress(SP, 0))
-    instructions(3) shouldBe STR(availableRegisters.head, RegisterAddress(SP, 1))
+    instructions(1) shouldBe STRB(availableRegisters.head, RegisterAddress(FP, -4))
+    instructions(3) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -5))
   }
 
   ignore should "be able to handle array declarations" in {
