@@ -20,12 +20,11 @@ package object TransProgram {
                    .append(COMMENT("Function definitions"))
                    .extend(functionInstructions.flatten)
 
-                   .append(COMMENT("Stack setup"))
-                   .append(SUB(SP, SP, ImmOperand(program.main.symbolTable.sizeInBytes)))
-
                    .append(COMMENT("Main"))
                    .append(GLOBAL("main"))
                    .append(DefineLabel(Label("main")))
+                   .append(COMMENT("Stack setup"))
+                   .append(SUB(SP, SP, ImmOperand(program.main.symbolTable.sizeInBytes)))
                    .extend(mainInstructions.flatten)
 
                    .append(COMMENT("Stack setup"))
