@@ -12,6 +12,8 @@ package object TransUnaryOperators {
       case MinusOp => Seq(RSBS(r, r, ImmOperand(0)))
 
       case NotOp => Seq(EOR(r, r, ImmOperand(1)))
+
+      case OrdOp => Seq()
     }
   }
 
