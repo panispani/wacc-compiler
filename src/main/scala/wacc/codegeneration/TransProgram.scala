@@ -14,22 +14,25 @@ package object TransProgram {
 
     val data = new CodeSegment().extend(StaticCode.staticData).extend(LabelTable.outputLabels)
     val text = new CodeSegment()
-                   .append(COMMENT("Static code"))
-                   .extend(StaticCode.staticFunctions)
+                  .append(COMMENT("Static code"))
+                  .extend(StaticCode.staticFunctions)
 
-                   .append(COMMENT("Function definitions"))
-                   .extend(functionInstructions.flatten)
+                  .append(COMMENT("Function definitions"))
+                  .extend(functionInstructions.flatten)
 
-                   .append(COMMENT("Main"))
-                   .append(GLOBAL("main"))
-                   .append(DefineLabel(Label("main")))
-                   .append(COMMENT("Stack setup"))
-                   .append(SUB(SP, SP, ImmOperand(program.main.symbolTable.sizeInBytes)))
-                   .extend(mainInstructions.flatten)
+                  .append(COMMENT("Main"))
+                  .append(GLOBAL("main"))
+                  .append(DefineLabel(Label("main")))
+                  .append(COMMENT("Stack setup"))
+                  .append(NEW_STACK_FRAME)
+                  .append(SUB(SP, SP, ImmOperand(program.main.symbolTable.sizeInBytes)))
 
-                   .append(COMMENT("Stack setup"))
-                   .append(ADD(SP, SP, ImmOperand(program.main.symbolTable.sizeInBytes)))
-                   .append(MOV(R0, ImmOperand(0)))
+                  .extend(mainInstructions.flatten)
+
+                  .append(COMMENT("Stack setup"))
+                  .append(ADD(SP, SP, ImmOperand(program.main.symbolTable.sizeInBytes)))
+                  .append(MOV(R0, ImmOperand(0)))
+
 
     new CodeSegment()
       .append(ARMSection("data"))
