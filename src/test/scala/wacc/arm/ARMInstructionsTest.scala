@@ -23,4 +23,8 @@ class ARMInstructionsTest extends CodeGenTest {
   "RETURN" should "be translated correctly" in {
     RETURN.toString shouldBe "POP {PC}"
   }
+
+  "NEW_STACK_FRAME" should "be translated correctly" in {
+    NEW_STACK_FRAME.toString shouldBe "PUSH {LR}"
+  }
 }
