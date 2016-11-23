@@ -29,16 +29,12 @@ package object TransExpressions {
             transExpression(e1, symbolTable, reg1+:regs)
           evalExpr ++ transBinaryOperator(reg1, binOp, reg2)
         }
-      case VariableReferenceExpression(name, _) => {
-        // It is safe to .get the option (semantic check)
-        val reference = symbolTable.lookupDeep(name).get
-        Seq(LDR(reg1, RegisterAddress(FP, reference.offset)))
-      }
-      case IntegerLiteral(value) => Seq(MOV(reg1, ImmOperand(value)))
-      case BoolLiteral(value)    => Seq(MOV(reg1, ImmOperand(if (value) 1 else 0)))
-      case CharLiteral(value)    => Seq(MOV(reg1, CharOperand(value)))
-      case StringLiteral(value)  => Seq(LDR(reg1, LabelAddress(DefineStringLabel(value).label)))
-      case PairLiteral()         => Seq(MOV(reg1, ImmOperand(0)))
+      case VariableReference(name, _, offset) => Seq(LDR(reg1, RegisterAddress(FP, offset)))
+      case IntegerLiteral(value)              => Seq(MOV(reg1, ImmOperand(value)))
+      case BoolLiteral(value)                 => Seq(MOV(reg1, ImmOperand(if (value) 1 else 0)))
+      case CharLiteral(value)                 => Seq(MOV(reg1, CharOperand(value)))
+      case StringLiteral(value)               => Seq(LDR(reg1, LabelAddress(DefineStringLabel(value).label)))
+      case PairLiteral()                      => Seq(MOV(reg1, ImmOperand(0)))
     }
   }
 
