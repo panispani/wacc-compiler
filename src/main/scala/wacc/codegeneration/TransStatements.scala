@@ -118,8 +118,6 @@ package object TransStatements {
               )
         }
         case PairLiteral() => transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STR(registers.head, RegisterAddress(FP, variableRef.offset)))
-
-
       }
       case default => println("not impelemented"); Seq()
     }
@@ -129,8 +127,7 @@ package object TransStatements {
 
   def transAssignStatement(lhs: AssignTarget, rhs: AssignValue, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     val instruction = transAssignRhs(rhs, symbolTable, registers)
-
-    instruction
+    instruction ++ Macros.store(lhs, registers.head)
   }
 
   def transExitStatement(exitCode: Expression, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
