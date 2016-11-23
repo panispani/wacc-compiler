@@ -22,11 +22,10 @@ class UnaryOperatorsTest extends CodeGenTest {
     //instructions(0) up to instructions(7) are not up to unary operator
     instructions(8) shouldBe LDR(registers.head, RegisterAddress(FP, -4))
     instructions(9) shouldBe LDR(registers.head, RegisterAddress(registers.head, 0))
-    instructions(10) shouldBe MOV(R0, registers.head)
 
-//    LDR r4, [sp]
-//    24		LDR r4, [r4]
-//    25		MOV r0, r4
+    //    LDR r4, [sp]
+    //    24		LDR r4, [r4]
+    //    25		MOV r0, r4
   }
 
 }

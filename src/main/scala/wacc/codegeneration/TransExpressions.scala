@@ -31,6 +31,9 @@ package object TransExpressions {
           evalExpr ++ transBinaryOperator(reg1, binOp, reg2)
         }
 
+      case UnaryOperatorExpr(op, e) => {
+        transExpression(e, symbolTable, reg1 +: reg2 +: regs) ++ transUnaryOperator(reg1, op)
+      }
 
       case VariableReferenceExpression(name, _) => {
         // It is safe to .get the option (semantic check)
