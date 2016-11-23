@@ -25,6 +25,7 @@ package object TransProgram {
                   .append(DefineLabel(Label("main")))
                   .append(COMMENT("Stack setup"))
                   .append(NEW_STACK_FRAME)
+                  .append(MOV(FP, SP))
                   .append(SUB(SP, SP, ImmOperand(program.main.symbolTable.sizeInBytes)))
 
                   .extend(mainInstructions.flatten)
