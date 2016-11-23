@@ -65,16 +65,11 @@ package object TransExpressions {
 //        43		LDRSB r4, [r4]
       }
 
-      case VariableReference(name, _, offset) => Seq(LDR(reg1, RegisterAddress(FP, offset)))
-
+      case VariableReference(name, vartype, offset) => Seq(Macros.load(reg1, offset, vartype))
       case IntegerLiteral(value) => Seq(MOV(reg1, ImmOperand(value)))
-
       case BoolLiteral(value)    => Seq(MOV(reg1, ImmOperand(if (value) 1 else 0)))
-
       case CharLiteral(value)    => Seq(MOV(reg1, CharOperand(value)))
-
-      case StringLiteral(value)  => Seq(MOV(reg1, LabelAddress(DefineStringLabel(value).label)))
-
+      case StringLiteral(value)  => Seq(LDR(reg1, LabelAddress(DefineStringLabel(value).label)))
       case PairLiteral()         => Seq(MOV(reg1, ImmOperand(0)))
     }
   }

@@ -12,8 +12,8 @@ class StatementSequenceTest extends CodeGenTest {
     val program = TestUtilities.buildSubProgram(parser.program, ProgramVisitor).right.get
     val instructions = TestUtilities.translateWithoutSections(program.main)
 
-    instructions.head should be (PUSH(Seq(FP)))
-    instructions(1) should be (MOV(FP, SP))
+    instructions.head should be (MOV(FP, SP))
+    instructions(1) should be (PUSH(Seq(FP)))
     instructions(2) should be (SUB(SP, SP, ImmOperand(0)))
     instructions(3) should be (MOV(R4, ImmOperand(10)))
     instructions(4) should be (MOV(R0, R4))

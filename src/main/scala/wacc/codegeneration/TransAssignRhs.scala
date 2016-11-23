@@ -8,7 +8,7 @@ import wacc.constructs._
 /**
   * Created by panayiotis on 16/11/16.
   */
-package object TransAssigns {
+package object TransAssignRhs {
 
   def transAssignRhs(value: AssignValue, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     value match {

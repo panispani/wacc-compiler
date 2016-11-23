@@ -1,6 +1,6 @@
 package wacc
 
-import wacc.TransAssigns._
+import wacc.TransAssignRhs._
 import wacc.TransExpressions._
 import wacc.codegeneration._
 import wacc.arm._
@@ -118,8 +118,6 @@ package object TransStatements {
               )
         }
         case PairLiteral() => transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STR(registers.head, RegisterAddress(FP, variableRef.offset)))
-
-
       }
       case default => println("not impelemented"); Seq()
     }
@@ -129,9 +127,7 @@ package object TransStatements {
 
   def transAssignStatement(lhs: AssignTarget, rhs: AssignValue, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     val instruction = transAssignRhs(rhs, symbolTable, registers)
-
-    println("assign " + rhs + " to " + lhs)
-    instruction
+    instruction ++ Macros.store(lhs, registers.head)
   }
 
   def transExitStatement(exitCode: Expression, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
@@ -156,7 +152,7 @@ package object TransStatements {
 
     //stack allocation is not done TODO- experimental
     transExpression(expression, symbolTable, registers) ++
-      Seq(CMP(registers.head, ImmOperand(0)), B(L0, EQ)) ++
+      Seq(CMP(registers.head, ImmOperand(1)), B(L0, EQ)) ++
       transScopeStatement(falseStatements, symbolTable, registers) ++
       Seq(B(L1), DefineLabel(L0)) ++
       transScopeStatement(trueStatements, symbolTable, registers) ++
@@ -220,10 +216,17 @@ package object TransStatements {
                           symbolTable: SymbolTable,
                           registers: Seq[Register]): Seq[Instruction] = {
 
+    val printLabel: Label = print.expression.vartype match {
+      case Integer   => StaticCode.printIntLabel
+      case Character => StaticCode.printCharLabel
+      case Boolean   => StaticCode.printBoolLabel
+      case default   => StaticCode.printFunctionLabel
+    }
+
     new CodeSegment()
       .extend(transExpression(print.expression, symbolTable, registers)) // eval expression to print
-        .append(MOV(R0, registers.head)) // setup function call
-      .append(BL(StaticCode.printFunctionLabel)).instructions
+      .append(MOV(R0, registers.head)) // setup function call
+      .append(BL(printLabel)).instructions
   }
 
   def transPrintLnStatement(print: PrintLnStatement,
@@ -232,6 +235,7 @@ package object TransStatements {
     new CodeSegment()
       .extend(transExpression(print.expression, symbolTable, registers))
       .append(MOV(R0, registers.head)) // setup function call
+      .append(BL(StaticCode.printFunctionLabel))
       .append(BL(StaticCode.printLnFunctionLabel)).instructions
 
   }

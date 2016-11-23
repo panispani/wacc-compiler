@@ -74,6 +74,8 @@ case class LDR(Rd: Register, Op1: Address, cond: Condition = ALWAYS) extends One
 
 case class LDRSB(Rd: Register, Op1: Address, cond: Condition = ALWAYS) extends OneRegOneOpInstruction
 
+case class LDRB(Rd: Register, Op1: Address, cond: Condition = ALWAYS) extends OneRegOneOpInstruction
+
 case class STR(Rd: Register, Op1: Address, cond: Condition = ALWAYS) extends OneRegOneOpInstruction
 
 case class STRB(Rd: Register, Op1: Address, cond: Condition = ALWAYS) extends OneRegOneOpInstruction
