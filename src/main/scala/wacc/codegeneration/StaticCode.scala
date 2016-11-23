@@ -64,7 +64,7 @@ package object StaticCode {
       .append(DefineLabel(checkDivideByZeroLabel))
       .append(NEW_STACK_FRAME)
       .append(CMP(R1, ImmOperand(0))) // Check if the dividend is 0
-      .append(LDR(R0, LabelAddress(checkDivideByZeroLabel), EQ)) //If it is 0, load in R0 the error string
+      .append(LDR(R0, LabelAddress(DivideByZeroErrorLabel), EQ)) //If it is 0, load in R0 the error string
       .append(BL(throwRuntimeErrorLabel, EQ)) //Branch to the function to throw a runtime error
       .append(RETURN)
   }
