@@ -31,7 +31,7 @@ run_wacc_files() {
                   fi
             done <$f
 
-            if [ $actual == $expected ]
+            if [ "$actual" == "$expected" ]
             then
                 correct=$((correct+1))
             else
