@@ -205,7 +205,7 @@ package object TransStatements {
     new CodeSegment()
       .extend(beginFrame)
       .extend(instructions.flatten)
-      .extend(endFrame)
+      .extend(endFrame).instructions
   }
 
   def transReadStatement(read: ReadStatement, registers: Seq[Register]): Seq[Instruction] = {
