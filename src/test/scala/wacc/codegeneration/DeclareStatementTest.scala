@@ -6,7 +6,6 @@ import wacc.TransStatements._
 import wacc.arm._
 import wacc.visitors.StatementVisitor
 
-@Ignore
 class DeclareStatementTest extends CodeGenTest {
 
   it should "produce the expected instructions" in {
@@ -16,20 +15,20 @@ class DeclareStatementTest extends CodeGenTest {
     val availableRegisters = Seq(R4, R5, R6)
     val instructions = transStatement(program.right.get, SymbolTable.globalTable, availableRegisters)
 
-    instructions.last shouldBe STR(availableRegisters.head, RegisterAddress(FP, 0))
+    instructions.last shouldBe STR(availableRegisters.head, RegisterAddress(FP, -4))
   }
 
-  it should "produce the expected instructions with pair literal" in {
+  ignore should "produce the expected instructions with pair literal" in {
     val parser = TestUtilities.setupParser("pair(int, int) x = null")
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
     val availableRegisters = Seq(R4, R5, R6)
     val instructions = transStatement(program.right.get, SymbolTable.globalTable, availableRegisters)
 
-    instructions.last shouldBe STR(availableRegisters.head, RegisterAddress(SP, 0))
+    instructions.last shouldBe STR(availableRegisters.head, RegisterAddress(FP, -4))
   }
 
-  it should "be able to handle two consecutive declarations" in {
+  ignore should "be able to handle two consecutive declarations" in {
     val parser = TestUtilities.setupParser("bool b = true")
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
@@ -46,7 +45,7 @@ class DeclareStatementTest extends CodeGenTest {
     instructions(3) shouldBe STR(availableRegisters.head, RegisterAddress(SP, 1))
   }
 
-  it should "be able to handle array declarations" in {
+  ignore should "be able to handle array declarations" in {
     val parser = TestUtilities.setupParser("int[] a = [0, 1]")
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
@@ -66,7 +65,7 @@ class DeclareStatementTest extends CodeGenTest {
 
   }
 
-  it should "be able to handle declaring an int with assign value another variable" in {
+  ignore should "be able to handle declaring an int with assign value another variable" in {
     val parser = TestUtilities.setupParser("int a = 0")
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
@@ -85,7 +84,7 @@ class DeclareStatementTest extends CodeGenTest {
     instructions(3) shouldBe STR(availableRegisters.head, RegisterAddress(SP, 4))
   }
 
-  it should "be able to handle declaring an array with assign value another variable" in {
+  ignore should "be able to handle declaring an array with assign value another variable" in {
     val parser = TestUtilities.setupParser("int[] a = [0]")
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
@@ -110,7 +109,7 @@ class DeclareStatementTest extends CodeGenTest {
     instructions(9) shouldBe STR(availableRegisters.head, RegisterAddress(SP, 4))
   }
 
-  it should "be able to handle declaring pairs" in {
+  ignore should "be able to handle declaring pairs" in {
     val parser = TestUtilities.setupParser("pair(int, int) p = newpair(10, 3)")
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
