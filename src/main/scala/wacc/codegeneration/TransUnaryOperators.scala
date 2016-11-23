@@ -10,6 +10,8 @@ package object TransUnaryOperators {
       case LenOp  => Seq(LDR(r, RegisterAddress(r, 0)))
 
       case MinusOp => Seq(RSBS(r, r, ImmOperand(0)))
+
+      case NotOp => Seq(EOR(r, r, ImmOperand(1)))
     }
   }
 
