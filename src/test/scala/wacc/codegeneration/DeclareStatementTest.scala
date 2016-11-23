@@ -16,6 +16,16 @@ class DeclareStatementTest extends CodeGenTest {
     val availableRegisters = Seq(R4, R5, R6)
     val instructions = transStatement(program.right.get, SymbolTable.globalTable, availableRegisters)
 
+    instructions.last shouldBe STR(availableRegisters.head, RegisterAddress(FP, 0))
+  }
+
+  it should "produce the expected instructions with pair literal" in {
+    val parser = TestUtilities.setupParser("pair(int, int) x = null")
+    val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
+
+    val availableRegisters = Seq(R4, R5, R6)
+    val instructions = transStatement(program.right.get, SymbolTable.globalTable, availableRegisters)
+
     instructions.last shouldBe STR(availableRegisters.head, RegisterAddress(SP, 0))
   }
 
