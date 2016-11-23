@@ -16,6 +16,7 @@ package object StaticCode {
     .extend(printLnFunction)
     .extend(CheckDivideByZero)
     .extend(throwRuntimeError)
+    .extend(checkArrayBounds)
 
   def staticData: CodeSegment = new CodeSegment()
     .append(DefineLabel(readFormatLabel))
@@ -44,6 +45,7 @@ package object StaticCode {
   def moduleLabel: Label = Label("__aeabi_idivmod")
   def arrayNegativeIndexLabel: Label = Label("array_negative_index")
   def arrayIndexTooLargeLabel: Label = Label("array_index_too_large")
+  def checkArrayBoundsLabel: Label = Label("check_array_bounds")
 
   def readFunction: CodeSegment = {
     new CodeSegment()
@@ -96,4 +98,26 @@ package object StaticCode {
       .append(RETURN)
   }
 
+  def checkArrayBounds: CodeSegment = {
+    new CodeSegment()
+      .append(DefineLabel(checkArrayBoundsLabel))
+      .append(CMP(R0, ImmOperand(0)))
+      .append(LDR(R0, LabelAddress(arrayNegativeIndexLabel), LT))
+      .append(BL(throwRuntimeErrorLabel, LT))
+      .append(LDR(R1, RegisterAddress(R1, 0)))
+      .append(CMP(R0, R1))
+      .append(LDR(R0, LabelAddress(arrayIndexTooLargeLabel), CS))
+      .append(BL(throwRuntimeErrorLabel, CS))
+      .append(RETURN)
+
+//    PUSH {lr}
+//    50		CMP r0, #0
+//    51		LDRLT r0, =msg_0
+//    52		BLLT p_throw_runtime_error
+//    53		LDR r1, [r1]
+//    54		CMP r0, r1
+//    55		LDRCS r0, =msg_1
+//    56		BLCS p_throw_runtime_error
+//    57		POP {pc}
+  }
 }
