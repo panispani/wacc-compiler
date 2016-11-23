@@ -216,10 +216,17 @@ package object TransStatements {
                           symbolTable: SymbolTable,
                           registers: Seq[Register]): Seq[Instruction] = {
 
+    val printLabel: Label = print.expression.vartype match {
+      case Integer   => StaticCode.printIntLabel
+      case Character => StaticCode.printCharLabel
+      case Boolean   => StaticCode.printBoolLabel
+      case default   => StaticCode.printFunctionLabel
+    }
+
     new CodeSegment()
       .extend(transExpression(print.expression, symbolTable, registers)) // eval expression to print
-        .append(MOV(R0, registers.head)) // setup function call
-      .append(BL(StaticCode.printFunctionLabel)).instructions
+      .append(MOV(R0, registers.head)) // setup function call
+      .append(BL(printLabel)).instructions
   }
 
   def transPrintLnStatement(print: PrintLnStatement,
