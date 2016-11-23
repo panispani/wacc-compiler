@@ -33,10 +33,6 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
     SymbolTable().lookupDeep(identifier.getText) match {
       case Some(variable @ VariableReference(name, vartype, _)) =>
         Right(VariableReferenceExpression(name, vartype))
-      case Some(FunctionReference(f, _, _)) =>
-        Left(SemanticError("Expected identifier to be a variable, got function instead", identifier.getSymbol))
-      case Some(_: Typed) =>
-        Left(SemanticError("Compiler broken", identifier.getSymbol))
       case None =>
         Left(SemanticError("Identifier " + identifier.getText + " not declared", identifier.getSymbol))
     }
