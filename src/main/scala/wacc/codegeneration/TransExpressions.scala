@@ -35,11 +35,7 @@ package object TransExpressions {
         transExpression(e, symbolTable, reg1 +: reg2 +: regs) ++ transUnaryOperator(reg1, op)
       }
 
-      case VariableReferenceExpression(name, _) => {
-        // It is safe to .get the option (semantic check)
-        val reference = symbolTable.lookupDeep(name).get
-        Seq(LDR(reg1, RegisterAddress(FP, reference.offset)))
-      }
+      case VariableReference(name, _, offset) => Seq(LDR(reg1, RegisterAddress(FP, offset)))
 
       case IntegerLiteral(value) => Seq(MOV(reg1, ImmOperand(value)))
 

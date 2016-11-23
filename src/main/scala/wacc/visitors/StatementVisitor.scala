@@ -82,10 +82,10 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
   }
 
   override def visitConditional(ctx: ConditionalContext): Either[CompilationError, ConditionalStatement] = {
-    SymbolTable.openScope()
 
     val tuple = for {
       expression <- ctx.expression().accept(ExpressionVisitor).right
+      _ <- Right(SymbolTable.openScope()).right
       trueStatements <- sequenceOrLast(ctx.trueSequence.statement().toList map (s => s.accept(StatementVisitor))).right
       _ <- Right(SymbolTable.closeScope()).right
       _ <- Right(SymbolTable.openScope()).right

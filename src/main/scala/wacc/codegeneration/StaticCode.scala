@@ -4,10 +4,10 @@ import wacc.arm._
 import wacc.codegeneration._
 
 package object StaticCode {
-  def readFormat: AsciiData        = AsciiData("%d")
-  def printFormat: AsciiData       = AsciiData("%%.*s")
-  def emptyString: AsciiData       = AsciiData("")
-  def divideOrModuleByZeroString: AsciiData = AsciiData("DivideByZeroError: divide or modulo by zero")
+  def readFormat: AsciiData        = AsciiData("\"%d\"")
+  def printFormat: AsciiData       = AsciiData("\"%%.*s\"")
+  def emptyString: AsciiData       = AsciiData("\"\"")
+  def divideOrModuleByZeroString: AsciiData = AsciiData("\"DivideByZeroError: divide or modulo by zeroz\"")
   def staticFunctions: CodeSegment =
     readFunction
     .extend(printFunction)

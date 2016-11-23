@@ -71,7 +71,7 @@ class ExpressionVisitorTest extends VisitorTest {
     result.right.value should be (List(
       DeclareStatement(Integer, VariableReference("a", Integer, -4), IntegerLiteral(5)),
       DeclareStatement(Boolean, VariableReference("b", Boolean, -8),
-        BinaryOperatorExpr(VariableReferenceExpression("a", Integer), EqualsBinOp, IntegerLiteral(5))
+        BinaryOperatorExpr(VariableReference("a", Integer, -4), EqualsBinOp, IntegerLiteral(5))
       )
     ))
   }

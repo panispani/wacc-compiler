@@ -27,12 +27,12 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
     * code generation would recompute the offset taking into account the correct size of the child scope.
     * */
   override def visitVariableReference(ctx: VariableReferenceContext)
-  : Either[CompilationError, VariableReferenceExpression] = {
+  : Either[CompilationError, VariableReference] = {
     val identifier = ctx.IDENT()
 
     SymbolTable().lookupDeep(identifier.getText) match {
-      case Some(variable @ VariableReference(name, vartype, _)) =>
-        Right(VariableReferenceExpression(name, vartype))
+      case Some(variable : VariableReference) =>
+        Right(variable)
       case None =>
         Left(SemanticError("Identifier " + identifier.getText + " not declared", identifier.getSymbol))
     }

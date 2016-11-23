@@ -68,15 +68,11 @@ package object TransStatements {
                             assignValue: AssignValue,
                             symbolTable: SymbolTable,
                             registers: Seq[Register]): Seq[Instruction] = {
-    // TODO: See what this should do
-    //    VarLog.add(identifier, vartype)
 
     assignValue match {
-      case VariableReferenceExpression(name, _) =>
-        // It is safe to .get the option (semantic check)
-        val reference = symbolTable.lookupDeep(name).get
+      case VariableReference(name, _, offset) =>
         Seq(
-          LDR(registers.head, RegisterAddress(FP, reference.offset)),
+          LDR(registers.head, RegisterAddress(FP, offset)),
           STR(R4, RegisterAddress(FP, variableRef.offset))
         )
       case default => transDeclareStatementWithLiteralRhs(vartype, variableRef, assignValue, symbolTable, registers)

@@ -8,7 +8,7 @@ trait Reference extends Typed {
   val name: String
   val offset: Int
 }
-case class VariableReference(name: String, vartype: Type, offset: Int) extends Reference
+case class VariableReference(name: String, vartype: Type, offset: Int) extends Reference with Expression
 case class FunctionReference(name: String, returnType: Type, argumentTypes : Seq[Type])
 
 case class SymbolTable(parent: Option[SymbolTable]) {
