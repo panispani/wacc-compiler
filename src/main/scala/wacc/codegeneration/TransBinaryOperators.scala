@@ -13,7 +13,8 @@ package object TransBinaryOperators {
         MOV(R0, r1),
         MOV(R1, r2),
         BL(StaticCode.checkDivideByZeroLabel),
-        BL(StaticCode.divisionLabel)
+        BL(StaticCode.divisionLabel),
+        MOV(r1, R1)
       )
 
       case BinaryOperator("%")  => Seq(
