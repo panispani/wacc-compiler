@@ -32,7 +32,7 @@ package object TransProgram {
                   .append(COMMENT("Stack setup"))
                   .append(ADD(SP, SP, ImmOperand(program.main.symbolTable.sizeInBytes)))
                   .append(MOV(R0, ImmOperand(0)))
-
+                  .append(RETURN)
 
     new CodeSegment()
       .append(ARMSection("data"))
