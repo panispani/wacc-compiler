@@ -156,7 +156,7 @@ package object TransStatements {
 
     //stack allocation is not done TODO- experimental
     transExpression(expression, symbolTable, registers) ++
-      Seq(CMP(registers.head, ImmOperand(0)), B(L0, EQ)) ++
+      Seq(CMP(registers.head, ImmOperand(1)), B(L0, EQ)) ++
       transScopeStatement(falseStatements, symbolTable, registers) ++
       Seq(B(L1), DefineLabel(L0)) ++
       transScopeStatement(trueStatements, symbolTable, registers) ++

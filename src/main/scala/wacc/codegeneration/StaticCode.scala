@@ -8,7 +8,7 @@ package object StaticCode {
 
   def printFormat: AsciiData = AsciiData("\"%.*s\\0\"")
 
-  def emptyString: AsciiData = AsciiData("\"\"")
+  def emptyString: AsciiData = AsciiData("\"\\0\"")
 
   def divideOrModuleByZeroString: AsciiData = AsciiData("\"DivideByZeroError: divide or modulo by zeroz\"")
 
