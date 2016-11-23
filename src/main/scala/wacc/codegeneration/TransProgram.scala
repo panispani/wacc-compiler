@@ -12,6 +12,7 @@ package object TransProgram {
     val mainInstructions     = program.main.statements map (
       s => transStatement (s, program.main.symbolTable, Registers.expressionRegs))
 
+    val (beginFrame, endFrame) = Macros.frame(program.main.symbolTable.sizeInBytes)
     val data = new CodeSegment().extend(StaticCode.staticData).extend(LabelTable.outputLabels)
     val text = new CodeSegment()
                   .append(COMMENT("Static code"))
@@ -24,16 +25,21 @@ package object TransProgram {
                   .append(GLOBAL("main"))
                   .append(DefineLabel(Label("main")))
                   .append(COMMENT("Stack setup"))
-                  .append(NEW_STACK_FRAME)
-                  .append(MOV(FP, SP))
-                  .append(SUB(SP, SP, ImmOperand(program.main.symbolTable.sizeInBytes)))
+
+                  //.append(NEW_STACK_FRAME)
+                  //.append(MOV(FP, SP))
+                  //.append(SUB(SP, SP, ImmOperand(program.main.symbolTable.sizeInBytes)))
+                  .extend(beginFrame)
 
                   .extend(mainInstructions.flatten)
 
                   .append(COMMENT("Stack setup"))
-                  .append(ADD(SP, SP, ImmOperand(program.main.symbolTable.sizeInBytes)))
+
+                  //.append(ADD(SP, SP, ImmOperand(program.main.symbolTable.sizeInBytes)))
+                  .extend(endFrame)
+
                   .append(MOV(R0, ImmOperand(0)))
-                  .append(RETURN)
+                  //.append(RETURN)
 
     new CodeSegment()
       .append(ARMSection("data"))

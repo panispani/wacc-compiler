@@ -24,14 +24,14 @@ def frame(size: Int, isBranch: Boolean = false): (CodeSegment, CodeSegment) = {
     val blocks = size / MAX_SIZE
     val remainder = size % MAX_SIZE
 
-    for (i <- 0 to blocks) {
-      start = start.append(SUB(SP, SP, ImmOperand(MAX_SIZE))) 
+    for (i <- 1 to blocks) {
+      start = start.append(SUB(SP, SP, ImmOperand(MAX_SIZE)))
       end = end.append(ADD(SP, SP, ImmOperand(MAX_SIZE)))
     }
 
     start = start.append(SUB(SP, SP, ImmOperand(remainder)))
     end = end.append(ADD(SP, SP, ImmOperand(remainder)))
-      .append(POP(Seq(FP)))
+             .append(POP(Seq(FP)))
 
     if (isBranch) end = end.append(POP(Seq(PC)))
     (start, end)
