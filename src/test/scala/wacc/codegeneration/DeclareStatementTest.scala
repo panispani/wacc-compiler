@@ -84,7 +84,7 @@ class DeclareStatementTest extends CodeGenTest {
     instructions(3) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -8))
   }
 
-  ignore should "be able to handle declaring an array with assign value another variable" in {
+  it should "be able to handle declaring an array with assign value another variable" in {
     val parser = TestUtilities.setupParser("int[] a = [0]")
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
@@ -104,9 +104,9 @@ class DeclareStatementTest extends CodeGenTest {
     instructions(4) shouldBe STR(availableRegisters(1), RegisterAddress(availableRegisters.head, 0))
     //Don't care about instruction(5) because it's up to translateExpression
     instructions(6) shouldBe STR(availableRegisters(1), RegisterAddress(availableRegisters.head, 4))
-    instructions(7) shouldBe STR(availableRegisters.head, RegisterAddress(SP, 0))
-    instructions(8) shouldBe LDR(availableRegisters.head, RegisterAddress(SP, 0))
-    instructions(9) shouldBe STR(availableRegisters.head, RegisterAddress(SP, 4))
+    instructions(7) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -4))
+    instructions(8) shouldBe LDR(availableRegisters.head, RegisterAddress(FP, -4))
+    instructions(9) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -8))
   }
 
   ignore should "be able to handle declaring pairs" in {
