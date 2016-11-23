@@ -33,7 +33,7 @@ class ScopeStatementTest extends VisitorTest {
           Integer,
           VariableReference("b", Integer, -8),
           VariableReference("a", Integer, -4))
-      ) 
+      )
   }
 
   it should "use parent variables when exiting a scope and not allow redeclarations" in {

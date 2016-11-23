@@ -232,6 +232,7 @@ package object TransStatements {
     new CodeSegment()
       .extend(transExpression(print.expression, symbolTable, registers))
       .append(MOV(R0, registers.head)) // setup function call
+      .append(BL(StaticCode.printFunctionLabel))
       .append(BL(StaticCode.printLnFunctionLabel)).instructions
 
   }
