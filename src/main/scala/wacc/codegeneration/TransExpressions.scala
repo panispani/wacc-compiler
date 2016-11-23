@@ -50,9 +50,18 @@ package object TransExpressions {
   }
 
   private def transExpressionAcc(expr: Expression, reg1: Register, symbolTable: SymbolTable, regs: Seq[Register]): Seq[Instruction] = {
-    val reg2 = getAnotherRegister(reg1)
-    Seq(PUSH(Seq(reg2))) ++
-      transExpressionReg(expr, reg1, reg2, symbolTable, regs) ++
-      Seq(POP(Seq(reg2)))
+    expr match {
+      case IntegerLiteral(value) => Seq(MOV(reg1, ImmOperand(value)))
+      case BoolLiteral(value) => Seq(MOV(reg1, ImmOperand(if (value) 1 else 0)))
+      case CharLiteral(value) => Seq(MOV(reg1, CharOperand(value)))
+      case StringLiteral(value) => Seq(MOV(reg1, LabelAddress(DefineStringLabel(value).label)))
+      case default => {
+        val reg2 = getAnotherRegister(reg1)
+        Seq(PUSH(Seq(reg2))) ++
+          transExpressionReg(expr, reg1, reg2, symbolTable, regs) ++
+          Seq(POP(Seq(reg2)))
+      }
+    }
   }
+
 }
