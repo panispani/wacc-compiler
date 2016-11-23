@@ -26,20 +26,11 @@ package object TransProgram {
                   .append(DefineLabel(Label("main")))
                   .append(COMMENT("Stack setup"))
 
-                  //.append(NEW_STACK_FRAME)
-                  //.append(MOV(FP, SP))
-                  //.append(SUB(SP, SP, ImmOperand(program.main.symbolTable.sizeInBytes)))
                   .extend(beginFrame)
-
                   .extend(mainInstructions.flatten)
-
                   .append(COMMENT("Stack setup"))
-
-                  //.append(ADD(SP, SP, ImmOperand(program.main.symbolTable.sizeInBytes)))
-                  .extend(endFrame)
-
                   .append(MOV(R0, ImmOperand(0)))
-                  //.append(RETURN)
+                  .extend(endFrame)
 
     new CodeSegment()
       .append(ARMSection("data"))

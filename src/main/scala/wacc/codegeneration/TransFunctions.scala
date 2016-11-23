@@ -7,15 +7,14 @@ import wacc.constructs._
 
 package object TransFunctions {
   def transFunction(function: Function, registers: Seq[Register]): Seq[Instruction] = {
+    val (beginFrame, endFrame) = Macros.frame(function.symbolTable.sizeInBytes)
     new CodeSegment()
       .append(DefineLabel(Label(function.identifier)))
-      .append(NEW_STACK_FRAME)
-      .append(PUSH(Seq(FP))) // R11 will act as the frame pointer
-      .append(MOV(FP, SP))
-      .append(SUB(SP, SP, ImmOperand(function.symbolTable.sizeInBytes)))
+
+      .extend(beginFrame)
       .extend(function.statements flatMap (s => transStatement (s, function.symbolTable, registers)))
-      .append(ADD(SP, SP, ImmOperand(function.symbolTable.sizeInBytes)))
-      .append(POP(Seq(FP)))
+      .extend(endFrame)
+
       .append(RETURN)
       .instructions
   }
