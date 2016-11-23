@@ -1,6 +1,6 @@
 package wacc
 
-import wacc.TransAssigns._
+import wacc.TransAssignRhs._
 import wacc.TransExpressions._
 import wacc.codegeneration._
 import wacc.arm._
@@ -130,7 +130,6 @@ package object TransStatements {
   def transAssignStatement(lhs: AssignTarget, rhs: AssignValue, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     val instruction = transAssignRhs(rhs, symbolTable, registers)
 
-    println("assign " + rhs + " to " + lhs)
     instruction
   }
 

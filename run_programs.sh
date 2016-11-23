@@ -52,7 +52,7 @@ then
 fi
 BASE_DIR=$(pwd)
 echo "Running valid programs"
-cd "wacc_examples/valid/if"
+cd "wacc_examples/valid/while"
 correct=0
 total=0
 run_wacc_files

@@ -1,8 +1,14 @@
 package wacc.arm
 
 import wacc.codegeneration.CodeSegment
+import wacc.constructs.{Boolean, Character, Type}
 
 object Macros {
+  def load(reg1: Register, offset: Int, vartype: Type): Instruction = vartype match {
+    case Boolean | Character => LDRB(reg1, RegisterAddress(FP, offset))
+    case default => LDR(reg1, RegisterAddress(FP, offset))
+  }
+
 
   /**
     * Returns the code for opening and closing a scope
