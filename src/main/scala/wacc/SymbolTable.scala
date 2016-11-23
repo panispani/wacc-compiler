@@ -13,7 +13,7 @@ case class FunctionReference(name: String, returnType: Type, argumentTypes : Seq
 
 case class SymbolTable(parent: Option[SymbolTable]) {
 
-  var currentOffset: Int = 4 // initialise under FP
+  private var currentOffset: Int = 4
   def sizeInBytes = currentOffset - 4
 
   private var map: mutable.Map[String, VariableReference] = mutable.Map()
@@ -74,12 +74,12 @@ case class SymbolTable(parent: Option[SymbolTable]) {
     case Some(ref) => Some(VariableReference(identifier, ref.vartype,  ref.offset + currentOffset + offset))
     // Recursive case just accumulates the offset (parent frame pointer and parent size)
     case None => parent flatMap (
-      parent => parent.lookupWithOffsetAccumulator(identifier, parent.currentOffset + offset))
+      parent => parent.lookupWithOffsetAccumulator(identifier, currentOffset + offset))
   }
 
   def clear() = {
     map.clear()
-    currentOffset = 0
+    currentOffset = 4
   }
 }
 
@@ -93,6 +93,7 @@ object SymbolTable {
 
   def clearAll() = {
     globalTable.clear()
+    functionsTable.clear()
     currentTable = globalTable
   }
 
