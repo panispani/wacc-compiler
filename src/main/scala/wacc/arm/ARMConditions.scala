@@ -16,7 +16,6 @@ object EQ extends Condition
 
 object NE extends Condition
 
-//todo: Hack
 object CS extends Condition
 
 object ALWAYS extends Condition {
