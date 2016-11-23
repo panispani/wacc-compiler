@@ -38,6 +38,8 @@ package object StaticCode {
   def checkDivideByZeroLabel: Label = Label("check_divide_by_zero")
   def divisionLabel: Label = Label("__aeabi_idiv")
   def moduleLabel: Label = Label("__aeabi_idivmod")
+  def arrayNegativeIndexLabel: Label = Label("array_negative_index")
+  def arrayIndexTooLargeLabel: Label = Label("array_index_too_large")
 
   def readFunction: CodeSegment = {
     new CodeSegment()
