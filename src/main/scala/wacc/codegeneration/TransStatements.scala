@@ -118,7 +118,7 @@ package object TransStatements {
                 BL(Label("malloc")),
                 STR(registers(1), RegisterAddress(R0, 0)),  //Store the value for the second element in its memory
                 STR(R0, RegisterAddress(registers(0), firstType.size)),   //Put address of second element in memory of pair with offset
-                STR(registers.head, RegisterAddress(FP, 0))
+                STR(registers.head, RegisterAddress(FP, variableRef.offset))
               )
         }
         case PairLiteral() => transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STR(registers.head, RegisterAddress(FP, variableRef.offset)))
