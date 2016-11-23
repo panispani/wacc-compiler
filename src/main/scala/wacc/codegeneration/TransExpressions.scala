@@ -1,6 +1,7 @@
 package wacc
 
 import wacc.TransBinaryOperators._
+import wacc.TransUnaryOperators._
 import wacc.codegeneration.Weight._
 import wacc.codegeneration._
 import wacc.arm._
@@ -29,6 +30,7 @@ package object TransExpressions {
             transExpression(e1, symbolTable, reg1 +: regs)
           evalExpr ++ transBinaryOperator(reg1, binOp, reg2)
         }
+
 
       case VariableReferenceExpression(name, _) => {
         // It is safe to .get the option (semantic check)
