@@ -1,34 +1,23 @@
 package wacc.arm
 
-trait Condition
-object GT extends Condition {
-  override def toString = "GT"
+case class Condition() {
+  override def toString: String = this.getClass.getSimpleName.init
 }
 
-object GE extends Condition {
-  override def toString = "GE"
-}
+object GT extends Condition
 
-object LT extends Condition {
-  override def toString = "LT"
-}
+object GE extends Condition
 
-object LE extends Condition {
-  override def toString = "LE"
-}
+object LT extends Condition
 
-object EQ extends Condition {
-  override def toString = "EQ"
-}
+object LE extends Condition
 
-object NE extends Condition {
-  override def toString = "NE"
-}
+object EQ extends Condition
+
+object NE extends Condition
 
 //todo: Hack
-object CS extends Condition {
-  override def toString = "CS"
-}
+object CS extends Condition
 
 object ALWAYS extends Condition {
   override def toString = ""
