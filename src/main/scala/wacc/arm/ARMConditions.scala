@@ -27,7 +27,7 @@ object NE extends Condition {
 
 //todo: Hack
 object CS extends Condition {
-  override def toString = "NE"
+  override def toString = "CS"
 }
 
 object ALWAYS extends Condition {
