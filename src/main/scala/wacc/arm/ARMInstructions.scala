@@ -99,7 +99,7 @@ case class LDR(Rd: Register, Op1: Address, cond: Condition = ALWAYS) extends One
 }
 
 case class STR(Rd: Register, Op1: Address, cond: Condition = ALWAYS) extends OneRegOneOpInstruction {
-  override val name: String = "LDR"
+  override val name: String = "STR"
 }
 
 case class STRB(Rd: Register, Op1: Address, cond: Condition = ALWAYS) extends OneRegOneOpInstruction {
