@@ -52,6 +52,8 @@ case class EOR(Rd: Register, Rn: Register, Op1: Operand, cond: Condition = ALWAY
 
 case class ORR(Rd: Register, Rn: Register, Op1: Operand, cond: Condition = ALWAYS) extends TwoRegOneOpInstruction
 
+case class RSBS(Rd: Register, Rn: Register, Op1: Operand, cond: Condition = ALWAYS) extends TwoRegOneOpInstruction
+
 
 abstract class OneRegOneOpInstruction extends ConditionalInstruction {
   val Rd: Register

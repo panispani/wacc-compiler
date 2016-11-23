@@ -1,6 +1,7 @@
 package wacc
 
 import wacc.TransBinaryOperators._
+import wacc.TransUnaryOperators._
 import wacc.codegeneration.Weight._
 import wacc.codegeneration._
 import wacc.arm._
@@ -20,21 +21,31 @@ package object TransExpressions {
       case BinaryOperatorExpr(e1, binOp, e2) =>
         if (weight(e1) > weight(e2)) {
           // e1 first
-          val evalExpr = transExpression(e1, symbolTable, reg1+:reg2+:regs) ++
-            transExpression(e2, symbolTable, reg2+:regs)
+          val evalExpr = transExpression(e1, symbolTable, reg1 +: reg2 +: regs) ++
+            transExpression(e2, symbolTable, reg2 +: regs)
           evalExpr ++ transBinaryOperator(reg1, binOp, reg2)
         } else {
           // e2 first
-          val evalExpr = transExpression(e2, symbolTable, reg2+:reg1+:regs) ++
-            transExpression(e1, symbolTable, reg1+:regs)
+          val evalExpr = transExpression(e2, symbolTable, reg2 +: reg1 +: regs) ++
+            transExpression(e1, symbolTable, reg1 +: regs)
           evalExpr ++ transBinaryOperator(reg1, binOp, reg2)
         }
+
+      case UnaryOperatorExpr(op, e) => {
+        transExpression(e, symbolTable, reg1 +: reg2 +: regs) ++ transUnaryOperator(reg1, op)
+      }
+
       case VariableReference(name, _, offset) => Seq(LDR(reg1, RegisterAddress(FP, offset)))
-      case IntegerLiteral(value)              => Seq(MOV(reg1, ImmOperand(value)))
-      case BoolLiteral(value)                 => Seq(MOV(reg1, ImmOperand(if (value) 1 else 0)))
-      case CharLiteral(value)                 => Seq(MOV(reg1, CharOperand(value)))
-      case StringLiteral(value)               => Seq(LDR(reg1, LabelAddress(DefineStringLabel(value).label)))
-      case PairLiteral()                      => Seq(MOV(reg1, ImmOperand(0)))
+
+      case IntegerLiteral(value) => Seq(MOV(reg1, ImmOperand(value)))
+
+      case BoolLiteral(value)    => Seq(MOV(reg1, ImmOperand(if (value) 1 else 0)))
+
+      case CharLiteral(value)    => Seq(MOV(reg1, CharOperand(value)))
+
+      case StringLiteral(value)  => Seq(MOV(reg1, LabelAddress(DefineStringLabel(value).label)))
+
+      case PairLiteral()         => Seq(MOV(reg1, ImmOperand(0)))
     }
   }
 
