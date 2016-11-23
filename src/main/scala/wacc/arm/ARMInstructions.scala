@@ -72,6 +72,8 @@ case class MOV(Rd: Register, Op1: Operand, cond: Condition = ALWAYS) extends One
 
 case class LDR(Rd: Register, Op1: Address, cond: Condition = ALWAYS) extends OneRegOneOpInstruction
 
+case class LDRSB(Rd: Register, Op1: Address, cond: Condition = ALWAYS) extends OneRegOneOpInstruction
+
 case class STR(Rd: Register, Op1: Address, cond: Condition = ALWAYS) extends OneRegOneOpInstruction
 
 case class STRB(Rd: Register, Op1: Address, cond: Condition = ALWAYS) extends OneRegOneOpInstruction
