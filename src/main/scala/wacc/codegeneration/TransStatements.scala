@@ -121,6 +121,7 @@ package object TransStatements {
                 STR(registers.head, RegisterAddress(FP, 0))
               )
         }
+        case PairLiteral() => transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STR(registers.head, RegisterAddress(FP, variableRef.offset)))
 
 
       }

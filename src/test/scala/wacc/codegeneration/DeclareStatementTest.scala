@@ -18,7 +18,7 @@ class DeclareStatementTest extends CodeGenTest {
     instructions.last shouldBe STR(availableRegisters.head, RegisterAddress(FP, -4))
   }
 
-  ignore should "produce the expected instructions with pair literal" in {
+  it should "produce the expected instructions with pair literal" in {
     val parser = TestUtilities.setupParser("pair(int, int) x = null")
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
