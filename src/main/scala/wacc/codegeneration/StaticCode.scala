@@ -8,6 +8,8 @@ package object StaticCode {
   def printFormat: AsciiData       = AsciiData("\"%%.*s\"")
   def emptyString: AsciiData       = AsciiData("\"\"")
   def divideOrModuleByZeroString: AsciiData = AsciiData("\"DivideByZeroError: divide or modulo by zeroz\"")
+  def arrayNegativeIndex: AsciiData = AsciiData("\"ArrayIndexOutOfBoundsError: negative index\"")
+  def arrayIndexTooLarge: AsciiData = AsciiData("\"ArrayIndexOutOfBoundsError: index too large\"")
   def staticFunctions: CodeSegment =
     readFunction
     .extend(printFunction)
