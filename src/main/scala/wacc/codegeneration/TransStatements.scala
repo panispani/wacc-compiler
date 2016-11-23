@@ -29,10 +29,10 @@ package object TransStatements {
         => transSkipStatement();
 
       case stat @ PrintStatement(expression)
-        => transPrintStatement(stat, registers);
+        => transPrintStatement(stat, symbolTable, registers);
 
       case stat @ PrintLnStatement(expression)
-        => transPrintLnStatement(stat, registers);
+        => transPrintLnStatement(stat, symbolTable, registers);
 
       case ConditionalStatement(expression, trueStatements, falseStatements, symbolTable)
         => transConditionalStatement(expression, trueStatements, falseStatements, symbolTable, registers)
@@ -215,12 +215,23 @@ package object TransStatements {
       .instructions
   }
 
-  def transPrintStatement(read: PrintStatement, registers: Seq[Register]): Seq[Instruction] = {
-    new CodeSegment().append(BL(StaticCode.printFunctionLabel)).instructions
+  def transPrintStatement(print: PrintStatement,
+                          symbolTable: SymbolTable,
+                          registers: Seq[Register]): Seq[Instruction] = {
+
+    new CodeSegment()
+      .extend(transExpression(print.expression, symbolTable, registers)) // eval expression to print
+        .append(MOV(R0, registers.head)) // setup function call
+      .append(BL(StaticCode.printFunctionLabel)).instructions
   }
 
-  def transPrintLnStatement(read: PrintLnStatement, registers: Seq[Register]): Seq[Instruction] = {
-    new CodeSegment().append(BL(StaticCode.printLnFunctionLabel)).instructions
+  def transPrintLnStatement(print: PrintLnStatement,
+                            symbolTable: SymbolTable,
+                            registers: Seq[Register]): Seq[Instruction] = {
+    new CodeSegment()
+      .extend(transExpression(print.expression, symbolTable, registers))
+      .append(MOV(R0, registers.head)) // setup function call
+      .append(BL(StaticCode.printLnFunctionLabel)).instructions
 
   }
 }
