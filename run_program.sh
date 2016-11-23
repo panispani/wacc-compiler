@@ -19,7 +19,7 @@ while read line; do
   fi
 done <$1
 
-if [ $actual == $expected ]
+if [ "$actual" == "$expected" ]
 then
   echo "output correct for "$1"."
   echo "expected: "$expected""
