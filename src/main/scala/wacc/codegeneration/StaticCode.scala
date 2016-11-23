@@ -15,7 +15,7 @@ package object StaticCode {
     .extend(printFunction)
     .extend(printLnFunction)
     .extend(CheckDivideByZero)
-    .extend(ThrowRuntimeError)
+    .extend(throwRuntimeError)
 
   def staticData: CodeSegment = new CodeSegment()
     .append(DefineLabel(readFormatLabel))
@@ -77,7 +77,7 @@ package object StaticCode {
       .append(RETURN)
   }
 
-  def ThrowRuntimeError: CodeSegment = {
+  def throwRuntimeError: CodeSegment = {
     new CodeSegment()
       .append(DefineLabel(throwRuntimeErrorLabel))
       .append(BL(printFunctionLabel))
@@ -95,4 +95,5 @@ package object StaticCode {
       .append(BL(Label("fflush")))                // TODO: Flush buffer?
       .append(RETURN)
   }
+
 }
