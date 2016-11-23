@@ -51,7 +51,7 @@ package object StaticCode {
   def printFunctionLabel: Label = Label("print")
   def printLnFunctionLabel: Label = Label("print_ln")
   def printIntLabel: Label = Label("print_int")
-  def printCharLabel: Label = Label("put_char") // standard C library function
+  def printCharLabel: Label = Label("print_char") // standard C library function
   def printBoolLabel: Label = Label("print_bool_label")
   def printStringFormatLabel: Label = Label("print_string_format")
   def printIntFormatLabel: Label = Label("print_int_format")
@@ -125,6 +125,7 @@ package object StaticCode {
 
   def printCharFunction: CodeSegment = {
     new CodeSegment()
+      .append(DefineLabel(printCharLabel))
       .append(BL(Label("putchar")))
   }
 
@@ -141,19 +142,7 @@ package object StaticCode {
       .append(BL(Label("fflush")))
       .append(RETURN)
   }
-/*
-	p_print_bool:
-29		PUSH {lr}
 
-30		CMP r0, #0
-31		LDRNE r0, =msg_0
-32		LDREQ r0, =msg_1
-33		ADD r0, r0, #4
-34		BL printf
-35		MOV r0, #0
-36		BL fflush
-37		POP {pc}
- */
 
   def printLnFunction: CodeSegment = {
     new CodeSegment()
@@ -178,15 +167,5 @@ package object StaticCode {
       .append(LDR(R0, LabelAddress(arrayIndexTooLargeLabel), CS))
       .append(BL(throwRuntimeErrorLabel, CS))
       .append(RETURN)
-
-//    PUSH {lr}
-//    50		CMP r0, #0
-//    51		LDRLT r0, =msg_0
-//    52		BLLT p_throw_runtime_error
-//    53		LDR r1, [r1]
-//    54		CMP r0, r1
-//    55		LDRCS r0, =msg_1
-//    56		BLCS p_throw_runtime_error
-//    57		POP {pc}
   }
 }
