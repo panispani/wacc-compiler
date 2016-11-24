@@ -223,6 +223,8 @@ object TransStatements {
       case Integer   => StaticCode.printIntLabel
       case Character => StaticCode.printCharLabel
       case Boolean   => StaticCode.printBoolLabel
+      case String    => StaticCode.printFunctionLabel
+      case ArrayType(_) => StaticCode.printReferenceFunctionLabel
       case _         => StaticCode.printFunctionLabel
     }
 
@@ -239,6 +241,8 @@ object TransStatements {
       case Integer   => StaticCode.printIntLabel
       case Character => StaticCode.printCharLabel
       case Boolean   => StaticCode.printBoolLabel
+      case String    => StaticCode.printFunctionLabel
+      case ArrayType(_) => StaticCode.printReferenceFunctionLabel
       case _         => StaticCode.printFunctionLabel
     }
 

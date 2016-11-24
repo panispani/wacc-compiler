@@ -68,7 +68,7 @@ object StaticCode {
   def arrayIndexTooLargeLabel: Label = Label("array_index_too_large")
   def checkArrayBoundsLabel: Label = Label("check_array_bounds")
   def printReferenceLabel: Label = Label("print_reference")
-  def printReferenceFunctionLabel: Label = Label("print_reference_functiongit ")
+  def printReferenceFunctionLabel: Label = Label("print_reference_function")
 
   def readIntFunction: CodeSegment = {
     CodeSegment()
