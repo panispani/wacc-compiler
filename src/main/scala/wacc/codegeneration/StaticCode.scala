@@ -5,10 +5,9 @@ import wacc.codegeneration._
 
 package object StaticCode {
 
-  def readIntFormat: AsciiData = AsciiData("\"%d\"")
-  def readCharFormat: AsciiData = AsciiData("\"%c\"")
+  def intFormat: AsciiData = AsciiData("\"%d\\0\"")
+  def charFormat: AsciiData = AsciiData("\"%c\\0\"")
   def printStringFormat: AsciiData = AsciiData("\"%.*s\\0\"")
-  def printIntFormat: AsciiData = AsciiData("\"%d\\0\"")
   def emptyString: AsciiData = AsciiData("\"\\0\"")
   def trueString: AsciiData = AsciiData("\"true\\0\"")
   def falseString: AsciiData = AsciiData("\"false\\0\"")
@@ -29,13 +28,12 @@ package object StaticCode {
     .extend(checkArrayBounds)
 
   def staticData: CodeSegment = CodeSegment()
-    .append(DefineLabel(readFormatLabel))
-    .append(readIntFormat)
-    .append(readCharFormat)
+    .append(DefineLabel(intFormatLabel))
+    .append(intFormat)
+    .append(DefineLabel(charFormatLabel))
+    .append(charFormat)
     .append(DefineLabel(printStringFormatLabel))
     .append(printStringFormat)
-    .append(DefineLabel(printIntFormatLabel))
-    .append(printIntFormat)
     .append(DefineLabel(emptyStringLabel))
     .append(emptyString)
     .append(DefineLabel(trueStringLabel))
@@ -50,16 +48,17 @@ package object StaticCode {
     .append(arrayIndexTooLarge)
 
 
-  def readIntFunctionLabel: Label = Label("read_int")
-  def readCharFunctionLabel: Label = Label("read_char")
+  def readIntLabel: Label = Label("read_int")
+  def readCharLabel: Label = Label("read_char")
+
   def printFunctionLabel: Label = Label("print")
   def printLnFunctionLabel: Label = Label("print_ln")
   def printIntLabel: Label = Label("print_int")
   def printCharLabel: Label = Label("print_char") // standard C library function
   def printBoolLabel: Label = Label("print_bool_label")
   def printStringFormatLabel: Label = Label("print_string_format")
-  def printIntFormatLabel: Label = Label("print_int_format")
-  def readFormatLabel: Label = Label("read_format")
+  def intFormatLabel: Label = Label("int_format")
+  def charFormatLabel: Label = Label("char_format")
   def emptyStringLabel: Label = Label("empty_string")
   def trueStringLabel: Label = Label("true_string")
   def falseStringLabel: Label = Label("false_string")
@@ -74,10 +73,10 @@ package object StaticCode {
 
   def readIntFunction: CodeSegment = {
     CodeSegment()
-      .append(DefineLabel(readIntFunctionLabel))
+      .append(DefineLabel(readIntLabel))
       .append(NEW_STACK_FRAME)
       .append(MOV(R1, R0)) // Move address of variable into r1 as expected by scanf
-      .append(LDR(R0, LabelAddress(readFormatLabel))) // Load the constant address of the format string into r1
+      .append(LDR(R0, LabelAddress(intFormatLabel))) // Load the constant address of the format string into r1
       .append(ADD(R0, R0, ImmOperand(4)))
       .append(BL(Label("scanf"))) // Call scanf with two arguments, r0 and r1
       .append(RETURN)
@@ -85,10 +84,10 @@ package object StaticCode {
 
   def readCharFunction: CodeSegment = {
     CodeSegment()
-      .append(DefineLabel(readCharFunctionLabel))
+      .append(DefineLabel(readCharLabel))
       .append(NEW_STACK_FRAME)
       .append(MOV(R1, R0)) // Move address of variable into r1 as expected by scanf
-      .append(LDR(R0, LabelAddress(readFormatLabel))) // Load the constant address of the format string into r1
+      .append(LDR(R0, LabelAddress(charFormatLabel))) // Load the constant address of the format string into r1
       .append(ADD(R0, R0, ImmOperand(4)))
       .append(BL(Label("scanf"))) // Call scanf with two arguments, r0 and r1
       .append(RETURN)
@@ -131,7 +130,7 @@ package object StaticCode {
         .append(DefineLabel(printIntLabel))
         .append(NEW_STACK_FRAME)
         .append(MOV(R1, R0))
-        .append(LDR(R0, LabelAddress(printIntFormatLabel)))
+        .append(LDR(R0, LabelAddress(intFormatLabel)))
         .append(ADD(R0, R0, ImmOperand(4)))
         .append(BL(Label("printf")))
         .append(MOV(R0, ImmOperand(0)))
@@ -142,7 +141,9 @@ package object StaticCode {
   def printCharFunction: CodeSegment = {
     CodeSegment()
       .append(DefineLabel(printCharLabel))
+      .append(NEW_STACK_FRAME)
       .append(BL(Label("putchar")))
+      .append(RETURN)
   }
 
   def printBoolFunction: CodeSegment = {
