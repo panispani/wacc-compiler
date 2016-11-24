@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Creates an executable with a cross-compiler for ARM11
+# Emulates the created executable
+
 ASM=$1
 
 EXE=$(basename ${ASM})

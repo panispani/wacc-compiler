@@ -1,5 +1,6 @@
 #!/bin/bash
 # Do *not* change the name or location of this script
+# Compiles a WACC file to ARM11 assembly
 
 DIR=$(dirname $0)
 
