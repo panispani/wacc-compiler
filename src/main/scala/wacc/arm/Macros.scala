@@ -36,7 +36,7 @@ def frame(size: Int, isBranch: Boolean = false): (CodeSegment, CodeSegment) = {
     var start = new CodeSegment()
 
     if (isBranch) start = start.append(PUSH(Seq(LR)))
-    start = start.extend(Seq(MOV(FP, SP), PUSH(Seq(FP))))
+    start = start.extend(Seq(PUSH(Seq(FP)), MOV(FP, SP)))
 
     var end = new CodeSegment()
 
