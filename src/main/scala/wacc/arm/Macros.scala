@@ -22,16 +22,11 @@ object Macros {
             //reg1 is now going to contain the value of the index expression
 
             val store = elemtype match {
-              case Character | Boolean => STRB(src, RegisterAddress(reg1, 4))
-              case default => STR(src, RegisterAddress(reg1, 4))
+              case Character | Boolean => STRB(src, RegisterAddress(reg1, 0))
+              case default => STR(src, RegisterAddress(reg1, 0))
             }
 
-            check ++ Seq(
-              LDR(reg2, RegisterAddress(FP, variableReference.offset)),   // Put the start of the array in the second register
-              LDR(regs.head, Const(elemtype.size)),    //Put size of one element in third register
-              MUL(reg1, reg1, regs.head),              //Put elemSize * index in first register
-              ADD(reg1, reg1, reg2)
-            ) ++ Seq(store)
+            check ++ Macros.getArrayElemAddress(variableReference, symbolTable, reg1 +: reg2 +: regs, elemtype).instructions ++ Seq(store)
           }
         }
       }
@@ -49,6 +44,23 @@ object Macros {
         MOV(R0, registers.head),
         BL(StaticCode.checkArrayBoundsLabel)
       ))
+  }
+
+  def getArrayElemAddress(array: VariableReference,
+                       symbolTable: SymbolTable, registers: Seq[Register], elemType: Type): CodeSegment = {
+    registers match {
+      case (reg1 +: reg2 +: regs) => {
+        CodeSegment()
+          .extend (Seq(
+            LDR (reg2, RegisterAddress (FP, array.offset) ), // Put the start of the array in the second register
+            LDR (regs.head, Const(elemType.size)), //Put size of one element in third register
+            MUL (reg1, reg1, regs.head), //Put elemSize * index in first register
+            ADD (reg1, reg1, reg2),
+            MOV (reg2, ImmOperand(4)),
+            ADD (reg1, reg1, reg2)
+          ))
+      }
+    }
   }
 
   def load(reg1: Register, offset: Int, vartype: Type): Instruction = vartype match {

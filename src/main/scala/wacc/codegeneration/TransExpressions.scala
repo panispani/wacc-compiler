@@ -49,12 +49,8 @@ object TransExpressions {
         val variableReference = symbolTable.lookupDeep(identifier).get
         val check = Macros.checkArrayBounds(variableReference, index.head, symbolTable, reg1 +: reg2 +: regs).instructions
         //reg1 is now going to contain the value of the index expression
-        check ++ Seq(
-          LDR(reg2, RegisterAddress(FP, variableReference.offset)),   // Put the start of the array in the second register
-          LDR(regs.head, Const(elemtype.size)),    //Put size of one element in third register
-          MUL(reg1, reg1, regs.head),              //Put elemSize * index in first register
-          ADD(reg1, reg1, reg2),
-          LDR(reg1, RegisterAddress(reg1, 4))
+        check ++ Macros.getArrayElemAddress(variableReference, symbolTable, reg1 +: reg2 +: regs, elemtype).instructions ++ Seq(
+          LDR(reg1, RegisterAddress(reg1, 0))
         )
       }
 
