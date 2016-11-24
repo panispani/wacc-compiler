@@ -168,16 +168,15 @@ package object TransStatements {
 
     val (beginFrame, endFrame) = Macros.frame(symbolTable.sizeInBytes)
 
-    CodeSegment()
+    beginFrame
         .append(B(L0))
         .append(DefineLabel(L1))
-        .extend(beginFrame)
         .extend(transStatementSequence(stmts, symbolTable, registers))
-        .extend(endFrame)
         .append(DefineLabel(L0))
         .extend(transExpression(condition, symbolTable, registers))
         .append(CMP(registers.head, ImmOperand(1)))
-        .append(B(L1, EQ)).instructions
+        .append(B(L1, EQ))
+        .extend(endFrame).instructions
   }
 
   def transStatementSequence(seq: Seq[Statement],
