@@ -12,7 +12,6 @@ SOURCE_FILE=$(basename ${SOURCE_PATH})
 ASM=${SOURCE_FILE%wacc}s
 EXE=${SOURCE_FILE%.wacc}
 
-# TODO: remove assembly file in case of compilation errors
-${COMPILER_PATH} ${SOURCE_PATH} > ${ASM} && \
+${COMPILER_PATH} ${SOURCE_PATH} && \
 arm-linux-gnueabi-gcc -o ${EXE} -mcpu=arm1176jzf-s -mtune=arm1176jzf-s ${ASM} && \
 qemu-arm -L /usr/arm-linux-gnueabi/ ${EXE}
