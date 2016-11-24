@@ -225,6 +225,7 @@ package object TransStatements {
       case Integer   => StaticCode.printIntLabel
       case Character => StaticCode.printCharLabel
       case Boolean   => StaticCode.printBoolLabel
+      case String    => StaticCode.printFunctionLabel
       case ArrayType(_) => StaticCode.printReferenceFunctionLabel
       case default   => StaticCode.printFunctionLabel
     }
@@ -242,6 +243,7 @@ package object TransStatements {
       case Integer   => StaticCode.printIntLabel
       case Character => StaticCode.printCharLabel
       case Boolean   => StaticCode.printBoolLabel
+      case String    => StaticCode.printFunctionLabel
       case ArrayType(_) => StaticCode.printReferenceFunctionLabel
       case default   => StaticCode.printFunctionLabel
     }
