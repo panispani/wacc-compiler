@@ -20,7 +20,7 @@ package object TransBinaryOperators {
         MOV(R1, r2),
         BL(StaticCode.checkDivideByZeroLabel),
         BL(StaticCode.moduleLabel),
-        MOV(r1, R0)
+        MOV(r1, R1)
       )
       case PlusBinOp  => Seq(ADD(r1, r1, r2))
       case MinusBinOp  => Seq(SUB(r1, r1, r2))
