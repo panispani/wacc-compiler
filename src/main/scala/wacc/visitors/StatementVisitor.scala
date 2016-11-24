@@ -2,9 +2,9 @@ package wacc.visitors
 
 import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
+import wacc.SymbolTable
 import wacc.constructs._
 import wacc.util.SemanticErrors
-import wacc.{FunctionReference, SymbolTable}
 
 import scala.collection.JavaConversions._
 
@@ -62,7 +62,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
 
   override def visitRead(ctx: ReadContext): Either[CompilationError, ReadStatement] = {
     ctx.assignLhs().accept(AssignLhsVisitor).right.flatMap(lhs => lhs.vartype match {
-      case Integer | Character | String => Right(ReadStatement(lhs))
+      case Integer | Character => Right(ReadStatement(lhs))
       case default => Left(SemanticError(
         "Read statement " + SemanticErrors.typeError("target", lhs.vartype, Seq(Integer, Character)),
         ctx.start))
