@@ -5,7 +5,8 @@ import wacc.codegeneration._
 
 package object StaticCode {
 
-  def readFormat: AsciiData = AsciiData("\"%d\"")
+  def readIntFormat: AsciiData = AsciiData("\"%d\"")
+  def readCharFormat: AsciiData = AsciiData("\"%c\"")
   def printStringFormat: AsciiData = AsciiData("\"%.*s\\0\"")
   def printIntFormat: AsciiData = AsciiData("\"%d\\0\"")
   def emptyString: AsciiData = AsciiData("\"\\0\"")
@@ -16,7 +17,8 @@ package object StaticCode {
   def arrayIndexTooLarge: AsciiData = AsciiData("\"ArrayIndexOutOfBoundsError: index too large\"")
 
   def staticFunctions: CodeSegment =
-    readFunction
+    readIntFunction
+    .extend(readCharFunction)
     .extend(printFunction)
     .extend(printIntFunction)
     .extend(printCharFunction)
@@ -28,7 +30,8 @@ package object StaticCode {
 
   def staticData: CodeSegment = CodeSegment()
     .append(DefineLabel(readFormatLabel))
-    .append(readFormat)
+    .append(readIntFormat)
+    .append(readCharFormat)
     .append(DefineLabel(printStringFormatLabel))
     .append(printStringFormat)
     .append(DefineLabel(printIntFormatLabel))
@@ -47,7 +50,8 @@ package object StaticCode {
     .append(arrayIndexTooLarge)
 
 
-  def readFunctionLabel: Label = Label("read")
+  def readIntFunctionLabel: Label = Label("read_int")
+  def readCharFunctionLabel: Label = Label("read_char")
   def printFunctionLabel: Label = Label("print")
   def printLnFunctionLabel: Label = Label("print_ln")
   def printIntLabel: Label = Label("print_int")
@@ -68,9 +72,20 @@ package object StaticCode {
   def arrayIndexTooLargeLabel: Label = Label("array_index_too_large")
   def checkArrayBoundsLabel: Label = Label("check_array_bounds")
 
-  def readFunction: CodeSegment = {
+  def readIntFunction: CodeSegment = {
     CodeSegment()
-      .append(DefineLabel(readFunctionLabel))
+      .append(DefineLabel(readIntFunctionLabel))
+      .append(NEW_STACK_FRAME)
+      .append(MOV(R1, R0)) // Move address of variable into r1 as expected by scanf
+      .append(LDR(R0, LabelAddress(readFormatLabel))) // Load the constant address of the format string into r1
+      .append(ADD(R0, R0, ImmOperand(4)))
+      .append(BL(Label("scanf"))) // Call scanf with two arguments, r0 and r1
+      .append(RETURN)
+  }
+
+  def readCharFunction: CodeSegment = {
+    CodeSegment()
+      .append(DefineLabel(readCharFunctionLabel))
       .append(NEW_STACK_FRAME)
       .append(MOV(R1, R0)) // Move address of variable into r1 as expected by scanf
       .append(LDR(R0, LabelAddress(readFormatLabel))) // Load the constant address of the format string into r1
