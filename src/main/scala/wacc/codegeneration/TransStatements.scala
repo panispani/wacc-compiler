@@ -203,11 +203,12 @@ package object TransStatements {
   def transReadStatement(read: ReadStatement, registers: Seq[Register]): Seq[Instruction] = {
     val target: Integer = read.target match {
       case vr: VariableReference => vr.offset
+      //TODO: pair arrayelem
     }
 
     CodeSegment()
       .append(ADD(R0, FP, ImmOperand(target)))         // r0 = address of target
-      .append(BL(StaticCode.readFunctionLabel)) // reads input into desired variable
+      .append(BL(StaticCode.readFunctionLabel))        // reads input into desired variable
       .instructions
   }
 

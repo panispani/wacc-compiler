@@ -74,6 +74,7 @@ package object StaticCode {
       .append(NEW_STACK_FRAME)
       .append(MOV(R1, R0)) // Move address of variable into r1 as expected by scanf
       .append(LDR(R0, LabelAddress(readFormatLabel))) // Load the constant address of the format string into r1
+      .append(ADD(R0, R0, ImmOperand(4)))
       .append(BL(Label("scanf"))) // Call scanf with two arguments, r0 and r1
       .append(RETURN)
   }
