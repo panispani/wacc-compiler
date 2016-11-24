@@ -9,6 +9,7 @@ import wacc.constructs._
   */
 object TransStatements {
 
+
   def transStatement(statement: Statement, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
 
     statement match {
@@ -42,8 +43,16 @@ object TransStatements {
       case ScopeStatement(sequence, symbolTable)
         => transScopeStatement(sequence, symbolTable, registers)
 
-      case stat @ ReadStatement(_) => transReadStatement(stat, registers)
+      case stat @ ReadStatement(_)
+        => transReadStatement(stat, registers)
+
+      case free: FreeStatement
+        => transFreeStatement(free, symbolTable, registers)
     }
+  }
+
+  def transFreeStatement(free: FreeStatement, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
+
   }
 
   def transSkipStatement() : Seq[Instruction] = {
@@ -139,7 +148,8 @@ object TransStatements {
   def transReadStatement(read: ReadStatement, registers: Seq[Register]): Seq[Instruction] = {
     val target: Integer = read.target match {
       case vr: VariableReference => vr.offset
-      //TODO: pair arrayelem
+      case pe: PairElement       => 0 //TODO: implement
+      case ae: ArrayElement      => 0 //TODO: implement
     }
 
     val printLabel: Label = read.target.vartype match {
