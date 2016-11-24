@@ -14,6 +14,7 @@ object StaticCode {
   def divideOrModuleByZeroString: AsciiData = AsciiData("\"DivideByZeroError: divide or modulo by zero\"")
   def arrayNegativeIndex: AsciiData = AsciiData("\"ArrayIndexOutOfBoundsError: negative index\"")
   def arrayIndexTooLarge: AsciiData = AsciiData("\"ArrayIndexOutOfBoundsError: index too large\"")
+  def overflowError: AsciiData = AsciiData("\"OverflowError: the result is too small/large to store in a 4-byte signed-integer.\"")
   def printReferenceFormat: AsciiData = AsciiData("\"%p\\0\"")
 
   def staticFunctions: CodeSegment =
@@ -23,6 +24,7 @@ object StaticCode {
     .extend(throwRuntimeError)
     .extend(checkArrayBounds)
     .extend(printReferenceFunction)
+    .extend(throwOverflowError)
 
   def staticData: CodeSegment = CodeSegment()
     .append(DefineLabel(intFormatLabel))
@@ -45,6 +47,8 @@ object StaticCode {
     .append(arrayIndexTooLarge)
     .append(DefineLabel(printReferenceLabel))
     .append(printReferenceFormat)
+    .append(DefineLabel(throwOverflowErrorLabel))
+    .append(overflowError)
 
   def readIntLabel: Label = Label("read_int")
   def readCharLabel: Label = Label("read_char")
