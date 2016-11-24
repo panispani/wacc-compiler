@@ -15,7 +15,6 @@ package object TransFunctions {
       .extend(function.statements flatMap (s => transStatement (s, function.symbolTable, registers)))
       .extend(endFrame)
 
-      .append(RETURN)
       .instructions
   }
 }
