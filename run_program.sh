@@ -1,5 +1,5 @@
 #!/bin/bash
-$(pwd)/compile $1>"file.s"
+$(pwd)/compile $1 -stdout>"file.s"
 arm-linux-gnueabi-gcc -o FILENAME1 -mcpu=arm1176jzf-s -mtune=arm1176jzf-s "file.s"
 actual=$(qemu-arm -L /usr/arm-linux-gnueabi/ FILENAME1)
 
