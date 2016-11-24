@@ -5,7 +5,7 @@
 # Emulates the created executable
 
 COMPILER_PATH=$(dirname $0)/compile
-EMULATOR_PATH=$(dirname $0)/execute
+EMULATOR_PATH=$(dirname $0)/emulate.sh
 
 SOURCE_PATH=$1
 SOURCE_FILE=$(basename ${SOURCE_PATH})

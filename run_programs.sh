@@ -27,7 +27,7 @@ run_wacc_files() {
                   fi
             done <$f
             actual="COMPILERROR "$expected
-            $BASE_DIR/compile $f>"file.s"
+            $BASE_DIR/compile $f -stdout>"file.s"
             >&2 arm-linux-gnueabi-gcc -o FILENAME1 -mcpu=arm1176jzf-s -mtune=arm1176jzf-s "file.s" && actual=$(qemu-arm -L /usr/arm-linux-gnueabi/ FILENAME1)
 
             if [ "$actual" == "$expected" ]
@@ -52,7 +52,7 @@ then
 fi
 BASE_DIR=$(pwd)
 echo "Running valid programs"
-cd "wacc_examples/valid/while"
+cd "wacc_examples/valid/expressions"
 correct=0
 total=0
 run_wacc_files
