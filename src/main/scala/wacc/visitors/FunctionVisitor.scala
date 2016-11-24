@@ -35,8 +35,8 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
 
       lastStatement <- validateFunctionReturn(statements.last).right
 
-      body <- Right(statements.dropRight(1) :+ lastStatement).right
-    } yield Function(name, arguments, returnType, body, SymbolTable.completeFunctionDefinition())
+      //body <- Right(statements.dropRight(1) :+ lastStatement).right
+    } yield Function(name, arguments, returnType, statements, SymbolTable.completeFunctionDefinition())
 
   }
 

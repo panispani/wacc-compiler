@@ -10,6 +10,7 @@ import wacc.constructs._
 object TransStatements {
 
   def transStatement(statement: Statement, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
+
     statement match {
       case DeclareStatement(vartype: Type, variable: VariableReference, value: AssignValue)
         => transDeclareStatement(vartype, variable, value, symbolTable, registers)
