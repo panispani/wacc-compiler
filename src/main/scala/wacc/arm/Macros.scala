@@ -5,21 +5,36 @@ import wacc.codegeneration.{CodeSegment, StaticCode, TransExpressions}
 import wacc.constructs.{ArrayElement, AssignTarget, Boolean, Character, Expression, PairElement, Type}
 
 object Macros {
-  def store(lhs: AssignTarget, symbolTable: SymbolTable, regs: Seq[Register]): Seq[Instruction] = {
+  def store(lhs: AssignTarget, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     lhs match {
       case VariableReference(name, vartype, offset) => {
         lhs.vartype match {
-          case Boolean | Character => Seq(STRB(regs.head, RegisterAddress(FP, offset)))
-          case default             => Seq(STR(regs.head, RegisterAddress(FP, offset)))
+          case Boolean | Character => Seq(STRB(registers.head, RegisterAddress(FP, offset)))
+          case default             => Seq(STR(registers.head, RegisterAddress(FP, offset)))
         }
       }
-//      case ArrayElement(name, index, vartype) => {
-//        TransExpressions.transExpression(index.head, symbolTable, regs) ++
-//        Seq(
-//          LDR(regs(1), RegisterAddress(FP, 0)),  //
-//          LDR(regs(2), )
-//        )
-//      }
+      case ArrayElement(name, index, elemtype) => {
+        val variableReference = symbolTable.lookupDeep(name).get
+
+        registers match {
+          case (src +: reg1 +: reg2 +: regs) => {
+            val check = Macros.checkArrayBounds(variableReference, index.head, symbolTable, reg1 +: reg2 +: regs).instructions
+            //reg1 is now going to contain the value of the index expression
+
+            val store = elemtype match {
+              case Character | Boolean => STRB(src, RegisterAddress(reg1, 4))
+              case default => STR(src, RegisterAddress(reg1, 4))
+            }
+
+            check ++ Seq(
+              LDR(reg2, RegisterAddress(FP, variableReference.offset)),   // Put the start of the array in the second register
+              LDR(regs.head, Const(elemtype.size)),    //Put size of one element in third register
+              MUL(reg1, reg1, regs.head),              //Put elemSize * index in first register
+              ADD(reg1, reg1, reg2)
+            ) ++ Seq(store)
+          }
+        }
+      }
       case PairElement(selector, expression, vartype) => Seq()
     }
   }
