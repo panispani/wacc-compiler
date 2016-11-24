@@ -14,6 +14,7 @@ package object StaticCode {
   def divideOrModuleByZeroString: AsciiData = AsciiData("\"DivideByZeroError: divide or modulo by zero\"")
   def arrayNegativeIndex: AsciiData = AsciiData("\"ArrayIndexOutOfBoundsError: negative index\"")
   def arrayIndexTooLarge: AsciiData = AsciiData("\"ArrayIndexOutOfBoundsError: index too large\"")
+  def printReferenceFormat: AsciiData = AsciiData("\"%p\\0\"")
 
   def staticFunctions: CodeSegment =
     readIntFunction
@@ -26,6 +27,7 @@ package object StaticCode {
     .extend(CheckDivideByZero)
     .extend(throwRuntimeError)
     .extend(checkArrayBounds)
+    .extend(printReferenceFunction)
 
   def staticData: CodeSegment = CodeSegment()
     .append(DefineLabel(intFormatLabel))
@@ -46,6 +48,8 @@ package object StaticCode {
     .append(arrayNegativeIndex)
     .append(DefineLabel(arrayIndexTooLargeLabel))
     .append(arrayIndexTooLarge)
+    .append(DefineLabel(printReferenceLabel))
+    .append(printReferenceFormat)
 
 
   def readIntLabel: Label = Label("read_int")
@@ -70,6 +74,7 @@ package object StaticCode {
   def arrayNegativeIndexLabel: Label = Label("array_negative_index")
   def arrayIndexTooLargeLabel: Label = Label("array_index_too_large")
   def checkArrayBoundsLabel: Label = Label("check_array_bounds")
+  def printReferenceLabel: Label = Label("print_reference")
 
   def readIntFunction: CodeSegment = {
     CodeSegment()
@@ -168,6 +173,19 @@ package object StaticCode {
       .append(LDR(R0, LabelAddress(emptyStringLabel)))  // Load the constant address of the empty string into r0
       .append(ADD(R0, R0, ImmOperand(4)))
       .append(BL(Label("puts")))                  // Print empty string, appended with newline
+      .append(MOV(R0, ImmOperand(0)))
+      .append(BL(Label("fflush")))
+      .append(RETURN)
+  }
+
+  def printReferenceFunction: CodeSegment = {
+    CodeSegment()
+      .append(DefineLabel(printLnFunctionLabel))
+      .append(NEW_STACK_FRAME)
+      .append(MOV(R1, R0))
+      .append(LDR(R0, LabelAddress(printReferenceLabel)))  // Load the constant address of the empty string into r0
+      .append(ADD(R0, R0, ImmOperand(4)))
+      .append(BL(Label("printf")))                  // Print empty string, appended with newline
       .append(MOV(R0, ImmOperand(0)))
       .append(BL(Label("fflush")))
       .append(RETURN)
