@@ -8,7 +8,7 @@ total = 98
 
 for root, dirs, files in os.walk("wacc_examples/valid"):
     for file in files:
-        if not file.endswith(".wacc"):
+        if not file.endswith(".wacc") or root == "wacc_examples/valid/advanced":
             continue
 
         full_path = os.path.join(root, file)
@@ -45,7 +45,7 @@ for root, dirs, files in os.walk("wacc_examples/valid"):
 
         total = total + 1
 
-print("TEST CASES PASSED: {}/{} ({}%)".format(correct, total, correct / total * 100.0))
+print("TEST CASES PASSED: {}/{} ({0:.2f}%)".format(correct, total, correct / total * 100.0))
 
 
 
