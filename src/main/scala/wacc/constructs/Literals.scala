@@ -10,7 +10,7 @@ case class BoolLiteral(value: Boolean) extends Literal {
   override val vartype: Type = Boolean
 }
 
-case class CharLiteral(value: Char) extends Literal {
+case class CharLiteral(value: String) extends Literal {
   override val vartype: Type = Character
 }
 

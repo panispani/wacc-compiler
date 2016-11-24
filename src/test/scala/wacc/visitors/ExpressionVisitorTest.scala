@@ -9,7 +9,7 @@ class ExpressionVisitorTest extends VisitorTest {
     val parser = TestUtilities.setupParser("'a'")
     val result = TestUtilities.buildSubProgram(parser.expression, ExpressionVisitor)
 
-    result.right.value should be (CharLiteral('a'))
+    result.right.value should be (CharLiteral("a"))
   }
 
   "Visiting a string literal" should "create a StringLiteral with correct value" in {
