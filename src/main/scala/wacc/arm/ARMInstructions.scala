@@ -101,6 +101,10 @@ case class MUL(Rd: Register, Rn: Register, Rs: Register, cond: Condition = ALWAY
 
 case class MULS(Rd: Register, Rn: Register, Rs: Register, cond: Condition = ALWAYS) extends ThreeRegNoOpInstruction
 
+case class SMULL(RdLo: Register, RdHi: Register, Rs: Register, Rm: Register, cond: Condition = ALWAYS) {
+  override def toString = s"${this.getClass.getSimpleName} $RdLo, $RdHi, $Rs, $Rm"
+}
+
 
 abstract class RegListInstruction extends ConditionalInstruction {
   val reglist: Seq[Register]
