@@ -33,21 +33,6 @@ class BinaryOperatorsTest extends CodeGenTest {
     //instruction(10) is up to declaration
     //instruction(11) is up to declaration
 
-
-
-//    LDR r4, =5
-//    16		STR r4, [sp, #8]
-//    17		LDR r4, =3
-//    18		STR r4, [sp, #4]
-//    19		LDR r4, [sp, #8]
-//    20		LDR r5, [sp, #4]
-//    21		MOV r0, r4
-//    22		MOV r1, r5
-//    23		BL p_check_divide_by_zero
-//    24		BL __aeabi_idiv
-//    25		MOV r4, r0
-//    26		STR r4, [sp]
-
   }
 
   "Dividing two integers" should "produce the expected instructions" in {
@@ -63,7 +48,7 @@ class BinaryOperatorsTest extends CodeGenTest {
     instructions(3) shouldBe MOV(R1, registers(1))
     instructions(4) shouldBe BL(StaticCode.checkDivideByZeroLabel)
     instructions(5) shouldBe BL(StaticCode.divisionLabel)
-    instructions(6) shouldBe MOV(registers.head, R1)
+    instructions(6) shouldBe MOV(registers.head, R0)
     //instruction(7) is up to declaration
     //instruction(8) is up to declaration
   }
@@ -81,7 +66,7 @@ class BinaryOperatorsTest extends CodeGenTest {
     instructions(3) shouldBe MOV(R1, registers(1))
     instructions(4) shouldBe BL(StaticCode.checkDivideByZeroLabel)
     instructions(5) shouldBe BL(StaticCode.moduleLabel)
-    instructions(6) shouldBe MOV(registers.head, R1)
+    instructions(6) shouldBe MOV(registers.head, R0)
     //instruction(7) is up to declaration
     //instruction(8) is up to declaration
   }
