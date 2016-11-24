@@ -87,10 +87,10 @@ package object TransExpressions {
 
   // Accumulator machine approach
   private def getAnotherRegister(reg: Register) = {
-    if (reg == R0)
-      R1
+    if (reg == R5)
+      R4
     else
-      R0
+      R5
   }
 
   private def transExpressionAcc(expr: Expression, reg1: Register, symbolTable: SymbolTable, regs: Seq[Register]): Seq[Instruction] = {
