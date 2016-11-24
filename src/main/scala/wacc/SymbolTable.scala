@@ -102,7 +102,9 @@ object SymbolTable {
   }
 
   def closeScope() = {
+    val closed = currentTable
     currentTable = currentTable.parent.get
+    closed
   }
 
   /**

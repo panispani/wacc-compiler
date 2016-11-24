@@ -87,15 +87,15 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
       expression <- ctx.expression().accept(ExpressionVisitor).right
       _ <- Right(SymbolTable.openScope()).right
       trueStatements <- sequenceOrLast(ctx.trueSequence.statement().toList map (s => s.accept(StatementVisitor))).right
-      _ <- Right(SymbolTable.closeScope()).right
+      trueTable <- Right(SymbolTable.closeScope()).right
       _ <- Right(SymbolTable.openScope()).right
       falseStatements <- sequenceOrLast(ctx.falseSequence.statement().toList map (s => s.accept(StatementVisitor))).right
-    } yield (expression, trueStatements, falseStatements)
-
+    } yield (expression, trueStatements, falseStatements, trueTable)
+    val falseTable = SymbolTable.closeScope()
     val conditional = tuple match {
       case Left(error)                                                => Left(error)
-      case Right(Tuple3(expression, trueStatements, falseStatements)) => expression.vartype match {
-        case Boolean => Right(ConditionalStatement(expression, trueStatements, falseStatements, SymbolTable()))
+      case Right((expression, trueStatements, falseStatements, trueTable)) => expression.vartype match {
+        case Boolean => Right(ConditionalStatement(expression, ScopeStatement(trueStatements, trueTable), ScopeStatement(falseStatements, falseTable)))
         case default => Left(
           SemanticError(
             "Conditional statement " + SemanticErrors.typeError("expression", expression.vartype, Boolean),
@@ -103,7 +103,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
       }
     }
 
-    SymbolTable.closeScope()
+
     conditional
   }
 

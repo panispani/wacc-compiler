@@ -10,9 +10,10 @@ import wacc.constructs._
 object TransStatements {
 
   def transStatement(statement: Statement, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
+
     statement match {
-      case DeclareStatement(vartype: Type, variable: VariableReference, value: AssignValue)
-        => transDeclareStatement(vartype, variable, value, symbolTable, registers)
+      case dec: DeclareStatement
+        => transDeclareStatement(dec, symbolTable, registers)
 
       case AssignStatement(lhs: AssignTarget, rhs: AssignValue)
         => transAssignStatement(lhs, rhs, symbolTable, registers)
@@ -32,7 +33,7 @@ object TransStatements {
       case stat @ PrintLnStatement(expression)
         => transPrintLnStatement(stat, symbolTable, registers);
 
-      case ConditionalStatement(expression, trueStatements, falseStatements, symbolTable)
+      case ConditionalStatement(expression, trueStatements, falseStatements)
         => transConditionalStatement(expression, trueStatements, falseStatements, symbolTable, registers)
 
       case LoopStatement(condition, statements, symbolTable)
@@ -49,78 +50,15 @@ object TransStatements {
     Seq()
   }
 
-  def transArrayLiteral(literal: ArrayLiteral, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
-    var offset = 4
-    var instructions: Seq[Instruction] = Seq()
-
-    for (elem <- literal.elements) {
-      instructions ++= TransExpressions.transExpression(elem, symbolTable, registers.tail) :+ STR(registers(1), RegisterAddress(registers.head, offset))
-      offset += literal.vartype.elemtype.size
-    }
-
-    instructions
-  }
-
-  def transDeclareStatement(vartype: Type,
-                            variableRef: VariableReference,
-                            assignValue: AssignValue,
+  def transDeclareStatement(dec: DeclareStatement,
                             symbolTable: SymbolTable,
                             registers: Seq[Register]): Seq[Instruction] = {
 
-    assignValue match {
-      case VariableReference(name, _, offset) =>
-        Seq(
-          LDR(registers.head, RegisterAddress(FP, offset)),
-          STR(R4, RegisterAddress(FP, variableRef.offset))
-        )
-      case default => transDeclareStatementWithLiteralRhs(vartype, variableRef, assignValue, symbolTable, registers)
-    }
-  }
+    val post = Seq(SUB(SP, SP, ImmOperand(dec.vartype.size)))
+    val variableRef = dec.newReference
+    val assignValue = dec.value
 
-  private def transDeclareStatementWithLiteralRhs(vartype: Type, variableRef: VariableReference, assignValue: AssignValue, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
-    val instructions = vartype match {
-      case Integer | String     => TransAssignRhs.transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STR(registers.head, RegisterAddress(FP, variableRef.offset)))
-      case Boolean | Character  => TransAssignRhs.transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STRB(registers.head, RegisterAddress(FP, variableRef.offset)))
-      case ArrayType(elemsType) => assignValue match {
-        case literal @ ArrayLiteral(elements) => {
-          val arraySize = 4 + elements.size * elemsType.size
-          Seq(
-            LDR(R0, Const(arraySize)),
-            BL(Label("malloc")),
-            MOV(registers.head, R0),
-            LDR(registers(1), Const(elements.size)),
-            STR(registers(1), RegisterAddress(registers.head, 0))
-          ) ++ transArrayLiteral(literal, symbolTable, registers) :+ STR(registers.head, RegisterAddress(FP, variableRef.offset))
-        }
-        case default => println("not impelemented"); Seq()
-      }
-      case PairType(firstType, secondType) => assignValue match {
-        case PairConstructor(firstExp, secondExp) => {
-          Seq(
-            LDR(R0, Const(firstType.size + secondType.size)),      //Load the size of the pair in R0
-            BL(Label("malloc")),
-            MOV(registers.head, R0)
-          ) ++ TransExpressions.transExpression(firstExp, symbolTable, registers.tail) ++
-            Seq (
-              LDR(R0, Const(firstType.size)),
-              BL(Label("malloc")),
-              STR(registers(1), RegisterAddress(R0, 0)),  //Store the value for the first element in its memory
-              STR(R0, RegisterAddress(registers(0), 0)) //Put address of first element in memory of pair
-            ) ++ TransExpressions.transExpression(secondExp, symbolTable, registers.tail) ++
-              Seq(
-                LDR(R0, Const(secondType.size)),
-                BL(Label("malloc")),
-                STR(registers(1), RegisterAddress(R0, 0)),  //Store the value for the second element in its memory
-                STR(R0, RegisterAddress(registers(0), firstType.size)),   //Put address of second element in memory of pair with offset
-                STR(registers.head, RegisterAddress(FP, variableRef.offset))
-              )
-        }
-        case PairLiteral() => TransAssignRhs.transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STR(registers.head, RegisterAddress(FP, variableRef.offset)))
-      }
-      case default => println("not impelemented"); Seq()
-    }
-
-    instructions
+    TransAssignRhs.transAssignRhs(assignValue, symbolTable, registers) ++ Macros.store(variableRef, symbolTable, registers) ++ post
   }
 
   def transAssignStatement(lhs: AssignTarget, rhs: AssignValue, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
@@ -141,19 +79,19 @@ object TransStatements {
   }
 
   def transConditionalStatement(expression: Expression,
-                                trueStatements: Seq[Statement],
-                                falseStatements: Seq[Statement],
-                                symbolTable: SymbolTable,
+                                trueStatements: ScopeStatement,
+                                falseStatements: ScopeStatement,
+                                parentTable: SymbolTable,
                                 registers: Seq[Register]): Seq[Instruction] = {
     val L0 = Label()
     val L1 = Label()
 
     //stack allocation is not done TODO- experimental
-    TransExpressions.transExpression(expression, symbolTable, registers) ++
+    TransExpressions.transExpression(expression, parentTable, registers) ++
       Seq(CMP(registers.head, ImmOperand(1)), B(L0, EQ)) ++
-      transScopeStatement(falseStatements, symbolTable, registers) ++
+      transScopeStatement(falseStatements.statements, falseStatements.symbolTable, registers) ++
       Seq(B(L1), DefineLabel(L0)) ++
-      transScopeStatement(trueStatements, symbolTable, registers) ++
+      transScopeStatement(trueStatements.statements, trueStatements.symbolTable, registers) ++
       Seq(DefineLabel(L1))
   }
 

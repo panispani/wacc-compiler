@@ -13,7 +13,7 @@ case class ImmAddress(address: Int) extends Address {
   override def toString: String = s"[${ImmOperand(address)}]"
 }
 
-case class RegisterAddress(register: Register, offset: Int, writeback: Boolean = false) extends Address {
+case class RegisterAddress(register: Register, offset: Int = 0, writeback: Boolean = false) extends Address {
   override def toString: String = {
     val iswriteback = if (writeback) "!" else ""
     s"[$register, ${ImmOperand(offset)}]$iswriteback"

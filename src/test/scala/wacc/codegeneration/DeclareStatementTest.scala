@@ -13,7 +13,7 @@ class DeclareStatementTest extends CodeGenTest {
     val availableRegisters = Seq(R4, R5, R6)
     val instructions = TransStatements.transStatement(program.right.get, SymbolTable.globalTable, availableRegisters)
 
-    instructions.last shouldBe STR(availableRegisters.head, RegisterAddress(FP, -4))
+    instructions.dropRight(1).last shouldBe STR(availableRegisters.head, RegisterAddress(FP, -4))
   }
 
   it should "produce the expected instructions with pair literal" in {
@@ -23,7 +23,7 @@ class DeclareStatementTest extends CodeGenTest {
     val availableRegisters = Seq(R4, R5, R6)
     val instructions = TransStatements.transStatement(program.right.get, SymbolTable.globalTable, availableRegisters)
 
-    instructions.last shouldBe STR(availableRegisters.head, RegisterAddress(FP, -4))
+    instructions.dropRight(1).last shouldBe STR(availableRegisters.head, RegisterAddress(FP, -4))
   }
 
   it should "be able to handle two consecutive declarations" in {
@@ -40,7 +40,7 @@ class DeclareStatementTest extends CodeGenTest {
       availableRegisters)
 
     instructions(1) shouldBe STRB(availableRegisters.head, RegisterAddress(FP, -1))
-    instructions(3) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -5))
+    instructions(4) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -5))
   }
 
   it should "be able to handle array declarations" in {
@@ -78,8 +78,9 @@ class DeclareStatementTest extends CodeGenTest {
 
     //Don't care about instructions(0) because it's up to translateExpression
     instructions(1) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -4))
-    instructions(2) shouldBe LDR(availableRegisters.head, RegisterAddress(FP, -4))
-    instructions(3) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -8))
+    instructions(2) shouldBe SUB(SP, SP, ImmOperand(4))
+    instructions(3) shouldBe LDR(availableRegisters.head, RegisterAddress(FP, -4))
+    instructions(4) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -8))
   }
 
   it should "be able to handle declaring an array with assign value another variable" in {
@@ -103,8 +104,9 @@ class DeclareStatementTest extends CodeGenTest {
     //Don't care about instruction(5) because it's up to translateExpression
     instructions(6) shouldBe STR(availableRegisters(1), RegisterAddress(availableRegisters.head, 4))
     instructions(7) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -4))
-    instructions(8) shouldBe LDR(availableRegisters.head, RegisterAddress(FP, -4))
-    instructions(9) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -8))
+    instructions(8) shouldBe SUB(SP, SP, ImmOperand(4))
+    instructions(9) shouldBe LDR(availableRegisters.head, RegisterAddress(FP, -4))
+    instructions(10) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -8))
   }
 
   it should "be able to handle declaring pairs" in {
