@@ -49,18 +49,6 @@ object TransStatements {
     Seq()
   }
 
-  def transArrayLiteral(literal: ArrayLiteral, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
-    var offset = 4
-    var instructions: Seq[Instruction] = Seq()
-
-    for (elem <- literal.elements) {
-      instructions ++= TransExpressions.transExpression(elem, symbolTable, registers.tail) :+ STR(registers(1), RegisterAddress(registers.head, offset))
-      offset += literal.vartype.elemtype.size
-    }
-
-    instructions
-  }
-
   def transDeclareStatement(dec: DeclareStatement,
                             symbolTable: SymbolTable,
                             registers: Seq[Register]): Seq[Instruction] = {
@@ -68,27 +56,7 @@ object TransStatements {
     val variableRef = dec.newReference
     val assignValue = dec.value
 
-    //TODO The below should be in store, but we probably have to modify DeclareStatement to take an AssignTarget
-    TransAssignRhs.transAssignRhs(assignValue, symbolTable, registers) ++ (assignValue match {
-      case VariableReference(name, _, offset) =>
-        Seq(
-          LDR(registers.head, RegisterAddress(FP, offset)),
-          STR(R4, RegisterAddress(FP, variableRef.offset))
-        )
-      case default => dec.vartype match {
-        case Integer | String
-          => Seq(STR(registers.head, RegisterAddress(FP, variableRef.offset)))
-
-        case Boolean | Character
-          => Seq(STRB(registers.head, RegisterAddress(FP, variableRef.offset)))
-
-        case ArrayType(elemsType)
-          => Seq(STR(registers.head, RegisterAddress(FP, variableRef.offset)))
-
-        case PairType(firstType, secondType)
-          => Seq(STR(registers.head, RegisterAddress(FP, variableRef.offset)))
-      }
-    })
+    TransAssignRhs.transAssignRhs(assignValue, symbolTable, registers) ++ Macros.store(variableRef, symbolTable, registers)
   }
 
   def transAssignStatement(lhs: AssignTarget, rhs: AssignValue, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {

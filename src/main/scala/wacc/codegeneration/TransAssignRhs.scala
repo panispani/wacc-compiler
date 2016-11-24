@@ -36,14 +36,22 @@ object TransAssignRhs {
 
   def transDeclareRhsArrayLiteral(al: ArrayLiteral, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     val elements = al.elements
-    val arraySize = 4 + elements.size * elements.size
+    val arraySize = 4 + elements.size * al.vartype.size
+    var offset = 4
+    var instructions: Seq[Instruction] = Seq()
+
+    for (elem <- al.elements) {
+      instructions ++= TransExpressions.transExpression(elem, symbolTable, registers.tail) :+ STR(registers(1), RegisterAddress(registers.head, offset))
+      offset += al.vartype.elemtype.size
+    }
+
     Seq(
       LDR(R0, Const(arraySize)),
       BL(Label("malloc")),
       MOV(registers.head, R0),
       LDR(registers(1), Const(elements.size)),
       STR(registers(1), RegisterAddress(registers.head, 0))
-    )
+    ) ++ instructions
   }
 
   def transFunctionCall(fc: FunctionCall, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
