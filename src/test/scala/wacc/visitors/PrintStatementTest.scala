@@ -19,7 +19,7 @@ class PrintStatementTest extends VisitorTest {
     val parser = TestUtilities.setupParser("print 'a'")
     val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
-    result.right.value should be (PrintStatement(CharLiteral('a')))
+    result.right.value should be (PrintStatement(CharLiteral("a")))
   }
 
   "Visiting a print statement" should "allow string arguments" in {

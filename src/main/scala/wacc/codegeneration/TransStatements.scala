@@ -206,9 +206,14 @@ package object TransStatements {
       //TODO: pair arrayelem
     }
 
+    val printLabel: Label = read.target.vartype match {
+      case Integer   => StaticCode.readIntLabel
+      case Character => StaticCode.readCharLabel
+    }
+
     CodeSegment()
-      .append(ADD(R0, FP, ImmOperand(target)))         // r0 = address of target
-      .append(BL(StaticCode.readFunctionLabel))        // reads input into desired variable
+      .append(ADD(R0, FP, ImmOperand(target)))     // r0 = address of target
+      .append(BL(printLabel))                     // reads input into desired variable
       .instructions
   }
 

@@ -4,7 +4,7 @@ trait Operand
 case class ImmOperand(value: Int) extends Operand {
   override def toString: String = s"#$value"
 }
-case class CharOperand(value: Char) extends Operand {
+case class CharOperand(value: String) extends Operand {
   override def toString: String = s"#'$value'"
 }
 
