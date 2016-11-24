@@ -78,8 +78,8 @@ case class STR(Rd: Register, Op1: Address, cond: Condition = ALWAYS) extends One
 
 case class STRB(Rd: Register, Op1: Address, cond: Condition = ALWAYS) extends OneRegOneOpInstruction
 
-case class CMPSHIFT(Rd: Register, Op1: Address, cond: Condition = ALWAYS) {
-
+case class CMPSHIFT(override val Rd: Register, override val Op1: Address, shift: Shift, override val cond: Condition = ALWAYS) extends CMP(Rd, Op1, cond) {
+  override def toString = s"${super.toString}, ${shift.toString}"
 }
 
 abstract class Shift() {
