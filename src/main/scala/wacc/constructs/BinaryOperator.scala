@@ -1,5 +1,9 @@
 package wacc.constructs
 
+import wacc.StaticCode
+import wacc.arm._
+import wacc.codegeneration.CodeSegment
+
 /**
   * Created by panayiotis on 08/11/16.
   */
@@ -24,21 +28,72 @@ case class BinaryOperatorExpr(expression1: Expression, binaryOperator: BinaryOpe
   }
 }
 
-case class BinaryOperator(binaryOperator: String)
+case class BinaryOperator(binaryOperator: String) {
+  def translate(dest: Register, operand: Register): CodeSegment = CodeSegment()
+}
 
 /* Integers */
-object TimesBinOp extends BinaryOperator("*")
-object DivBinOp extends BinaryOperator("/")
-object ModBinOp extends BinaryOperator("%")
-object PlusBinOp extends BinaryOperator("+")
-object MinusBinOp extends BinaryOperator("-")
+object TimesBinOp extends BinaryOperator("*") {
+  override def translate(dest: Register, operand: Register): CodeSegment
+  = CodeSegment(MUL(dest, dest, operand))
+}
+object DivBinOp extends BinaryOperator("/") {
+  override def translate(dest: Register, operand: Register): CodeSegment
+  = CodeSegment(
+    MOV(R0, dest),
+    MOV(R1, operand),
+    BL(StaticCode.checkDivideByZeroLabel),
+    BL(StaticCode.divisionLabel),
+    MOV(dest, R1)
+  )
+}
+object ModBinOp extends BinaryOperator("%") {
+  override def translate(dest: Register, operand: Register): CodeSegment
+  = CodeSegment(
+    MOV(R0, dest),
+    MOV(R1, operand),
+    BL(StaticCode.checkDivideByZeroLabel),
+    BL(StaticCode.moduleLabel),
+    MOV(dest, R1)
+  )
+}
+object PlusBinOp extends BinaryOperator("+") {
+  override def translate(dest: Register, operand: Register): CodeSegment = CodeSegment(ADD(dest, dest, operand))
+}
+object MinusBinOp extends BinaryOperator("-") {
+  override def translate(dest: Register, operand: Register): CodeSegment = CodeSegment(SUB(dest, dest, operand))
+}
 
 /* Booleans */
-object GtBinOp extends BinaryOperator(">")
-object GteBinOp extends BinaryOperator(">=")
-object LtBinOp extends BinaryOperator("<")
-object LteBinOp extends BinaryOperator("<=")
-object EqualsBinOp extends BinaryOperator("==")
-object NequalsBinOp extends BinaryOperator("!=")
-object AndBinOp extends BinaryOperator("&&")
-object OrBinOp extends BinaryOperator("||")
+object GtBinOp extends BinaryOperator(">") {
+  override def translate(dest: Register, operand: Register): CodeSegment
+  = Macros.conditionalExpression(dest, operand)(GT, LE)
+}
+object GteBinOp extends BinaryOperator(">=") {
+  override def translate(dest: Register, operand: Register): CodeSegment
+  = Macros.conditionalExpression(dest, operand)(GE, LT)
+}
+object LtBinOp extends BinaryOperator("<") {
+  override def translate(dest: Register, operand: Register): CodeSegment
+  = Macros.conditionalExpression(dest, operand)(LT, GE)
+}
+object LteBinOp extends BinaryOperator("<=") {
+  override def translate(dest: Register, operand: Register): CodeSegment
+  = Macros.conditionalExpression(dest, operand)(LE, GT)
+}
+object EqualsBinOp extends BinaryOperator("==") {
+  override def translate(dest: Register, operand: Register): CodeSegment
+  = Macros.conditionalExpression(dest, operand)(EQ, NE)
+}
+object NequalsBinOp extends BinaryOperator("!=") {
+  override def translate(dest: Register, operand: Register): CodeSegment
+  = Macros.conditionalExpression(dest, operand)(NE, EQ)
+}
+object AndBinOp extends BinaryOperator("&&") {
+  override def translate(dest: Register, operand: Register): CodeSegment
+  = CodeSegment(AND(dest, dest, operand))
+}
+object OrBinOp extends BinaryOperator("||") {
+  override def translate(dest: Register, operand: Register): CodeSegment
+  = CodeSegment(ORR(dest, dest, operand))
+}
