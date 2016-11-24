@@ -10,7 +10,7 @@ class SyntaxErrorListener() extends BaseErrorListener {
                            charPositionInLine: Int,
                            msg: String,
                            e: RecognitionException): Unit = {
-    println("Syntax error")
+    System.err.println("Syntax error")
     System.exit(100)
   }
 }

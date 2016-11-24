@@ -14,7 +14,7 @@ trait CompilationError {
   }
 
   def raise() = {
-    println("line " + symbol.getLine + ":" + symbol.getCharPositionInLine + " " + message)
+    System.err.println("line " + symbol.getLine + ":" + symbol.getCharPositionInLine + " " + message)
   }
 }
 
@@ -23,7 +23,7 @@ case class SyntaxError(message: String, symbol: Token) extends CompilationError 
 
   override def raise(): Unit = {
     super.raise()
-    println("Syntax error")
+    System.err.println("Syntax error")
   }
 }
 
@@ -32,6 +32,6 @@ case class SemanticError(message: String, symbol: Token) extends CompilationErro
 
   override def raise(): Unit = {
     super.raise()
-    println("Semantic error")
+    System.err.println("Semantic error")
   }
 }
