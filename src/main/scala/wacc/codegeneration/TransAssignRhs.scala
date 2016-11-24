@@ -60,7 +60,10 @@ object TransAssignRhs {
       .extend(fc.args.reverse flatMap (e => {
         // Evaluate each argument and push them on stack in reverse order (first arg is closest to new frame)
         val argumentEvalInstructions = TransExpressions.transExpression(e, symbolTable, registers)
-        argumentEvalInstructions :+ STR(registers.head, RegisterAddress(SP, -e.vartype.size, writeback = true))
+        argumentEvalInstructions :+ (e.vartype match {
+          case Character | Boolean => STRB(registers.head, RegisterAddress(SP, -e.vartype.size, writeback = true))
+          case _ => STR(registers.head, RegisterAddress(SP, -e.vartype.size, writeback = true))
+        })
       }))
       .append(BL(Label(fc.identifier)))
       .append(ADD(SP, SP, argumentsSize))
