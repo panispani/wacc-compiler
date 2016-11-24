@@ -75,7 +75,14 @@ object TransStatements {
   def transReturnStatement(returnValue: Expression, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     val instruction = TransExpressions.transExpression(returnValue, symbolTable, registers)
 
-    instruction ++ Seq(MOV(R0, registers.head))
+    val bytesAllocatedByFunction = symbolTable.deepSize()
+
+    // TODO: use proper stuff
+    instruction ++ Seq(
+      MOV(R0, registers.head),
+      ADD(SP, SP, ImmOperand(bytesAllocatedByFunction)),
+      POP(Seq(FP)),
+      POP(Seq(PC)))
   }
 
   def transConditionalStatement(expression: Expression,

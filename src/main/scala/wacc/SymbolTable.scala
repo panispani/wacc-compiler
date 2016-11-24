@@ -13,6 +13,11 @@ case class FunctionReference(name: String, returnType: Type, argumentTypes : Seq
 
 case class SymbolTable(parent: Option[SymbolTable]) {
 
+  def deepSize(): Int = parent match {
+    case Some(symbolTable) => sizeInBytes + symbolTable.deepSize()
+    case None => sizeInBytes
+  }
+
   private var currentOffset: Int = 0
   def sizeInBytes = currentOffset
 
