@@ -210,6 +210,6 @@ object StaticCode {
     CodeSegment()
       .append(DefineLabel(throwOverflowErrorFunctionLabel))
       .append(LDR(R0, LabelAddress(throwOverflowErrorLabel)))
-      .append(BL(Label("exit")))
+      .append(BL(throwRuntimeErrorLabel))
   }
 }
