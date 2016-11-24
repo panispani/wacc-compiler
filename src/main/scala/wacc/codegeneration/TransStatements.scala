@@ -125,7 +125,7 @@ object TransStatements {
 
   def transAssignStatement(lhs: AssignTarget, rhs: AssignValue, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     val instruction = TransAssignRhs.transAssignRhs(rhs, symbolTable, registers)
-    instruction ++ Macros.store(lhs, registers.head)
+    instruction ++ Macros.store(lhs, symbolTable, registers)
   }
 
   def transExitStatement(exitCode: Expression, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {

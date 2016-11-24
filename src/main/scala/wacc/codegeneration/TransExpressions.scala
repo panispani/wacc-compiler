@@ -47,21 +47,15 @@ object TransExpressions {
 
       case ArrayElement(identifier, index, elemtype) => {
         val variableReference = symbolTable.lookupDeep(identifier).get
-
-        val instructions = Seq(
-          ADD(reg2, FP, ImmOperand(variableReference.offset)),   // Put the start of the array in the first register
-          LDR(reg2, RegisterAddress(reg2, 0)),   //Load size of array in first register
-          MOV(R0, reg1),
-          MOV(R1, reg2),
-          BL(StaticCode.checkArrayBoundsLabel),
+        val check = Macros.checkArrayBounds(variableReference, index.head, symbolTable, reg1 +: reg2 +: regs).instructions
+        //R1 is now going to contain the value of the index expression
+        check ++ Seq(
           LDR(reg2, RegisterAddress(FP, variableReference.offset)),   // Put the start of the array in the second register
           LDR(regs.head, Const(elemtype.size)),    //Put size of one element in third register
           MUL(reg1, reg1, regs.head),              //Put elemSize * index in first register
           ADD(reg1, reg1, reg2),
           LDR(reg1, RegisterAddress(reg1, 4))
         )
-
-        transExpression(index.head, symbolTable, reg1 +: reg2 +: regs) ++ instructions
       }
 
       case VariableReference(name, vartype, offset) => Seq(Macros.load(reg1, offset, vartype))

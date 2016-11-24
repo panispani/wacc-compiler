@@ -1,21 +1,39 @@
 package wacc.arm
 
-import wacc.VariableReference
-import wacc.codegeneration.CodeSegment
-import wacc.constructs.{ArrayElement, AssignTarget, Boolean, Character, PairElement, Type}
+import wacc.{SymbolTable, VariableReference}
+import wacc.codegeneration.{CodeSegment, StaticCode, TransExpressions}
+import wacc.constructs.{ArrayElement, AssignTarget, Boolean, Character, Expression, PairElement, Type}
 
 object Macros {
-  def store(lhs: AssignTarget, src: Register): Seq[Instruction] = {
+  def store(lhs: AssignTarget, symbolTable: SymbolTable, regs: Seq[Register]): Seq[Instruction] = {
     lhs match {
       case VariableReference(name, vartype, offset) => {
         lhs.vartype match {
-          case Boolean | Character => Seq(STRB(src, RegisterAddress(FP, offset)))
-          case default             => Seq(STR(src, RegisterAddress(FP, offset)))
+          case Boolean | Character => Seq(STRB(regs.head, RegisterAddress(FP, offset)))
+          case default             => Seq(STR(regs.head, RegisterAddress(FP, offset)))
         }
       }
-      case ArrayElement(name, index, vartype) =>  Seq()
+//      case ArrayElement(name, index, vartype) => {
+//        TransExpressions.transExpression(index.head, symbolTable, regs) ++
+//        Seq(
+//          LDR(regs(1), RegisterAddress(FP, 0)),  //
+//          LDR(regs(2), )
+//        )
+//      }
       case PairElement(selector, expression, vartype) => Seq()
     }
+  }
+
+  def checkArrayBounds(array: VariableReference, index: Expression,
+                       symbolTable: SymbolTable, registers: Seq[Register]): CodeSegment = {
+    CodeSegment()
+      .extend(TransExpressions.transExpression(index, symbolTable, registers))
+      .extend(Seq(
+        ADD(R1, FP, ImmOperand(array.offset)),   // Put the start of the array in the first register
+        LDR(R1, RegisterAddress(R1, 0)),   //Load size of array in first register
+        MOV(R0, registers.head),
+        BL(StaticCode.checkArrayBoundsLabel)
+      ))
   }
 
   def load(reg1: Register, offset: Int, vartype: Type): Instruction = vartype match {
