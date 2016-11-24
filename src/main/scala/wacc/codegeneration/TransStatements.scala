@@ -168,7 +168,7 @@ package object TransStatements {
 
     val (beginFrame, endFrame) = Macros.frame(symbolTable.sizeInBytes)
 
-    new CodeSegment()
+    CodeSegment()
         .append(B(L0))
         .append(DefineLabel(L1))
         .extend(beginFrame)
@@ -195,7 +195,7 @@ package object TransStatements {
     val instructions = seq.map(transStatement(_, symbolTable, registers))
     val (beginFrame, endFrame) = Macros.frame(symbolTable.sizeInBytes)
 
-    new CodeSegment()
+    CodeSegment()
       .extend(beginFrame)
       .extend(instructions.flatten)
       .extend(endFrame).instructions
@@ -206,7 +206,7 @@ package object TransStatements {
       case vr: VariableReference => vr.offset
     }
 
-    new CodeSegment()
+    CodeSegment()
       .append(ADD(R0, FP, ImmOperand(target)))         // r0 = address of target
       .append(BL(StaticCode.readFunctionLabel)) // reads input into desired variable
       .instructions
@@ -223,7 +223,7 @@ package object TransStatements {
       case default   => StaticCode.printFunctionLabel
     }
 
-    new CodeSegment()
+    CodeSegment()
       .extend(transExpression(print.expression, symbolTable, registers)) // eval expression to print
       .append(MOV(R0, registers.head)) // setup function call
       .append(BL(printLabel)).instructions
@@ -239,7 +239,7 @@ package object TransStatements {
       case default   => StaticCode.printFunctionLabel
     }
 
-    new CodeSegment()
+    CodeSegment()
       .extend(transExpression(print.expression, symbolTable, registers))
       .append(MOV(R0, registers.head)) // setup function call
       .append(BL(printLabel))

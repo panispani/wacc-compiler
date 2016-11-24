@@ -13,8 +13,8 @@ package object TransProgram {
       s => transStatement (s, program.main.symbolTable, Registers.expressionRegs))
 
     val (beginFrame, endFrame) = Macros.frame(program.main.symbolTable.sizeInBytes, isBranch = true)
-    val data = new CodeSegment().extend(StaticCode.staticData).extend(LabelTable.outputLabels)
-    val text = new CodeSegment()
+    val data = StaticCode.staticData.extend(LabelTable.outputLabels)
+    val text = CodeSegment()
                   .append(COMMENT("Static code"))
                   .extend(StaticCode.staticFunctions)
 
@@ -31,7 +31,7 @@ package object TransProgram {
                   .append(MOV(R0, ImmOperand(0)))
                   .extend(endFrame)
 
-    new CodeSegment()
+    CodeSegment()
       .append(ARMSection("data"))
       .extend(data)
       .append(NEWLINE)

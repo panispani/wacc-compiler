@@ -26,7 +26,7 @@ package object StaticCode {
     .extend(throwRuntimeError)
     .extend(checkArrayBounds)
 
-  def staticData: CodeSegment = new CodeSegment()
+  def staticData: CodeSegment = CodeSegment()
     .append(DefineLabel(readFormatLabel))
     .append(readFormat)
     .append(DefineLabel(printStringFormatLabel))
@@ -69,7 +69,7 @@ package object StaticCode {
   def checkArrayBoundsLabel: Label = Label("check_array_bounds")
 
   def readFunction: CodeSegment = {
-    new CodeSegment()
+    CodeSegment()
       .append(DefineLabel(readFunctionLabel))
       .append(NEW_STACK_FRAME)
       .append(MOV(R1, R0)) // Move address of variable into r1 as expected by scanf
@@ -79,7 +79,7 @@ package object StaticCode {
   }
 
   def printFunction: CodeSegment = {
-    new CodeSegment()
+    CodeSegment()
       .append(DefineLabel(printFunctionLabel))
       .append(NEW_STACK_FRAME)
       .append(LDR(R1, RegisterAddress(R0, 0))) // Move the address of the string to print into r1 as expected by printf
@@ -93,7 +93,7 @@ package object StaticCode {
   }
 
   def CheckDivideByZero: CodeSegment = {
-    new CodeSegment()
+    CodeSegment()
       .append(DefineLabel(checkDivideByZeroLabel))
       .append(NEW_STACK_FRAME)
       .append(CMP(R1, ImmOperand(0))) // Check if the dividend is 0
@@ -103,7 +103,7 @@ package object StaticCode {
   }
 
   def throwRuntimeError: CodeSegment = {
-    new CodeSegment()
+    CodeSegment()
       .append(DefineLabel(throwRuntimeErrorLabel))
       .append(BL(printFunctionLabel))
       .append(MOV(R0, ImmOperand(-1)))
@@ -111,7 +111,7 @@ package object StaticCode {
   }
 
   def printIntFunction: CodeSegment = {
-    new CodeSegment()
+    CodeSegment()
         .append(DefineLabel(printIntLabel))
         .append(NEW_STACK_FRAME)
         .append(MOV(R1, R0))
@@ -124,13 +124,13 @@ package object StaticCode {
   }
 
   def printCharFunction: CodeSegment = {
-    new CodeSegment()
+    CodeSegment()
       .append(DefineLabel(printCharLabel))
       .append(BL(Label("putchar")))
   }
 
   def printBoolFunction: CodeSegment = {
-    new CodeSegment()
+    CodeSegment()
       .append(DefineLabel(printBoolLabel))
       .append(NEW_STACK_FRAME)
       .append(CMP(R0, ImmOperand(0)))
@@ -145,7 +145,7 @@ package object StaticCode {
 
 
   def printLnFunction: CodeSegment = {
-    new CodeSegment()
+    CodeSegment()
       .append(DefineLabel(printLnFunctionLabel))
       .append(NEW_STACK_FRAME)
       .append(LDR(R0, LabelAddress(emptyStringLabel)))  // Load the constant address of the empty string into r0
@@ -157,7 +157,7 @@ package object StaticCode {
   }
 
   def checkArrayBounds: CodeSegment = {
-    new CodeSegment()
+    CodeSegment()
       .append(DefineLabel(checkArrayBoundsLabel))
       .append(CMP(R0, ImmOperand(0)))
       .append(LDR(R0, LabelAddress(arrayNegativeIndexLabel), LT))

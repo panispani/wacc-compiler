@@ -37,7 +37,7 @@ class ExpressionVisitorTest extends VisitorTest {
     val parser = TestUtilities.setupParser("--5")
     val result = TestUtilities.buildSubProgram(parser.expression, ExpressionVisitor)
 
-    result.right.value should be (UnaryOperatorExpr(UnaryOperator("-"), IntegerLiteral(-5)))
+    result.right.value should be (UnaryOperatorExpr(UnaryOperator.fromOperatorString("-"), IntegerLiteral(-5)))
   }
 
   "Visiting a valid binary expression(+)" should "create a Binary Expression with (+)" in {

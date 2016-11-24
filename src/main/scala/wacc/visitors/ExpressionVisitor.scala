@@ -43,13 +43,13 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
   }
 
   override def visitUnaryOperatorExp(ctx: UnaryOperatorExpContext): Either[CompilationError, Expression] = {
-    val operator = UnaryOperator(ctx.unaryOperator.getText)
+    val operator = UnaryOperator.fromOperatorString(ctx.unaryOperator.getText)
     val expr = ctx.expression().accept(ExpressionVisitor).right
 
     expr.flatMap(
       expr => operator match {
         case MinusOp | ChrOp if expr.vartype != Integer =>
-          Left(SemanticError(operator.unaryOperator + " operator needs integers", ctx.start))
+          Left(SemanticError(ctx.unaryOperator.getText + " operator needs integers", ctx.start))
 
         case LenOp => expr.vartype match {
           case ArrayType(_) => Right(UnaryOperatorExpr(operator, expr))

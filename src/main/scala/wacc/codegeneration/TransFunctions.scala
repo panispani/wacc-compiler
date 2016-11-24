@@ -8,7 +8,7 @@ import wacc.constructs._
 package object TransFunctions {
   def transFunction(function: Function, registers: Seq[Register]): Seq[Instruction] = {
     val (beginFrame, endFrame) = Macros.frame(function.symbolTable.sizeInBytes, isBranch = true)
-    new CodeSegment()
+    CodeSegment()
       .append(DefineLabel(Label(function.identifier)))
 
       .extend(beginFrame)

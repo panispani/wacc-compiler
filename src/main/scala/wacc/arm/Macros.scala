@@ -23,6 +23,13 @@ object Macros {
     case default => LDR(reg1, RegisterAddress(FP, offset))
   }
 
+  def conditionalExpression(left: Register, right: Register)
+                          (trueCondition: Condition, falseCondition: Condition): CodeSegment
+  = CodeSegment(
+    CMP(left, right),
+    MOV(left, ImmOperand(1), trueCondition),
+    MOV(left, ImmOperand(0), falseCondition)
+  )
 
   /**
     * Returns the code for opening and closing a scope
@@ -30,15 +37,15 @@ object Macros {
     * so that the LR and PC are handled appropriately
     * */
   //    * TODO: make functionally
-def frame(size: Int, isBranch: Boolean = false): (CodeSegment, CodeSegment) = {
+  def frame(size: Int, isBranch: Boolean = false): (CodeSegment, CodeSegment) = {
     val MAX_SIZE = 1024
 
-    var start = new CodeSegment()
+    var start = CodeSegment()
 
     if (isBranch) start = start.append(PUSH(Seq(LR)))
     start = start.extend(Seq(PUSH(Seq(FP)), MOV(FP, SP)))
 
-    var end = new CodeSegment()
+    var end = CodeSegment()
 
     // Handle large scopes by adding / subtracting several times
     val blocks = size / MAX_SIZE

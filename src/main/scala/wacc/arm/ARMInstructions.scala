@@ -1,7 +1,5 @@
 package wacc.arm
 
-import wacc.codegeneration._
-
 /**
   * Conventions follow the ARM documentation
   * Rd  - destination register

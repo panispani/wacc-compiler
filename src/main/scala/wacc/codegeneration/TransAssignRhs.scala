@@ -19,7 +19,7 @@ package object TransAssignRhs {
   }
 
   def transFunctionCall(fc: FunctionCall, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
-    new CodeSegment()
+    CodeSegment()
       .extend(fc.args flatMap (e => transExpression(e, symbolTable, registers) :+ PUSH(Seq(registers.head)))) // Evaluate all arguments and push them on stack
       .append(BL(Label(fc.identifier)))
       .append(MOV(registers.head, R0))

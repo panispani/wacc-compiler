@@ -1,12 +1,13 @@
 package wacc.constructs
 
 import wacc.arm._
+import wacc.codegeneration.CodeSegment
 
 /**
   * Created by panayiotis on 08/11/16.
   */
-case class UnaryOperator(unaryOperator: String) {
-  def translate(dest: Register): Instruction = new Instruction {}
+abstract class UnaryOperator(unaryOperator: String) {
+  def translate(dest: Register): CodeSegment
 }
 
 case class UnaryOperatorExpr(unaryOperator: UnaryOperator, expression: Expression) extends Expression {
@@ -17,16 +18,30 @@ case class UnaryOperatorExpr(unaryOperator: UnaryOperator, expression: Expressio
   }
 }
 
+object UnaryOperator {
+  def fromOperatorString(operator: String): UnaryOperator = operator match {
+    case "!" => NotOp
+    case "-" => MinusOp
+    case "len" => LenOp
+    case "ord" => OrdOp
+    case "chr" => ChrOp
+  }
+}
+
 object NotOp extends UnaryOperator("!") {
-  override def translate(dest: Register): Instruction = EOR(dest, dest, ImmOperand(1))
+  override def translate(dest: Register): CodeSegment = CodeSegment(EOR(dest, dest, ImmOperand(1)))
 }
 object MinusOp extends UnaryOperator("-") {
-  override def translate(dest: Register): Instruction = RSBS(dest, dest, ImmOperand(0))
+  override def translate(dest: Register): CodeSegment = CodeSegment(RSBS(dest, dest, ImmOperand(0)))
 }
 object LenOp extends UnaryOperator("len") {
-  override def translate(dest: Register): Instruction = LDR(dest, RegisterAddress(dest, 0))
+  override def translate(dest: Register): CodeSegment = CodeSegment(LDR(dest, RegisterAddress(dest, 0)))
 }
 
 // TODO: Implement translate
-object OrdOp extends UnaryOperator("ord")
-object ChrOp extends UnaryOperator("chr")
+object OrdOp extends UnaryOperator("ord") {
+  override def translate(dest: Register): CodeSegment = CodeSegment()
+}
+object ChrOp extends UnaryOperator("chr") {
+  override def translate(dest: Register): CodeSegment = CodeSegment()
+}

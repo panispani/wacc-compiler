@@ -1,9 +1,6 @@
 package wacc
 
 import wacc.TransBinaryOperators._
-import wacc.TransUnaryOperators._
-import wacc.codegeneration.Weight._
-import wacc.codegeneration._
 import wacc.arm._
 import wacc.constructs._
 import wacc.StaticCode._
@@ -18,6 +15,20 @@ package object TransExpressions {
 
   // Register machine approach
   private def transExpressionReg(expr: Expression, reg1: Register, reg2: Register, symbolTable: SymbolTable, regs: Seq[Register]): Seq[Instruction] = {
+    def weight(e: Expression): Integer = {
+      e match {
+        case BinaryOperatorExpr(e1, binOp, e2) => {
+          val e1Weight = weight(e1)
+          val e2Weight = weight(e2)
+          val cost1 = math.max(e1Weight, e2Weight + 1)
+          val cost2 = math.max(e1Weight + 1, e2Weight)
+          math.min(cost1, cost2)
+        }
+        case default => 1
+      }
+      0
+    }
+
     expr match {
       case BinaryOperatorExpr(e1, binOp, e2) =>
         if (weight(e1) > weight(e2)) {
@@ -33,7 +44,7 @@ package object TransExpressions {
         }
 
       case UnaryOperatorExpr(op, e) => {
-        transExpression(e, symbolTable, reg1 +: reg2 +: regs) ++ op.translate(reg1)
+        transExpression(e, symbolTable, reg1 +: reg2 +: regs) ++ op.translate(reg1).instructions
       }
 
       case ArrayElement(identifier, index, elemtype) => {
