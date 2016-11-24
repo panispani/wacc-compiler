@@ -1,9 +1,8 @@
 package wacc.codegeneration
 
-import wacc.{SymbolTable, TestUtilities}
-import wacc.TransStatements._
+import wacc.TestUtilities
 import wacc.arm._
-import wacc.visitors.{ProgramVisitor, StatementVisitor}
+import wacc.visitors.ProgramVisitor
 
 class FunctionTest extends CodeGenTest {
 

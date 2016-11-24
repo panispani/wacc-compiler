@@ -49,24 +49,19 @@ object TransExpressions {
         val variableReference = symbolTable.lookupDeep(identifier).get
 
         val instructions = Seq(
-          ADD(reg1, FP, ImmOperand(variableReference.offset)),
-          LDR(reg1, RegisterAddress(reg1, 0)),
-          MOV(R0, reg2),
-          MOV(R1, reg1),
+          ADD(reg2, FP, ImmOperand(variableReference.offset)),   // Put the start of the array in the first register
+          LDR(reg2, RegisterAddress(reg2, 0)),   //Load size of array in first register
+          MOV(R0, reg1),
+          MOV(R1, reg2),
           BL(StaticCode.checkArrayBoundsLabel),
-          ADD(reg1, FP, ImmOperand(variableReference.offset)),
-          LDR(reg1, RegisterAddress(reg1, 0)),
-          LDR(reg2, Const(elemtype.size)),
-          MUL(reg1, reg1, regs.head),
+          LDR(reg2, RegisterAddress(FP, variableReference.offset)),   // Put the start of the array in the second register
+          LDR(regs.head, Const(elemtype.size)),    //Put size of one element in third register
+          MUL(reg1, reg1, regs.head),              //Put elemSize * index in first register
+          ADD(reg1, reg1, reg2),
           LDR(reg1, RegisterAddress(reg1, 4))
-//          ADD(reg1, reg1, ImmOperand(4)),
-//          ADD(reg1, reg1, reg2),
-//          MOV(regs.head, ImmOperand(elemtype.size)),
-//          MUL(reg1, reg1, regs.head),
-//          LDR(reg1, RegisterAddress(reg1, 0))
         )
 
-        transExpression(index.head, symbolTable, reg2 +: regs) ++ instructions
+        transExpression(index.head, symbolTable, reg1 +: reg2 +: regs) ++ instructions
 
 //        ADD r4, sp, #0
 //        33		LDR r5, =77    //Up to expression

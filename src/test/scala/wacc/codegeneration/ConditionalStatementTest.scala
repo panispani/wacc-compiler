@@ -1,10 +1,9 @@
 package wacc.codegeneration
 
 import org.scalatest.Ignore
-import wacc.{SymbolTable, TestUtilities}
-import wacc.TransStatements._
 import wacc.arm._
 import wacc.visitors.StatementVisitor
+import wacc.{SymbolTable, TestUtilities}
 
 /**
   * Created by panayiotis on 21/11/16.
@@ -17,7 +16,7 @@ class ConditionalStatementTest extends CodeGenTest {
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
     val availableRegisters = Seq(R0, R1, R2, R3, R4, R5, R6, R7, R8)
 
-    val instructions = transStatement(program.right.get, SymbolTable.globalTable, availableRegisters)
+    val instructions = TransStatements.transStatement(program.right.get, SymbolTable.globalTable, availableRegisters)
     println(instructions)
     instructions.head shouldBe MOV(R1,ImmOperand(1),ALWAYS)
     instructions(1) shouldBe MOV(R0,ImmOperand(1),ALWAYS)

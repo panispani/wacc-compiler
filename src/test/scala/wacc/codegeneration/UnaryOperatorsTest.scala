@@ -1,10 +1,8 @@
 package wacc.codegeneration
 
-import org.scalatest.Ignore
-import wacc.TransStatements._
 import wacc.arm._
 import wacc.visitors.StatementVisitor
-import wacc.{StaticCode, SymbolTable, TestUtilities}
+import wacc.{SymbolTable, TestUtilities}
 
 class UnaryOperatorsTest extends CodeGenTest {
 
@@ -16,7 +14,8 @@ class UnaryOperatorsTest extends CodeGenTest {
     val program2 = TestUtilities.buildSubProgram(parser2.statement, StatementVisitor)
 
     val registers = Seq(R4, R5, R6)
-    val instructions = transStatementSequence(Seq(program.right.get, program2.right.get), SymbolTable.globalTable, registers)
+    val instructions = TransStatements.transStatementSequence(
+      Seq(program.right.get, program2.right.get), SymbolTable.globalTable, registers)
 
 
     //instructions(0) up to instructions(7) are not up to unary operator

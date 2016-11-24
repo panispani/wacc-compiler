@@ -1,10 +1,9 @@
 package wacc.codegeneration
 
 import org.scalatest.Ignore
-import wacc.{SymbolTable, TestUtilities}
-import wacc.TransStatements._
-import wacc.visitors.{SequenceVisitor, StatementVisitor}
 import wacc.arm._
+import wacc.visitors.StatementVisitor
+import wacc.{SymbolTable, TestUtilities}
 
 /**
   * Created by pp3414 on 22/11/16.
@@ -16,7 +15,7 @@ class ScopeStatementTest extends CodeGenTest {
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
     val availableRegisters = Seq(R0, R1, R2, R3, R4, R5, R6, R7, R8)
 
-    val instructions = transStatement(program.right.get, SymbolTable.globalTable, availableRegisters)
+    val instructions = TransStatements.transStatement(program.right.get, SymbolTable.globalTable, availableRegisters)
 
     instructions.head shouldBe SUB(SP, SP, ImmOperand(4))
     instructions(1) shouldBe MOV(R0, ImmOperand(1))

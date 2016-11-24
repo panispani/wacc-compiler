@@ -13,7 +13,6 @@ object TransFunctions {
       .extend(function.statements flatMap (s => TransStatements.transStatement(s, function.symbolTable, registers)))
       .extend(endFrame)
 
-      .append(RETURN)
       .instructions
   }
 }
