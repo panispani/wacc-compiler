@@ -33,7 +33,7 @@ package object TransExpressions {
         }
 
       case UnaryOperatorExpr(op, e) => {
-        transExpression(e, symbolTable, reg1 +: reg2 +: regs) ++ transUnaryOperator(reg1, op)
+        transExpression(e, symbolTable, reg1 +: reg2 +: regs) ++ op.translate(reg1)
       }
 
       case ArrayElement(identifier, index, elemtype) => {
