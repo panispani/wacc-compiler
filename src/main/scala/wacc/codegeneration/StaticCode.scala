@@ -176,6 +176,7 @@ package object StaticCode {
   def checkArrayBounds: CodeSegment = {
     CodeSegment()
       .append(DefineLabel(checkArrayBoundsLabel))
+      .append(NEW_STACK_FRAME)
       .append(CMP(R0, ImmOperand(0)))
       .append(LDR(R0, LabelAddress(arrayNegativeIndexLabel), LT))
       .append(BL(throwRuntimeErrorLabel, LT))
