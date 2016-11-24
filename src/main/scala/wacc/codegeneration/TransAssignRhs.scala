@@ -19,9 +19,11 @@ package object TransAssignRhs {
   }
 
   def transFunctionCall(fc: FunctionCall, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
+    val argumentsSize = ImmOperand(fc.args.map(_.vartype.size).sum)
     CodeSegment()
-      .extend(fc.args flatMap (e => transExpression(e, symbolTable, registers) :+ PUSH(Seq(registers.head)))) // Evaluate all arguments and push them on stack
+      .extend(fc.args.reverse flatMap (e => transExpression(e, symbolTable, registers) :+ STR(registers.head, RegisterAddress(SP, -e.vartype.size, writeback = true)))) // Evaluate all arguments and push them on stack
       .append(BL(Label(fc.identifier)))
+      .append(ADD(SP, SP, argumentsSize))
       .append(MOV(registers.head, R0))
       .instructions
   }
