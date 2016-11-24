@@ -120,6 +120,7 @@ package object StaticCode {
   def throwRuntimeError: CodeSegment = {
     CodeSegment()
       .append(DefineLabel(throwRuntimeErrorLabel))
+      .append(NEW_STACK_FRAME)
       .append(BL(printFunctionLabel))
       .append(MOV(R0, ImmOperand(-1)))
       .append(BL(Label("exit")))
