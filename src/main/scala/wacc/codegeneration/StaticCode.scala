@@ -1,9 +1,8 @@
-package wacc
+package wacc.codegeneration
 
 import wacc.arm._
-import wacc.codegeneration._
 
-package object StaticCode {
+object StaticCode {
 
   def intFormat: AsciiData = AsciiData("\"%d\\0\"")
   def charFormat: AsciiData = AsciiData("\"%c\\0\"")
@@ -16,13 +15,8 @@ package object StaticCode {
   def arrayIndexTooLarge: AsciiData = AsciiData("\"ArrayIndexOutOfBoundsError: index too large\"")
 
   def staticFunctions: CodeSegment =
-    readIntFunction
-    .extend(readCharFunction)
-    .extend(printFunction)
-    .extend(printIntFunction)
-    .extend(printCharFunction)
-    .extend(printBoolFunction)
-    .extend(printLnFunction)
+    readIntFunction.extend(readCharFunction).extend(printFunction).extend(printIntFunction)
+    .extend(printCharFunction).extend(printBoolFunction).extend(printLnFunction)
     .extend(CheckDivideByZero)
     .extend(throwRuntimeError)
     .extend(checkArrayBounds)
@@ -46,7 +40,6 @@ package object StaticCode {
     .append(arrayNegativeIndex)
     .append(DefineLabel(arrayIndexTooLargeLabel))
     .append(arrayIndexTooLarge)
-
 
   def readIntLabel: Label = Label("read_int")
   def readCharLabel: Label = Label("read_char")

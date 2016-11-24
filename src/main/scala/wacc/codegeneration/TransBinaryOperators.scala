@@ -1,9 +1,9 @@
-package wacc
+package wacc.codegeneration
 
 import wacc.arm._
 import wacc.constructs._
 
-package object TransBinaryOperators {
+object TransBinaryOperators {
 
   def transBinaryOperator(r1: Register, binOp: BinaryOperator, r2: Register): Seq[Instruction] = {
     binOp match {

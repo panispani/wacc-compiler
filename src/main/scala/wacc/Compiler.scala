@@ -2,7 +2,7 @@ package wacc
 
 import antlr.{WACCLexer, WACCParser}
 import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream}
-import wacc.TransProgram._
+import wacc.codegeneration.TransProgram
 import wacc.visitors.ProgramVisitor
 
 object Compiler extends App {
@@ -18,7 +18,7 @@ object Compiler extends App {
 
   programAST match {
     case Left(errors :+ last) => errors foreach(_.raise()) ; last.raiseAndExit()
-    case Right(program) => transProgram(program).release()
+    case Right(program) => TransProgram.transProgram(program).release()
   }
 
 }

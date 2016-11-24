@@ -1,15 +1,13 @@
-package wacc
+package wacc.codegeneration
 
-import wacc.TransAssignRhs._
-import wacc.TransExpressions._
-import wacc.codegeneration._
+import wacc.{SymbolTable, VariableReference}
 import wacc.arm._
 import wacc.constructs._
 
 /**
   * Created by panayiotis on 16/11/16.
   */
-package object TransStatements {
+object TransStatements {
 
   def transStatement(statement: Statement, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     statement match {
@@ -56,7 +54,7 @@ package object TransStatements {
     var instructions: Seq[Instruction] = Seq()
 
     for (elem <- literal.elements) {
-      instructions ++= transExpression(elem, symbolTable, registers.tail) :+ STR(registers(1), RegisterAddress(registers.head, offset))
+      instructions ++= TransExpressions.transExpression(elem, symbolTable, registers.tail) :+ STR(registers(1), RegisterAddress(registers.head, offset))
       offset += literal.vartype.elemtype.size
     }
 
@@ -81,8 +79,8 @@ package object TransStatements {
 
   private def transDeclareStatementWithLiteralRhs(vartype: Type, variableRef: VariableReference, assignValue: AssignValue, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     val instructions = vartype match {
-      case Integer | String     => transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STR(registers.head, RegisterAddress(FP, variableRef.offset)))
-      case Boolean | Character  => transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STRB(registers.head, RegisterAddress(FP, variableRef.offset)))
+      case Integer | String     => TransAssignRhs.transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STR(registers.head, RegisterAddress(FP, variableRef.offset)))
+      case Boolean | Character  => TransAssignRhs.transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STRB(registers.head, RegisterAddress(FP, variableRef.offset)))
       case ArrayType(elemsType) => assignValue match {
         case literal @ ArrayLiteral(elements) => {
           val arraySize = 4 + elements.size * elemsType.size
@@ -102,13 +100,13 @@ package object TransStatements {
             LDR(R0, Const(firstType.size + secondType.size)),      //Load the size of the pair in R0
             BL(Label("malloc")),
             MOV(registers.head, R0)
-          ) ++ transExpression(firstExp, symbolTable, registers.tail) ++
+          ) ++ TransExpressions.transExpression(firstExp, symbolTable, registers.tail) ++
             Seq (
               LDR(R0, Const(firstType.size)),
               BL(Label("malloc")),
               STR(registers(1), RegisterAddress(R0, 0)),  //Store the value for the first element in its memory
               STR(R0, RegisterAddress(registers(0), 0)) //Put address of first element in memory of pair
-            ) ++ transExpression(secondExp, symbolTable, registers.tail) ++
+            ) ++ TransExpressions.transExpression(secondExp, symbolTable, registers.tail) ++
               Seq(
                 LDR(R0, Const(secondType.size)),
                 BL(Label("malloc")),
@@ -117,7 +115,7 @@ package object TransStatements {
                 STR(registers.head, RegisterAddress(FP, variableRef.offset))
               )
         }
-        case PairLiteral() => transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STR(registers.head, RegisterAddress(FP, variableRef.offset)))
+        case PairLiteral() => TransAssignRhs.transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STR(registers.head, RegisterAddress(FP, variableRef.offset)))
       }
       case default => println("not impelemented"); Seq()
     }
@@ -126,18 +124,18 @@ package object TransStatements {
   }
 
   def transAssignStatement(lhs: AssignTarget, rhs: AssignValue, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
-    val instruction = transAssignRhs(rhs, symbolTable, registers)
+    val instruction = TransAssignRhs.transAssignRhs(rhs, symbolTable, registers)
     instruction ++ Macros.store(lhs, registers.head)
   }
 
   def transExitStatement(exitCode: Expression, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
-    val instruction = transExpression(exitCode, symbolTable, registers)
+    val instruction = TransExpressions.transExpression(exitCode, symbolTable, registers)
 
     instruction ++ Seq(MOV(R0, registers.head), BL(Label("exit")))
   }
 
   def transReturnStatement(returnValue: Expression, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
-    val instruction = transExpression(returnValue, symbolTable, registers)
+    val instruction = TransExpressions.transExpression(returnValue, symbolTable, registers)
 
     instruction ++ Seq(MOV(R0, registers.head))
   }
@@ -151,7 +149,7 @@ package object TransStatements {
     val L1 = Label()
 
     //stack allocation is not done TODO- experimental
-    transExpression(expression, symbolTable, registers) ++
+    TransExpressions.transExpression(expression, symbolTable, registers) ++
       Seq(CMP(registers.head, ImmOperand(1)), B(L0, EQ)) ++
       transScopeStatement(falseStatements, symbolTable, registers) ++
       Seq(B(L1), DefineLabel(L0)) ++
@@ -173,7 +171,7 @@ package object TransStatements {
         .append(DefineLabel(L1))
         .extend(transStatementSequence(stmts, symbolTable, registers))
         .append(DefineLabel(L0))
-        .extend(transExpression(condition, symbolTable, registers))
+        .extend(TransExpressions.transExpression(condition, symbolTable, registers))
         .append(CMP(registers.head, ImmOperand(1)))
         .append(B(L1, EQ))
         .extend(endFrame).instructions
@@ -191,7 +189,7 @@ package object TransStatements {
 
   def transScopeStatement(seq: Seq[Statement], symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     // Make sure the same registers are available after each statement is translated! TODO
-    val instructions = seq.map(transStatement(_, symbolTable, registers))
+    val instructions = seq.map(TransStatements.transStatement(_, symbolTable, registers))
     val (beginFrame, endFrame) = Macros.frame(symbolTable.sizeInBytes)
 
     CodeSegment()
@@ -225,11 +223,11 @@ package object TransStatements {
       case Integer   => StaticCode.printIntLabel
       case Character => StaticCode.printCharLabel
       case Boolean   => StaticCode.printBoolLabel
-      case default   => StaticCode.printFunctionLabel
+      case _         => StaticCode.printFunctionLabel
     }
 
     CodeSegment()
-      .extend(transExpression(print.expression, symbolTable, registers)) // eval expression to print
+      .extend(TransExpressions.transExpression(print.expression, symbolTable, registers)) // eval expression to print
       .append(MOV(R0, registers.head)) // setup function call
       .append(BL(printLabel)).instructions
   }
@@ -241,11 +239,11 @@ package object TransStatements {
       case Integer   => StaticCode.printIntLabel
       case Character => StaticCode.printCharLabel
       case Boolean   => StaticCode.printBoolLabel
-      case default   => StaticCode.printFunctionLabel
+      case _         => StaticCode.printFunctionLabel
     }
 
     CodeSegment()
-      .extend(transExpression(print.expression, symbolTable, registers))
+      .extend(TransExpressions.transExpression(print.expression, symbolTable, registers))
       .append(MOV(R0, registers.head)) // setup function call
       .append(BL(printLabel))
       .append(BL(StaticCode.printLnFunctionLabel)).instructions

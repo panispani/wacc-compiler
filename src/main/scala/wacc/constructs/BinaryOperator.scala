@@ -1,8 +1,7 @@
 package wacc.constructs
 
-import wacc.StaticCode
 import wacc.arm._
-import wacc.codegeneration.CodeSegment
+import wacc.codegeneration.{CodeSegment, StaticCode}
 
 /**
   * Created by panayiotis on 08/11/16.

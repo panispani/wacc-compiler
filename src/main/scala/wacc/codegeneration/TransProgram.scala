@@ -1,16 +1,13 @@
-package wacc
+package wacc.codegeneration
 
-import wacc.TransFunctions._
-import wacc.TransStatements._
-import wacc.codegeneration._
 import wacc.arm._
 import wacc.constructs.Program
 
-package object TransProgram {
+object TransProgram {
   def transProgram(program: Program): CodeSegment = {
-    val functionInstructions = program.functions map (s => transFunction (s, Registers.expressionRegs))
+    val functionInstructions = program.functions map (s => TransFunctions.transFunction (s, Registers.expressionRegs))
     val mainInstructions     = program.main.statements map (
-      s => transStatement (s, program.main.symbolTable, Registers.expressionRegs))
+      s => TransStatements.transStatement(s, program.main.symbolTable, Registers.expressionRegs))
 
     val (beginFrame, endFrame) = Macros.frame(program.main.symbolTable.sizeInBytes, isBranch = true)
     val data = StaticCode.staticData.extend(LabelTable.outputLabels)

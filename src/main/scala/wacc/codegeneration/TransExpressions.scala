@@ -1,11 +1,10 @@
-package wacc
+package wacc.codegeneration
 
-import wacc.TransBinaryOperators._
+import wacc.{SymbolTable, VariableReference}
 import wacc.arm._
 import wacc.constructs._
-import wacc.StaticCode._
 
-package object TransExpressions {
+object TransExpressions {
   def transExpression(expr: Expression, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     registers match {
       case (r1::r2::regs) => transExpressionReg(expr, r1, r2, symbolTable, regs)
@@ -35,12 +34,12 @@ package object TransExpressions {
           // e1 first
           val evalExpr = transExpression(e1, symbolTable, reg1 +: reg2 +: regs) ++
             transExpression(e2, symbolTable, reg2 +: regs)
-          evalExpr ++ transBinaryOperator(reg1, binOp, reg2)
+          evalExpr ++ binOp.translate(reg1, reg2).instructions
         } else {
           // e2 first
-          val evalExpr = transExpression(e2, symbolTable, reg2 +: reg1 +: regs) ++
-            transExpression(e1, symbolTable, reg1 +: regs)
-          evalExpr ++ transBinaryOperator(reg1, binOp, reg2)
+          val evalExpr = TransExpressions.transExpression(e2, symbolTable, reg2 +: reg1 +: regs) ++
+            TransExpressions.transExpression(e1, symbolTable, reg1 +: regs)
+          evalExpr ++ binOp.translate(reg1, reg2).instructions
         }
 
       case UnaryOperatorExpr(op, e) =>
@@ -54,7 +53,7 @@ package object TransExpressions {
           LDR(reg1, RegisterAddress(reg1, 0)),
           MOV(R0, reg2),
           MOV(R1, reg1),
-          BL(checkArrayBoundsLabel),
+          BL(StaticCode.checkArrayBoundsLabel),
           ADD(reg1, FP, ImmOperand(variableReference.offset)),
           LDR(reg1, RegisterAddress(reg1, 0)),
           LDR(reg2, Const(elemtype.size)),
