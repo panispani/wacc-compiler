@@ -55,11 +55,16 @@ package object TransExpressions {
           MOV(R0, reg2),
           MOV(R1, reg1),
           BL(checkArrayBoundsLabel),
-          ADD(reg1, reg1, ImmOperand(4)),
-          ADD(reg1, reg1, reg2),
-          MOV(regs.head, ImmOperand(elemtype.size)),
+          ADD(reg1, FP, ImmOperand(variableReference.offset)),
+          LDR(reg1, RegisterAddress(reg1, 0)),
+          LDR(reg2, Const(elemtype.size)),
           MUL(reg1, reg1, regs.head),
-          LDR(reg1, RegisterAddress(reg1, 0))
+          LDR(reg1, RegisterAddress(reg1, 4))
+//          ADD(reg1, reg1, ImmOperand(4)),
+//          ADD(reg1, reg1, reg2),
+//          MOV(regs.head, ImmOperand(elemtype.size)),
+//          MUL(reg1, reg1, regs.head),
+//          LDR(reg1, RegisterAddress(reg1, 0))
         )
 
         transExpression(index.head, symbolTable, reg2 +: regs) ++ instructions
