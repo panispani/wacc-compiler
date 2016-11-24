@@ -56,7 +56,7 @@ object Macros {
             LDR (regs.head, Const(elemType.size)), //Put size of one element in third register
             MUL (reg1, reg1, regs.head), //Put elemSize * index in first register
             ADD (reg1, reg1, reg2),
-            MOV (reg2, ImmOperand(4)),
+            STR (reg2, Const(4)),
             ADD (reg1, reg1, reg2)
           ))
       }
@@ -72,8 +72,8 @@ object Macros {
                           (trueCondition: Condition, falseCondition: Condition): CodeSegment
   = CodeSegment(
     CMP(left, right),
-    MOV(left, ImmOperand(1), trueCondition),
-    MOV(left, ImmOperand(0), falseCondition)
+    STR(left, Const(1), trueCondition),
+    STR(left, Const(0), falseCondition)
   )
 
   /**

@@ -13,7 +13,7 @@ class LiteralExpressionTest extends CodeGenTest {
     val instructions = TransExpressions.transExpression(IntegerLiteral(1), SymbolTable.globalTable, availableRegisters)
 
     instructions.size should be (1)
-    instructions.head should be (MOV(R4, ImmOperand(1)))
+    instructions.head should be (LDR(R4, Const(1)))
   }
 
   "The value of an expression consisting of pair literal" should "be stored in the first available register" in {
@@ -21,6 +21,6 @@ class LiteralExpressionTest extends CodeGenTest {
     val instructions = TransExpressions.transExpression(PairLiteral(), SymbolTable.globalTable, availableRegisters)
 
     instructions.size should be (1)
-    instructions.head should be (MOV(R4, ImmOperand(0)))
+    instructions.head should be (LDR(R4, Const(0)))
   }
 }
