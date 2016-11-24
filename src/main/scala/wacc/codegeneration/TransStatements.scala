@@ -11,8 +11,8 @@ object TransStatements {
 
   def transStatement(statement: Statement, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     statement match {
-      case DeclareStatement(vartype: Type, variable: VariableReference, value: AssignValue)
-        => transDeclareStatement(vartype, variable, value, symbolTable, registers)
+      case dec: DeclareStatement
+        => transDeclareStatement(dec, symbolTable, registers)
 
       case AssignStatement(lhs: AssignTarget, rhs: AssignValue)
         => transAssignStatement(lhs, rhs, symbolTable, registers)
@@ -61,66 +61,34 @@ object TransStatements {
     instructions
   }
 
-  def transDeclareStatement(vartype: Type,
-                            variableRef: VariableReference,
-                            assignValue: AssignValue,
+  def transDeclareStatement(dec: DeclareStatement,
                             symbolTable: SymbolTable,
                             registers: Seq[Register]): Seq[Instruction] = {
 
-    assignValue match {
+    val variableRef = dec.newReference
+    val assignValue = dec.value
+
+    //TODO The below should be in store, but we probably have to modify DeclareStatement to take an AssignTarget
+    TransAssignRhs.transAssignRhs(assignValue, symbolTable, registers) ++ (assignValue match {
       case VariableReference(name, _, offset) =>
         Seq(
           LDR(registers.head, RegisterAddress(FP, offset)),
           STR(R4, RegisterAddress(FP, variableRef.offset))
         )
-      case default => transDeclareStatementWithLiteralRhs(vartype, variableRef, assignValue, symbolTable, registers)
-    }
-  }
+      case default => dec.vartype match {
+        case Integer | String
+          => Seq(STR(registers.head, RegisterAddress(FP, variableRef.offset)))
 
-  private def transDeclareStatementWithLiteralRhs(vartype: Type, variableRef: VariableReference, assignValue: AssignValue, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
-    val instructions = vartype match {
-      case Integer | String     => TransAssignRhs.transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STR(registers.head, RegisterAddress(FP, variableRef.offset)))
-      case Boolean | Character  => TransAssignRhs.transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STRB(registers.head, RegisterAddress(FP, variableRef.offset)))
-      case ArrayType(elemsType) => assignValue match {
-        case literal @ ArrayLiteral(elements) => {
-          val arraySize = 4 + elements.size * elemsType.size
-          Seq(
-            LDR(R0, Const(arraySize)),
-            BL(Label("malloc")),
-            MOV(registers.head, R0),
-            LDR(registers(1), Const(elements.size)),
-            STR(registers(1), RegisterAddress(registers.head, 0))
-          ) ++ transArrayLiteral(literal, symbolTable, registers) :+ STR(registers.head, RegisterAddress(FP, variableRef.offset))
-        }
-        case default => println("not impelemented"); Seq()
-      }
-      case PairType(firstType, secondType) => assignValue match {
-        case PairConstructor(firstExp, secondExp) => {
-          Seq(
-            LDR(R0, Const(firstType.size + secondType.size)),      //Load the size of the pair in R0
-            BL(Label("malloc")),
-            MOV(registers.head, R0)
-          ) ++ TransExpressions.transExpression(firstExp, symbolTable, registers.tail) ++
-            Seq (
-              LDR(R0, Const(firstType.size)),
-              BL(Label("malloc")),
-              STR(registers(1), RegisterAddress(R0, 0)),  //Store the value for the first element in its memory
-              STR(R0, RegisterAddress(registers(0), 0)) //Put address of first element in memory of pair
-            ) ++ TransExpressions.transExpression(secondExp, symbolTable, registers.tail) ++
-              Seq(
-                LDR(R0, Const(secondType.size)),
-                BL(Label("malloc")),
-                STR(registers(1), RegisterAddress(R0, 0)),  //Store the value for the second element in its memory
-                STR(R0, RegisterAddress(registers(0), firstType.size)),   //Put address of second element in memory of pair with offset
-                STR(registers.head, RegisterAddress(FP, variableRef.offset))
-              )
-        }
-        case PairLiteral() => TransAssignRhs.transAssignRhs(assignValue, symbolTable, registers) ++ Seq(STR(registers.head, RegisterAddress(FP, variableRef.offset)))
-      }
-      case default => println("not impelemented"); Seq()
-    }
+        case Boolean | Character
+          => Seq(STRB(registers.head, RegisterAddress(FP, variableRef.offset)))
 
-    instructions
+        case ArrayType(elemsType)
+          => Seq(STR(registers.head, RegisterAddress(FP, variableRef.offset)))
+
+        case PairType(firstType, secondType)
+          => Seq(STR(registers.head, RegisterAddress(FP, variableRef.offset)))
+      }
+    })
   }
 
   def transAssignStatement(lhs: AssignTarget, rhs: AssignValue, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
