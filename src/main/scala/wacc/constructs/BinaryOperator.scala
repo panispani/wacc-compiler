@@ -43,7 +43,7 @@ object DivBinOp extends BinaryOperator("/") {
     MOV(R1, operand),
     BL(StaticCode.checkDivideByZeroLabel),
     BL(StaticCode.divisionLabel),
-    MOV(dest, R1)
+    MOV(dest, R0)
   )
 }
 object ModBinOp extends BinaryOperator("%") {

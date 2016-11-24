@@ -34,12 +34,12 @@ object TransExpressions {
           // e1 first
           val evalExpr = transExpression(e1, symbolTable, reg1 +: reg2 +: regs) ++
             transExpression(e2, symbolTable, reg2 +: regs)
-          evalExpr ++ binOp.translate(reg1, reg2).instructions
+          evalExpr ++ TransBinaryOperators.transBinaryOperator(reg1, binOp, reg2)
         } else {
           // e2 first
           val evalExpr = TransExpressions.transExpression(e2, symbolTable, reg2 +: reg1 +: regs) ++
             TransExpressions.transExpression(e1, symbolTable, reg1 +: regs)
-          evalExpr ++ binOp.translate(reg1, reg2).instructions
+          evalExpr ++ TransBinaryOperators.transBinaryOperator(reg1, binOp, reg2)
         }
 
       case UnaryOperatorExpr(op, e) =>
