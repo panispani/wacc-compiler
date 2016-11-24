@@ -32,7 +32,7 @@ object TransStatements {
       case stat @ PrintLnStatement(expression)
         => transPrintLnStatement(stat, symbolTable, registers);
 
-      case ConditionalStatement(expression, trueStatements, falseStatements, symbolTable)
+      case ConditionalStatement(expression, trueStatements, falseStatements)
         => transConditionalStatement(expression, trueStatements, falseStatements, symbolTable, registers)
 
       case LoopStatement(condition, statements, symbolTable)
@@ -66,15 +66,15 @@ object TransStatements {
                             assignValue: AssignValue,
                             symbolTable: SymbolTable,
                             registers: Seq[Register]): Seq[Instruction] = {
-
-    assignValue match {
-      case VariableReference(name, _, offset) =>
+    val post = Seq(SUB(SP, SP, ImmOperand(vartype.size)))
+    (assignValue match {
+      case VariableReference(name, vartype, offset) =>
         Seq(
           LDR(registers.head, RegisterAddress(FP, offset)),
           STR(R4, RegisterAddress(FP, variableRef.offset))
         )
       case default => transDeclareStatementWithLiteralRhs(vartype, variableRef, assignValue, symbolTable, registers)
-    }
+    }) ++ post
   }
 
   private def transDeclareStatementWithLiteralRhs(vartype: Type, variableRef: VariableReference, assignValue: AssignValue, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
@@ -141,19 +141,19 @@ object TransStatements {
   }
 
   def transConditionalStatement(expression: Expression,
-                                trueStatements: Seq[Statement],
-                                falseStatements: Seq[Statement],
-                                symbolTable: SymbolTable,
+                                trueStatements: ScopeStatement,
+                                falseStatements: ScopeStatement,
+                                parentTable: SymbolTable,
                                 registers: Seq[Register]): Seq[Instruction] = {
     val L0 = Label()
     val L1 = Label()
 
     //stack allocation is not done TODO- experimental
-    TransExpressions.transExpression(expression, symbolTable, registers) ++
+    TransExpressions.transExpression(expression, parentTable, registers) ++
       Seq(CMP(registers.head, ImmOperand(1)), B(L0, EQ)) ++
-      transScopeStatement(falseStatements, symbolTable, registers) ++
+      transScopeStatement(falseStatements.statements, falseStatements.symbolTable, registers) ++
       Seq(B(L1), DefineLabel(L0)) ++
-      transScopeStatement(trueStatements, symbolTable, registers) ++
+      transScopeStatement(trueStatements.statements, trueStatements.symbolTable, registers) ++
       Seq(DefineLabel(L1))
   }
 

@@ -52,11 +52,11 @@ object Macros {
     val remainder = size % MAX_SIZE
 
     for (i <- 1 to blocks) {
-      start = start.append(SUB(SP, SP, ImmOperand(MAX_SIZE)))
+      //start = start.append(SUB(SP, SP, ImmOperand(MAX_SIZE)))
       end = end.append(ADD(SP, SP, ImmOperand(MAX_SIZE)))
     }
 
-    start = start.append(SUB(SP, SP, ImmOperand(remainder)))
+    //start = start.append(SUB(SP, SP, ImmOperand(remainder)))
     end = end.append(ADD(SP, SP, ImmOperand(remainder)))
              .append(POP(Seq(FP)))
 

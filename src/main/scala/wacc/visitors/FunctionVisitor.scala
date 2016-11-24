@@ -42,9 +42,9 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
 
   private def mapLastStatements(lastStatement: Statement, f: Statement => Either[CompilationError, Statement])
   : Either[CompilationError, Statement] = lastStatement match {
-    case ConditionalStatement(expr, trueStats, falseStats, _) =>
-      val trueRes = mapLastStatements(trueStats.last, f)
-      val falseRes = mapLastStatements(falseStats.last, f)
+    case ConditionalStatement(expr, trueStats, falseStats) =>
+      val trueRes = mapLastStatements(trueStats.statements.last, f)
+      val falseRes = mapLastStatements(falseStats.statements.last, f)
       trueRes.right flatMap (_ => falseRes)
     case LoopStatement(expr, stats, _) => mapLastStatements(stats.last, f)
     case statement => f(statement)
