@@ -2,22 +2,19 @@ package wacc.codegeneration
 
 import wacc.arm.Instruction
 
-case class CodeSegment private(instructions: Seq[Instruction]) {
-
-  def this() {
-    this(Vector())
-  }
+class CodeSegment private(initial: Seq[Instruction]) {
+  val instructions: Vector[Instruction] = initial.toVector
 
   def append(instruction: Instruction) = {
-    CodeSegment(instructions :+ instruction)
+    new CodeSegment(instructions :+ instruction)
   }
 
   def extend(extension: Seq[Instruction]) = {
-    CodeSegment(instructions ++ extension)
+    new CodeSegment(instructions ++ extension)
   }
 
   def extend(extension: CodeSegment) = {
-    CodeSegment(instructions ++ extension.instructions)
+    new CodeSegment(instructions ++ extension.instructions)
   }
 
   /**
@@ -28,11 +25,15 @@ case class CodeSegment private(instructions: Seq[Instruction]) {
     * */
   def release()(implicit consumer: (CodeSegment => Unit)) = {
     consumer(this)
-    new CodeSegment()
+    CodeSegment()
   }
 }
 
 object CodeSegment {
+
+  def apply(): CodeSegment = new CodeSegment(Vector())
+  def apply(instruction: Instruction): CodeSegment = new CodeSegment(Vector(instruction))
+  def apply(instructions: Instruction*): CodeSegment = new CodeSegment(instructions.toVector)
 
   // Default consumer which just prints all instructions
   implicit def outputConsumer(codeSegment: CodeSegment): Unit
