@@ -28,7 +28,10 @@ object  LiteralVisitor extends WACCParserBaseVisitor[Either[CompilationError, Li
   }
 
   override def visitStringLiteral(ctx: StringLiteralContext): Either[CompilationError, StringLiteral]
-    = Right(StringLiteral(ctx.getText))
+    = {
+    //println("I reached this point having on my back " + ctx.getText + " " + ctx.getText.size)
+    Right(StringLiteral(ctx.getText))
+  }
 
   override def visitPairLiteral(ctx: PairLiteralContext): Either[CompilationError, PairLiteral]
     = Right(PairLiteral())
