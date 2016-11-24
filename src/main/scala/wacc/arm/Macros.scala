@@ -56,7 +56,7 @@ object Macros {
             LDR (regs.head, Const(elemType.size)), //Put size of one element in third register
             MUL (reg1, reg1, regs.head), //Put elemSize * index in first register
             ADD (reg1, reg1, reg2),
-            STR (reg2, Const(4)),
+            LDR (reg2, Const(4)),
             ADD (reg1, reg1, reg2)
           ))
       }
