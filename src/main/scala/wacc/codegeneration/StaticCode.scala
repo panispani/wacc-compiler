@@ -4,6 +4,7 @@ import wacc.arm._
 
 object StaticCode {
 
+
   def intFormat: AsciiData = AsciiData("\"%d\\0\"")
   def charFormat: AsciiData = AsciiData("\"%c\\0\"")
   def printStringFormat: AsciiData = AsciiData("\"%.*s\\0\"")
@@ -69,6 +70,8 @@ object StaticCode {
   def checkArrayBoundsLabel: Label = Label("check_array_bounds")
   def printReferenceLabel: Label = Label("print_reference")
   def printReferenceFunctionLabel: Label = Label("print_reference_function")
+  def throwOverflowErrorFunctionLabel: Label = Label("throw_overflow_error_function")
+  def throwOverflowErrorLabel: Label = Label("throw_overflow_error")
 
   def readIntFunction: CodeSegment = {
     CodeSegment()
@@ -197,5 +200,12 @@ object StaticCode {
       .append(LDR(R0, LabelAddress(arrayIndexTooLargeLabel), CS))
       .append(BL(throwRuntimeErrorLabel, CS))
       .append(RETURN)
+  }
+
+  def throwOverflowError: CodeSegment = {
+    CodeSegment()
+      .append(DefineLabel(throwOverflowErrorFunctionLabel))
+      .append(LDR(R0, LabelAddress(throwOverflowErrorLabel)))
+      .append(BL(Label("exit")))
   }
 }
