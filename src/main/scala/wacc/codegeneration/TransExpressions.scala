@@ -43,9 +43,8 @@ package object TransExpressions {
           evalExpr ++ transBinaryOperator(reg1, binOp, reg2)
         }
 
-      case UnaryOperatorExpr(op, e) => {
+      case UnaryOperatorExpr(op, e) =>
         transExpression(e, symbolTable, reg1 +: reg2 +: regs) ++ op.translate(reg1).instructions
-      }
 
       case ArrayElement(identifier, index, elemtype) => {
         val variableReference = symbolTable.lookupDeep(identifier).get
