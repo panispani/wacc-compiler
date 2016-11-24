@@ -75,6 +75,7 @@ package object StaticCode {
   def arrayIndexTooLargeLabel: Label = Label("array_index_too_large")
   def checkArrayBoundsLabel: Label = Label("check_array_bounds")
   def printReferenceLabel: Label = Label("print_reference")
+  def printReferenceFunctionLabel: Label = Label("print_reference_functiongit ")
 
   def readIntFunction: CodeSegment = {
     CodeSegment()
@@ -180,7 +181,7 @@ package object StaticCode {
 
   def printReferenceFunction: CodeSegment = {
     CodeSegment()
-      .append(DefineLabel(printLnFunctionLabel))
+      .append(DefineLabel(printReferenceFunctionLabel))
       .append(NEW_STACK_FRAME)
       .append(MOV(R1, R0))
       .append(LDR(R0, LabelAddress(printReferenceLabel)))  // Load the constant address of the empty string into r0
