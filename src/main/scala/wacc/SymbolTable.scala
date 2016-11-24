@@ -13,8 +13,8 @@ case class FunctionReference(name: String, returnType: Type, argumentTypes : Seq
 
 case class SymbolTable(parent: Option[SymbolTable]) {
 
-  private var currentOffset: Int = 4
-  def sizeInBytes = currentOffset - 4
+  private var currentOffset: Int = 0
+  def sizeInBytes = currentOffset
 
   private var map: mutable.Map[String, VariableReference] = mutable.Map()
 
@@ -27,11 +27,11 @@ case class SymbolTable(parent: Option[SymbolTable]) {
     currentOffset += vartype.size
   }
 
-  // The offset here is relative to the frame pointer so it starts from -4 and goes down
+  // The offset here is relative to the frame pointer and is negative
   def addLocalVariable(identifier: String, vartype: Type): VariableReference = {
+    currentOffset += vartype.size
     val variableReference = VariableReference(identifier, vartype, -currentOffset)
     map += identifier -> variableReference
-    currentOffset += vartype.size
     variableReference
   }
 
@@ -57,29 +57,29 @@ case class SymbolTable(parent: Option[SymbolTable]) {
     *  --- size=4                         access any reachable variable  LDR Ri, [FP, #offset]
     *                              |x:-4|
     *   parent of                  | FP |
-    *       ---                    |y:-4|
-    *      |y:-4|                  |z:-8|
+    *       ---                    |y:-1|
+    *      |y:-1|                  |z:-5|
     *      |z:-5|                  | FP | <- The value of FP is the address above it
     *       --- size=5             |a:-4|
     *        parent of |a:-4|
     *
-    * lookup(x).offset = 16
-    * lookup(y).offset = 8
-    * lookup(z).offset = 4
+    * lookup(x).offset = size(GP) + off(x) + size(P) + 2 * size(FP) = 4 - 4 + 5 + 8 = 13
+    * lookup(y).offset = size(P) + off(y) + size(FP) = 5 - 1 + 4 = 8
+    * lookup(z).offset = size(P) + off(z) + size(FP) = 4
     * lookup(a).offset = -4
     * */
   private def lookupWithOffsetAccumulator(identifier: String, offset: Int): Option[VariableReference]
   = lookup(identifier) match {
     // Base case does the offset computation
-    case Some(ref) => Some(VariableReference(identifier, ref.vartype,  ref.offset + currentOffset + offset))
+    case Some(ref) => Some(VariableReference(identifier, ref.vartype,  ref.offset + currentOffset + 4 + offset))
     // Recursive case just accumulates the offset (parent frame pointer and parent size)
     case None => parent flatMap (
-      parent => parent.lookupWithOffsetAccumulator(identifier, currentOffset + offset))
+      parent => parent.lookupWithOffsetAccumulator(identifier, currentOffset + 4 + offset))
   }
 
   def clear() = {
     map.clear()
-    currentOffset = 4
+    currentOffset = 0
   }
 }
 
@@ -123,7 +123,7 @@ object SymbolTable {
   // A helper that must be called in order to close the scope for a function table
   // because it has no parent (the global table is naturally used)
   def completeFunctionDeclaration() = {
-    currentTable.currentOffset = 4 // right under FP for later
+    currentTable.currentOffset = 0 // right under FP for later
     currentTable = globalTable
   }
 

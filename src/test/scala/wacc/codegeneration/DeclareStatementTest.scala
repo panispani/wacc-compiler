@@ -41,7 +41,7 @@ class DeclareStatementTest extends CodeGenTest {
       SymbolTable.globalTable,
       availableRegisters)
 
-    instructions(1) shouldBe STRB(availableRegisters.head, RegisterAddress(FP, -4))
+    instructions(1) shouldBe STRB(availableRegisters.head, RegisterAddress(FP, -1))
     instructions(3) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -5))
   }
 
