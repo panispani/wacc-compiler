@@ -4,6 +4,7 @@ import wacc.arm._
 
 object StaticCode {
 
+
   def intFormat: AsciiData = AsciiData("\"%d\\0\"")
   def charFormat: AsciiData = AsciiData("\"%c\\0\"")
   def printStringFormat: AsciiData = AsciiData("\"%.*s\\0\"")
@@ -13,6 +14,7 @@ object StaticCode {
   def divideOrModuleByZeroString: AsciiData = AsciiData("\"DivideByZeroError: divide or modulo by zero\"")
   def arrayNegativeIndex: AsciiData = AsciiData("\"ArrayIndexOutOfBoundsError: negative index\"")
   def arrayIndexTooLarge: AsciiData = AsciiData("\"ArrayIndexOutOfBoundsError: index too large\"")
+  def overflowError: AsciiData = AsciiData("\"OverflowError: the result is too small/large to store in a 4-byte signed-integer.\"")
   def printReferenceFormat: AsciiData = AsciiData("\"%p\\0\"")
 
   def staticFunctions: CodeSegment =
@@ -22,6 +24,7 @@ object StaticCode {
     .extend(throwRuntimeError)
     .extend(checkArrayBounds)
     .extend(printReferenceFunction)
+    .extend(throwOverflowError)
 
   def staticData: CodeSegment = CodeSegment()
     .append(DefineLabel(intFormatLabel))
@@ -44,6 +47,8 @@ object StaticCode {
     .append(arrayIndexTooLarge)
     .append(DefineLabel(printReferenceLabel))
     .append(printReferenceFormat)
+    .append(DefineLabel(throwOverflowErrorLabel))
+    .append(overflowError)
 
   def readIntLabel: Label = Label("read_int")
   def readCharLabel: Label = Label("read_char")
@@ -69,6 +74,8 @@ object StaticCode {
   def checkArrayBoundsLabel: Label = Label("check_array_bounds")
   def printReferenceLabel: Label = Label("print_reference")
   def printReferenceFunctionLabel: Label = Label("print_reference_function")
+  def throwOverflowErrorFunctionLabel: Label = Label("throw_overflow_error_function")
+  def throwOverflowErrorLabel: Label = Label("throw_overflow_error")
 
   def readIntFunction: CodeSegment = {
     CodeSegment()
@@ -197,5 +204,12 @@ object StaticCode {
       .append(LDR(R0, LabelAddress(arrayIndexTooLargeLabel), CS))
       .append(BL(throwRuntimeErrorLabel, CS))
       .append(RETURN)
+  }
+
+  def throwOverflowError: CodeSegment = {
+    CodeSegment()
+      .append(DefineLabel(throwOverflowErrorFunctionLabel))
+      .append(LDR(R0, LabelAddress(throwOverflowErrorLabel)))
+      .append(BL(Label("exit")))
   }
 }

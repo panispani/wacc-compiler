@@ -1,20 +1,65 @@
 package wacc.arm
 
-import wacc.VariableReference
-import wacc.codegeneration.CodeSegment
-import wacc.constructs.{ArrayElement, AssignTarget, Boolean, Character, PairElement, Type}
+import wacc.{SymbolTable, VariableReference}
+import wacc.codegeneration.{CodeSegment, StaticCode, TransExpressions}
+import wacc.constructs.{ArrayElement, AssignTarget, Boolean, Character, Expression, PairElement, Type}
 
 object Macros {
-  def store(lhs: AssignTarget, src: Register): Seq[Instruction] = {
+  def store(lhs: AssignTarget, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     lhs match {
       case VariableReference(name, vartype, offset) => {
         lhs.vartype match {
-          case Boolean | Character => Seq(STRB(src, RegisterAddress(FP, offset)))
-          case default             => Seq(STR(src, RegisterAddress(FP, offset)))
+          case Boolean | Character => Seq(STRB(registers.head, RegisterAddress(FP, offset)))
+          case default             => Seq(STR(registers.head, RegisterAddress(FP, offset)))
         }
       }
-      case ArrayElement(name, index, vartype) =>  Seq()
+      case ArrayElement(name, index, elemtype) => {
+        val variableReference = symbolTable.lookupDeep(name).get
+
+        registers match {
+          case (src +: reg1 +: reg2 +: regs) => {
+            val check = Macros.checkArrayBounds(variableReference, index.head, symbolTable, reg1 +: reg2 +: regs).instructions
+            //reg1 is now going to contain the value of the index expression
+
+            val store = elemtype match {
+              case Character | Boolean => STRB(src, RegisterAddress(reg1, 0))
+              case default => STR(src, RegisterAddress(reg1, 0))
+            }
+
+            check ++ Macros.getArrayElemAddress(variableReference, symbolTable, reg1 +: reg2 +: regs, elemtype).instructions ++ Seq(store)
+          }
+        }
+      }
       case PairElement(selector, expression, vartype) => Seq()
+    }
+  }
+
+  def checkArrayBounds(array: VariableReference, index: Expression,
+                       symbolTable: SymbolTable, registers: Seq[Register]): CodeSegment = {
+    CodeSegment()
+      .extend(TransExpressions.transExpression(index, symbolTable, registers))
+      .extend(Seq(
+        ADD(R1, FP, ImmOperand(array.offset)),   // Put the start of the array in the first register
+        LDR(R1, RegisterAddress(R1, 0)),   //Load size of array in first register
+        MOV(R0, registers.head),
+        BL(StaticCode.checkArrayBoundsLabel)
+      ))
+  }
+
+  def getArrayElemAddress(array: VariableReference,
+                       symbolTable: SymbolTable, registers: Seq[Register], elemType: Type): CodeSegment = {
+    registers match {
+      case (reg1 +: reg2 +: regs) => {
+        CodeSegment()
+          .extend (Seq(
+            LDR (reg2, RegisterAddress (FP, array.offset) ), // Put the start of the array in the second register
+            LDR (regs.head, Const(elemType.size)), //Put size of one element in third register
+            MUL (reg1, reg1, regs.head), //Put elemSize * index in first register
+            ADD (reg1, reg1, reg2),
+            MOV (reg2, ImmOperand(4)),
+            ADD (reg1, reg1, reg2)
+          ))
+      }
     }
   }
 
