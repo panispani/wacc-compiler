@@ -63,16 +63,6 @@ package object TransExpressions {
         )
 
         transExpression(index.head, symbolTable, reg1 +: reg2 +: regs) ++ instructions
-
-//        ADD r4, sp, #0
-//        33		LDR r5, =77    //Up to expression
-//        37		LDR r4, [r4]
-//        38		MOV r0, r5
-//        39		MOV r1, r4
-//        40		BL p_check_array_bounds
-//        41		ADD r4, r4, #4
-//        42		ADD r4, r4, r5, LSL #2
-//        43		LDRSB r4, [r4]
       }
 
       case VariableReference(name, vartype, offset) => Seq(Macros.load(reg1, offset, vartype))
