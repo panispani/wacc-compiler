@@ -18,6 +18,8 @@ object NE extends Condition
 
 object CS extends Condition
 
+object VS extends Condition
+
 object ALWAYS extends Condition {
   override def toString = ""
 }
