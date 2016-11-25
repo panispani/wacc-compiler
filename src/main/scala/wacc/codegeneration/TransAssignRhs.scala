@@ -75,6 +75,16 @@ object TransAssignRhs {
     val firstType = pc.firstExp.vartype
     val secondType = pc.secondExp.vartype
 
+    val store1 = firstType match {
+      case Boolean | Character => STRB(registers(1), RegisterAddress(R0, 0))
+      case default => STR(registers(1), RegisterAddress(R0, 0))
+    }
+
+    val store2 = secondType match {
+      case Boolean | Character => STRB(registers(1), RegisterAddress(R0, 0))
+      case default => STR(registers(1), RegisterAddress(R0, 0))
+    }
+
     Seq(
       LDR(R0, Const(8)),      //Load the size of the pair in R0
       BL(Label("malloc")),
@@ -83,13 +93,13 @@ object TransAssignRhs {
       Seq (
         LDR(R0, Const(firstType.size)),
         BL(Label("malloc")),
-        STR(registers(1), RegisterAddress(R0, 0)),  //Store the value for the first element in its memory
+        store1,  //Store the value for the first element in its memory
         STR(R0, RegisterAddress(registers(0), 0)) //Put address of first element in memory of pair
       ) ++ TransExpressions.transExpression(pc.secondExp, symbolTable, registers.tail) ++
       Seq(
         LDR(R0, Const(secondType.size)),
         BL(Label("malloc")),
-        STR(registers(1), RegisterAddress(R0, 0)),  //Store the value for the second element in its memory
+        store2,  //Store the value for the second element in its memory
         STR(R0, RegisterAddress(registers(0), firstType.size))   //Put address of second element in memory of pair with offset
         //STR(registers.head, RegisterAddress(FP, variableRef.offset))
       )
