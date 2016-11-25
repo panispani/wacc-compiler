@@ -21,16 +21,21 @@ object TransAssignRhs {
     }
   }
 
-  def transDeclareRhsPairElement(pe: PairElement, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
-    //TODO: Check for null pointer
 
+  def getPairElementPointer(pe: PairElement, symbolTable: SymbolTable, registers: Seq[Register]): CodeSegment = {
     CodeSegment()
       .extend(TransExpressions.transExpression(pe.expression, symbolTable, registers)) // Translate expression inside selector
       .append(LDR(registers.head, RegisterAddress(registers.head, pe.selector match {
-        case FirstSelector => 0
-        case SecondSelector => 4
-      })))                                                                             // Access the right element of the pair
-      .append(LDR(registers.head, RegisterAddress(registers.head)))                    // Dereference the pointer at this element
+      case FirstSelector => 0   // Access the left element of the pair (which is a pointer)
+      case SecondSelector => 4  // Access the right element of the pair (which is a pointer)
+    })))
+  }
+
+  def transDeclareRhsPairElement(pe: PairElement, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
+    //TODO: Check for null pointer
+
+    getPairElementPointer(pe, symbolTable, registers)
+      .append(LDR(registers.head, RegisterAddress(registers.head)))  // Dereference the pointer at this element
       .instructions
   }
 
