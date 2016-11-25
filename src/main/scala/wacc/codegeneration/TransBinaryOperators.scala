@@ -7,7 +7,11 @@ object TransBinaryOperators {
 
   def transBinaryOperator(r1: Register, binOp: BinaryOperator, r2: Register): Seq[Instruction] = {
     binOp match {
-      case TimesBinOp  => Seq(MUL(r1, r1, r2))
+      case TimesBinOp  => Seq(
+        SMULL(r1, r2, r1, r2),
+        CMPSHIFT(r2, r1, ASR(31)),
+        BL(StaticCode.throwOverflowErrorFunctionLabel, NE)
+      )
       case DivBinOp  => Seq(
         MOV(R0, r1),
         MOV(R1, r2),

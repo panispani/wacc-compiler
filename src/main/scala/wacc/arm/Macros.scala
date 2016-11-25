@@ -1,8 +1,8 @@
 package wacc.arm
 
 import wacc.{SymbolTable, VariableReference}
-import wacc.codegeneration.{CodeSegment, StaticCode, TransExpressions}
-import wacc.constructs.{ArrayElement, AssignTarget, Boolean, Character, Expression, PairElement, Type}
+import wacc.codegeneration.{TransAssignRhs, CodeSegment, StaticCode, TransExpressions}
+import wacc.constructs._
 
 object Macros {
   def store(lhs: AssignTarget, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
@@ -30,7 +30,15 @@ object Macros {
           }
         }
       }
-      case PairElement(selector, expression, vartype) => Seq()
+      case pe: PairElement => {
+        TransAssignRhs.getPairElementPointer(pe, symbolTable, registers.tail)
+        val store = pe.vartype match {
+          case Character | Boolean => STRB(registers.head, RegisterAddress(registers(1)))
+          case default => STR(registers.head, RegisterAddress(registers(1)))
+        }
+
+        CodeSegment().append(store).instructions
+      }
     }
   }
 
@@ -56,7 +64,7 @@ object Macros {
             LDR (regs.head, Const(elemType.size)), //Put size of one element in third register
             MUL (reg1, reg1, regs.head), //Put elemSize * index in first register
             ADD (reg1, reg1, reg2),
-            MOV (reg2, ImmOperand(4)),
+            LDR (reg2, Const(4)),
             ADD (reg1, reg1, reg2)
           ))
       }
@@ -72,8 +80,8 @@ object Macros {
                           (trueCondition: Condition, falseCondition: Condition): CodeSegment
   = CodeSegment(
     CMP(left, right),
-    MOV(left, ImmOperand(1), trueCondition),
-    MOV(left, ImmOperand(0), falseCondition)
+    STR(left, Const(1), trueCondition),
+    STR(left, Const(0), falseCondition)
   )
 
   /**

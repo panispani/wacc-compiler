@@ -15,6 +15,7 @@ object StaticCode {
   def arrayNegativeIndex: AsciiData = AsciiData("\"ArrayIndexOutOfBoundsError: negative index\"")
   def arrayIndexTooLarge: AsciiData = AsciiData("\"ArrayIndexOutOfBoundsError: index too large\"")
   def overflowError: AsciiData = AsciiData("\"OverflowError: the result is too small/large to store in a 4-byte signed-integer.\"")
+  def nullReferenceError: AsciiData = AsciiData("\"NullReferenceError: dereference a null reference\"")
   def printReferenceFormat: AsciiData = AsciiData("\"%p\\0\"")
 
   def staticFunctions: CodeSegment =
@@ -25,6 +26,8 @@ object StaticCode {
     .extend(checkArrayBounds)
     .extend(printReferenceFunction)
     .extend(throwOverflowError)
+    .extend(freePairFunction)
+    .extend(checkNullPointerFunction)
 
   def staticData: CodeSegment = CodeSegment()
     .append(DefineLabel(intFormatLabel))
@@ -49,6 +52,8 @@ object StaticCode {
     .append(printReferenceFormat)
     .append(DefineLabel(throwOverflowErrorLabel))
     .append(overflowError)
+    .append(DefineLabel(nullReferenceErrorLabel))
+    .append(nullReferenceError)
 
   def readIntLabel: Label = Label("read_int")
   def readCharLabel: Label = Label("read_char")
@@ -76,6 +81,9 @@ object StaticCode {
   def printReferenceFunctionLabel: Label = Label("print_reference_function")
   def throwOverflowErrorFunctionLabel: Label = Label("throw_overflow_error_function")
   def throwOverflowErrorLabel: Label = Label("throw_overflow_error")
+  def nullReferenceErrorLabel: Label = Label("null_reference_error")
+  def freePairLabel: Label = Label("free_pair")
+  def checkNullPointerFunctionLabel: Label = Label("check_null_pointer")
 
   def readIntFunction: CodeSegment = {
     CodeSegment()
@@ -206,10 +214,50 @@ object StaticCode {
       .append(RETURN)
   }
 
+  def checkNullPointerFunction: CodeSegment = {
+    CodeSegment()
+      .append(DefineLabel(checkNullPointerFunctionLabel))
+      .append(NEW_STACK_FRAME)
+      .append(CMP(R0, ImmOperand(0)))
+      .append(LDR(R0, LabelAddress(nullReferenceErrorLabel), EQ))
+      .append(B(throwRuntimeErrorLabel, EQ))
+      .append(RETURN)
+  }
+
+  def freePairFunction: CodeSegment = {
+    CodeSegment()
+      .append(DefineLabel(freePairLabel))
+      .append(NEW_STACK_FRAME)
+      .append(BL(checkNullPointerFunctionLabel))
+      .append(PUSH(Seq(R0)))
+      .append(LDR(R0, RegisterAddress(R0, 0)))
+      .append(BL(Label("free")))
+      .append(LDR(R0, RegisterAddress(SP)))
+      .append(LDR(R0, RegisterAddress(R0, 4)))
+      .append(BL(Label("free")))
+      .append(POP(Seq(R0)))
+      .append(BL(Label("free")))
+      .append(RETURN)
+
+//    PUSH {lr}
+//    41		CMP r0, #0
+//    42		LDREQ r0, =msg_0
+//    43		BEQ p_throw_runtime_error
+//    44		PUSH {r0}
+//    45		LDR r0, [r0]
+//    46		BL free
+//    47		LDR r0, [sp]
+//    48		LDR r0, [r0, #4]
+//    49		BL free
+//    50		POP {r0}
+//    51		BL free
+//    52		POP {pc}
+  }
+
   def throwOverflowError: CodeSegment = {
     CodeSegment()
       .append(DefineLabel(throwOverflowErrorFunctionLabel))
       .append(LDR(R0, LabelAddress(throwOverflowErrorLabel)))
-      .append(BL(Label("exit")))
+      .append(BL(throwRuntimeErrorLabel))
   }
 }

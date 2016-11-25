@@ -21,16 +21,21 @@ object TransAssignRhs {
     }
   }
 
-  def transDeclareRhsPairElement(pe: PairElement, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
-    //TODO: Check for null pointer
 
+  def getPairElementPointer(pe: PairElement, symbolTable: SymbolTable, registers: Seq[Register]): CodeSegment = {
     CodeSegment()
       .extend(TransExpressions.transExpression(pe.expression, symbolTable, registers)) // Translate expression inside selector
+      .append(MOV(R0, registers.head))                                                 // Check if address is null
+      .append(BL(StaticCode.checkNullPointerFunctionLabel))                            // Check if address is null
       .append(LDR(registers.head, RegisterAddress(registers.head, pe.selector match {
-        case FirstSelector => 0
-        case SecondSelector => 4
-      })))                                                                             // Access the right element of the pair
-      .append(LDR(registers.head, RegisterAddress(registers.head)))                    // Dereference the pointer at this element
+      case FirstSelector => 0   // Access the left element of the pair (which is a pointer)
+      case SecondSelector => 4  // Access the right element of the pair (which is a pointer)
+    })))
+  }
+
+  def transDeclareRhsPairElement(pe: PairElement, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
+    getPairElementPointer(pe, symbolTable, registers)
+      .append(LDR(registers.head, RegisterAddress(registers.head)))  // Dereference the pointer at this element
       .instructions
   }
 
@@ -75,21 +80,31 @@ object TransAssignRhs {
     val firstType = pc.firstExp.vartype
     val secondType = pc.secondExp.vartype
 
+    val store1 = firstType match {
+      case Boolean | Character => STRB(registers(1), RegisterAddress(R0, 0))
+      case default => STR(registers(1), RegisterAddress(R0, 0))
+    }
+
+    val store2 = secondType match {
+      case Boolean | Character => STRB(registers(1), RegisterAddress(R0, 0))
+      case default => STR(registers(1), RegisterAddress(R0, 0))
+    }
+
     Seq(
-      LDR(R0, Const(firstType.size + secondType.size)),      //Load the size of the pair in R0
+      LDR(R0, Const(8)),      //Load the size of the pair in R0
       BL(Label("malloc")),
       MOV(registers.head, R0)
     ) ++ TransExpressions.transExpression(pc.firstExp, symbolTable, registers.tail) ++
       Seq (
         LDR(R0, Const(firstType.size)),
         BL(Label("malloc")),
-        STR(registers(1), RegisterAddress(R0, 0)),  //Store the value for the first element in its memory
+        store1,  //Store the value for the first element in its memory
         STR(R0, RegisterAddress(registers(0), 0)) //Put address of first element in memory of pair
       ) ++ TransExpressions.transExpression(pc.secondExp, symbolTable, registers.tail) ++
       Seq(
         LDR(R0, Const(secondType.size)),
         BL(Label("malloc")),
-        STR(registers(1), RegisterAddress(R0, 0)),  //Store the value for the second element in its memory
+        store2,  //Store the value for the second element in its memory
         STR(R0, RegisterAddress(registers(0), firstType.size))   //Put address of second element in memory of pair with offset
         //STR(registers.head, RegisterAddress(FP, variableRef.offset))
       )

@@ -20,6 +20,13 @@ for root, dirs, files in os.walk("wacc_examples/valid"):
 
         ref_out = commands.getoutput("wacc_examples/refCompile -x {} < {}".format(full_path, input_file))
         our_out = commands.getoutput("./execute.sh {} < {}".format(full_path, input_file))
+
+        if (os.path.isfile(os.path.splitext(file)[0] + ".s")):
+            os.remove(os.path.splitext(file)[0] + ".s")
+
+        if (os.path.isfile(os.path.splitext(file)[0])):
+            os.remove(os.path.splitext(file)[0])
+
         ref_out = ref_out.split("\n")
         program_output = ""
         outputting = False
@@ -45,7 +52,7 @@ for root, dirs, files in os.walk("wacc_examples/valid"):
 
         total = total + 1
 
-print("TEST CASES PASSED: {}/{} ({0:.2f}%)".format(correct, total, correct / total * 100.0))
+print("TEST CASES PASSED: {}/{} ({:.2f}%)".format(correct, total, correct / total * 100.0))
 
 
 
