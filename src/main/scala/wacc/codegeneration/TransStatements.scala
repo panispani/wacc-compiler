@@ -207,6 +207,7 @@ object TransStatements {
       case Boolean   => StaticCode.printBoolLabel
       case String    => StaticCode.printFunctionLabel
       case ArrayType(_) => StaticCode.printReferenceFunctionLabel
+      case PairType(_, _) => StaticCode.printReferenceFunctionLabel
       case _         => StaticCode.printFunctionLabel
     }
 
