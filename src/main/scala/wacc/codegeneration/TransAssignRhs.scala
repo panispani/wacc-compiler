@@ -76,7 +76,7 @@ object TransAssignRhs {
     val secondType = pc.secondExp.vartype
 
     Seq(
-      LDR(R0, Const(firstType.size + secondType.size)),      //Load the size of the pair in R0
+      LDR(R0, Const(8)),      //Load the size of the pair in R0
       BL(Label("malloc")),
       MOV(registers.head, R0)
     ) ++ TransExpressions.transExpression(pc.firstExp, symbolTable, registers.tail) ++
