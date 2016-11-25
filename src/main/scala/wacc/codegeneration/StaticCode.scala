@@ -216,6 +216,7 @@ object StaticCode {
     CodeSegment()
       .append(DefineLabel(freePairLabel))
       .append(NEW_STACK_FRAME)
+      .append(CMP(R0, ImmOperand(0)))
       .append(LDR(R0, LabelAddress(nullReferenceErrorLabel), EQ))
       .append(B(throwRuntimeErrorLabel, EQ))
       .append(PUSH(Seq(R0)))
