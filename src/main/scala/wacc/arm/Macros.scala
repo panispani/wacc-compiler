@@ -25,8 +25,23 @@ object Macros {
             Seq(ADD(reg1, FP, ImmOperand(variableReference.offset))) ++
             TransExpressions.transExpression(index.head, symbolTable, reg2 +: regs) ++
             Macros.checkAndGetArrayElemAddress(symbolTable, reg1 +: reg2 +: regs, elemtype).instructions ++ Seq(store)
+
+//            var instructions: Seq[Instruction] = Seq(ADD(reg1, FP, ImmOperand(variableReference.offset)))
+//
+//            for (ind <- index) {
+//              val res = TransExpressions.transExpression(index.head, symbolTable, reg2 +: regs) ++
+//                Macros.checkAndGetArrayElemAddress(symbolTable, reg1 +: reg2 +: regs, elemtype).instructions ++
+//                Seq(LDR(reg1, RegisterAddress(reg1, 0)))
+//
+//              instructions = instructions ++ res
+//            }
+//
+//            instructions ++ Seq(store)
           }
+
         }
+
+
       }
       case pe @ PairElement(selector, variableReference: Expression, elemType) => {
         val instruction = TransAssignRhs.getPairElementPointer(pe, symbolTable, registers.tail)
