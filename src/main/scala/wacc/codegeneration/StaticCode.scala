@@ -6,7 +6,7 @@ object StaticCode {
 
 
   def intFormat: AsciiData = AsciiData("\"%d\\0\"")
-  def charFormat: AsciiData = AsciiData("\"%c\\0\"")
+  def charReadFormat: AsciiData = AsciiData("\" %c\\0\"")
   def printStringFormat: AsciiData = AsciiData("\"%.*s\\0\"")
   def emptyString: AsciiData = AsciiData("\"\\0\"")
   def trueString: AsciiData = AsciiData("\"true\\0\"")
@@ -32,8 +32,8 @@ object StaticCode {
   def staticData: CodeSegment = CodeSegment()
     .append(DefineLabel(intFormatLabel))
     .append(intFormat)
-    .append(DefineLabel(charFormatLabel))
-    .append(charFormat)
+    .append(DefineLabel(charReadFormatLabel))
+    .append(charReadFormat)
     .append(DefineLabel(printStringFormatLabel))
     .append(printStringFormat)
     .append(DefineLabel(emptyStringLabel))
@@ -57,15 +57,15 @@ object StaticCode {
 
   def readIntLabel: Label = Label("read_int")
   def readCharLabel: Label = Label("read_char")
-
+  def printIntLabel: Label = Label("print_int")
+  def printCharLabel: Label = Label("print_char")
+  def printBoolLabel: Label = Label("print_bool_label")
   def printFunctionLabel: Label = Label("print")
   def printLnFunctionLabel: Label = Label("print_ln")
-  def printIntLabel: Label = Label("print_int")
-  def printCharLabel: Label = Label("print_char") // standard C library function
-  def printBoolLabel: Label = Label("print_bool_label")
+
   def printStringFormatLabel: Label = Label("print_string_format")
   def intFormatLabel: Label = Label("int_format")
-  def charFormatLabel: Label = Label("char_format")
+  def charReadFormatLabel: Label = Label("char_read_format")
   def emptyStringLabel: Label = Label("empty_string")
   def trueStringLabel: Label = Label("true_string")
   def falseStringLabel: Label = Label("false_string")
@@ -101,7 +101,7 @@ object StaticCode {
       .append(DefineLabel(readCharLabel))
       .append(NEW_STACK_FRAME)
       .append(MOV(R1, R0)) // Move address of variable into r1 as expected by scanf
-      .append(LDR(R0, LabelAddress(charFormatLabel))) // Load the constant address of the format string into r1
+      .append(LDR(R0, LabelAddress(charReadFormatLabel))) // Load the constant address of the format string into r1
       .append(ADD(R0, R0, ImmOperand(4)))
       .append(BL(Label("scanf"))) // Call scanf with two arguments, r0 and r1
       .append(RETURN)
