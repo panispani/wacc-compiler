@@ -149,14 +149,20 @@ object TransStatements {
     val instructions: CodeSegment = read.target match {
       case vr: VariableReference => CodeSegment().append(ADD(registers.head, FP, ImmOperand(vr.offset)))
       case pe: PairElement       => CodeSegment().extend(TransAssignRhs.getPairElementPointer(pe, symbolTable, registers))
-      case ae: ArrayElement      => CodeSegment()
+      case ae: ArrayElement      => {
+        //TODO: This should already be in the ArrayElement construct instead of identifier
+        val vr: VariableReference = symbolTable.lookupDeep(ae.identifier).get
+        //TODO: This assumes a single index (not nested arrays)
+        CodeSegment().extend(TransExpressions.transExpression(ae.index.head, symbolTable, registers))
+          .append(MOV(R0, registers.head))
+          .extend(Macros.getArrayElemAddress(vr, symbolTable, registers, read.target.vartype))
+      }
     }
 
     val readLabel: Label = read.target.vartype match {
       case Integer   => StaticCode.readIntLabel
       case Character => StaticCode.readCharLabel
     }
-
 
     CodeSegment()
       .extend(instructions)
