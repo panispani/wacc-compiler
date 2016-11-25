@@ -91,14 +91,16 @@ object TransStatements {
   def transReturnStatement(returnValue: Expression, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
     val instruction = TransExpressions.transExpression(returnValue, symbolTable, registers)
 
-    val bytesAllocatedByFunction = symbolTable.deepSize()
-
-    // TODO: use proper stuff
     instruction ++ Seq(
       MOV(R0, registers.head),
-      ADD(SP, SP, ImmOperand(bytesAllocatedByFunction)),
+      MOV(SP, FSP),
+      POP(Seq(FSP)),
       POP(Seq(FP)),
       POP(Seq(PC)))
+    /*,
+      POP(Seq(FSP)),
+      POP(Seq(FP)),
+      POP(Seq(PC)))*/
   }
 
   def transConditionalStatement(expression: Expression,
@@ -109,7 +111,6 @@ object TransStatements {
     val L0 = Label()
     val L1 = Label()
 
-    //stack allocation is not done TODO- experimental
     TransExpressions.transExpression(expression, parentTable, registers) ++
       Seq(CMP(registers.head, ImmOperand(1)), B(L0, EQ)) ++
       transScopeStatement(falseStatements.statements, falseStatements.symbolTable, registers) ++

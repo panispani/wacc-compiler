@@ -10,9 +10,12 @@ object TransFunctions {
       .append(DefineLabel(Label(function.identifier)))
 
       .extend(beginFrame)
+      .append(PUSH(Seq(FSP)))
+      .append(MOV(FSP, SP))
       .extend(function.statements flatMap (s => TransStatements.transStatement(s, function.symbolTable, registers)))
       .extend(endFrame)
-
+      .append(POP(Seq(FSP)))
+      .append(POP(Seq(PC)))
       .instructions
   }
 }

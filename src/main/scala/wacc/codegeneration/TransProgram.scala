@@ -27,6 +27,8 @@ object TransProgram {
                   .append(COMMENT("----------- /MAIN ------------"))
                   .append(MOV(R0, ImmOperand(0)))
                   .extend(endFrame)
+                  .append(POP(Seq(PC)))
+
 
     CodeSegment()
       .append(ARMSection("data"))

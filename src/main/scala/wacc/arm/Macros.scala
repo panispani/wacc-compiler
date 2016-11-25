@@ -39,12 +39,6 @@ object Macros {
 
         instruction.append(store).instructions
 
-//        LDR r4, =1
-//        18		LDR r5, [sp]
-//        19		MOV r0, r5
-//        20		BL p_check_null_pointer
-//        21		LDR r5, [r5]
-//        22		STR r4, [r5]
       }
     }
   }
@@ -120,7 +114,7 @@ object Macros {
     end = end.append(ADD(SP, SP, ImmOperand(remainder)))
              .append(POP(Seq(FP)))
 
-    if (isBranch) end = end.append(POP(Seq(PC)))
+    //if (isBranch) end = end.append(POP(Seq(PC)))
     (start, end)
   }
 }

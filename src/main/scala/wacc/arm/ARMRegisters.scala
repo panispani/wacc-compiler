@@ -18,6 +18,7 @@ object R8 extends GPRegister(8)
 object R9 extends GPRegister(9)
 object R10 extends GPRegister(10)
 object FP extends Register("FP")
+object FSP extends Register("R11") // R11 acts as function entry point pointer
 
 object R12 extends GPRegister(12)
 object SP extends Register("SP")
@@ -25,5 +26,5 @@ object LR extends Register("LR")
 object PC extends Register("PC")
 
 package object Registers {
-  val expressionRegs: Seq[Register] = Seq(R4, R5, R6, R7, R8, R9, R10, R12) // R11 acts as frame pointer
+  val expressionRegs: Seq[Register] = Seq(R4, R5, R6, R7, R8, R9, R10, R12)
 }
