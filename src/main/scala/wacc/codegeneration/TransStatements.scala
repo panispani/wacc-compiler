@@ -44,7 +44,7 @@ object TransStatements {
         => transScopeStatement(sequence, symbolTable, registers)
 
       case stat @ ReadStatement(_)
-        => transReadStatement(stat, registers)
+        => transReadStatement(stat, symbolTable, registers)
 
       case FreeStatement(expression)
         => transFreeStatement(expression, symbolTable, registers)
@@ -152,21 +152,29 @@ object TransStatements {
       .extend(endFrame).instructions
   }
 
-  def transReadStatement(read: ReadStatement, registers: Seq[Register]): Seq[Instruction] = {
-    val target: Integer = read.target match {
-      case vr: VariableReference => vr.offset
-      case pe: PairElement       => 0 //TODO: implement
-      case ae: ArrayElement      => 0 //TODO: implement
+  def transReadStatement(read: ReadStatement, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
+    val instructions: CodeSegment = read.target match {
+      case vr: VariableReference => CodeSegment().append(ADD(registers.head, FP, ImmOperand(vr.offset)))
+      case pe: PairElement       => CodeSegment().extend(TransAssignRhs.getPairElementPointer(pe, symbolTable, registers))
+      case ae: ArrayElement      => {
+        //TODO: This should already be in the ArrayElement construct instead of identifier
+        val vr: VariableReference = symbolTable.lookupDeep(ae.identifier).get
+        //TODO: This assumes a single index (not nested arrays)
+        CodeSegment().extend(TransExpressions.transExpression(ae.index.head, symbolTable, registers))
+          .append(MOV(R0, registers.head))
+          .extend(Macros.getArrayElemAddress(vr, symbolTable, registers, read.target.vartype))
+      }
     }
 
-    val printLabel: Label = read.target.vartype match {
+    val readLabel: Label = read.target.vartype match {
       case Integer   => StaticCode.readIntLabel
       case Character => StaticCode.readCharLabel
     }
 
     CodeSegment()
-      .append(ADD(R0, FP, ImmOperand(target)))     // r0 = address of target
-      .append(BL(printLabel))                     // reads input into desired variable
+      .extend(instructions)
+      .append(MOV(R0, registers.head))
+      .append(BL(readLabel))
       .instructions
   }
 
