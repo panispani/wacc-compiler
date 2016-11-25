@@ -80,6 +80,7 @@ object StaticCode {
   def throwOverflowErrorFunctionLabel: Label = Label("throw_overflow_error_function")
   def throwOverflowErrorLabel: Label = Label("throw_overflow_error")
   def nullReferenceErrorLabel: Label = Label("null_reference_error")
+  def freePairLabel: Label = Label("free_pair")
 
   def readIntFunction: CodeSegment = {
     CodeSegment()
@@ -208,6 +209,46 @@ object StaticCode {
       .append(LDR(R0, LabelAddress(arrayIndexTooLargeLabel), CS))
       .append(BL(throwRuntimeErrorLabel, CS))
       .append(RETURN)
+  }
+
+  def freePairFunction: CodeSegment = {
+    CodeSegment()
+      .append(DefineLabel(freePairLabel))
+      .append(NEW_STACK_FRAME)
+      .append(LDR(R0, LabelAddress(nullReferenceErrorLabel), EQ))
+      .append(B(throwRuntimeErrorLabel, EQ))
+      .append(PUSH(Seq(R0)))
+      .append(LDR(R0, RegisterAddress(R0, 0)))
+      .append(BL(Label("free")))
+      .append(LDR(R0, RegisterAddress(SP)))
+      .append(LDR(R0, RegisterAddress(R0, 4)))
+      .append(BL(Label("free")))
+      .append(POP(Seq(R0)))
+      .append(BL(Label("free")))
+      .append(RETURN)
+
+      .append(CMP(R0, ImmOperand(0)))
+      .append(LDR(R0, LabelAddress(arrayNegativeIndexLabel), LT))
+      .append(BL(throwRuntimeErrorLabel, LT))
+      .append(LDR(R1, RegisterAddress(R1, 0)))
+      .append(CMP(R0, R1))
+      .append(LDR(R0, LabelAddress(arrayIndexTooLargeLabel), CS))
+      .append(BL(throwRuntimeErrorLabel, CS))
+      .append(RETURN)
+
+//    PUSH {lr}
+//    41		CMP r0, #0
+//    42		LDREQ r0, =msg_0
+//    43		BEQ p_throw_runtime_error
+//    44		PUSH {r0}
+//    45		LDR r0, [r0]
+//    46		BL free
+//    47		LDR r0, [sp]
+//    48		LDR r0, [r0, #4]
+//    49		BL free
+//    50		POP {r0}
+//    51		BL free
+//    52		POP {pc}
   }
 
   def throwOverflowError: CodeSegment = {
