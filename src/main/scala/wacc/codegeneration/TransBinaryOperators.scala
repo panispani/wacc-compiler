@@ -12,6 +12,7 @@ object TransBinaryOperators {
         CMPSHIFT(r2, r1, ASR(31)),
         BL(StaticCode.throwOverflowErrorFunctionLabel, NE)
       )
+
       case DivBinOp  => Seq(
         MOV(R0, r1),
         MOV(R1, r2),
@@ -19,6 +20,7 @@ object TransBinaryOperators {
         BL(StaticCode.divisionLabel),
         MOV(r1, R0)
       )
+
       case ModBinOp  => Seq(
         MOV(R0, r1),
         MOV(R1, r2),
@@ -26,6 +28,7 @@ object TransBinaryOperators {
         BL(StaticCode.moduleLabel),
         MOV(r1, R1)
       )
+
       case PlusBinOp  => Seq(ADDS(r1, r1, r2), BL(StaticCode.throwOverflowErrorFunctionLabel, VS))
       case MinusBinOp  => Seq(SUBS(r1, r1, r2), BL(StaticCode.throwOverflowErrorFunctionLabel, VS))
       case GtBinOp  => Seq(CMP(r1, r2), MOV(r1, ImmOperand(1), GT), MOV(r1, ImmOperand(0), LE))

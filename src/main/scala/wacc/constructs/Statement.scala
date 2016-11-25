@@ -58,7 +58,8 @@ case class PrintStatement(expression: Expression) extends AbstractPrintStatement
 case class PrintLnStatement(expression: Expression) extends AbstractPrintStatement {
 
   override def transStatement(symbolTable: SymbolTable, registers: Seq[Register]): CodeSegment = {
-      super.transStatement(symbolTable, registers).extend(BL(StaticCode.printLnFunctionLabel))
+      super.transStatement(symbolTable, registers)
+        .extend(BL(StaticCode.printLnFunctionLabel))
   }
 }
 
