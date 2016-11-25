@@ -30,14 +30,21 @@ object Macros {
           }
         }
       }
-      case pe: PairElement => {
-        TransAssignRhs.getPairElementPointer(pe, symbolTable, registers.tail)
+      case pe @ PairElement(selector, variableReference: Expression, elemType) => {
+        val instruction = TransAssignRhs.getPairElementPointer(pe, symbolTable, registers.tail)
         val store = pe.vartype match {
           case Character | Boolean => STRB(registers.head, RegisterAddress(registers(1)))
           case default => STR(registers.head, RegisterAddress(registers(1)))
         }
 
-        CodeSegment().append(store).instructions
+        instruction.append(store).instructions
+
+//        LDR r4, =1
+//        18		LDR r5, [sp]
+//        19		MOV r0, r5
+//        20		BL p_check_null_pointer
+//        21		LDR r5, [r5]
+//        22		STR r4, [r5]
       }
     }
   }
