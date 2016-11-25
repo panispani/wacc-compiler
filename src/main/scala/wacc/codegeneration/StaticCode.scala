@@ -228,15 +228,6 @@ object StaticCode {
       .append(BL(Label("free")))
       .append(RETURN)
 
-      .append(CMP(R0, ImmOperand(0)))
-      .append(LDR(R0, LabelAddress(arrayNegativeIndexLabel), LT))
-      .append(BL(throwRuntimeErrorLabel, LT))
-      .append(LDR(R1, RegisterAddress(R1, 0)))
-      .append(CMP(R0, R1))
-      .append(LDR(R0, LabelAddress(arrayIndexTooLargeLabel), CS))
-      .append(BL(throwRuntimeErrorLabel, CS))
-      .append(RETURN)
-
 //    PUSH {lr}
 //    41		CMP r0, #0
 //    42		LDREQ r0, =msg_0
