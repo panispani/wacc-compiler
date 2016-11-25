@@ -30,30 +30,30 @@ object StaticCode {
     .extend(checkNullPointerFunction)
 
   def staticData: CodeSegment = CodeSegment()
-    .extend(DefineLabel(intFormatLabel))
-    .extend(intFormat)
-    .extend(DefineLabel(charReadFormatLabel))
-    .extend(charReadFormat)
-    .extend(DefineLabel(printStringFormatLabel))
-    .extend(printStringFormat)
-    .extend(DefineLabel(emptyStringLabel))
-    .extend(emptyString)
-    .extend(DefineLabel(trueStringLabel))
-    .extend(trueString)
-    .extend(DefineLabel(falseStringLabel))
-    .extend(falseString)
-    .extend(DefineLabel(DivideByZeroErrorLabel))
-    .extend(divideOrModuleByZeroString)
-    .extend(DefineLabel(arrayNegativeIndexLabel))
-    .extend(arrayNegativeIndex)
-    .extend(DefineLabel(arrayIndexTooLargeLabel))
-    .extend(arrayIndexTooLarge)
-    .extend(DefineLabel(printReferenceLabel))
-    .extend(printReferenceFormat)
-    .extend(DefineLabel(throwOverflowErrorLabel))
-    .extend(overflowError)
-    .extend(DefineLabel(nullReferenceErrorLabel))
-    .extend(nullReferenceError)
+    .append(DefineLabel(intFormatLabel))
+    .append(intFormat)
+    .append(DefineLabel(charReadFormatLabel))
+    .append(charReadFormat)
+    .append(DefineLabel(printStringFormatLabel))
+    .append(printStringFormat)
+    .append(DefineLabel(emptyStringLabel))
+    .append(emptyString)
+    .append(DefineLabel(trueStringLabel))
+    .append(trueString)
+    .append(DefineLabel(falseStringLabel))
+    .append(falseString)
+    .append(DefineLabel(DivideByZeroErrorLabel))
+    .append(divideOrModuleByZeroString)
+    .append(DefineLabel(arrayNegativeIndexLabel))
+    .append(arrayNegativeIndex)
+    .append(DefineLabel(arrayIndexTooLargeLabel))
+    .append(arrayIndexTooLarge)
+    .append(DefineLabel(printReferenceLabel))
+    .append(printReferenceFormat)
+    .append(DefineLabel(throwOverflowErrorLabel))
+    .append(overflowError)
+    .append(DefineLabel(nullReferenceErrorLabel))
+    .append(nullReferenceError)
 
   def readIntLabel: Label = Label("read_int")
   def readCharLabel: Label = Label("read_char")
@@ -87,157 +87,157 @@ object StaticCode {
 
   def readIntFunction: CodeSegment = {
     CodeSegment()
-      .extend(DefineLabel(readIntLabel))
-      .extend(NEW_STACK_FRAME)
-      .extend(MOV(R1, R0)) // Move address of variable into r1 as expected by scanf
-      .extend(LDR(R0, LabelAddress(intFormatLabel))) // Load the constant address of the format string into r1
-      .extend(ADD(R0, R0, ImmOperand(4)))
-      .extend(BL(Label("scanf"))) // Call scanf with two arguments, r0 and r1
-      .extend(RETURN)
+      .append(DefineLabel(readIntLabel))
+      .append(NEW_STACK_FRAME)
+      .append(MOV(R1, R0)) // Move address of variable into r1 as expected by scanf
+      .append(LDR(R0, LabelAddress(intFormatLabel))) // Load the constant address of the format string into r1
+      .append(ADD(R0, R0, ImmOperand(4)))
+      .append(BL(Label("scanf"))) // Call scanf with two arguments, r0 and r1
+      .append(RETURN)
   }
 
   def readCharFunction: CodeSegment = {
     CodeSegment()
-      .extend(DefineLabel(readCharLabel))
-      .extend(NEW_STACK_FRAME)
-      .extend(MOV(R1, R0)) // Move address of variable into r1 as expected by scanf
-      .extend(LDR(R0, LabelAddress(charReadFormatLabel))) // Load the constant address of the format string into r1
-      .extend(ADD(R0, R0, ImmOperand(4)))
-      .extend(BL(Label("scanf"))) // Call scanf with two arguments, r0 and r1
-      .extend(RETURN)
+      .append(DefineLabel(readCharLabel))
+      .append(NEW_STACK_FRAME)
+      .append(MOV(R1, R0)) // Move address of variable into r1 as expected by scanf
+      .append(LDR(R0, LabelAddress(charReadFormatLabel))) // Load the constant address of the format string into r1
+      .append(ADD(R0, R0, ImmOperand(4)))
+      .append(BL(Label("scanf"))) // Call scanf with two arguments, r0 and r1
+      .append(RETURN)
   }
 
   def printFunction: CodeSegment = {
     CodeSegment()
-      .extend(DefineLabel(printFunctionLabel))
-      .extend(NEW_STACK_FRAME)
-      .extend(LDR(R1, RegisterAddress(R0, 0))) // Move the address of the string to print into r1 as expected by printf
-      .extend(ADD(R2, R0, ImmOperand(4)))
-      .extend(LDR(R0, LabelAddress(printStringFormatLabel))) // Load the constant address of the format string into r0
-      .extend(ADD(R0, R0, ImmOperand(4)))
-      .extend(BL(Label("printf"))) // Print string
-      .extend(MOV(R0, ImmOperand(0)))
-      .extend(BL(Label("fflush")))
-      .extend(RETURN)
+      .append(DefineLabel(printFunctionLabel))
+      .append(NEW_STACK_FRAME)
+      .append(LDR(R1, RegisterAddress(R0, 0))) // Move the address of the string to print into r1 as expected by printf
+      .append(ADD(R2, R0, ImmOperand(4)))
+      .append(LDR(R0, LabelAddress(printStringFormatLabel))) // Load the constant address of the format string into r0
+      .append(ADD(R0, R0, ImmOperand(4)))
+      .append(BL(Label("printf"))) // Print string
+      .append(MOV(R0, ImmOperand(0)))
+      .append(BL(Label("fflush")))
+      .append(RETURN)
   }
 
   def CheckDivideByZero: CodeSegment = {
     CodeSegment()
-      .extend(DefineLabel(checkDivideByZeroLabel))
-      .extend(NEW_STACK_FRAME)
-      .extend(CMP(R1, ImmOperand(0))) // Check if the dividend is 0
-      .extend(LDR(R0, LabelAddress(DivideByZeroErrorLabel), EQ)) //If it is 0, load in R0 the error string
-      .extend(BL(throwRuntimeErrorLabel, EQ)) //Branch to the function to throw a runtime error
-      .extend(RETURN)
+      .append(DefineLabel(checkDivideByZeroLabel))
+      .append(NEW_STACK_FRAME)
+      .append(CMP(R1, ImmOperand(0))) // Check if the dividend is 0
+      .append(LDR(R0, LabelAddress(DivideByZeroErrorLabel), EQ)) //If it is 0, load in R0 the error string
+      .append(BL(throwRuntimeErrorLabel, EQ)) //Branch to the function to throw a runtime error
+      .append(RETURN)
   }
 
   def throwRuntimeError: CodeSegment = {
     CodeSegment()
-      .extend(DefineLabel(throwRuntimeErrorLabel))
-      .extend(BL(printFunctionLabel))
-      .extend(MOV(R0, ImmOperand(-1)))
-      .extend(BL(Label("exit")))
+      .append(DefineLabel(throwRuntimeErrorLabel))
+      .append(BL(printFunctionLabel))
+      .append(MOV(R0, ImmOperand(-1)))
+      .append(BL(Label("exit")))
   }
 
   def printIntFunction: CodeSegment = {
     CodeSegment()
-        .extend(DefineLabel(printIntLabel))
-        .extend(NEW_STACK_FRAME)
-        .extend(MOV(R1, R0))
-        .extend(LDR(R0, LabelAddress(intFormatLabel)))
-        .extend(ADD(R0, R0, ImmOperand(4)))
-        .extend(BL(Label("printf")))
-        .extend(MOV(R0, ImmOperand(0)))
-        .extend(BL(Label("fflush")))
-        .extend(RETURN)
+        .append(DefineLabel(printIntLabel))
+        .append(NEW_STACK_FRAME)
+        .append(MOV(R1, R0))
+        .append(LDR(R0, LabelAddress(intFormatLabel)))
+        .append(ADD(R0, R0, ImmOperand(4)))
+        .append(BL(Label("printf")))
+        .append(MOV(R0, ImmOperand(0)))
+        .append(BL(Label("fflush")))
+        .append(RETURN)
   }
 
   def printCharFunction: CodeSegment = {
     CodeSegment()
-      .extend(DefineLabel(printCharLabel))
-      .extend(NEW_STACK_FRAME)
-      .extend(BL(Label("putchar")))
-      .extend(RETURN)
+      .append(DefineLabel(printCharLabel))
+      .append(NEW_STACK_FRAME)
+      .append(BL(Label("putchar")))
+      .append(RETURN)
   }
 
   def printBoolFunction: CodeSegment = {
     CodeSegment()
-      .extend(DefineLabel(printBoolLabel))
-      .extend(NEW_STACK_FRAME)
-      .extend(CMP(R0, ImmOperand(0)))
-      .extend(LDR(R0, LabelAddress(trueStringLabel), NE))
-      .extend(LDR(R0, LabelAddress(falseStringLabel), EQ))
-      .extend(ADD(R0, R0, ImmOperand(4)))
-      .extend(BL(Label("printf")))
-      .extend(MOV(R0, ImmOperand(0)))
-      .extend(BL(Label("fflush")))
-      .extend(RETURN)
+      .append(DefineLabel(printBoolLabel))
+      .append(NEW_STACK_FRAME)
+      .append(CMP(R0, ImmOperand(0)))
+      .append(LDR(R0, LabelAddress(trueStringLabel), NE))
+      .append(LDR(R0, LabelAddress(falseStringLabel), EQ))
+      .append(ADD(R0, R0, ImmOperand(4)))
+      .append(BL(Label("printf")))
+      .append(MOV(R0, ImmOperand(0)))
+      .append(BL(Label("fflush")))
+      .append(RETURN)
   }
 
 
   def printLnFunction: CodeSegment = {
     CodeSegment()
-      .extend(DefineLabel(printLnFunctionLabel))
-      .extend(NEW_STACK_FRAME)
-      .extend(LDR(R0, LabelAddress(emptyStringLabel)))  // Load the constant address of the empty string into r0
-      .extend(ADD(R0, R0, ImmOperand(4)))
-      .extend(BL(Label("puts")))                  // Print empty string, appended with newline
-      .extend(MOV(R0, ImmOperand(0)))
-      .extend(BL(Label("fflush")))
-      .extend(RETURN)
+      .append(DefineLabel(printLnFunctionLabel))
+      .append(NEW_STACK_FRAME)
+      .append(LDR(R0, LabelAddress(emptyStringLabel)))  // Load the constant address of the empty string into r0
+      .append(ADD(R0, R0, ImmOperand(4)))
+      .append(BL(Label("puts")))                  // Print empty string, appended with newline
+      .append(MOV(R0, ImmOperand(0)))
+      .append(BL(Label("fflush")))
+      .append(RETURN)
   }
 
   def printReferenceFunction: CodeSegment = {
     CodeSegment()
-      .extend(DefineLabel(printReferenceFunctionLabel))
-      .extend(NEW_STACK_FRAME)
-      .extend(MOV(R1, R0))
-      .extend(LDR(R0, LabelAddress(printReferenceLabel)))  // Load the constant address of the empty string into r0
-      .extend(ADD(R0, R0, ImmOperand(4)))
-      .extend(BL(Label("printf")))                  // Print empty string, appended with newline
-      .extend(MOV(R0, ImmOperand(0)))
-      .extend(BL(Label("fflush")))
-      .extend(RETURN)
+      .append(DefineLabel(printReferenceFunctionLabel))
+      .append(NEW_STACK_FRAME)
+      .append(MOV(R1, R0))
+      .append(LDR(R0, LabelAddress(printReferenceLabel)))  // Load the constant address of the empty string into r0
+      .append(ADD(R0, R0, ImmOperand(4)))
+      .append(BL(Label("printf")))                  // Print empty string, appended with newline
+      .append(MOV(R0, ImmOperand(0)))
+      .append(BL(Label("fflush")))
+      .append(RETURN)
   }
 
   def checkArrayBounds: CodeSegment = {
     CodeSegment()
-      .extend(DefineLabel(checkArrayBoundsLabel))
-      .extend(NEW_STACK_FRAME)
-      .extend(CMP(R0, ImmOperand(0)))
-      .extend(LDR(R0, LabelAddress(arrayNegativeIndexLabel), LT))
-      .extend(BL(throwRuntimeErrorLabel, LT))
-      .extend(LDR(R1, RegisterAddress(R1, 0)))
-      .extend(CMP(R0, R1))
-      .extend(LDR(R0, LabelAddress(arrayIndexTooLargeLabel), CS))
-      .extend(BL(throwRuntimeErrorLabel, CS))
-      .extend(RETURN)
+      .append(DefineLabel(checkArrayBoundsLabel))
+      .append(NEW_STACK_FRAME)
+      .append(CMP(R0, ImmOperand(0)))
+      .append(LDR(R0, LabelAddress(arrayNegativeIndexLabel), LT))
+      .append(BL(throwRuntimeErrorLabel, LT))
+      .append(LDR(R1, RegisterAddress(R1, 0)))
+      .append(CMP(R0, R1))
+      .append(LDR(R0, LabelAddress(arrayIndexTooLargeLabel), CS))
+      .append(BL(throwRuntimeErrorLabel, CS))
+      .append(RETURN)
   }
 
   def checkNullPointerFunction: CodeSegment = {
     CodeSegment()
-      .extend(DefineLabel(checkNullPointerFunctionLabel))
-      .extend(NEW_STACK_FRAME)
-      .extend(CMP(R0, ImmOperand(0)))
-      .extend(LDR(R0, LabelAddress(nullReferenceErrorLabel), EQ))
-      .extend(B(throwRuntimeErrorLabel, EQ))
-      .extend(RETURN)
+      .append(DefineLabel(checkNullPointerFunctionLabel))
+      .append(NEW_STACK_FRAME)
+      .append(CMP(R0, ImmOperand(0)))
+      .append(LDR(R0, LabelAddress(nullReferenceErrorLabel), EQ))
+      .append(B(throwRuntimeErrorLabel, EQ))
+      .append(RETURN)
   }
 
   def freePairFunction: CodeSegment = {
     CodeSegment()
-      .extend(DefineLabel(freePairLabel))
-      .extend(NEW_STACK_FRAME)
-      .extend(BL(checkNullPointerFunctionLabel))
-      .extend(PUSH(Seq(R0)))
-      .extend(LDR(R0, RegisterAddress(R0, 0)))
-      .extend(BL(Label("free")))
-      .extend(LDR(R0, RegisterAddress(SP)))
-      .extend(LDR(R0, RegisterAddress(R0, 4)))
-      .extend(BL(Label("free")))
-      .extend(POP(Seq(R0)))
-      .extend(BL(Label("free")))
-      .extend(RETURN)
+      .append(DefineLabel(freePairLabel))
+      .append(NEW_STACK_FRAME)
+      .append(BL(checkNullPointerFunctionLabel))
+      .append(PUSH(Seq(R0)))
+      .append(LDR(R0, RegisterAddress(R0, 0)))
+      .append(BL(Label("free")))
+      .append(LDR(R0, RegisterAddress(SP)))
+      .append(LDR(R0, RegisterAddress(R0, 4)))
+      .append(BL(Label("free")))
+      .append(POP(Seq(R0)))
+      .append(BL(Label("free")))
+      .append(RETURN)
 
 //    PUSH {lr}
 //    41		CMP r0, #0
@@ -256,8 +256,9 @@ object StaticCode {
 
   def throwOverflowError: CodeSegment = {
     CodeSegment()
-      .extend(DefineLabel(throwOverflowErrorFunctionLabel))
-      .extend(LDR(R0, LabelAddress(throwOverflowErrorLabel)))
-      .extend(BL(throwRuntimeErrorLabel))
+      .append(DefineLabel(throwOverflowErrorFunctionLabel))
+      .append(LDR(R0, LabelAddress(throwOverflowErrorLabel)))
+      .append(BL(throwRuntimeErrorLabel))
   }
 }
+

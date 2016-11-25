@@ -37,7 +37,7 @@ object Macros {
           case default => STR(registers.head, RegisterAddress(registers(1)))
         }
 
-        instruction.extend(store).instructions
+        instruction.append(store).instructions
 
 //        LDR r4, =1
 //        18		LDR r5, [sp]
@@ -102,7 +102,7 @@ object Macros {
 
     var start = CodeSegment()
 
-    if (isBranch) start = start.extend(PUSH(Seq(LR)))
+    if (isBranch) start = start.append(PUSH(Seq(LR)))
     start = start.extend(Seq(PUSH(Seq(FP)), MOV(FP, SP)))
 
     var end = CodeSegment()
@@ -113,14 +113,14 @@ object Macros {
 
     for (i <- 1 to blocks) {
       //start = start.append(SUB(SP, SP, ImmOperand(MAX_SIZE)))
-      end = end.extend(ADD(SP, SP, ImmOperand(MAX_SIZE)))
+      end = end.append(ADD(SP, SP, ImmOperand(MAX_SIZE)))
     }
 
     //start = start.append(SUB(SP, SP, ImmOperand(remainder)))
-    end = end.extend(ADD(SP, SP, ImmOperand(remainder)))
-             .extend(POP(Seq(FP)))
+    end = end.append(ADD(SP, SP, ImmOperand(remainder)))
+             .append(POP(Seq(FP)))
 
-    if (isBranch) end = end.extend(POP(Seq(PC)))
+    if (isBranch) end = end.append(POP(Seq(PC)))
     (start, end)
   }
 }

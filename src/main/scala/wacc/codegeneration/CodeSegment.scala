@@ -5,7 +5,7 @@ import wacc.arm.Instruction
 class CodeSegment private(initial: Seq[Instruction]) {
   val instructions: Vector[Instruction] = initial.toVector
 
-  def extend(instruction: Instruction) = {
+  def append(instruction: Instruction) = {
     new CodeSegment(instructions :+ instruction)
   }
 
