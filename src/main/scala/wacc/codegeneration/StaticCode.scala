@@ -27,6 +27,7 @@ object StaticCode {
     .extend(printReferenceFunction)
     .extend(throwOverflowError)
     .extend(freePairFunction)
+    .extend(checkNullPointerFunction)
 
   def staticData: CodeSegment = CodeSegment()
     .append(DefineLabel(intFormatLabel))
@@ -82,6 +83,7 @@ object StaticCode {
   def throwOverflowErrorLabel: Label = Label("throw_overflow_error")
   def nullReferenceErrorLabel: Label = Label("null_reference_error")
   def freePairLabel: Label = Label("free_pair")
+  def checkNullPointerFunctionLabel: Label = Label("check_null_pointer")
 
   def readIntFunction: CodeSegment = {
     CodeSegment()
@@ -212,13 +214,21 @@ object StaticCode {
       .append(RETURN)
   }
 
-  def freePairFunction: CodeSegment = {
+  def checkNullPointerFunction: CodeSegment = {
     CodeSegment()
-      .append(DefineLabel(freePairLabel))
+      .append(DefineLabel(checkNullPointerFunctionLabel))
       .append(NEW_STACK_FRAME)
       .append(CMP(R0, ImmOperand(0)))
       .append(LDR(R0, LabelAddress(nullReferenceErrorLabel), EQ))
       .append(B(throwRuntimeErrorLabel, EQ))
+      .append(RETURN)
+  }
+
+  def freePairFunction: CodeSegment = {
+    CodeSegment()
+      .append(DefineLabel(freePairLabel))
+      .append(NEW_STACK_FRAME)
+      .append(BL(checkNullPointerFunctionLabel))
       .append(PUSH(Seq(R0)))
       .append(LDR(R0, RegisterAddress(R0, 0)))
       .append(BL(Label("free")))
