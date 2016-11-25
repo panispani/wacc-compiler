@@ -31,15 +31,8 @@ object Macros {
         }
       }
       case pe: PairElement => {
-        val vartype = pe.vartype match {
-          case pt: PairType => pe.selector match {
-            case FirstSelector => pt.firstType
-            case SecondSelector => pt.secondType
-          }
-        }
-
         TransAssignRhs.getPairElementPointer(pe, symbolTable, registers.tail)
-        val store = vartype match {
+        val store = pe.vartype match {
           case Character | Boolean => STRB(registers.head, RegisterAddress(registers(1)))
           case default => STR(registers.head, RegisterAddress(registers(1)))
         }
