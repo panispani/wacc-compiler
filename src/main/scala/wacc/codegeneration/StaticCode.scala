@@ -15,6 +15,7 @@ object StaticCode {
   def arrayNegativeIndex: AsciiData = AsciiData("\"ArrayIndexOutOfBoundsError: negative index\"")
   def arrayIndexTooLarge: AsciiData = AsciiData("\"ArrayIndexOutOfBoundsError: index too large\"")
   def overflowError: AsciiData = AsciiData("\"OverflowError: the result is too small/large to store in a 4-byte signed-integer.\"")
+  def nullReferenceError: AsciiData = AsciiData("\"NullReferenceError: dereference a null reference\"")
   def printReferenceFormat: AsciiData = AsciiData("\"%p\\0\"")
 
   def staticFunctions: CodeSegment =
@@ -49,6 +50,8 @@ object StaticCode {
     .append(printReferenceFormat)
     .append(DefineLabel(throwOverflowErrorLabel))
     .append(overflowError)
+    .append(DefineLabel(nullReferenceErrorLabel))
+    .append(nullReferenceError)
 
   def readIntLabel: Label = Label("read_int")
   def readCharLabel: Label = Label("read_char")
@@ -76,6 +79,7 @@ object StaticCode {
   def printReferenceFunctionLabel: Label = Label("print_reference_function")
   def throwOverflowErrorFunctionLabel: Label = Label("throw_overflow_error_function")
   def throwOverflowErrorLabel: Label = Label("throw_overflow_error")
+  def nullReferenceErrorLabel: Label = Label("null_reference_error")
 
   def readIntFunction: CodeSegment = {
     CodeSegment()
