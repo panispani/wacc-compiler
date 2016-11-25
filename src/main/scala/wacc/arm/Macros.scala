@@ -1,8 +1,8 @@
 package wacc.arm
 
 import wacc.{SymbolTable, VariableReference}
-import wacc.codegeneration.{CodeSegment, StaticCode, TransExpressions}
-import wacc.constructs.{ArrayElement, AssignTarget, Boolean, Character, Expression, PairElement, Type}
+import wacc.codegeneration.{TransAssignRhs, CodeSegment, StaticCode, TransExpressions}
+import wacc.constructs._
 
 object Macros {
   def store(lhs: AssignTarget, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
@@ -30,7 +30,22 @@ object Macros {
           }
         }
       }
-      case PairElement(selector, expression, vartype) => Seq()
+      case pe: PairElement => {
+        val vartype = pe.vartype match {
+          case pt: PairType => pe.selector match {
+            case FirstSelector => pt.firstType
+            case SecondSelector => pt.secondType
+          }
+        }
+
+        TransAssignRhs.getPairElementPointer(pe, symbolTable, registers.tail)
+        val store = vartype match {
+          case Character | Boolean => STRB(registers.head, RegisterAddress(registers(1)))
+          case default => STR(registers.head, RegisterAddress(registers(1)))
+        }
+
+        CodeSegment().append(store).instructions
+      }
     }
   }
 
