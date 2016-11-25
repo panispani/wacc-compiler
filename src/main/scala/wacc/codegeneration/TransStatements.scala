@@ -46,15 +46,13 @@ object TransStatements {
       case stat @ ReadStatement(_)
         => transReadStatement(stat, registers)
 
-      case free: FreeStatement
-        => transFreeStatement(free, symbolTable, registers)
+      case FreeStatement(expression)
+        => transFreeStatement(expression, symbolTable, registers)
     }
   }
 
-  def transFreeStatement(free: FreeStatement, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
-    //val instructions = TransExpressions.transExpression(free.expression, symbolTable, registers)
-
-    free match {
+  def transFreeStatement(expression: Expression, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
+    expression match {
       case VariableReference(name, vartype, offset) => {
         CodeSegment()
           .append(LDR(registers.head, RegisterAddress(FP, offset)))
