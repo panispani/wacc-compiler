@@ -52,7 +52,16 @@ object TransStatements {
   }
 
   def transFreeStatement(free: FreeStatement, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
+    //val instructions = TransExpressions.transExpression(free.expression, symbolTable, registers)
 
+    free match {
+      case VariableReference(name, vartype, offset) => {
+        CodeSegment()
+          .append(LDR(registers.head, RegisterAddress(FP, offset)))
+          .append(MOV(R0, registers.head))
+          .append(BL(StaticCode.freePairLabel)).instructions
+      }
+    }
   }
 
   def transSkipStatement() : Seq[Instruction] = {
