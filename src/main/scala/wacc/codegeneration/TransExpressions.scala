@@ -47,9 +47,11 @@ object TransExpressions {
 
       case ArrayElement(identifier, index, elemtype) => {
         val variableReference = symbolTable.lookupDeep(identifier).get
-        Macros.checkAndGetArrayElemAddress(variableReference, index.head, symbolTable, reg1 +: reg2 +: regs, elemtype).instructions ++ Seq(
-          LDR(reg1, RegisterAddress(reg1, 0))
-        )
+
+        Seq(ADD(reg1, FP, ImmOperand(variableReference.offset))) ++
+        TransExpressions.transExpression(index.head, symbolTable, reg2 +: regs) ++
+        Macros.checkAndGetArrayElemAddress(symbolTable, reg1 +: reg2 +: regs, elemtype).instructions ++
+        Seq(LDR(reg1, RegisterAddress(reg1, 0)))
       }
 
       case VariableReference(name, vartype, offset) => Seq(Macros.load(reg1, offset, vartype))

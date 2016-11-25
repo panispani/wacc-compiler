@@ -22,8 +22,9 @@ object Macros {
               case Character | Boolean => STRB(src, RegisterAddress(reg1, 0))
               case default => STR(src, RegisterAddress(reg1, 0))
             }
-
-            Macros.checkAndGetArrayElemAddress(variableReference, index.head, symbolTable, reg1 +: reg2 +: regs, elemtype).instructions ++ Seq(store)
+            Seq(ADD(reg1, FP, ImmOperand(variableReference.offset))) ++
+            TransExpressions.transExpression(index.head, symbolTable, reg2 +: regs) ++
+            Macros.checkAndGetArrayElemAddress(symbolTable, reg1 +: reg2 +: regs, elemtype).instructions ++ Seq(store)
           }
         }
       }
@@ -77,23 +78,23 @@ object Macros {
     }
   }
 
-  def checkAndGetArrayElemAddress(array: VariableReference, index: Expression,
-                          symbolTable: SymbolTable, registers: Seq[Register], elemType: Type): CodeSegment = {
+  //Assume start of array in reg1 and index in reg2
+  def checkAndGetArrayElemAddress(symbolTable: SymbolTable, registers: Seq[Register], elemType: Type): CodeSegment = {
     registers match {
       case (reg1 +: reg2 +: regs) => {
         CodeSegment()
-          .extend(TransExpressions.transExpression(index, symbolTable, registers))    //Get value of index in reg1
+          //.extend(TransExpressions.transExpression(index, symbolTable, reg2 +: regs))
           .extend(Seq(
-            ADD(R1, FP, ImmOperand(array.offset)),   // Put the start of the array in the first register
+           // ADD(reg1, FP, ImmOperand(array.offset)),   // To fullfill assumption
+            MOV(R1, reg1),   // Put the start of the array in the first register
             LDR(R1, RegisterAddress(R1, 0)),   //Load size of array in R1
-            MOV(R0, reg1),                       //Load index in R0
+            MOV(R0, reg2),                       //Load index in R0
             BL(StaticCode.checkArrayBoundsLabel)
           ))
           .extend (Seq(
-            LDR (reg2, RegisterAddress (FP, array.offset) ), // Put the start of the array in the second register
             LDR (regs.head, Const(elemType.size)), //Put size of one element in third register
-            MUL (reg1, reg1, regs.head), //Put elemSize * index in first register
-            ADD (reg1, reg1, reg2),
+            MUL (reg2, reg2, regs.head), //Put index * elemSize in second register
+            ADD (reg1, reg1, reg2),     // Add start of array with index * elemSize
             LDR (reg2, Const(4)),
             ADD (reg1, reg1, reg2)
           ))
