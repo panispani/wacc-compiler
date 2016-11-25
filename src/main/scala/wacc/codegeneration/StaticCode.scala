@@ -26,6 +26,7 @@ object StaticCode {
     .extend(checkArrayBounds)
     .extend(printReferenceFunction)
     .extend(throwOverflowError)
+    .extend(freePairFunction)
 
   def staticData: CodeSegment = CodeSegment()
     .append(DefineLabel(intFormatLabel))
