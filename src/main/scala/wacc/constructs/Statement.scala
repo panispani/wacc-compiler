@@ -22,14 +22,11 @@ case class ExitStatement(exitCode: Expression) extends Statement {
 case class ReturnStatement(returnValue: Expression) extends Statement {
 
   override def transStatement(symbolTable: SymbolTable, registers: Seq[Register]): CodeSegment = {
-    val bytesAllocatedByFunction = symbolTable.deepSize()
 
     CodeSegment()
       .extend(TransExpressions.transExpression(returnValue, symbolTable, registers))
       .extend(MOV(R0, registers.head))
-      .extend(ADD(SP, SP, ImmOperand(bytesAllocatedByFunction)))
-      .extend(POP(Seq(FP)))
-      .extend(POP(Seq(PC)))
+
   }
 }
 
@@ -146,10 +143,10 @@ case class ConditionalStatement(expression: Expression, trueStatements: ScopeSta
       .extend(TransExpressions.transExpression(expression, symbolTable, registers))
       .extend(CMP(registers.head, ImmOperand(1)))
       .extend(B(L0, EQ))
-      .extend(falseStatements.transStatement(symbolTable, registers))
+      .extend(falseStatements.transStatement(falseStatements.symbolTable, registers))
       .extend(B(L1))
       .extend(DefineLabel(L0))
-      .extend(trueStatements.transStatement(symbolTable, registers))
+      .extend(trueStatements.transStatement(trueStatements.symbolTable, registers))
       .extend(DefineLabel(L1))
   }
 }
@@ -171,12 +168,13 @@ case class LoopStatement(condition: Expression, statements: Seq[Statement], symb
   override def transStatement(symbolTable: SymbolTable, registers: Seq[Register]): CodeSegment = {
     val L0 = Label()
     val L1 = Label()
-    val (beginFrame, endFrame) = Macros.frame(symbolTable.sizeInBytes)
+
+    val (beginFrame, endFrame) = Macros.frame(this.symbolTable.sizeInBytes)
 
     beginFrame
       .extend(B(L0))
       .extend(DefineLabel(L1))
-      .extend(TransStatements.transStatementSequence(statements, symbolTable, registers))
+      .extend(TransStatements.transStatementSequence(statements, this.symbolTable, registers))
       .extend(DefineLabel(L0))
       .extend(TransExpressions.transExpression(condition, symbolTable, registers))
       .extend(CMP(registers.head, ImmOperand(1)))
