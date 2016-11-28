@@ -5,7 +5,7 @@ import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream, ParserRuleCont
 import org.scalatest._
 import wacc.arm.{Instruction, Label, Registers}
 import wacc.codegeneration.{TransFunctions, TransStatements}
-import wacc.constructs.{Function, Program, ScopeStatement, Statement}
+import wacc.constructs.{CompilationError, Function, Program, ScopeStatement, Statement}
 import wacc.visitors.ProgramVisitor
 
 object TestUtilities {
@@ -21,7 +21,7 @@ object TestUtilities {
     TransStatements.transStatement(statement, Registers.expressionRegs)
   }
 
-  def buildProgram(inputString: String) = {
+  def buildProgram(inputString: String): Either[Seq[CompilationError], Program] = {
     val parser = setupParser(inputString)
     val tree = parser.program()
     val program = ProgramVisitor.visit(tree)
