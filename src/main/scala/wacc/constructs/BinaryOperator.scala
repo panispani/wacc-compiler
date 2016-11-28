@@ -35,8 +35,11 @@ case class BinaryOperator(binaryOperator: String) {
 /* Integers */
 object TimesBinOp extends BinaryOperator("*") {
   override def translate(dest: Register, operand: Register): CodeSegment
-  = CodeSegment(MUL(dest, dest, operand))
+  = CodeSegment(SMULL(dest, operand, dest, operand),
+    CMPSHIFT(operand, dest, ASR(31)),
+    BL(StaticCode.getStaticFunction(StaticCode.throwOverflowError), NE))
 }
+
 object DivBinOp extends BinaryOperator("/") {
   override def translate(dest: Register, operand: Register): CodeSegment
   = CodeSegment(
@@ -56,10 +59,17 @@ object ModBinOp extends BinaryOperator("%") {
   )
 }
 object PlusBinOp extends BinaryOperator("+") {
-  override def translate(dest: Register, operand: Register): CodeSegment = CodeSegment(ADD(dest, dest, operand))
+  override def translate(dest: Register, operand: Register): CodeSegment
+  = CodeSegment(
+    ADDS(dest, dest, operand),
+    BL(StaticCode.getStaticFunction(StaticCode.throwOverflowError), VS))
 }
+
 object MinusBinOp extends BinaryOperator("-") {
-  override def translate(dest: Register, operand: Register): CodeSegment = CodeSegment(SUB(dest, dest, operand))
+  override def translate(dest: Register, operand: Register): CodeSegment
+  = CodeSegment(
+    SUBS(dest, dest, operand),
+    BL(StaticCode.getStaticFunction(StaticCode.throwOverflowError), VS))
 }
 
 /* Booleans */
