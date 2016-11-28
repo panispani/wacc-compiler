@@ -11,7 +11,7 @@ object TransProgram {
       s => TransStatements.transStatement(s, program.main.symbolTable, Registers.expressionRegs))
 
     val (beginFrame, endFrame) = Macros.frame(program.main.symbolTable.sizeInBytes, isBranch = true)
-    val data = StaticCode.staticData.extend(LabelTable.outputLabels)
+    val data = StaticCode.outputData.extend(LabelTable.outputLabels)
 
     val text = CodeSegment()
                   .extend(COMMENT("Static code"))

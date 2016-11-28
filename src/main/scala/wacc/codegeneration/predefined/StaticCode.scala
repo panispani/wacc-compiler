@@ -5,7 +5,7 @@ import wacc.codegeneration.CodeSegment
 
 object StaticCode {
 
-  val staticFunctionMap: collection.immutable.Map[CodeSegment, Label] = collection.immutable.Map(
+  val staticFunctionMap: Map[CodeSegment, Label] = Map(
     readInt            -> Label("read_int"),
     readChar           -> Label("read_char"),
     printInt           -> Label("print_int"),
