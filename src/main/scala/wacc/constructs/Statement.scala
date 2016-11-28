@@ -22,14 +22,11 @@ case class ExitStatement(exitCode: Expression) extends Statement {
 case class ReturnStatement(returnValue: Expression) extends Statement {
 
   override def transStatement(symbolTable: SymbolTable, registers: Seq[Register]): CodeSegment = {
-    val bytesAllocatedByFunction = symbolTable.deepSize()
 
     CodeSegment()
       .extend(TransExpressions.transExpression(returnValue, symbolTable, registers))
       .extend(MOV(R0, registers.head))
-      .extend(ADD(SP, SP, ImmOperand(bytesAllocatedByFunction)))
-      .extend(POP(Seq(FP)))
-      .extend(POP(Seq(PC)))
+
   }
 }
 
