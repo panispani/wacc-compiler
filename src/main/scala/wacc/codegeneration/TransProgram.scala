@@ -18,14 +18,14 @@ object TransProgram {
                   .extend(StaticCode.outputFunctions)
 
                   .extend(COMMENT("Function definitions"))
-                  .extend(functionInstructions.flatten)
+                  .extend(functionInstructions.flatten : _*)
 
                   .extend(COMMENT("Main"))
                   .extend(GLOBAL("main"))
                   .extend(DefineLabel(Label("main")))
                   .extend(beginFrame)
                   .extend(COMMENT("----------- MAIN  ------------"))
-                  .extend(mainInstructions.flatten)
+                  .extend(mainInstructions.flatten : _*)
                   .extend(COMMENT("----------- /MAIN ------------"))
                   .extend(MOV(R0, ImmOperand(0)))
                   .extend(endFrame)

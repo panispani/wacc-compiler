@@ -13,8 +13,7 @@ abstract class Statement {
 case class ExitStatement(exitCode: Expression) extends Statement {
 
   override def transStatement(symbolTable: SymbolTable, registers: Seq[Register]): CodeSegment = {
-    CodeSegment()
-      .extend(TransExpressions.transExpression(exitCode, symbolTable, registers))
+    CodeSegment(TransExpressions.transExpression(exitCode, symbolTable, registers) : _*)
       .extend(MOV(R0, registers.head))
       .extend(BL(Label("exit")))
   }
@@ -25,7 +24,7 @@ case class ReturnStatement(returnValue: Expression) extends Statement {
   override def transStatement(symbolTable: SymbolTable, registers: Seq[Register]): CodeSegment = {
 
     CodeSegment()
-      .extend(TransExpressions.transExpression(returnValue, symbolTable, registers))
+      .extend(TransExpressions.transExpression(returnValue, symbolTable, registers) : _*)
       .extend(MOV(R0, registers.head))
 
   }
@@ -46,7 +45,7 @@ abstract class AbstractPrintStatement extends Statement {
     }
 
     CodeSegment()
-      .extend(TransExpressions.transExpression(expression, symbolTable, registers)) // eval expression to print
+      .extend(TransExpressions.transExpression(expression, symbolTable, registers) : _*) // eval expression to print
       .extend(MOV(R0, registers.head)) // setup function call
       .extend(BL(printLabel))
   }
@@ -65,8 +64,8 @@ case class AssignStatement(lhs: AssignTarget, rhs: AssignValue) extends Statemen
 
   override def transStatement(symbolTable: SymbolTable, registers: Seq[Register]): CodeSegment = {
     CodeSegment()
-      .extend(TransAssignRhs.transAssignRhs(rhs, symbolTable, registers))
-      .extend(Macros.store(lhs, symbolTable, registers))
+      .extend(TransAssignRhs.transAssignRhs(rhs, symbolTable, registers) : _*)
+      .extend(Macros.store(lhs, symbolTable, registers) : _*)
   }
 }
 
@@ -93,7 +92,7 @@ case class ScopeStatement(statements: Seq[Statement], symbolTable: SymbolTable) 
 
     CodeSegment()
       .extend(beginFrame)
-      .extend(instructions.flatten)
+      .extend(instructions.flatten : _*)
       .extend(endFrame)
   }
 }
@@ -108,7 +107,7 @@ case class ReadStatement(target: AssignTarget) extends Statement {
         //TODO: This should already be in the ArrayElement construct instead of identifier
         val vr: VariableReference = symbolTable.lookupDeep(ae.identifier).get
         //TODO: This assumes a single index (not nested arrays)
-        CodeSegment().extend(TransExpressions.transExpression(ae.index.head, symbolTable, registers))
+        CodeSegment(TransExpressions.transExpression(ae.index.head, symbolTable, registers) : _*)
           .extend(MOV(R0, registers.head))
           .extend(Macros.getArrayElemAddress(vr, symbolTable, registers, target.vartype))
       }
@@ -140,8 +139,7 @@ case class ConditionalStatement(expression: Expression, trueStatements: ScopeSta
     val L1 = Label()
 
     //stack allocation is not done TODO- experimental
-    CodeSegment()
-      .extend(TransExpressions.transExpression(expression, symbolTable, registers))
+    CodeSegment(TransExpressions.transExpression(expression, symbolTable, registers) : _*)
       .extend(CMP(registers.head, ImmOperand(1)))
       .extend(B(L0, EQ))
       .extend(falseStatements.transStatement(falseStatements.symbolTable, registers))
@@ -157,9 +155,8 @@ case class ConditionalStatement(expression: Expression, trueStatements: ScopeSta
 case class DeclareStatement(vartype: Type, newReference: VariableReference, value: AssignValue) extends Statement {
 
   override def transStatement(symbolTable: SymbolTable, registers: Seq[Register]): CodeSegment = {
-    CodeSegment()
-      .extend(TransAssignRhs.transAssignRhs(value, symbolTable, registers))
-      .extend(Macros.store(newReference, symbolTable, registers))
+    CodeSegment(TransAssignRhs.transAssignRhs(value, symbolTable, registers) : _*)
+      .extend(Macros.store(newReference, symbolTable, registers) : _*)
       .extend(SUB(SP, SP, ImmOperand(vartype.size)))
   }
 }
@@ -175,9 +172,9 @@ case class LoopStatement(condition: Expression, statements: Seq[Statement], symb
     beginFrame
       .extend(B(L0))
       .extend(DefineLabel(L1))
-      .extend(TransStatements.transStatementSequence(statements, this.symbolTable, registers))
+      .extend(TransStatements.transStatementSequence(statements, this.symbolTable, registers) : _*)
       .extend(DefineLabel(L0))
-      .extend(TransExpressions.transExpression(condition, symbolTable, registers))
+      .extend(TransExpressions.transExpression(condition, symbolTable, registers) : _*)
       .extend(CMP(registers.head, ImmOperand(1)))
       .extend(B(L1, EQ))
       .extend(endFrame)

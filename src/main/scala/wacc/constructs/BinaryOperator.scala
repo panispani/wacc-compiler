@@ -42,8 +42,7 @@ object DivBinOp extends BinaryOperator("/") {
   = CodeSegment(
     MOV(R0, dest),
     MOV(R1, operand),
-    BL(StaticCode.getStaticFunction(StaticCode.checkDivideByZero)),
-    BL(Label("__aeabi_idiv")),
+    BL(StaticCode.getStaticFunction(StaticCode.div)),
     MOV(dest, R0)
   )
 }
@@ -52,8 +51,7 @@ object ModBinOp extends BinaryOperator("%") {
   = CodeSegment(
     MOV(R0, dest),
     MOV(R1, operand),
-    BL(StaticCode.getStaticFunction(StaticCode.checkDivideByZero)),
-    BL(Label("__aeabi_idiv")),
+    BL(StaticCode.getStaticFunction(StaticCode.mod)),
     MOV(dest, R1)
   )
 }

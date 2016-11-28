@@ -25,7 +25,7 @@ object TransAssignRhs {
 
   def getPairElementPointer(pe: PairElement, symbolTable: SymbolTable, registers: Seq[Register]): CodeSegment = {
     CodeSegment()
-      .extend(TransExpressions.transExpression(pe.expression, symbolTable, registers)) // Translate expression inside selector
+      .extend(TransExpressions.transExpression(pe.expression, symbolTable, registers) : _*) // Translate expression inside selector
       .extend(MOV(R0, registers.head))                                                 // Check if address is null
       .extend(BL(StaticCode.getStaticFunction(StaticCode.checkNullPointer)))           // Check if address is null
       .extend(LDR(registers.head, RegisterAddress(registers.head, pe.selector match {
@@ -70,7 +70,7 @@ object TransAssignRhs {
           case Character | Boolean => STRB(registers.head, RegisterAddress(SP, -e.vartype.size, writeback = true))
           case _ => STR(registers.head, RegisterAddress(SP, -e.vartype.size, writeback = true))
         })
-      }))
+      })  : _*)
       .extend(BL(Label(fc.identifier)))
       .extend(ADD(SP, SP, argumentsSize))
       .extend(MOV(registers.head, R0))

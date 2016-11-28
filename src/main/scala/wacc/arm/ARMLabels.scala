@@ -13,8 +13,7 @@ package object LabelTable {
   val labels: mutable.Buffer[DefineStringLabel] = mutable.Buffer()
 
   def outputLabels: CodeSegment = {
-    CodeSegment()
-      .extend(labels)
+    CodeSegment(labels : _*)
   }
 }
 

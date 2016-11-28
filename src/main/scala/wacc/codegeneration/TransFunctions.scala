@@ -9,7 +9,8 @@ object TransFunctions {
     CodeSegment()
       .extend(DefineLabel(Label(function.identifier)))
       .extend(beginFrame)
-      .extend(function.statements flatMap (s => TransStatements.transStatement(s, function.symbolTable, registers)))
+      .extend(function.statements flatMap (
+        s => TransStatements.transStatement(s, function.symbolTable, registers))  : _*)
       .extend(endFrame)
       .instructions
   }

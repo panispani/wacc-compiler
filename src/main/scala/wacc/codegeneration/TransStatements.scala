@@ -1,6 +1,6 @@
 package wacc.codegeneration
 
-import wacc.{SymbolTable, VariableReference}
+import wacc.SymbolTable
 import wacc.arm._
 import wacc.constructs._
 
@@ -19,7 +19,7 @@ object TransStatements {
     } yield transStatement(stmt, symbolTable, registers)
 
     CodeSegment()
-      .extend(instructions.flatten)
+      .extend(instructions.flatten : _*)
       .instructions
   }
 }

@@ -10,11 +10,7 @@ class CodeSegment private(initial: Seq[Instruction]) {
   }
 
   def extend(instructions: Instruction*): CodeSegment = {
-    extend(instructions.toVector)
-  }
-
-  def extend(extension: Seq[Instruction]) = {
-    new CodeSegment(instructions ++ extension)
+    new CodeSegment(this.instructions ++ instructions.toVector)
   }
 
   def extend(extension: CodeSegment) = {

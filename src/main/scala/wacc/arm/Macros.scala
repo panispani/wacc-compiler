@@ -53,28 +53,26 @@ object Macros {
   def checkArrayBounds(array: VariableReference, index: Expression,
                        symbolTable: SymbolTable, registers: Seq[Register]): CodeSegment = {
     CodeSegment()
-      .extend(TransExpressions.transExpression(index, symbolTable, registers))
-      .extend(Seq(
+      .extend(TransExpressions.transExpression(index, symbolTable, registers) : _*)
+      .extend(
         ADD(R1, FP, ImmOperand(array.offset)),   // Put the start of the array in the first register
         LDR(R1, RegisterAddress(R1, 0)),   //Load size of array in first register
         MOV(R0, registers.head),
-        BL(StaticCode.getStaticFunction(StaticCode.checkArrayBounds))
-      ))
+        BL(StaticCode.getStaticFunction(StaticCode.checkArrayBounds)))
   }
 
   def getArrayElemAddress(array: VariableReference,
                        symbolTable: SymbolTable, registers: Seq[Register], elemType: Type): CodeSegment = {
     registers match {
       case (reg1 +: reg2 +: regs) => {
-        CodeSegment()
-          .extend (Seq(
-            LDR (reg2, RegisterAddress (FP, array.offset) ), // Put the start of the array in the second register
-            LDR (regs.head, Const(elemType.size)), //Put size of one element in third register
-            MUL (reg1, reg1, regs.head), //Put elemSize * index in first register
-            ADD (reg1, reg1, reg2),
-            LDR (reg2, Const(4)),
-            ADD (reg1, reg1, reg2)
-          ))
+        CodeSegment(
+          LDR (reg2, RegisterAddress (FP, array.offset) ), // Put the start of the array in the second register
+          LDR (regs.head, Const(elemType.size)), //Put size of one element in third register
+          MUL (reg1, reg1, regs.head), //Put elemSize * index in first register
+          ADD (reg1, reg1, reg2),
+          LDR (reg2, Const(4)),
+          ADD (reg1, reg1, reg2)
+        )
       }
     }
   }
@@ -104,7 +102,7 @@ object Macros {
     var start = CodeSegment()
 
     if (isBranch) start = start.extend(PUSH(Seq(LR)))
-    start = start.extend(Seq(PUSH(Seq(FP)), MOV(FP, SP)))
+    start = start.extend(PUSH(Seq(FP)), MOV(FP, SP))
 
     var end = CodeSegment()
 
