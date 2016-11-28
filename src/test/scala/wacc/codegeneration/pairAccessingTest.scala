@@ -14,10 +14,7 @@ class pairAccessingTest extends CodeGenTest {
     val program2 = TestUtilities.buildSubProgram(parser2.statement, StatementVisitor)
 
     val availableRegisters = Seq(R4, R5, R6, R7, R8)
-    val instructions = TransStatements.transStatementSequence(
-      Seq(program.right.get, program2.right.get),
-      SymbolTable.globalTable,
-      availableRegisters)
+    val instructions = TransStatements.transStatementSequence(Seq(program.right.get, program2.right.get), availableRegisters)
   }
 
   it should "to handle declaring an int with assign value another variable" in {
@@ -28,10 +25,7 @@ class pairAccessingTest extends CodeGenTest {
     val program2 = TestUtilities.buildSubProgram(parser2.statement, StatementVisitor)
 
     val availableRegisters = Seq(R4, R5, R6, R7, R8)
-    val instructions = TransStatements.transStatementSequence(
-      Seq(program.right.get, program2.right.get),
-      SymbolTable.globalTable,
-      availableRegisters)
+    val instructions = TransStatements.transStatementSequence(Seq(program.right.get, program2.right.get), availableRegisters)
   }
 
 }

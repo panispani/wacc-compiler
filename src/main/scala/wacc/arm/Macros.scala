@@ -5,7 +5,7 @@ import wacc.codegeneration.{TransAssignRhs, CodeSegment, StaticCode, TransExpres
 import wacc.constructs._
 
 object Macros {
-  def store(lhs: AssignTarget, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
+  def store(lhs: AssignTarget, registers: Seq[Register]): Seq[Instruction] = {
     lhs match {
       case VariableReference(name, vartype, offset) => {
         lhs.vartype match {
@@ -30,7 +30,7 @@ object Macros {
         }
       }
       case pe @ PairElement(selector, variableReference: Expression, elemType) => {
-        val instruction = TransAssignRhs.getPairElementPointer(pe, symbolTable, registers.tail)
+        val instruction = TransAssignRhs.getPairElementPointer(pe, registers.tail)
         val store = pe.vartype match {
           case Character | Boolean => STRB(registers.head, RegisterAddress(registers(1)))
           case default => STR(registers.head, RegisterAddress(registers(1)))

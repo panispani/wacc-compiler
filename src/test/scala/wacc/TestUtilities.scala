@@ -18,7 +18,7 @@ object TestUtilities {
   }
 
   def translateWithoutSections(statement: ScopeStatement): Seq[Instruction] = {
-    TransStatements.transStatement(statement, statement.symbolTable, Registers.expressionRegs)
+    TransStatements.transStatement(statement, Registers.expressionRegs)
   }
 
   def buildProgram(inputString: String) = {

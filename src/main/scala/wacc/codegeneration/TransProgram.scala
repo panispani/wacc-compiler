@@ -7,7 +7,7 @@ object TransProgram {
   def transProgram(program: Program): CodeSegment = {
     val functionInstructions = program.functions map (s => TransFunctions.transFunction (s, Registers.expressionRegs))
     val mainInstructions     = program.main.statements map (
-      s => TransStatements.transStatement(s, program.main.symbolTable, Registers.expressionRegs))
+      s => TransStatements.transStatement(s, Registers.expressionRegs))
 
     val (beginFrame, endFrame) = Macros.frame(program.main.symbolTable.sizeInBytes, isBranch = true)
     val data = StaticCode.staticData.extend(LabelTable.outputLabels)

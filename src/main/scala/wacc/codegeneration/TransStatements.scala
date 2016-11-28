@@ -1,6 +1,5 @@
 package wacc.codegeneration
 
-import wacc.{SymbolTable, VariableReference}
 import wacc.arm._
 import wacc.constructs._
 
@@ -9,14 +8,12 @@ import wacc.constructs._
   */
 object TransStatements {
 
-  def transStatement(statement: Statement, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
-    statement.transStatement(symbolTable, registers).instructions
+  def transStatement(statement: Statement, registers: Seq[Register]): Seq[Instruction] = {
+    statement.transStatement(registers).instructions
   }
 
-  def transStatementSequence(seq: Seq[Statement], symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
-    val instructions = for {
-      stmt <- seq
-    } yield transStatement(stmt, symbolTable, registers)
+  def transStatementSequence(seq: Seq[Statement], registers: Seq[Register]): Seq[Instruction] = {
+    val instructions = seq.map(transStatement(_, registers))
 
     CodeSegment()
       .extend(instructions.flatten)
