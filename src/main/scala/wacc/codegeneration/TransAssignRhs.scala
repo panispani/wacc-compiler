@@ -1,7 +1,8 @@
 package wacc.codegeneration
 
-import wacc.{SymbolTable, VariableReference}
+import wacc.SymbolTable
 import wacc.arm._
+import wacc.codegeneration.predefined.StaticCode
 import wacc.constructs._
 
 /**
@@ -26,7 +27,7 @@ object TransAssignRhs {
     CodeSegment()
       .extend(TransExpressions.transExpression(pe.expression, symbolTable, registers)) // Translate expression inside selector
       .extend(MOV(R0, registers.head))                                                 // Check if address is null
-      .extend(BL(StaticCode.checkNullPointerFunctionLabel))                            // Check if address is null
+      .extend(BL(StaticCode.getStaticFunction(StaticCode.checkNullPointer)))           // Check if address is null
       .extend(LDR(registers.head, RegisterAddress(registers.head, pe.selector match {
       case FirstSelector => 0   // Access the left element of the pair (which is a pointer)
       case SecondSelector => 4  // Access the right element of the pair (which is a pointer)

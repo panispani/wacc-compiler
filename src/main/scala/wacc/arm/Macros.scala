@@ -1,7 +1,8 @@
 package wacc.arm
 
+import wacc.codegeneration.predefined.StaticCode
 import wacc.{SymbolTable, VariableReference}
-import wacc.codegeneration.{TransAssignRhs, CodeSegment, StaticCode, TransExpressions}
+import wacc.codegeneration.{CodeSegment, TransAssignRhs, TransExpressions}
 import wacc.constructs._
 
 object Macros {
@@ -57,7 +58,7 @@ object Macros {
         ADD(R1, FP, ImmOperand(array.offset)),   // Put the start of the array in the first register
         LDR(R1, RegisterAddress(R1, 0)),   //Load size of array in first register
         MOV(R0, registers.head),
-        BL(StaticCode.checkArrayBoundsLabel)
+        BL(StaticCode.getStaticFunction(StaticCode.checkArrayBounds))
       ))
   }
 

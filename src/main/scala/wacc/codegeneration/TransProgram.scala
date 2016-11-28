@@ -1,6 +1,7 @@
 package wacc.codegeneration
 
 import wacc.arm._
+import wacc.codegeneration.predefined.StaticCode
 import wacc.constructs.Program
 
 object TransProgram {
@@ -11,9 +12,10 @@ object TransProgram {
 
     val (beginFrame, endFrame) = Macros.frame(program.main.symbolTable.sizeInBytes, isBranch = true)
     val data = StaticCode.staticData.extend(LabelTable.outputLabels)
+
     val text = CodeSegment()
                   .extend(COMMENT("Static code"))
-                  .extend(StaticCode.staticFunctions)
+                  .extend(StaticCode.outputFunctions)
 
                   .extend(COMMENT("Function definitions"))
                   .extend(functionInstructions.flatten)

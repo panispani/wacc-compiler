@@ -1,7 +1,8 @@
 package wacc.constructs
 
 import wacc.arm._
-import wacc.codegeneration.{CodeSegment, StaticCode}
+import wacc.codegeneration.CodeSegment
+import wacc.codegeneration.predefined.StaticCode
 
 /**
   * Created by panayiotis on 08/11/16.
@@ -41,8 +42,8 @@ object DivBinOp extends BinaryOperator("/") {
   = CodeSegment(
     MOV(R0, dest),
     MOV(R1, operand),
-    BL(StaticCode.checkDivideByZeroLabel),
-    BL(StaticCode.divisionLabel),
+    BL(StaticCode.getStaticFunction(StaticCode.checkDivideByZero)),
+    BL(Label("__aeabi_idiv")),
     MOV(dest, R0)
   )
 }
@@ -51,8 +52,8 @@ object ModBinOp extends BinaryOperator("%") {
   = CodeSegment(
     MOV(R0, dest),
     MOV(R1, operand),
-    BL(StaticCode.checkDivideByZeroLabel),
-    BL(StaticCode.moduleLabel),
+    BL(StaticCode.getStaticFunction(StaticCode.checkDivideByZero)),
+    BL(Label("__aeabi_idiv")),
     MOV(dest, R1)
   )
 }

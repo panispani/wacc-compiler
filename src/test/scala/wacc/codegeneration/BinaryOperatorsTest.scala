@@ -1,6 +1,7 @@
 package wacc.codegeneration
 
 import wacc.arm._
+import wacc.codegeneration.predefined.StaticCode
 import wacc.visitors.StatementVisitor
 import wacc.{SymbolTable, TestUtilities}
 
