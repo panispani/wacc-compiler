@@ -51,7 +51,7 @@ class AssignTest extends VisitorTest {
           )
         ),
         AssignStatement(
-          ArrayElement("x", List(IntegerLiteral(0)), Integer),
+          ArrayElement(VariableReference("x", ArrayType(Integer), -4), List(IntegerLiteral(0)), Integer),
           IntegerLiteral(10)
         )
       )

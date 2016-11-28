@@ -10,7 +10,7 @@ class LiteralExpressionTest extends CodeGenTest {
 
   "The value of an expression consisting of integer" should "be stored in the first available register" in {
     val availableRegisters = Seq(R4, R5, R6)
-    val instructions = TransExpressions.transExpression(IntegerLiteral(1), SymbolTable.globalTable, availableRegisters)
+    val instructions = TransExpressions.transExpression(IntegerLiteral(1), availableRegisters)
 
     instructions.size should be (1)
     instructions.head should be (LDR(R4, Const(1)))
@@ -18,7 +18,7 @@ class LiteralExpressionTest extends CodeGenTest {
 
   "The value of an expression consisting of pair literal" should "be stored in the first available register" in {
     val availableRegisters = Seq(R4, R5, R6)
-    val instructions = TransExpressions.transExpression(PairLiteral(), SymbolTable.globalTable, availableRegisters)
+    val instructions = TransExpressions.transExpression(PairLiteral(), availableRegisters)
 
     instructions.size should be (1)
     instructions.head should be (LDR(R4, Const(0)))

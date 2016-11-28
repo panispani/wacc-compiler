@@ -13,20 +13,19 @@ object Macros {
           case default             => Seq(STR(registers.head, RegisterAddress(FP, offset)))
         }
       }
-      case ArrayElement(name, index, elemtype) => {
-        val variableReference = symbolTable.lookupDeep(name).get
+      case ArrayElement(reference, index, elemtype) => {
 
         registers match {
           case (src +: reg1 +: reg2 +: regs) => {
-            val check = Macros.checkArrayBounds(variableReference, index.head, symbolTable, reg1 +: reg2 +: regs).instructions
+            val check = Macros.checkArrayBounds(reference, index.head, reg1 +: reg2 +: regs).instructions
             //reg1 is now going to contain the value of the index expression
 
             val store = elemtype match {
-              case Character | Boolean => STRB(src, RegisterAddress(reg1, 0))
-              case default => STR(src, RegisterAddress(reg1, 0))
+              case Character | Boolean => STRB(src, RegisterAddress(reg1))
+              case _ => STR(src, RegisterAddress(reg1))
             }
 
-            check ++ Macros.getArrayElemAddress(variableReference, symbolTable, reg1 +: reg2 +: regs, elemtype).instructions ++ Seq(store)
+            check ++ Macros.getArrayElemAddress(reference, reg1 +: reg2 +: regs, elemtype).instructions ++ Seq(store)
           }
         }
       }
@@ -49,10 +48,9 @@ object Macros {
     }
   }
 
-  def checkArrayBounds(array: VariableReference, index: Expression,
-                       symbolTable: SymbolTable, registers: Seq[Register]): CodeSegment = {
+  def checkArrayBounds(array: VariableReference, index: Expression, registers: Seq[Register]): CodeSegment = {
     CodeSegment()
-      .extend(TransExpressions.transExpression(index, symbolTable, registers))
+      .extend(TransExpressions.transExpression(index, registers))
       .extend(Seq(
         ADD(R1, FP, ImmOperand(array.offset)),   // Put the start of the array in the first register
         LDR(R1, RegisterAddress(R1, 0)),   //Load size of array in first register
@@ -61,8 +59,7 @@ object Macros {
       ))
   }
 
-  def getArrayElemAddress(array: VariableReference,
-                       symbolTable: SymbolTable, registers: Seq[Register], elemType: Type): CodeSegment = {
+  def getArrayElemAddress(array: VariableReference, registers: Seq[Register], elemType: Type): CodeSegment = {
     registers match {
       case (reg1 +: reg2 +: regs) => {
         CodeSegment()

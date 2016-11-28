@@ -13,7 +13,7 @@ case class ExitStatement(exitCode: Expression) extends Statement {
 
   override def transStatement(symbolTable: SymbolTable, registers: Seq[Register]): CodeSegment = {
     CodeSegment()
-      .extend(TransExpressions.transExpression(exitCode, symbolTable, registers))
+      .extend(TransExpressions.transExpression(exitCode, registers))
       .extend(MOV(R0, registers.head))
       .extend(BL(Label("exit")))
   }
@@ -24,7 +24,7 @@ case class ReturnStatement(returnValue: Expression) extends Statement {
   override def transStatement(symbolTable: SymbolTable, registers: Seq[Register]): CodeSegment = {
 
     CodeSegment()
-      .extend(TransExpressions.transExpression(returnValue, symbolTable, registers))
+      .extend(TransExpressions.transExpression(returnValue, registers))
       .extend(MOV(R0, registers.head))
 
   }
@@ -45,7 +45,7 @@ abstract class AbstractPrintStatement extends Statement {
     }
 
     CodeSegment()
-      .extend(TransExpressions.transExpression(expression, symbolTable, registers)) // eval expression to print
+      .extend(TransExpressions.transExpression(expression, registers)) // eval expression to print
       .extend(MOV(R0, registers.head)) // setup function call
       .extend(BL(printLabel))
   }
@@ -102,13 +102,11 @@ case class ReadStatement(target: AssignTarget) extends Statement {
     val instructions: CodeSegment = target match {
       case vr: VariableReference => CodeSegment().extend(ADD(registers.head, FP, ImmOperand(vr.offset)))
       case pe: PairElement       => CodeSegment().extend(TransAssignRhs.getPairElementPointer(pe, symbolTable, registers))
-      case ae: ArrayElement      => {
-        //TODO: This should already be in the ArrayElement construct instead of identifier
-        val vr: VariableReference = symbolTable.lookupDeep(ae.identifier).get
+      case ae @ ArrayElement(vr, _, _) => {
         //TODO: This assumes a single index (not nested arrays)
-        CodeSegment().extend(TransExpressions.transExpression(ae.index.head, symbolTable, registers))
+        CodeSegment().extend(TransExpressions.transExpression(ae.index.head, registers))
           .extend(MOV(R0, registers.head))
-          .extend(Macros.getArrayElemAddress(vr, symbolTable, registers, target.vartype))
+          .extend(Macros.getArrayElemAddress(vr, registers, target.vartype))
       }
     }
 
@@ -139,7 +137,7 @@ case class ConditionalStatement(expression: Expression, trueStatements: ScopeSta
 
     //stack allocation is not done TODO- experimental
     CodeSegment()
-      .extend(TransExpressions.transExpression(expression, symbolTable, registers))
+      .extend(TransExpressions.transExpression(expression, registers))
       .extend(CMP(registers.head, ImmOperand(1)))
       .extend(B(L0, EQ))
       .extend(falseStatements.transStatement(falseStatements.symbolTable, registers))
@@ -174,7 +172,7 @@ case class LoopStatement(condition: Expression, statements: Seq[Statement], symb
       .extend(DefineLabel(L1))
       .extend(TransStatements.transStatementSequence(statements, this.symbolTable, registers))
       .extend(DefineLabel(L0))
-      .extend(TransExpressions.transExpression(condition, symbolTable, registers))
+      .extend(TransExpressions.transExpression(condition, registers))
       .extend(CMP(registers.head, ImmOperand(1)))
       .extend(B(L1, EQ))
       .extend(endFrame)
