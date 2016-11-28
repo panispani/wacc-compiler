@@ -4,6 +4,7 @@ import wacc.arm.{Label, R0}
 import wacc.codegeneration._
 import wacc.arm._
 import wacc.codegeneration.predefined.StaticCode
+import wacc.codegeneration.predefined.std.StandardLibrary
 import wacc.{SymbolTable, VariableReference}
 
 abstract class Statement {
@@ -35,13 +36,13 @@ abstract class AbstractPrintStatement extends Statement {
 
   def transStatement(symbolTable: SymbolTable, registers: Seq[Register]): CodeSegment = {
     val printLabel: Label = expression.vartype match {
-      case Integer        => StaticCode.getStaticFunction(StaticCode.printInt)
-      case Character      => StaticCode.getStaticFunction(StaticCode.printChar)
-      case Boolean        => StaticCode.getStaticFunction(StaticCode.printBool)
-      case String         => StaticCode.getStaticFunction(StaticCode.printString)
-      case ArrayType(_)   => StaticCode.getStaticFunction(StaticCode.printReference)
-      case PairType(_, _) => StaticCode.getStaticFunction(StaticCode.printReference)
-      case _              => StaticCode.getStaticFunction(StaticCode.printString)
+      case Integer        => StaticCode.getStaticFunction(StandardLibrary.printInt)
+      case Character      => StaticCode.getStaticFunction(StandardLibrary.printChar)
+      case Boolean        => StaticCode.getStaticFunction(StandardLibrary.printBool)
+      case String         => StaticCode.getStaticFunction(StandardLibrary.printString)
+      case ArrayType(_)   => StaticCode.getStaticFunction(StandardLibrary.printReference)
+      case PairType(_, _) => StaticCode.getStaticFunction(StandardLibrary.printReference)
+      case _              => StaticCode.getStaticFunction(StandardLibrary.printString)
     }
 
     CodeSegment()
@@ -56,7 +57,7 @@ case class PrintLnStatement(expression: Expression) extends AbstractPrintStateme
 
   override def transStatement(symbolTable: SymbolTable, registers: Seq[Register]): CodeSegment = {
       super.transStatement(symbolTable, registers)
-        .extend(BL(StaticCode.getStaticFunction(StaticCode.printLn)))
+        .extend(BL(StaticCode.getStaticFunction(StandardLibrary.printLn)))
   }
 }
 
@@ -77,7 +78,7 @@ case class FreeStatement(expression: Expression) extends Statement {
         CodeSegment()
           .extend(LDR(registers.head, RegisterAddress(FP, offset)))
           .extend(MOV(R0, registers.head))
-          .extend(BL(StaticCode.getStaticFunction(StaticCode.freePair)))
+          .extend(BL(StaticCode.getStaticFunction(StandardLibrary.freePair)))
       }
     }
   }
@@ -114,8 +115,8 @@ case class ReadStatement(target: AssignTarget) extends Statement {
     }
 
     val readLabel: Label = target.vartype match {
-      case Integer   => StaticCode.getStaticFunction(StaticCode.readInt)
-      case Character => StaticCode.getStaticFunction(StaticCode.readChar)
+      case Integer   => StaticCode.getStaticFunction(StandardLibrary.readInt)
+      case Character => StaticCode.getStaticFunction(StandardLibrary.readChar)
     }
 
     CodeSegment()

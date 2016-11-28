@@ -3,6 +3,7 @@ package wacc.constructs
 import wacc.arm._
 import wacc.codegeneration.CodeSegment
 import wacc.codegeneration.predefined.StaticCode
+import wacc.codegeneration.predefined.std.StandardLibrary
 
 /**
   * Created by panayiotis on 08/11/16.
@@ -37,7 +38,7 @@ object TimesBinOp extends BinaryOperator("*") {
   override def translate(dest: Register, operand: Register): CodeSegment
   = CodeSegment(SMULL(dest, operand, dest, operand),
     CMPSHIFT(operand, dest, ASR(31)),
-    BL(StaticCode.getStaticFunction(StaticCode.throwOverflowError), NE))
+    BL(StaticCode.getStaticFunction(StandardLibrary.throwOverflowError), NE))
 }
 
 object DivBinOp extends BinaryOperator("/") {
@@ -45,7 +46,7 @@ object DivBinOp extends BinaryOperator("/") {
   = CodeSegment(
     MOV(R0, dest),
     MOV(R1, operand),
-    BL(StaticCode.getStaticFunction(StaticCode.div)),
+    BL(StaticCode.getStaticFunction(StandardLibrary.div)),
     MOV(dest, R0)
   )
 }
@@ -54,7 +55,7 @@ object ModBinOp extends BinaryOperator("%") {
   = CodeSegment(
     MOV(R0, dest),
     MOV(R1, operand),
-    BL(StaticCode.getStaticFunction(StaticCode.mod)),
+    BL(StaticCode.getStaticFunction(StandardLibrary.mod)),
     MOV(dest, R1)
   )
 }
@@ -62,14 +63,14 @@ object PlusBinOp extends BinaryOperator("+") {
   override def translate(dest: Register, operand: Register): CodeSegment
   = CodeSegment(
     ADDS(dest, dest, operand),
-    BL(StaticCode.getStaticFunction(StaticCode.throwOverflowError), VS))
+    BL(StaticCode.getStaticFunction(StandardLibrary.throwOverflowError), VS))
 }
 
 object MinusBinOp extends BinaryOperator("-") {
   override def translate(dest: Register, operand: Register): CodeSegment
   = CodeSegment(
     SUBS(dest, dest, operand),
-    BL(StaticCode.getStaticFunction(StaticCode.throwOverflowError), VS))
+    BL(StaticCode.getStaticFunction(StandardLibrary.throwOverflowError), VS))
 }
 
 /* Booleans */

@@ -2,6 +2,7 @@ package wacc.codegeneration
 
 import wacc.arm._
 import wacc.codegeneration.predefined.StaticCode
+import wacc.codegeneration.predefined.std.StandardLibrary
 import wacc.visitors.StatementVisitor
 import wacc.{SymbolTable, TestUtilities}
 
@@ -18,7 +19,7 @@ class BinaryOperatorsTest extends CodeGenTest {
     //instruction(1) is not up to division
     instructions(2) shouldBe MOV(R0, registers.head)
     instructions(3) shouldBe MOV(R1, registers(1))
-    instructions(4) shouldBe BL(StaticCode.getStaticFunction(StaticCode.div))
+    instructions(4) shouldBe BL(StaticCode.getStaticFunction(StandardLibrary.div))
     instructions(5) shouldBe MOV(registers.head, R0)
     //instruction(6) is up to declaration
     //instruction(7) is up to declaration
@@ -35,7 +36,7 @@ class BinaryOperatorsTest extends CodeGenTest {
     //instruction(1) is not up to module
     instructions(2) shouldBe MOV(R0, registers.head)
     instructions(3) shouldBe MOV(R1, registers(1))
-    instructions(4) shouldBe BL(StaticCode.getStaticFunction(StaticCode.mod))
+    instructions(4) shouldBe BL(StaticCode.getStaticFunction(StandardLibrary.mod))
     instructions(5) shouldBe MOV(registers.head, R1)
     //instruction(6) is up to declaration
     //instruction(7) is up to declaration
