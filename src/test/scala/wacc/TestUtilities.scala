@@ -40,7 +40,7 @@ object TestUtilities {
     parser
   }
 
-  def buildSubProgram[T](rule: () => ParserRuleContext, visitor: WACCParserBaseVisitor[T]) = {
+  def buildSubProgram[T](rule: () => ParserRuleContext, visitor: WACCParserBaseVisitor[T]): T = {
     val tree = rule()
     val program = visitor.visit(tree)
 
