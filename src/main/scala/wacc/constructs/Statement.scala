@@ -26,7 +26,10 @@ case class ReturnStatement(returnValue: Expression) extends Statement {
     CodeSegment()
       .extend(TransExpressions.transExpression(returnValue, registers))
       .extend(MOV(R0, registers.head))
-
+      .extend(MOV(SP, FSP))
+      .extend(POP(Seq(FSP)))
+      .extend(POP(Seq(FP)))
+      .extend(POP(Seq(PC)))
   }
 }
 

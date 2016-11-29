@@ -119,7 +119,7 @@ object SymbolTable {
       * */
     currentTable = SymbolTable(None)
     functionsTable += function.name -> FunctionTable(function, currentTable)
-    currentTable.currentOffset = 8 // over PC and FP for computing offsets to arguments
+    currentTable.currentOffset = 12 // over PC and FP, FSP for computing offsets to arguments
   }
 
   // A helper that must be called in order to close the scope for a function table
