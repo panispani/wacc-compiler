@@ -165,7 +165,8 @@ case class LoopStatement(condition: Expression, statements: Seq[Statement], symb
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     val L0 = Label()
     val L1 = Label()
-    val (beginFrame, endFrame) = Macros.frame(symbolTable.sizeInBytes)
+
+    val (beginFrame, endFrame) = Macros.frame(this.symbolTable.sizeInBytes)
 
     beginFrame
       .extend(B(L0))
