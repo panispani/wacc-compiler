@@ -47,17 +47,10 @@ object TransExpressions {
 
       case ArrayElement(variableReference, index, elemtype) => {
 
-        var instructions: Seq[Instruction] = Seq(ADD(reg1, FP, ImmOperand(variableReference.offset)))
-
-        for (ind <- index) {
-          val res = TransExpressions.transExpression(ind, reg2 +: regs) ++
-          Macros.checkAndGetArrayElemAddress(reg1 +: reg2 +: regs, elemtype).instructions //++
-          //Seq(LDR(reg1, RegisterAddress(reg1, 0)))
-
-          instructions = instructions ++ res
-        }
-
-        instructions ++ Seq(LDR(reg1, RegisterAddress(reg1, 0)))
+        CodeSegment(ADD(reg1, FP, ImmOperand(variableReference.offset)))
+          .extend(Macros.getNestedElementAddress(index, reg1 +: reg2 +: regs))
+          .extend(LDR(reg1, RegisterAddress(reg1, 0)))
+          .instructions
       }
 
       case VariableReference(name, vartype, offset) => Seq(Macros.load(reg1, offset, vartype))

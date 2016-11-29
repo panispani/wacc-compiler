@@ -21,25 +21,14 @@ object Macros {
               case Character | Boolean => STRB(src, RegisterAddress(reg1))
               case _ => STR(src, RegisterAddress(reg1))
             }
-//            Seq(ADD(reg1, FP, ImmOperand(variableReference.offset))) ++
-//            TransExpressions.transExpression(index.head, symbolTable, reg2 +: regs) ++
-//            Macros.checkAndGetArrayElemAddress(symbolTable, reg1 +: reg2 +: regs, elemtype).instructions ++ Seq(store)
 
-            var instructions: Seq[Instruction] = Seq(ADD(reg1, FP, ImmOperand(reference.offset)))
-
-            for (ind <- index) {
-              val res = TransExpressions.transExpression(ind, reg2 +: regs) ++
-                Macros.checkAndGetArrayElemAddress(reg1 +: reg2 +: regs, elemtype).instructions //++
-                //Seq(LDR(reg1, RegisterAddress(reg1, 0)))
-
-              instructions = instructions ++ res
-            }
-
-            instructions ++ Seq(store)
+            CodeSegment(ADD(reg1, FP, ImmOperand(reference.offset)))
+              .extend(getNestedElementAddress(index, registers))
+              .extend(store)
+              .instructions
           }
 
         }
-
 
       }
       case pe @ PairElement(selector, variableReference: Expression, elemType) => {
@@ -51,35 +40,28 @@ object Macros {
 
         instruction.extend(store).instructions
 
-//        LDR r4, =1
-//        18		LDR r5, [sp]
-//        19		MOV r0, r5
-//        20		BL p_check_null_pointer
-//        21		LDR r5, [r5]
-//        22		STR r4, [r5]
       }
     }
   }
 
-  //Assume registers(head) contain index
-  def getArrayElemAddress(array: VariableReference, registers: Seq[Register], elemType: Type): CodeSegment = {
-    registers match {
-      case (reg1 +: reg2 +: regs) => {
-        CodeSegment()
-          .extend (Seq(
-            LDR (reg2, RegisterAddress (FP, array.offset) ), // Put the start of the array in the second register
-            LDR (regs.head, Const(elemType.size)), //Put size of one element in third register
-            MUL (reg1, reg1, regs.head), //Put elemSize * index in first register
-            ADD (reg1, reg1, reg2),
-            LDR (reg2, Const(4)),
-            ADD (reg1, reg1, reg2)
-          ))
-      }
+  //Assume start of array in reg1
+  def getNestedElementAddress(indexes: Seq[Expression], registers: Seq[Register]): CodeSegment = {
+    val reg1 +: reg2 +: regs = registers
+
+    var instruction = CodeSegment()
+
+    for (ind <- indexes) {
+      val res = TransExpressions.transExpression(ind, reg2 +: regs) ++
+        Macros.checkAndGetArrayElemAddress(reg1 +: reg2 +: regs).instructions
+
+      instruction = instruction.extend(res)
     }
+
+    instruction
   }
 
   //Assume start of array in reg1 and index in reg2
-  def checkAndGetArrayElemAddress(registers: Seq[Register], elemType: Type): CodeSegment = {
+  private def checkAndGetArrayElemAddress(registers: Seq[Register]): CodeSegment = {
     registers match {
       case (reg1 +: reg2 +: regs) => {
         CodeSegment()
