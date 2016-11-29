@@ -100,12 +100,11 @@ object Macros {
     * so that the LR and PC are handled appropriately
     * */
   //    * TODO: make functionally
-  def frame(size: Int, isBranch: Boolean = false): (CodeSegment, CodeSegment) = {
+  def frame(size: Int): (CodeSegment, CodeSegment) = {
     val MAX_SIZE = 1024
 
     var start = CodeSegment()
 
-    if (isBranch) start = start.extend(PUSH(Seq(LR)))
     start = start.extend(Seq(PUSH(Seq(FP)), MOV(FP, SP)))
 
     var end = CodeSegment()
@@ -115,15 +114,12 @@ object Macros {
     val remainder = size % MAX_SIZE
 
     for (i <- 1 to blocks) {
-      //start = start.append(SUB(SP, SP, ImmOperand(MAX_SIZE)))
       end = end.extend(ADD(SP, SP, ImmOperand(MAX_SIZE)))
     }
 
-    //start = start.append(SUB(SP, SP, ImmOperand(remainder)))
     end = end.extend(ADD(SP, SP, ImmOperand(remainder)))
              .extend(POP(Seq(FP)))
 
-    //if (isBranch) end = end.extend(POP(Seq(PC)))
     (start, end)
   }
 }

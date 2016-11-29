@@ -5,9 +5,10 @@ import wacc.constructs._
 
 object TransFunctions {
   def transFunction(function: Function, registers: Seq[Register]): Seq[Instruction] = {
-    val (beginFrame, endFrame) = Macros.frame(function.symbolTable.sizeInBytes, isBranch = true)
+    val (beginFrame, endFrame) = Macros.frame(function.symbolTable.sizeInBytes)
     CodeSegment()
       .extend(DefineLabel(Label(function.identifier)))
+      .extend(PUSH(Seq(LR)))
       .extend(beginFrame)
       .extend(PUSH(Seq(FSP)))
       .extend(MOV(FP,SP))
