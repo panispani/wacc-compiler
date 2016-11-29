@@ -25,7 +25,7 @@ object Macros {
         }
 
         CodeSegment(ADD(reg1, FP, ImmOperand(reference.offset)))
-          .extend(getNestedElementAddress(index, reg1 +: regs))
+          .extend(getNestedElementAddress(index, reg1 +: regs, elemtype.size))
           .extend(store)
           .instructions
       }
@@ -44,18 +44,18 @@ object Macros {
   }
 
   //Assume start of array in reg1
-  def getNestedElementAddress(indexes: Seq[Expression], registers: Seq[Register]): CodeSegment = {
+  def getNestedElementAddress(indexes: Seq[Expression], registers: Seq[Register], elemSize: Int): CodeSegment = {
     val reg1 +: reg2 +: regs = registers
 
     indexes.foldLeft(CodeSegment()) ((accumulator, index) => {
       accumulator
         .extend(TransExpressions.transExpression(index, reg2 +: regs))
-        .extend(Macros.checkAndGetArrayElemAddress(reg1 +: reg2 +: regs))
+        .extend(Macros.checkAndGetArrayElemAddress(reg1 +: reg2 +: regs, elemSize))
     })
   }
 
   //Assume start of array in reg1 and index in reg2
-  private def checkAndGetArrayElemAddress(registers: Seq[Register]): CodeSegment = {
+  private def checkAndGetArrayElemAddress(registers: Seq[Register], elemSize: Int): CodeSegment = {
     val reg1 +: reg2 +: regs = registers
 
     CodeSegment()
@@ -65,7 +65,7 @@ object Macros {
         MOV(R0, reg2),                       // Load index in R0
         BL(StaticCode.checkArrayBoundsLabel),
         ADD(reg1, reg1, ImmOperand(4)),      // Store in reg1 the value startOfArray + 4 (4 indicates the space used to store the size of the array)
-        LDR(regs.head, Const(4)),            // Store in regs.head the value elemSize
+        LDR(regs.head, Const(elemSize)),     // Store in regs.head the value elemSize
         MUL(reg2, reg2, regs.head),          // Store in reg2 the value index * elemSize
         ADD(reg1, reg1, reg2)                // Store in reg1 the value startOfArray + 4 + index * elemSize TODO: this will work when all types ar 4 bytes
       ))

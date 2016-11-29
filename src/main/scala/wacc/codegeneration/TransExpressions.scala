@@ -45,10 +45,10 @@ object TransExpressions {
       case UnaryOperatorExpr(op, e) =>
         transExpression(e, reg1 +: reg2 +: regs) ++ op.translate(reg1).instructions
 
-      case ArrayElement(variableReference, index, elemtype) => {
+      case ArrayElement(variableReference, index, elemType) => {
 
         CodeSegment(ADD(reg1, FP, ImmOperand(variableReference.offset)))
-          .extend(Macros.getNestedElementAddress(index, reg1 +: reg2 +: regs))
+          .extend(Macros.getNestedElementAddress(index, reg1 +: reg2 +: regs, elemType.size))
           .extend(LDR(reg1, RegisterAddress(reg1, 0)))
           .instructions
       }

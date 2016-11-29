@@ -105,9 +105,9 @@ case class ReadStatement(target: AssignTarget) extends Statement {
     val instructions: CodeSegment = target match {
       case vr: VariableReference => CodeSegment().extend(ADD(registers.head, FP, ImmOperand(vr.offset)))
       case pe: PairElement       => CodeSegment().extend(TransAssignRhs.getPairElementPointer(pe, registers))
-      case ae @ ArrayElement(vr, indexes, vartype) => {
+      case ae @ ArrayElement(vr, indexes, elemType) => {
         CodeSegment(ADD(registers.head, FP, ImmOperand(vr.offset)))
-          .extend(Macros.getNestedElementAddress(indexes, registers))
+          .extend(Macros.getNestedElementAddress(indexes, registers, elemType.size))
       }
     }
 
