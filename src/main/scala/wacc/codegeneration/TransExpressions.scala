@@ -1,6 +1,6 @@
 package wacc.codegeneration
 
-import wacc.{SymbolTable, VariableReference}
+import wacc.VariableReference
 import wacc.arm._
 import wacc.constructs._
 
@@ -34,12 +34,12 @@ object TransExpressions {
           // e1 first
           val evalExpr = transExpression(e1, reg1 +: reg2 +: regs) ++
             transExpression(e2, reg2 +: regs)
-          evalExpr ++ TransBinaryOperators.transBinaryOperator(reg1, binOp, reg2)
+          evalExpr ++ binOp.translate(reg1, reg2).instructions
         } else {
           // e2 first
           val evalExpr = TransExpressions.transExpression(e2, reg2 +: reg1 +: regs) ++
             TransExpressions.transExpression(e1, reg1 +: regs)
-          evalExpr ++ TransBinaryOperators.transBinaryOperator(reg1, binOp, reg2)
+          evalExpr ++ binOp.translate(reg1, reg2).instructions
         }
 
       case UnaryOperatorExpr(op, e) =>
