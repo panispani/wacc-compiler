@@ -62,23 +62,17 @@ object Macros {
 
   //Assume start of array in reg1 and index in reg2
   private def checkAndGetArrayElemAddress(registers: Seq[Register]): CodeSegment = {
-    registers match {
-      case (reg1 +: reg2 +: regs) => {
-        CodeSegment()
-          //.extend(TransExpressions.transExpression(index, symbolTable, reg2 +: regs))
-          .extend(Seq(
-           // ADD(reg1, FP, ImmOperand(array.offset)),   // To fullfill assumption
-            LDR(reg1, RegisterAddress(reg1, 0)),   //Load size of array in R1
-            MOV(R1, reg1),
-            MOV(R0, reg2),                       //Load index in R0
-            BL(StaticCode.checkArrayBoundsLabel)
-          ))
-          .extend (Seq(
-            ADD (reg1, reg1, ImmOperand(4)),
-            ADDLSL(reg1, reg1, reg2, LSL(2)) // TODO: this will work when all types ar 4 bytes
-          ))
-      }
-    }
+    val reg1 +: reg2 +: regs = registers
+
+    CodeSegment()
+      .extend(Seq(
+        LDR(reg1, RegisterAddress(reg1, 0)),   //Load size of array in R1
+        MOV(R1, reg1),
+        MOV(R0, reg2),                       //Load index in R0
+        BL(StaticCode.checkArrayBoundsLabel),
+        ADD (reg1, reg1, ImmOperand(4)),
+        ADDLSL(reg1, reg1, reg2, LSL(2)) // TODO: this will work when all types ar 4 bytes
+      ))
   }
 
   def load(reg1: Register, offset: Int, vartype: Type): Instruction = vartype match {
