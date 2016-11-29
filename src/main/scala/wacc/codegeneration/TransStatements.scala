@@ -208,12 +208,13 @@ object TransStatements {
   def transPrintLnStatement(print: PrintLnStatement,
                             symbolTable: SymbolTable,
                             registers: Seq[Register]): Seq[Instruction] = {
+
     val printLabel: Label = print.expression.vartype match {
       case Integer   => StaticCode.printIntLabel
       case Character => StaticCode.printCharLabel
       case Boolean   => StaticCode.printBoolLabel
       case String    => StaticCode.printFunctionLabel
-      case ArrayType(_) => StaticCode.printReferenceFunctionLabel
+      case ArrayType(elemtype) => StaticCode.printReferenceFunctionLabel
       case PairType(_, _) => StaticCode.printReferenceFunctionLabel
       case _         => StaticCode.printFunctionLabel
     }

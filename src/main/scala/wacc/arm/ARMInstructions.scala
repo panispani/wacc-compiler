@@ -38,6 +38,10 @@ abstract class TwoRegOneOpInstruction extends ConditionalInstruction {
 
 case class ADD(Rd: Register, Rn: Register, Op1: Operand, cond: Condition = ALWAYS) extends TwoRegOneOpInstruction
 
+case class ADDLSL(Rd: Register, Rn: Register, Rm: Register, shift: Shift, cond: Condition = ALWAYS) extends Instruction {
+  override def toString = s"ADD $Rd, $Rn, $Rm, ${shift.toString}"
+}
+
 case class ADDS(Rd: Register, Rn: Register, Op1: Operand, cond: Condition = ALWAYS) extends TwoRegOneOpInstruction
 
 case class SUB(Rd: Register, Rn: Register, Op1: Operand, cond: Condition = ALWAYS) extends TwoRegOneOpInstruction
@@ -88,6 +92,8 @@ abstract class Shift() {
 }
 
 case class ASR(value: Int) extends Shift
+
+case class LSL(value: Int) extends Shift
 
 abstract class ThreeRegNoOpInstruction extends ConditionalInstruction {
   val Rd: Register

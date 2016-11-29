@@ -22,21 +22,21 @@ object Macros {
               case Character | Boolean => STRB(src, RegisterAddress(reg1, 0))
               case default => STR(src, RegisterAddress(reg1, 0))
             }
-            Seq(ADD(reg1, FP, ImmOperand(variableReference.offset))) ++
-            TransExpressions.transExpression(index.head, symbolTable, reg2 +: regs) ++
-            Macros.checkAndGetArrayElemAddress(symbolTable, reg1 +: reg2 +: regs, elemtype).instructions ++ Seq(store)
+//            Seq(ADD(reg1, FP, ImmOperand(variableReference.offset))) ++
+//            TransExpressions.transExpression(index.head, symbolTable, reg2 +: regs) ++
+//            Macros.checkAndGetArrayElemAddress(symbolTable, reg1 +: reg2 +: regs, elemtype).instructions ++ Seq(store)
 
-//            var instructions: Seq[Instruction] = Seq(ADD(reg1, FP, ImmOperand(variableReference.offset)))
-//
-//            for (ind <- index) {
-//              val res = TransExpressions.transExpression(index.head, symbolTable, reg2 +: regs) ++
-//                Macros.checkAndGetArrayElemAddress(symbolTable, reg1 +: reg2 +: regs, elemtype).instructions ++
-//                Seq(LDR(reg1, RegisterAddress(reg1, 0)))
-//
-//              instructions = instructions ++ res
-//            }
-//
-//            instructions ++ Seq(store)
+            var instructions: Seq[Instruction] = Seq(ADD(reg1, FP, ImmOperand(variableReference.offset)))
+
+            for (ind <- index) {
+              val res = TransExpressions.transExpression(ind, symbolTable, reg2 +: regs) ++
+                Macros.checkAndGetArrayElemAddress(symbolTable, reg1 +: reg2 +: regs, elemtype).instructions //++
+                //Seq(LDR(reg1, RegisterAddress(reg1, 0)))
+
+              instructions = instructions ++ res
+            }
+
+            instructions ++ Seq(store)
           }
 
         }
@@ -101,17 +101,14 @@ object Macros {
           //.extend(TransExpressions.transExpression(index, symbolTable, reg2 +: regs))
           .extend(Seq(
            // ADD(reg1, FP, ImmOperand(array.offset)),   // To fullfill assumption
-            MOV(R1, reg1),   // Put the start of the array in the first register
-            LDR(R1, RegisterAddress(R1, 0)),   //Load size of array in R1
+            LDR(reg1, RegisterAddress(reg1, 0)),   //Load size of array in R1
+            MOV(R1, reg1),
             MOV(R0, reg2),                       //Load index in R0
             BL(StaticCode.checkArrayBoundsLabel)
           ))
           .extend (Seq(
-            LDR (regs.head, Const(elemType.size)), //Put size of one element in third register
-            MUL (reg2, reg2, regs.head), //Put index * elemSize in second register
-            ADD (reg1, reg1, reg2),     // Add start of array with index * elemSize
-            LDR (reg2, Const(4)),
-            ADD (reg1, reg1, reg2)
+            ADD (reg1, reg1, ImmOperand(4)),
+            ADDLSL(reg1, reg1, reg2, LSL(2))
           ))
       }
     }
