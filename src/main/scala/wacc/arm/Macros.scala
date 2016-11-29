@@ -47,16 +47,11 @@ object Macros {
   def getNestedElementAddress(indexes: Seq[Expression], registers: Seq[Register]): CodeSegment = {
     val reg1 +: reg2 +: regs = registers
 
-    var instruction = CodeSegment()
-
-    for (ind <- indexes) {
-      val res = TransExpressions.transExpression(ind, reg2 +: regs) ++
-        Macros.checkAndGetArrayElemAddress(reg1 +: reg2 +: regs).instructions
-
-      instruction = instruction.extend(res)
-    }
-
-    instruction
+    indexes.foldLeft(CodeSegment()) ((accumulator, index) => {
+      accumulator
+        .extend(TransExpressions.transExpression(index, reg2 +: regs))
+        .extend(Macros.checkAndGetArrayElemAddress(reg1 +: reg2 +: regs))
+    })
   }
 
   //Assume start of array in reg1 and index in reg2
