@@ -27,7 +27,7 @@ object TransProgram {
                   .extend(COMMENT("----------- /MAIN ------------"))
                   .extend(MOV(R0, ImmOperand(0)))
                   .extend(endFrame)
-                  .append(POP(Seq(PC)))
+                  .extend(POP(Seq(PC)))
 
 
     CodeSegment()
