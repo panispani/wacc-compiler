@@ -1,8 +1,10 @@
 package wacc.arm
 
 import wacc.{SymbolTable, VariableReference}
-import wacc.codegeneration.{TransAssignRhs, CodeSegment, StaticCode, TransExpressions}
+import wacc.codegeneration.{CodeSegment, StaticCode, TransAssignRhs, TransExpressions}
 import wacc.constructs._
+
+import scala.collection.+:
 
 object Macros {
   def store(lhs: AssignTarget, registers: Seq[Register]): Seq[Instruction] = {
@@ -15,22 +17,19 @@ object Macros {
       }
       case ArrayElement(reference, index, elemtype) => {
 
-        registers match {
-          case (src +: reg1 +: reg2 +: regs) => {
-            val store = elemtype match {
-              case Character | Boolean => STRB(src, RegisterAddress(reg1))
-              case _ => STR(src, RegisterAddress(reg1))
-            }
+        val src +: reg1 +: regs = registers
 
-            CodeSegment(ADD(reg1, FP, ImmOperand(reference.offset)))
-              .extend(getNestedElementAddress(index, registers))
-              .extend(store)
-              .instructions
-          }
-
+        val store = elemtype match {
+          case Character | Boolean => STRB(src, RegisterAddress(reg1))
+          case _ => STR(src, RegisterAddress(reg1))
         }
 
+        CodeSegment(ADD(reg1, FP, ImmOperand(reference.offset)))
+          .extend(getNestedElementAddress(index, reg1 +: regs))
+          .extend(store)
+          .instructions
       }
+
       case pe @ PairElement(selector, variableReference: Expression, elemType) => {
         val instruction = TransAssignRhs.getPairElementPointer(pe, registers.tail)
         val store = pe.vartype match {
