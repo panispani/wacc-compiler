@@ -11,6 +11,7 @@ object TransFunctions {
 
       .extend(beginFrame)
       .append(PUSH(Seq(FSP)))
+      .append(MOV(FP,SP))
       .append(MOV(FSP, SP))
       .extend(function.statements flatMap (s => TransStatements.transStatement(s, function.symbolTable, registers)))
       .extend(endFrame)
