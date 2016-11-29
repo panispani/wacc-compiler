@@ -21,7 +21,7 @@ class CodeSegmentTest extends CodeGenTest {
     )
 
     CodeSegment()
-      .append(instruction)
+      .extend(instruction)
       .extend(instructions)
       .instructions should be (instruction +: instructions)
   }

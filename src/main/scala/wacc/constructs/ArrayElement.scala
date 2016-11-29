@@ -1,5 +1,6 @@
 package wacc.constructs
+import wacc.VariableReference
 
-case class ArrayElement(identifier: String, index: Seq[Expression], elemtype: Type) extends Expression {
-  override val vartype = elemtype
+case class ArrayElement(array: VariableReference, index: Seq[Expression], elemtype: Type) extends Expression {
+  override val vartype: Type = elemtype
 }

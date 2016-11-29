@@ -59,11 +59,11 @@ pairConstructor : NEWPAIR LP expression1=expression COMMA expression2=expression
 pairElement     : selector=FST expression | selector=SND expression ;
 erasedPair      : PAIR ;
 
-expression : literal                                # LiteralExp
-           | variableReference                      # VariableRefExp
-           | arrayElement                           # ArrayElemExp
-           | unaryOperator expression               # UnaryOperatorExp
-           | LP expression RP                       # BracketedExp
+expression : literal                                   # LiteralExp
+           | variableReference                         # VariableRefExp
+           | arrayElement                              # ArrayElemExp
+           | unaryOperator expression                  # UnaryOperatorExp
+           | LP expression RP                          # BracketedExp
            | expression op=MUL expression              # BinaryOperatorExp
            | expression op=DIV expression              # BinaryOperatorExp
            | expression op=MOD expression              # BinaryOperatorExp
