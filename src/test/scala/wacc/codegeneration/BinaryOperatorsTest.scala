@@ -17,8 +17,7 @@ class BinaryOperatorsTest extends CodeGenTest {
     val program3 = TestUtilities.buildSubProgram(parser3.statement, StatementVisitor)
 
     val registers = Seq(R4, R5, R6)
-    val instructions = TransStatements.transStatementSequence(
-      Seq(program.right.get, program2.right.get, program3.right.get), SymbolTable.globalTable, registers)
+    val instructions = TransStatements.transStatementSequence(Seq(program.right.get, program2.right.get, program3.right.get), registers)
 
     //instruction(0) is not up to division
     //instruction(1) is not up to division
@@ -40,7 +39,7 @@ class BinaryOperatorsTest extends CodeGenTest {
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
     val registers = Seq(R4, R5, R6)
-    val instructions = TransStatements.transStatement(program.right.get, SymbolTable.globalTable, registers)
+    val instructions = TransStatements.transStatement(program.right.get, registers)
 
     //instruction(0) is not up to division
     //instruction(1) is not up to division
@@ -58,7 +57,7 @@ class BinaryOperatorsTest extends CodeGenTest {
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
     val registers = Seq(R4, R5, R6)
-    val instructions = TransStatements.transStatement(program.right.get, SymbolTable.globalTable, registers)
+    val instructions = TransStatements.transStatement(program.right.get, registers)
 
     //instruction(0) is not up to module
     //instruction(1) is not up to module

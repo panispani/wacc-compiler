@@ -11,7 +11,7 @@ class DeclareStatementTest extends CodeGenTest {
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
     val availableRegisters = Seq(R4, R5, R6)
-    val instructions = TransStatements.transStatement(program.right.get, SymbolTable.globalTable, availableRegisters)
+    val instructions = TransStatements.transStatement(program.right.get, availableRegisters)
 
     instructions.dropRight(1).last shouldBe STR(availableRegisters.head, RegisterAddress(FP, -4))
   }
@@ -21,7 +21,7 @@ class DeclareStatementTest extends CodeGenTest {
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
     val availableRegisters = Seq(R4, R5, R6)
-    val instructions = TransStatements.transStatement(program.right.get, SymbolTable.globalTable, availableRegisters)
+    val instructions = TransStatements.transStatement(program.right.get, availableRegisters)
 
     instructions.dropRight(1).last shouldBe STR(availableRegisters.head, RegisterAddress(FP, -4))
   }
@@ -34,10 +34,7 @@ class DeclareStatementTest extends CodeGenTest {
     val program2 = TestUtilities.buildSubProgram(parser2.statement, StatementVisitor)
 
     val availableRegisters = Seq(R4, R5, R6)
-    val instructions = TransStatements.transStatementSequence(
-      Seq(program.right.get, program2.right.get),
-      SymbolTable.globalTable,
-      availableRegisters)
+    val instructions = TransStatements.transStatementSequence(Seq(program.right.get, program2.right.get), availableRegisters)
 
     instructions(1) shouldBe STRB(availableRegisters.head, RegisterAddress(FP, -1))
     instructions(4) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -5))
@@ -48,7 +45,7 @@ class DeclareStatementTest extends CodeGenTest {
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
     val availableRegisters = Seq(R4, R5, R6)
-    val instructions = TransStatements.transStatement(program.right.get, SymbolTable.globalTable, availableRegisters)
+    val instructions = TransStatements.transStatement(program.right.get, availableRegisters)
 
     instructions.head shouldBe LDR(R0, Const(12))
     instructions(1) shouldBe BL(Label("malloc"))
@@ -71,10 +68,7 @@ class DeclareStatementTest extends CodeGenTest {
     val program2 = TestUtilities.buildSubProgram(parser2.statement, StatementVisitor)
 
     val availableRegisters = Seq(R4, R5, R6)
-    val instructions = TransStatements.transStatementSequence(
-      Seq(program.right.get, program2.right.get),
-      SymbolTable.globalTable,
-      availableRegisters)
+    val instructions = TransStatements.transStatementSequence(Seq(program.right.get, program2.right.get), availableRegisters)
 
     //Don't care about instructions(0) because it's up to translateExpression
     instructions(1) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -4))
@@ -91,10 +85,7 @@ class DeclareStatementTest extends CodeGenTest {
     val program2 = TestUtilities.buildSubProgram(parser2.statement, StatementVisitor)
 
     val availableRegisters = Seq(R4, R5, R6)
-    val instructions = TransStatements.transStatementSequence(
-      Seq(program.right.get, program2.right.get),
-      SymbolTable.globalTable,
-      availableRegisters)
+    val instructions = TransStatements.transStatementSequence(Seq(program.right.get, program2.right.get), availableRegisters)
 
     instructions.head shouldBe LDR(R0, Const(8))
     instructions(1) shouldBe BL(Label("malloc"))
@@ -114,7 +105,7 @@ class DeclareStatementTest extends CodeGenTest {
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
     val availableRegisters = Seq(R4, R5, R6)
-    val instructions = TransStatements.transStatement(program.right.get, SymbolTable.globalTable, availableRegisters)
+    val instructions = TransStatements.transStatement(program.right.get, availableRegisters)
 
     instructions.head shouldBe LDR(R0, Const(8))
     instructions(1) shouldBe BL(Label("malloc"))

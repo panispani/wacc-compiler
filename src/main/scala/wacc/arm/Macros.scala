@@ -5,7 +5,7 @@ import wacc.codegeneration.{TransAssignRhs, CodeSegment, StaticCode, TransExpres
 import wacc.constructs._
 
 object Macros {
-  def store(lhs: AssignTarget, symbolTable: SymbolTable, registers: Seq[Register]): Seq[Instruction] = {
+  def store(lhs: AssignTarget, registers: Seq[Register]): Seq[Instruction] = {
     lhs match {
       case VariableReference(name, vartype, offset) => {
         lhs.vartype match {
@@ -13,60 +13,69 @@ object Macros {
           case default             => Seq(STR(registers.head, RegisterAddress(FP, offset)))
         }
       }
-      case ArrayElement(name, index, elemtype) => {
-        val variableReference = symbolTable.lookupDeep(name).get
+      case ArrayElement(reference, index, elemtype) => {
 
         registers match {
           case (src +: reg1 +: reg2 +: regs) => {
-            val check = Macros.checkArrayBounds(variableReference, index.head, symbolTable, reg1 +: reg2 +: regs).instructions
-            //reg1 is now going to contain the value of the index expression
-
             val store = elemtype match {
-              case Character | Boolean => STRB(src, RegisterAddress(reg1, 0))
-              case default => STR(src, RegisterAddress(reg1, 0))
+              case Character | Boolean => STRB(src, RegisterAddress(reg1))
+              case _ => STR(src, RegisterAddress(reg1))
             }
 
-            check ++ Macros.getArrayElemAddress(variableReference, symbolTable, reg1 +: reg2 +: regs, elemtype).instructions ++ Seq(store)
+            CodeSegment(ADD(reg1, FP, ImmOperand(reference.offset)))
+              .extend(getNestedElementAddress(index, registers))
+              .extend(store)
+              .instructions
           }
+
         }
+
       }
       case pe @ PairElement(selector, variableReference: Expression, elemType) => {
-        val instruction = TransAssignRhs.getPairElementPointer(pe, symbolTable, registers.tail)
+        val instruction = TransAssignRhs.getPairElementPointer(pe, registers.tail)
         val store = pe.vartype match {
           case Character | Boolean => STRB(registers.head, RegisterAddress(registers(1)))
           case default => STR(registers.head, RegisterAddress(registers(1)))
         }
 
-        instruction.append(store).instructions
+        instruction.extend(store).instructions
 
       }
     }
   }
 
-  def checkArrayBounds(array: VariableReference, index: Expression,
-                       symbolTable: SymbolTable, registers: Seq[Register]): CodeSegment = {
-    CodeSegment()
-      .extend(TransExpressions.transExpression(index, symbolTable, registers))
-      .extend(Seq(
-        ADD(R1, FP, ImmOperand(array.offset)),   // Put the start of the array in the first register
-        LDR(R1, RegisterAddress(R1, 0)),   //Load size of array in first register
-        MOV(R0, registers.head),
-        BL(StaticCode.checkArrayBoundsLabel)
-      ))
+  //Assume start of array in reg1
+  def getNestedElementAddress(indexes: Seq[Expression], registers: Seq[Register]): CodeSegment = {
+    val reg1 +: reg2 +: regs = registers
+
+    var instruction = CodeSegment()
+
+    for (ind <- indexes) {
+      val res = TransExpressions.transExpression(ind, reg2 +: regs) ++
+        Macros.checkAndGetArrayElemAddress(reg1 +: reg2 +: regs).instructions
+
+      instruction = instruction.extend(res)
+    }
+
+    instruction
   }
 
-  def getArrayElemAddress(array: VariableReference,
-                       symbolTable: SymbolTable, registers: Seq[Register], elemType: Type): CodeSegment = {
+  //Assume start of array in reg1 and index in reg2
+  private def checkAndGetArrayElemAddress(registers: Seq[Register]): CodeSegment = {
     registers match {
       case (reg1 +: reg2 +: regs) => {
         CodeSegment()
+          //.extend(TransExpressions.transExpression(index, symbolTable, reg2 +: regs))
+          .extend(Seq(
+           // ADD(reg1, FP, ImmOperand(array.offset)),   // To fullfill assumption
+            LDR(reg1, RegisterAddress(reg1, 0)),   //Load size of array in R1
+            MOV(R1, reg1),
+            MOV(R0, reg2),                       //Load index in R0
+            BL(StaticCode.checkArrayBoundsLabel)
+          ))
           .extend (Seq(
-            LDR (reg2, RegisterAddress (FP, array.offset) ), // Put the start of the array in the second register
-            LDR (regs.head, Const(elemType.size)), //Put size of one element in third register
-            MUL (reg1, reg1, regs.head), //Put elemSize * index in first register
-            ADD (reg1, reg1, reg2),
-            LDR (reg2, Const(4)),
-            ADD (reg1, reg1, reg2)
+            ADD (reg1, reg1, ImmOperand(4)),
+            ADDLSL(reg1, reg1, reg2, LSL(2)) // TODO: this will work when all types ar 4 bytes
           ))
       }
     }
@@ -96,7 +105,7 @@ object Macros {
 
     var start = CodeSegment()
 
-    if (isBranch) start = start.append(PUSH(Seq(LR)))
+    if (isBranch) start = start.extend(PUSH(Seq(LR)))
     start = start.extend(Seq(PUSH(Seq(FP)), MOV(FP, SP)))
 
     var end = CodeSegment()
@@ -107,14 +116,15 @@ object Macros {
 
     for (i <- 1 to blocks) {
       //start = start.append(SUB(SP, SP, ImmOperand(MAX_SIZE)))
-      end = end.append(ADD(SP, SP, ImmOperand(MAX_SIZE)))
+      end = end.extend(ADD(SP, SP, ImmOperand(MAX_SIZE)))
     }
 
     //start = start.append(SUB(SP, SP, ImmOperand(remainder)))
-    end = end.append(ADD(SP, SP, ImmOperand(remainder)))
-             .append(POP(Seq(FP)))
+    end = end.extend(ADD(SP, SP, ImmOperand(remainder)))
+             .extend(POP(Seq(FP)))
 
-    //if (isBranch) end = end.append(POP(Seq(PC)))
+    //recheck
+    if (isBranch) end = end.extend(POP(Seq(PC)))
     (start, end)
   }
 }

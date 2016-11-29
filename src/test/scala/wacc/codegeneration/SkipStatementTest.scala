@@ -9,7 +9,7 @@ class SkipStatementTest extends CodeGenTest {
     val availableRegisters = Seq(R4, R5, R6)
 
     // TODO: Symbol table should be mocked
-    val instructions = TransStatements.transStatement(SkipStatement(), SymbolTable.globalTable, availableRegisters)
+    val instructions = TransStatements.transStatement(SkipStatement(), availableRegisters)
 
     instructions.size should be (0)
   }

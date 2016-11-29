@@ -7,6 +7,14 @@ trait Type {
 case class PrimitiveType(identifier: String, size: Int) extends Type
 case class ArrayType(elemtype: Type) extends Type {
   override val size: Int = 4
+
+  def typeAt(size: Int): Type = {
+    if (size == 1) elemtype
+    else {
+      val nested @ ArrayType(_) = elemtype
+      nested.typeAt(size - 1)
+    }
+  }
 }
 case class PairType(firstType: Type, secondType: Type) extends Type {
   override val size: Int = 4
