@@ -9,8 +9,8 @@ case class ArrayType(elemtype: Type) extends Type {
   override val size: Int = 4
 
   def baseType(): Type = elemtype match {
-    case ArrayType(nested @ ArrayType(_)) => nested.baseType()
-    case ArrayType(base) => base
+    case nested: ArrayType => nested.baseType()
+    case base => base
   }
 }
 case class PairType(firstType: Type, secondType: Type) extends Type {
