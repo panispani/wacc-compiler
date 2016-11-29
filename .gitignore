@@ -5,6 +5,10 @@
 # Binaries
 bin
 
+# Assemblies
+*.s
+
+
 # ANTLR generated files
 src/main/java/antlr
 *.tokens
