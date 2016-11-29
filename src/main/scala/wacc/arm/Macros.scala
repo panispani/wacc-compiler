@@ -60,12 +60,14 @@ object Macros {
 
     CodeSegment()
       .extend(Seq(
-        LDR(reg1, RegisterAddress(reg1, 0)),   //Load size of array in R1
-        MOV(R1, reg1),
-        MOV(R0, reg2),                       //Load index in R0
+        LDR(reg1, RegisterAddress(reg1, 0)), // Load in reg1 startOfArray
+        MOV(R1, reg1),                       // Load startOfArray in R1
+        MOV(R0, reg2),                       // Load index in R0
         BL(StaticCode.checkArrayBoundsLabel),
-        ADD (reg1, reg1, ImmOperand(4)),
-        ADDLSL(reg1, reg1, reg2, LSL(2)) // TODO: this will work when all types ar 4 bytes
+        ADD(reg1, reg1, ImmOperand(4)),      // Store in reg1 the value startOfArray + 4 (4 indicates the space used to store the size of the array)
+        LDR(regs.head, Const(4)),            // Store in regs.head the value elemSize
+        MUL(reg2, reg2, regs.head),          // Store in reg2 the value index * elemSize
+        ADD(reg1, reg1, reg2)                // Store in reg1 the value startOfArray + 4 + index * elemSize TODO: this will work when all types ar 4 bytes
       ))
   }
 
