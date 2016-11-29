@@ -45,8 +45,14 @@ object TransAssignRhs {
     var instructions: Seq[Instruction] = Seq()
 
     for (elem <- al.elements) {
-      instructions ++= TransExpressions.transExpression(elem, registers.tail) :+ STR(registers(1), RegisterAddress(registers.head, offset))
+      val store = al.vartype.elemtype match {
+        case Character | Boolean => STRB(registers(1), RegisterAddress(registers.head, offset))
+        case default             => STR(registers(1), RegisterAddress(registers.head, offset))
+      }
+
+      instructions ++= TransExpressions.transExpression(elem, registers.tail) :+ store
       offset += al.vartype.elemtype.size
+
     }
 
     Seq(

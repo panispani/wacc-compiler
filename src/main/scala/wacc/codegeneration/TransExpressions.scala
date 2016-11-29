@@ -47,9 +47,14 @@ object TransExpressions {
 
       case ArrayElement(variableReference, index, elemType) => {
 
+        val load = elemType match {
+          case Character | Boolean => LDRB(reg1, RegisterAddress(reg1, 0))
+          case default             => LDR(reg1, RegisterAddress(reg1, 0))
+        }
+
         CodeSegment(ADD(reg1, FP, ImmOperand(variableReference.offset)))
           .extend(Macros.getNestedElementAddress(index, reg1 +: reg2 +: regs, elemType.size))
-          .extend(LDR(reg1, RegisterAddress(reg1, 0)))
+          .extend(load)
           .instructions
       }
 
