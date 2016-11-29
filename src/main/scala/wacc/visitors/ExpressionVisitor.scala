@@ -109,9 +109,9 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
     val identifier = ctx.variableReference().getText
 
     SymbolTable().lookupDeep(identifier) match {
-      case Some(VariableReference(x, ArrayType(elemtype), offset)) => for {
+      case Some(VariableReference(x, arrayType: ArrayType, offset)) => for {
         indexes <- sequenceOrLast(ctx.expression().toList map (e => e.accept(ExpressionVisitor))).right
-      } yield ArrayElement(identifier, indexes, elemtype)
+      } yield ArrayElement(identifier, indexes, arrayType.typeAt(indexes.size))
 
       // Special case for string indexing
       case Some(VariableReference(x, String, offset)) => for {
