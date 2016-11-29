@@ -123,8 +123,7 @@ object Macros {
     end = end.extend(ADD(SP, SP, ImmOperand(remainder)))
              .extend(POP(Seq(FP)))
 
-    //recheck
-    if (isBranch) end = end.extend(POP(Seq(PC)))
+    //if (isBranch) end = end.extend(POP(Seq(PC)))
     (start, end)
   }
 }

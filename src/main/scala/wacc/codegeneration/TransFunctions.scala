@@ -9,8 +9,13 @@ object TransFunctions {
     CodeSegment()
       .extend(DefineLabel(Label(function.identifier)))
       .extend(beginFrame)
+      .extend(PUSH(Seq(FSP)))
+      .extend(MOV(FP,SP))
+      .extend(MOV(FSP, SP))
       .extend(function.statements flatMap (s => TransStatements.transStatement(s, registers)))
       .extend(endFrame)
+      .extend(POP(Seq(FSP)))
+      .extend(POP(Seq(PC)))
       .instructions
   }
 }
