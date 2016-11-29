@@ -55,7 +55,7 @@ object TransExpressions {
 
       case VariableReference(name, vartype, offset) => Seq(Macros.load(reg1, offset, vartype))
       case IntegerLiteral(value) => Seq(LDR(reg1, Const(value)))
-      case BoolLiteral(value)    => Seq(MOV(reg1, ImmOperand(if (value) 1 else 0)))
+      case BoolLiteral(value)    => Seq(LDR(reg1, Const(if (value) 1 else 0)))
       case CharLiteral(value)    => Seq(MOV(reg1, CharOperand(value)))
       case StringLiteral(value)  => Seq(LDR(reg1, LabelAddress(DefineStringLabel(value).label)))
       case PairLiteral()         => Seq(LDR(reg1, Const(0)))
