@@ -27,14 +27,35 @@ case class BinaryOperatorExpr(expression1: Expression, binaryOperator: BinaryOpe
   }
 }
 
-case class BinaryOperator(binaryOperator: String) {
-  def translate(dest: Register, operand: Register): CodeSegment = CodeSegment()
+abstract class BinaryOperator(val binaryOperator: String) {
+  def translate(dest: Register, operand: Register): CodeSegment
+}
+
+object BinaryOperator {
+  def apply(binaryOperator: String): BinaryOperator = binaryOperator match {
+    case "*" => TimesBinOp
+    case "/" => DivBinOp
+    case "%" => ModBinOp
+    case "+" => PlusBinOp
+    case "-" => MinusBinOp
+    case ">" => GtBinOp
+    case ">=" => GteBinOp
+    case "<" => LtBinOp
+    case "<=" => LteBinOp
+    case "==" => EqualsBinOp
+    case "!=" => NequalsBinOp
+    case "&&" => AndBinOp
+    case "||" => OrBinOp
+  }
 }
 
 /* Integers */
 object TimesBinOp extends BinaryOperator("*") {
   override def translate(dest: Register, operand: Register): CodeSegment
-  = CodeSegment(MUL(dest, dest, operand))
+  = CodeSegment(
+      SMULL(dest, operand, dest, operand),
+      CMPSHIFT(operand, dest, ASR(31)),
+      BL(StaticCode.throwOverflowErrorFunctionLabel, NE))
 }
 object DivBinOp extends BinaryOperator("/") {
   override def translate(dest: Register, operand: Register): CodeSegment
@@ -57,10 +78,16 @@ object ModBinOp extends BinaryOperator("%") {
   )
 }
 object PlusBinOp extends BinaryOperator("+") {
-  override def translate(dest: Register, operand: Register): CodeSegment = CodeSegment(ADD(dest, dest, operand))
+  override def translate(dest: Register, operand: Register): CodeSegment
+  = CodeSegment(
+    ADDS(dest, dest, operand),
+    BL(StaticCode.throwOverflowErrorFunctionLabel, VS))
 }
 object MinusBinOp extends BinaryOperator("-") {
-  override def translate(dest: Register, operand: Register): CodeSegment = CodeSegment(SUB(dest, dest, operand))
+  override def translate(dest: Register, operand: Register): CodeSegment
+  = CodeSegment(
+    SUBS(dest, dest, operand),
+    BL(StaticCode.throwOverflowErrorFunctionLabel, VS))
 }
 
 /* Booleans */

@@ -1,6 +1,6 @@
 package wacc.arm
 
-import wacc.{SymbolTable, VariableReference}
+import wacc.VariableReference
 import wacc.codegeneration.{CodeSegment, StaticCode, TransAssignRhs, TransExpressions}
 import wacc.constructs._
 
@@ -78,8 +78,8 @@ object Macros {
                           (trueCondition: Condition, falseCondition: Condition): CodeSegment
   = CodeSegment(
     CMP(left, right),
-    STR(left, Const(1), trueCondition),
-    STR(left, Const(0), falseCondition)
+    LDR(left, Const(1), trueCondition),
+    LDR(left, Const(0), falseCondition)
   )
 
   /**
