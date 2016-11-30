@@ -35,6 +35,16 @@ case class SymbolTable(parent: Option[SymbolTable]) {
     variableReference
   }
 
+  // A bit of a hack - ask Tencho or Pani if you don't know what it does
+  // If they left the company, don't use it but don't delete!!! :)
+  def injectReference(reference: Option[VariableReference]): Option[VariableReference] = {
+    reference.flatMap(r => {
+      val old = map.get(r.name)
+      map += r.name -> r
+      old
+    })
+  }
+
   def lookup(identifier: String): Option[VariableReference]
     = map get identifier match {
     case Some(reference) => Some(reference)

@@ -116,6 +116,24 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     constructLoopStatement(ctx.expression(), ctx.sequence(), doWhile = true)
   }
 
+  override def visitFor(ctx: ForContext): Either[CompilationError, Statement] = {
+    ctx.body.statement().add(0, ctx.init)
+    val loopScope = SequenceVisitor.visitScopedSequence(ctx.sequence())
+
+    loopScope.right.flatMap(loop => loop.statements.head match {
+      case init @ DeclareStatement(_, ref, _) =>
+        // inject init in parent scope temporarily
+        val oldRef = SymbolTable().injectReference(Some(ref))
+        for {
+          cond <- ctx.cond.accept(ExpressionVisitor).right
+          step <- ctx.step.accept(StatementVisitor).right
+          // restore original reference if any
+          _    <- Right(SymbolTable().injectReference(oldRef)).right
+        } yield ForLoopStatement(init, cond, step, loop.statements.tail)
+      case _ => Left(SyntaxError("First statement of for loop must be a declaration", ctx.start))
+    })
+  }
+
   private def constructLoopStatement(expressionContext: ExpressionContext, sequenceContext: SequenceContext, doWhile: Boolean = false): Either[CompilationError, LoopStatement] with Product with Serializable = {
     SymbolTable.openScope()
     val pair = for {
@@ -161,4 +179,3 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
       })
   }
 }
-
