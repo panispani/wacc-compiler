@@ -46,7 +46,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
       val trueRes = mapLastStatements(trueStats.statements.last, f)
       val falseRes = mapLastStatements(falseStats.statements.last, f)
       trueRes.right flatMap (_ => falseRes)
-    case LoopStatement(expr, stats, _) => mapLastStatements(stats.last, f)
+    case LoopStatement(expr, stats, _, _) => mapLastStatements(stats.last, f)
     case statement => f(statement)
   }
 }

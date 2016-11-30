@@ -161,7 +161,7 @@ case class DeclareStatement(vartype: Type, newReference: VariableReference, valu
   }
 }
 
-case class LoopStatement(condition: Expression, statements: Seq[Statement], symbolTable: SymbolTable) extends Statement {
+case class LoopStatement(condition: Expression, statements: Seq[Statement], symbolTable: SymbolTable, doWhile: Boolean = false) extends Statement {
 
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     val L0 = Label()
@@ -180,5 +180,4 @@ case class LoopStatement(condition: Expression, statements: Seq[Statement], symb
       .extend(endFrame)
   }
 }
-
 

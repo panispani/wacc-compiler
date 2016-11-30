@@ -23,10 +23,13 @@ statement : NOP                                                                 
           | PRINT expression                                                              # Print
           | PRINTLN expression                                                            # PrintLn
           | IF expression THEN trueSequence=sequence ELSE falseSequence=sequence FI       # Conditional
-          | WHILE expression DO sequence DONE                                             # Loop
+          | loopStatement                                                                 # Loop
           | BEGIN sequence END                                                            # Scope
           ;
 
+loopStatement : WHILE expression DO sequence DONE                                         # While
+              | DO sequence WHILE expression                                              # DoWhile
+              ;
 
 assignLhs : variableReference # AssignLhsIdent
           | arrayElement      # AssignLhsArrayElement
