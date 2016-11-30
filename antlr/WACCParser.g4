@@ -29,6 +29,9 @@ statement : NOP                                                                 
 
 loopStatement : WHILE expression DO sequence DONE                                         # While
               | DO sequence WHILE expression                                              # DoWhile
+              | FOR (init=statement)? SEMICOLON
+                    cond=expression SEMICOLON
+                    (step=statement)? DO body=sequence DONE                                    # For
               ;
 
 assignLhs : variableReference # AssignLhsIdent
