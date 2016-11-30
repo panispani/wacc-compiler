@@ -181,3 +181,6 @@ case class LoopStatement(condition: Expression, statements: Seq[Statement], symb
   }
 }
 
+case class ForLoopStatement(init: Statement, cond: Expression, step: Statement, body: Seq[Statement]) extends Statement {
+  override def transStatement(registers: Seq[Register]): CodeSegment = CodeSegment()
+}
