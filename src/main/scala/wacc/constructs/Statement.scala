@@ -170,7 +170,7 @@ case class LoopStatement(condition: Expression, statements: Seq[Statement], symb
     val (beginFrame, endFrame) = Macros.frame(this.symbolTable.sizeInBytes)
 
     beginFrame
-      .extend(B(L0))
+      .extend(if (doWhile) Seq() else Seq(B(L0)))
       .extend(DefineLabel(L1))
       .extend(TransStatements.transStatementSequence(statements, registers))
       .extend(DefineLabel(L0))

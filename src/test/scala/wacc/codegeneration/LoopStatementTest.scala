@@ -5,7 +5,6 @@ import wacc.arm._
 import wacc.visitors.StatementVisitor
 import wacc.{SymbolTable, TestUtilities}
 
-@Ignore
 class LoopStatementTest extends CodeGenTest {
 
   it should "check condition and provide alternative branches" in {
@@ -40,7 +39,6 @@ class LoopStatementTest extends CodeGenTest {
     val availableRegisters = Seq(R0, R1, R2, R3, R4, R5, R6, R7, R8)
 
     val instructions = TransStatements.transStatement(program.right.get, availableRegisters)
-    println(instructions)
     instructions.head shouldBe B(Label("L0"),ALWAYS)
     instructions(1) shouldBe DefineLabel(Label("L1"))
     instructions(2) shouldBe SUB(SP,SP,ImmOperand(8))
@@ -59,4 +57,15 @@ class LoopStatementTest extends CodeGenTest {
     instructions(15) shouldBe B(Label("L1"),EQ)
 
   }
+
+  "Do-while loop statement" should "not include branching on entry" in {
+    val parser = TestUtilities.setupParser("do int i = 21 while (1 == 1)")
+    val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
+    val availableRegisters = Seq(R0, R1, R2, R3, R4, R5, R6, R7, R8)
+
+    val instructions = TransStatements.transStatement(program.right.get, availableRegisters)
+
+    instructions should not contain B(Label("L0"), ALWAYS)
+  }
+
 }
