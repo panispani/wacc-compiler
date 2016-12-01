@@ -25,3 +25,7 @@ case class ArrayLiteral(elements: Seq[Expression]) extends AssignValue {
 case class PairLiteral() extends Literal {
   override val varType: Type = PairType(AnyType, AnyType)
 }
+
+case class StructLiteral(members: Seq[Expression]) extends Literal {
+  override val varType: Type = StructType("$$$", members map (member => ("", member.varType)))
+}
