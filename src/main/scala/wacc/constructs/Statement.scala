@@ -131,7 +131,7 @@ case class SkipStatement() extends Statement {
   }
 }
 
-case class ConditionalStatement(expression: Expression, trueStatements: ScopeStatement, falseStatements: ScopeStatement) extends Statement {
+case class ConditionalElseStatement(expression: Expression, trueStatements: ScopeStatement, falseStatements: ScopeStatement) extends Statement {
 
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     val L0 = Label()
@@ -148,6 +148,14 @@ case class ConditionalStatement(expression: Expression, trueStatements: ScopeSta
       .extend(trueStatements.transStatement(registers))
       .extend(DefineLabel(L1))
   }
+}
+
+case class ConditionalSimpleStatement(expression: Expression, trueStatements: ScopeStatement) extends Statement {
+  override def transStatement(registers: Seq[Register]): CodeSegment = CodeSegment()
+}
+
+case class ConditionalRecursiveStatement(expression: Expression, trueStatements: ScopeStatement, falseStatements: ScopeStatement) extends Statement {
+  override def transStatement(registers: Seq[Register]): CodeSegment = CodeSegment()
 }
 
 // Identifier is a new reference here so it will always have the correct offset at parse-time
