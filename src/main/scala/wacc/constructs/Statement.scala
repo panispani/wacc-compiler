@@ -152,13 +152,35 @@ case class ConditionalElseStatement(expression: Expression, trueStatements: Scop
   }
 }
 
-// TODO: ifelse extension backend
 case class ConditionalSimpleStatement(expression: Expression, trueStatements: ScopeStatement) extends ConditionalStatement {
-  override def transStatement(registers: Seq[Register]): CodeSegment = CodeSegment()
+  override def transStatement(registers: Seq[Register]): CodeSegment = {
+    val L0 = Label()
+    val L1 = Label()
+
+    CodeSegment()
+      .extend(expression.transAssignRhs(registers))
+      .extend(CMP(registers.head, ImmOperand(1)))
+      .extend(B(L0, NE))
+      .extend(trueStatements.transStatement(registers))
+      .extend(DefineLabel(L0))
+  }
 }
 
 case class ConditionalRecursiveStatement(expression: Expression, trueStatements: ScopeStatement, conditionalStatement: ConditionalStatement) extends ConditionalStatement {
-  override def transStatement(registers: Seq[Register]): CodeSegment = CodeSegment()
+  override def transStatement(registers: Seq[Register]): CodeSegment = {
+    val L0 = Label()
+    val L1 = Label()
+
+    CodeSegment()
+      .extend(expression.transAssignRhs(registers))
+      .extend(CMP(registers.head, ImmOperand(1)))
+      .extend(B(L0, EQ))
+      .extend(conditionalStatement.transStatement(registers))
+      .extend(B(L1))
+      .extend(DefineLabel(L0))
+      .extend(trueStatements.transStatement(registers))
+      .extend(DefineLabel(L1))
+  }
 }
 
 // Identifier is a new reference here so it will always have the correct offset at parse-time
