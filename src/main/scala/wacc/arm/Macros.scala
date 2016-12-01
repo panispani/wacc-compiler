@@ -31,7 +31,7 @@ object Macros {
       }
 
       case pe @ PairElement(selector, variableReference: Expression, elemType) => {
-        val instruction = TransAssignRhs.getPairElementPointer(pe, registers.tail)
+        val instruction = pe.getPairElementPointer(registers.tail)
         val store = pe.vartype match {
           case Character | Boolean => STRB(registers.head, RegisterAddress(registers(1)))
           case default => STR(registers.head, RegisterAddress(registers(1)))
@@ -49,7 +49,7 @@ object Macros {
 
     indexes.foldLeft(CodeSegment()) ((accumulator, index) => {
       accumulator
-        .extend(TransExpressions.transExpression(index, reg2 +: regs))
+        .extend(index.transAssignRhs(reg2 +: regs))
         .extend(Macros.checkAndGetArrayElemAddress(reg1 +: reg2 +: regs, elemSize))
     })
   }
