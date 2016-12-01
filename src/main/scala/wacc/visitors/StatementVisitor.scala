@@ -117,7 +117,12 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
   }
 
   override def visitFor(ctx: ForContext): Either[CompilationError, Statement] = {
-    val loopScope = SequenceVisitor.visitScopedSequence(ctx.init +: ctx.body.statement().toList)
+    val sequence = ctx.init +: ctx.body.statement().toList
+    SymbolTable.openScope()
+    val statements = sequenceOrLast(sequence.map(_.accept(StatementVisitor)))
+    val loopScope = statements.right.map(ScopeStatement(_, SymbolTable()))
+    val loopTable = SymbolTable()
+    SymbolTable.closeScope()
 
     /** cond and step are translated out of the loop scope but should have
       * access to the variable reference from init which is declared in the
@@ -135,7 +140,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
             case Some(old) => SymbolTable().injectReference(old)
             case None => SymbolTable().removeReference(ref.name)
           }).right
-        } yield ForLoopStatement(init, cond, step, loop.statements.tail)
+        } yield ForLoopStatement(init, cond, step, loop.statements.tail, loopTable)
       case _ => Left(SyntaxError("First statement of for loop must be a declaration", ctx.start))
     })
   }

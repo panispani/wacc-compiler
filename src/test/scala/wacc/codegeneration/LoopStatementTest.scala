@@ -1,9 +1,8 @@
 package wacc.codegeneration
 
-import org.scalatest.Ignore
+import wacc.TestUtilities
 import wacc.arm._
 import wacc.visitors.StatementVisitor
-import wacc.{SymbolTable, TestUtilities}
 
 class LoopStatementTest extends CodeGenTest {
 
@@ -33,7 +32,6 @@ class LoopStatementTest extends CodeGenTest {
     instructions(12) shouldBe CMP(R0,ImmOperand(1))
     instructions.last shouldBe B(Label("L1"),EQ)
   }
-
 
   ignore should "declare variables each time it enters the loop" in {
     val parser = TestUtilities.setupParser("while (1 == 1) do int i = 21; int j = 2 done")
@@ -70,6 +68,14 @@ class LoopStatementTest extends CodeGenTest {
     val instructions = TransStatements.transStatement(program.right.get, availableRegisters)
 
     instructions should not contain B(Label("L0"), ALWAYS)
+  }
+
+  "A for loop" should "execute init before branching" in {
+
+  }
+
+  it should "execute step as the last statement of loop body" in {
+
   }
 
 }
