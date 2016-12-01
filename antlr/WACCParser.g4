@@ -4,6 +4,9 @@ options { tokenVocab=WACCLexer; }
 // Top-level rule
 program : BEGIN function* sequence END EOF;
 
+struct : STRUCT IDENT (structMember SEMICOLON)* ;
+structMember : type IDENT ;
+
 function : type IDENT LP parameterList? RP IS sequence END ;
 parameterList : parameter (COMMA parameter)* ;
 parameter : type IDENT ;
