@@ -2,7 +2,7 @@ package wacc.visitors
 
 import antlr.WACCParser.FunctionContext
 import antlr.WACCParserBaseVisitor
-import wacc.constructs.{CompilationError, ConditionalStatement, ExitStatement, Function, LoopStatement, ReturnStatement, SemanticError, Statement, SyntaxError}
+import wacc.constructs._
 import wacc.{FunctionReference, SymbolTable, VariableReference}
 
 import scala.collection.JavaConversions._
@@ -42,10 +42,19 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
 
   private def mapLastStatements(lastStatement: Statement, f: Statement => Either[CompilationError, Statement])
   : Either[CompilationError, Statement] = lastStatement match {
-    case ConditionalStatement(expr, trueStats, falseStats) =>
-      val trueRes = mapLastStatements(trueStats.statements.last, f)
-      val falseRes = mapLastStatements(falseStats.statements.last, f)
+    case ConditionalSimpleStatement(expression, trueStatements) => {
+      mapLastStatements(trueStatements.statements.last, f)
+    }
+    case ConditionalElseStatement(expression, trueStatements, falseStatements) => {
+      val trueRes = mapLastStatements(trueStatements.statements.last, f)
+      val falseRes = mapLastStatements(falseStatements.statements.last, f)
       trueRes.right flatMap (_ => falseRes)
+    }
+    case ConditionalRecursiveStatement(expression, trueStatements, conditionalStatement) => {
+      val trueRes = mapLastStatements(trueStatements.statements.last, f)
+      val falseRes = mapLastStatements(conditionalStatement, f)
+      trueRes.right flatMap (_ => falseRes)
+    }
     case LoopStatement(expr, stats, _, _) => mapLastStatements(stats.last, f)
     case statement => f(statement)
   }

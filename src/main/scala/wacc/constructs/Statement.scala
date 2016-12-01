@@ -131,7 +131,9 @@ case class SkipStatement() extends Statement {
   }
 }
 
-case class ConditionalElseStatement(expression: Expression, trueStatements: ScopeStatement, falseStatements: ScopeStatement) extends Statement {
+abstract class ConditionalStatement extends Statement
+
+case class ConditionalElseStatement(expression: Expression, trueStatements: ScopeStatement, falseStatements: ScopeStatement) extends ConditionalStatement {
 
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     val L0 = Label()
@@ -150,17 +152,18 @@ case class ConditionalElseStatement(expression: Expression, trueStatements: Scop
   }
 }
 
-case class ConditionalSimpleStatement(expression: Expression, trueStatements: ScopeStatement) extends Statement {
+// TODO: ifelse extension backend
+case class ConditionalSimpleStatement(expression: Expression, trueStatements: ScopeStatement) extends ConditionalStatement {
   override def transStatement(registers: Seq[Register]): CodeSegment = CodeSegment()
 }
 
-case class ConditionalRecursiveStatement(expression: Expression, trueStatements: ScopeStatement, falseStatements: ScopeStatement) extends Statement {
+case class ConditionalRecursiveStatement(expression: Expression, trueStatements: ScopeStatement, conditionalStatement: ConditionalStatement) extends ConditionalStatement {
   override def transStatement(registers: Seq[Register]): CodeSegment = CodeSegment()
 }
 
 // Identifier is a new reference here so it will always have the correct offset at parse-time
 // Otherwise we would need to have it as a String and do additional lookup during code generation
-case class DeclareStatement(vartype: Type, newReference: VariableReference, value: AssignValue) extends Statement {
+case class DeclareStatement(vartype: Type, newReference: VariableReference, value: AssignValue) extends ConditionalStatement {
 
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     CodeSegment()

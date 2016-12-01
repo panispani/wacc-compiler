@@ -81,33 +81,6 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     ctx.expression().accept(ExpressionVisitor).right flatMap (e => Right(PrintLnStatement(e)))
   }
 
-  override def visitConditional(ctx: ConditionalContext): Either[CompilationError, ConditionalStatement] = {
-
-    val tuple = for {
-      expression <- ctx.expression().accept(ExpressionVisitor).right
-      _ <- Right(SymbolTable.openScope()).right
-      trueStatements <- sequenceOrLast(ctx.trueSequence.statement().toList map (s => s.accept(StatementVisitor))).right
-      trueTable <- Right(SymbolTable.closeScope()).right
-      _ <- Right(SymbolTable.openScope()).right
-      falseStatements <- sequenceOrLast(ctx.falseSequence.statement().toList map (s => s.accept(StatementVisitor))).right
-    } yield (expression, trueStatements, falseStatements, trueTable)
-    val falseTable = SymbolTable.closeScope()
-    val conditional = tuple match {
-      case Left(error)                                                => Left(error)
-      case Right((expression, trueStatements, falseStatements, trueTable)) => expression.vartype match {
-        case Boolean => Right(ConditionalStatement(expression, ScopeStatement(trueStatements, trueTable), ScopeStatement(falseStatements, falseTable)))
-        case default => Left(
-          SemanticError(
-            "Conditional statement " + SemanticErrors.typeError("expression", expression.vartype, Boolean),
-            ctx.start))
-      }
-    }
-
-
-    conditional
-  }
-
-
   override def visitWhile(ctx: WhileContext): Either[CompilationError, LoopStatement] = {
     constructLoopStatement(ctx.expression(), ctx.sequence())
   }
