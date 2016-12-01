@@ -1,6 +1,6 @@
 package wacc.visitors
 
-import antlr.WACCParser.SequenceContext
+import antlr.WACCParser.{SequenceContext, StatementContext}
 import antlr.WACCParserBaseVisitor
 import wacc.SymbolTable
 import wacc.constructs.{CompilationError, _}
@@ -12,9 +12,9 @@ object SequenceVisitor extends WACCParserBaseVisitor[Either[CompilationError, Se
     sequenceOrLast(ctx.statement() map (_.accept(StatementVisitor)))
   }
 
-  def visitScopedSequence(ctx: SequenceContext): Either[CompilationError, ScopeStatement] = {
+  def visitScopedSequence(sequence: Seq[StatementContext]): Either[CompilationError, ScopeStatement] = {
     SymbolTable.openScope()
-    val statements = sequenceOrLast(ctx.statement().map(_.accept(StatementVisitor)))
+    val statements = sequenceOrLast(sequence.map(_.accept(StatementVisitor)))
     val scope = statements.right.map(ScopeStatement(_, SymbolTable()))
     SymbolTable.closeScope()
 

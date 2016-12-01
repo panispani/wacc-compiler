@@ -1,9 +1,9 @@
 package wacc.codegeneration
 
-import org.scalatest.Ignore
+import wacc.TestUtilities
 import wacc.arm._
+import wacc.constructs.ForLoopStatement
 import wacc.visitors.StatementVisitor
-import wacc.{SymbolTable, TestUtilities}
 
 class LoopStatementTest extends CodeGenTest {
 
@@ -33,7 +33,6 @@ class LoopStatementTest extends CodeGenTest {
     instructions(12) shouldBe CMP(R0,ImmOperand(1))
     instructions.last shouldBe B(Label("L1"),EQ)
   }
-
 
   ignore should "declare variables each time it enters the loop" in {
     val parser = TestUtilities.setupParser("while (1 == 1) do int i = 21; int j = 2 done")
@@ -70,6 +69,50 @@ class LoopStatementTest extends CodeGenTest {
     val instructions = TransStatements.transStatement(program.right.get, availableRegisters)
 
     instructions should not contain B(Label("L0"), ALWAYS)
+  }
+
+  "A for loop" should "execute init before branching" in {
+    val parser = TestUtilities.setupParser("for int i = 0; i < 5; i = i + 1 do skip done")
+    val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
+    val availableRegisters = Seq(R0, R1, R2, R3, R4, R5, R6, R7, R8)
+
+    val instructions = TransStatements.transStatement(program.right.get, availableRegisters)
+
+    val labels = instructions.filter({
+      case DefineLabel(_) => true
+      case _ => false
+    })
+
+    val frameSize = 2
+    val firstLabelIdx = instructions.indexOf(labels.head)
+
+    val initStatement = instructions.slice(frameSize, firstLabelIdx - 1)
+
+    val init = program.right.value.asInstanceOf[ForLoopStatement].init
+    initStatement should be (init.transStatement(availableRegisters).instructions)
+
+  }
+
+  it should "execute step as the last statement of loop body" in {
+    val parser = TestUtilities.setupParser("for int i = 0; i < 5; i = i + 1 do skip done")
+    val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
+    val availableRegisters = Seq(R0, R1, R2, R3, R4, R5, R6, R7, R8)
+
+    val instructions = TransStatements.transStatement(program.right.get, availableRegisters)
+
+    val labels = instructions.filter({
+      case DefineLabel(_) => true
+      case _ => false
+    })
+
+    val startIdx = instructions.indexOf(labels.head) + 1
+    val endIdx = instructions.indexOf(labels.last)
+
+    val loopBodyAndStep = instructions.slice(startIdx, endIdx)
+
+    val step = program.right.value.asInstanceOf[ForLoopStatement].step
+    loopBodyAndStep should be (step.transStatement(availableRegisters).instructions)
+
   }
 
 }

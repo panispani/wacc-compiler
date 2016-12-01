@@ -19,6 +19,28 @@ class SymbolTableTest extends FlatSpec
         SymbolTable().addLocalVariable("a", Integer)
   }
 
+  "Injecting a reference" should "return the reference with the same name if it existed" in {
+    SymbolTable().lookup("a").get.vartype should be (Integer)
+    SymbolTable().lookup("a").get.offset should be (-4)
+
+    val oldRef = SymbolTable().injectReference(VariableReference("a", Boolean, 10))
+
+    SymbolTable().lookup("a").get.vartype should be (Boolean)
+    SymbolTable().lookup("a").get.offset should be (10)
+
+    oldRef.get.vartype should be (Integer)
+    oldRef.get.offset should be (-4)
+  }
+
+  it should "return None if it is a new reference" in {
+    val oldRef = SymbolTable().injectReference(VariableReference("b", Boolean, 10))
+
+    SymbolTable().lookup("b").get.vartype should be (Boolean)
+    SymbolTable().lookup("b").get.offset should be (10)
+
+    oldRef should be (None)
+  }
+
   /** Symbol table                 ARM11 Stack (offsets relative to SP at time of adding)
     *                              On entering a scope the order is: PUSH FP, FP = SP, SP -= size of this scope
     *  ---

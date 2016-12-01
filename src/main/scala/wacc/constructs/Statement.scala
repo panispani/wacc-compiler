@@ -38,13 +38,13 @@ abstract class AbstractPrintStatement extends Statement {
 
   def transStatement(registers: Seq[Register]): CodeSegment = {
     val printLabel: Label = expression.vartype match {
-      case Integer        => StaticCode.printIntLabel
-      case Character      => StaticCode.printCharLabel
-      case Boolean        => StaticCode.printBoolLabel
-      case String         => StaticCode.printFunctionLabel
-      case ArrayType(_)   => StaticCode.printReferenceFunctionLabel
+      case Integer => StaticCode.printIntLabel
+      case Character => StaticCode.printCharLabel
+      case Boolean => StaticCode.printBoolLabel
+      case String => StaticCode.printFunctionLabel
+      case ArrayType(_) => StaticCode.printReferenceFunctionLabel
       case PairType(_, _) => StaticCode.printReferenceFunctionLabel
-      case _              => StaticCode.printFunctionLabel
+      case _ => StaticCode.printFunctionLabel
     }
 
     CodeSegment()
@@ -55,10 +55,11 @@ abstract class AbstractPrintStatement extends Statement {
 }
 
 case class PrintStatement(expression: Expression) extends AbstractPrintStatement
+
 case class PrintLnStatement(expression: Expression) extends AbstractPrintStatement {
 
   override def transStatement(registers: Seq[Register]): CodeSegment = {
-      super.transStatement(registers).extend(BL(StaticCode.printLnFunctionLabel))
+    super.transStatement(registers).extend(BL(StaticCode.printLnFunctionLabel))
   }
 }
 
@@ -89,7 +90,7 @@ case class ScopeStatement(statements: Seq[Statement], symbolTable: SymbolTable) 
 
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     // Make sure the same registers are available after each statement is translated! TODO
-    val instructions = statements map(TransStatements.transStatement(_, registers))
+    val instructions = statements map (TransStatements.transStatement(_, registers))
     val (beginFrame, endFrame) = Macros.frame(this.symbolTable.sizeInBytes)
 
     CodeSegment()
@@ -112,7 +113,7 @@ case class ReadStatement(target: AssignTarget) extends Statement {
     }
 
     val readLabel: Label = target.vartype match {
-      case Integer   => StaticCode.readIntLabel
+      case Integer => StaticCode.readIntLabel
       case Character => StaticCode.readCharLabel
     }
 
@@ -174,13 +175,30 @@ case class LoopStatement(condition: Expression, statements: Seq[Statement], symb
       .extend(DefineLabel(L1))
       .extend(TransStatements.transStatementSequence(statements, registers))
       .extend(DefineLabel(L0))
-      .extend(condition.transAssignRhs(registers))
+      .extend(condition.transAssignRhs(registers)) // Norbert are you sure?
       .extend(CMP(registers.head, ImmOperand(1)))
       .extend(B(L1, EQ))
       .extend(endFrame)
   }
 }
 
-case class ForLoopStatement(init: Statement, cond: Expression, step: Statement, body: Seq[Statement]) extends Statement {
-  override def transStatement(registers: Seq[Register]): CodeSegment = CodeSegment()
+case class ForLoopStatement(init: DeclareStatement, cond: Expression, step: Statement, body: Seq[Statement], symbolTable: SymbolTable) extends Statement {
+  override def transStatement(registers: Seq[Register]): CodeSegment = {
+    val L0 = Label()
+    val L1 = Label()
+
+    val (beginFrame, endFrame) = Macros.frame(this.symbolTable.sizeInBytes)
+
+    beginFrame
+      .extend(init.transStatement(registers))
+      .extend(B(L0))
+      .extend(DefineLabel(L1))
+      .extend(TransStatements.transStatementSequence(body, registers))
+      .extend(step.transStatement(registers))
+      .extend(DefineLabel(L0))
+      .extend(cond.transAssignRhs(registers)) // Norb idea
+      .extend(CMP(registers.head, ImmOperand(1)))
+      .extend(B(L1, EQ))
+      .extend(endFrame)
+  }
 }
