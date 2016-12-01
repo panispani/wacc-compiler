@@ -3,14 +3,11 @@ package wacc.visitors
 import wacc.TestUtilities
 import wacc.constructs.{CharLiteral, IntegerLiteral, PrintStatement, StringLiteral}
 
-/**
-  * Created by panayiotis on 10/11/16.
-  */
 class PrintStatementTest extends VisitorTest {
 
   "Visiting a print statement" should "allow int arguments" in {
     val parser = TestUtilities.setupParser("print 3")
-    val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
+    val result = TestUtilities.buildSubProgram(parser.conditionalStatement, ConditionalVisitor)
 
     result.right.value should be (PrintStatement(IntegerLiteral(3)))
   }

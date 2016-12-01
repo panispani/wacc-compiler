@@ -140,6 +140,9 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
   }
 
 
+  override def visitConditional(ctx: ConditionalContext): Either[CompilationError, Statement] = {
+    ctx.conditionalStatement.accept(ConditionalVisitor)
+  }
 
   override def visitScope(ctx: ScopeContext): Either[CompilationError, ScopeStatement] = {
     SymbolTable.openScope()

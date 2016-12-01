@@ -3,9 +3,6 @@ package wacc.visitors
 import wacc.{SymbolTable, TestUtilities, VariableReference}
 import wacc.constructs._
 
-/**
-  * Created by panayiotis on 10/11/16.
-  */
 class LoopStatementTest extends VisitorTest {
   "A while loop statement" should "allow re-declarations in its new scope" in {
     val parser = TestUtilities.setupParser("int x = 1; while true do int x = 1 done")
