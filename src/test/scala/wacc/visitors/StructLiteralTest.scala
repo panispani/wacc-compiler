@@ -10,12 +10,12 @@ class StructLiteralTest extends VisitorTest {
     val result = TestUtilities.buildSubProgram(parser.structLiteral, StructLiteralVisitor)
 
     result.right.value should be (
-        StructLiteral(
-          List(
-            IntegerLiteral(1),
-            IntegerLiteral(2)
-          )
+      StructLiteral(
+        List(
+          IntegerLiteral(1),
+          IntegerLiteral(2)
         )
+      )
     )
   }
 
