@@ -22,13 +22,18 @@ statement : NOP                                                                 
           | EXIT expression                                                               # Exit
           | PRINT expression                                                              # Print
           | PRINTLN expression                                                            # PrintLn
-          | IF expression THEN trueSequence=sequence ELSE falseSequence=sequence FI       # Conditional
+          | conditionalStatement                                                          # Conditional
           | loopStatement                                                                 # Loop
           | BEGIN sequence END                                                            # Scope
           ;
 
-loopStatement : WHILE expression DO sequence DONE                                         # While
-              | DO sequence WHILE expression                                              # DoWhile
+conditionalStatement : IF expression THEN trueSequence=sequence FI                              # IfSimple
+                     | IF expression THEN trueSequence=sequence ELSE falseSequence=sequence FI  # IfElse
+                     | IF expression THEN trueSequence=sequence ELSE conditionalStatement       # IfRecursive
+                     ;
+
+loopStatement : WHILE expression DO sequence DONE                                              # While
+              | DO sequence WHILE expression                                                   # DoWhile
               | FOR (init=statement)? SEMICOLON
                     cond=expression SEMICOLON
                     (step=statement)? DO body=sequence DONE                                    # For
