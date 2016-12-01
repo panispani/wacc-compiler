@@ -120,15 +120,22 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     ctx.body.statement().add(0, ctx.init)
     val loopScope = SequenceVisitor.visitScopedSequence(ctx.sequence())
 
+    /** cond and step are translated out of the loop scope but should have
+      * access to the variable reference from init which is declared in the
+      * child scope
+      * */
     loopScope.right.flatMap(loop => loop.statements.head match {
       case init @ DeclareStatement(_, ref, _) =>
         // inject init in parent scope temporarily
-        val oldRef = SymbolTable().injectReference(Some(ref))
+        val oldRef = SymbolTable().injectReference(ref)
         for {
           cond <- ctx.cond.accept(ExpressionVisitor).right
           step <- ctx.step.accept(StatementVisitor).right
-          // restore original reference if any
-          _    <- Right(SymbolTable().injectReference(oldRef)).right
+          // restore original reference or remove injected
+          _    <- Right(oldRef match {
+            case Some(old) => SymbolTable().injectReference(old)
+            case None => SymbolTable().removeReference(ref.name)
+          }).right
         } yield ForLoopStatement(init, cond, step, loop.statements.tail)
       case _ => Left(SyntaxError("First statement of for loop must be a declaration", ctx.start))
     })

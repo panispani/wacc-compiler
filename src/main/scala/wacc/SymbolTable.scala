@@ -37,12 +37,14 @@ case class SymbolTable(parent: Option[SymbolTable]) {
 
   // A bit of a hack - ask Tencho or Pani if you don't know what it does
   // If they left the company, don't use it but don't delete!!! :)
-  def injectReference(reference: Option[VariableReference]): Option[VariableReference] = {
-    reference.flatMap(r => {
-      val old = map.get(r.name)
-      map += r.name -> r
-      old
-    })
+  def injectReference(reference: VariableReference): Option[VariableReference] = {
+    val oldRef = map.remove(reference.name)
+    map += reference.name -> reference
+    oldRef
+  }
+
+  def removeReference(name: String): Unit = {
+    map.remove(name)
   }
 
   def lookup(identifier: String): Option[VariableReference]
