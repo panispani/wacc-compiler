@@ -1,8 +1,9 @@
 package wacc.visitors
 
-import antlr.WACCParser.{ArrayTypeContext, ErasedPairContext, PairTypeContext, PrimitiveTypeContext}
+import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
 import wacc.constructs._
+import scala.collection.JavaConversions._
 
 object TypeVisitor extends WACCParserBaseVisitor[Type] {
   override def visitPrimitiveType(ctx: PrimitiveTypeContext): Type =
@@ -32,5 +33,11 @@ object TypeVisitor extends WACCParserBaseVisitor[Type] {
 
   override def visitErasedPair(ctx: ErasedPairContext): Type = {
     PairType(AnyType, AnyType)
+  }
+
+  override def visitStruct(ctx: StructContext): Type = {
+    val members = ctx.structMember().toList map (_.accept(StructMemberVisitor))
+
+    StructType(ctx.IDENT().getText, members map (m => (m.name, m.varType)))
   }
 }

@@ -1,8 +1,8 @@
 package wacc.visitors
 
-import antlr.WACCParser.{StructLiteralContext}
+import antlr.WACCParser.StructLiteralContext
 import antlr.WACCParserBaseVisitor
-import wacc.constructs.{CompilationError, SemanticError, StructLiteral}
+import wacc.constructs.{CompilationError, StructLiteral}
 
 import scala.collection.JavaConversions._
 
