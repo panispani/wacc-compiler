@@ -39,6 +39,9 @@ FST : 'fst' ;
 SND : 'snd' ;
 NULL_PAIR : 'null' ;
 
+//advanced types
+STRUCT : 'struct' ;
+
 // parentheses and brackets
 LP : '(' ;
 RP : ')' ;
