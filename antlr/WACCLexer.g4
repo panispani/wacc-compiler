@@ -41,6 +41,7 @@ NULL_PAIR : 'null' ;
 
 //advanced types
 STRUCT : 'struct' ;
+DOT : '.' ;
 
 // parentheses and brackets
 LP : '(' ;
