@@ -44,10 +44,10 @@ class SymbolTableTest extends FlatSpec
 
   it should "preserve the type and identifier of the looked up variable" in {
     SymbolTable().lookupDeep("x").get.name should be ("x")
-    SymbolTable().lookupDeep("x").get.vartype should be (Integer)
+    SymbolTable().lookupDeep("x").get.varType should be (Integer)
 
     SymbolTable().lookupDeep("y").get.name should be ("y")
-    SymbolTable().lookupDeep("y").get.vartype should be (Boolean)
+    SymbolTable().lookupDeep("y").get.varType should be (Boolean)
   }
 
   "A deeper lookup" should "have the correct offset" in {

@@ -40,13 +40,13 @@ object TransAssignRhs {
 
   def transDeclareRhsArrayLiteral(al: ArrayLiteral, registers: Seq[Register]): Seq[Instruction] = {
     val elements = al.elements
-    val arraySize = 4 + elements.size * al.vartype.size
+    val arraySize = 4 + elements.size * al.varType.size
     var offset = 4
     var instructions: Seq[Instruction] = Seq()
 
     for (elem <- al.elements) {
       instructions ++= TransExpressions.transExpression(elem, registers.tail) :+ STR(registers(1), RegisterAddress(registers.head, offset))
-      offset += al.vartype.elemtype.size
+      offset += al.varType.elemtype.size
     }
 
     Seq(
@@ -59,14 +59,14 @@ object TransAssignRhs {
   }
 
   def transFunctionCall(fc: FunctionCall, registers: Seq[Register]): Seq[Instruction] = {
-    val argumentsSize = ImmOperand(fc.args.map(_.vartype.size).sum)
+    val argumentsSize = ImmOperand(fc.args.map(_.varType.size).sum)
     CodeSegment()
       .extend(fc.args.reverse flatMap (e => {
         // Evaluate each argument and push them on stack in reverse order (first arg is closest to new frame)
         val argumentEvalInstructions = TransExpressions.transExpression(e, registers)
-        argumentEvalInstructions :+ (e.vartype match {
-          case Character | Boolean => STRB(registers.head, RegisterAddress(SP, -e.vartype.size, writeback = true))
-          case _ => STR(registers.head, RegisterAddress(SP, -e.vartype.size, writeback = true))
+        argumentEvalInstructions :+ (e.varType match {
+          case Character | Boolean => STRB(registers.head, RegisterAddress(SP, -e.varType.size, writeback = true))
+          case _ => STR(registers.head, RegisterAddress(SP, -e.varType.size, writeback = true))
         })
       }))
       .extend(BL(Label(fc.identifier)))
@@ -76,8 +76,8 @@ object TransAssignRhs {
   }
 
   def transPairConstructor(pc: PairConstructor, registers: Seq[Register]): Seq[Instruction] = {
-    val firstType = pc.firstExp.vartype
-    val secondType = pc.secondExp.vartype
+    val firstType = pc.firstExp.varType
+    val secondType = pc.secondExp.varType
 
     val store1 = firstType match {
       case Boolean | Character => STRB(registers(1), RegisterAddress(R0))

@@ -8,7 +8,7 @@ trait Reference extends Typed {
   val name: String
   val offset: Int
 }
-case class VariableReference(name: String, vartype: Type, offset: Int) extends Reference with Expression
+case class VariableReference(name: String, varType: Type, offset: Int) extends Reference with Expression
 case class FunctionReference(name: String, returnType: Type, argumentTypes : Seq[Type])
 
 case class SymbolTable(parent: Option[SymbolTable]) {
@@ -71,7 +71,7 @@ case class SymbolTable(parent: Option[SymbolTable]) {
   private def lookupWithOffsetAccumulator(identifier: String, offset: Int): Option[VariableReference]
   = lookup(identifier) match {
     // Base case does the offset computation
-    case Some(ref) => Some(VariableReference(identifier, ref.vartype,  ref.offset + currentOffset + 4 + offset))
+    case Some(ref) => Some(VariableReference(identifier, ref.varType,  ref.offset + currentOffset + 4 + offset))
     // Recursive case just accumulates the offset (parent frame pointer and parent size)
     case None => parent flatMap (
       parent => parent.lookupWithOffsetAccumulator(identifier, currentOffset + 4 + offset))

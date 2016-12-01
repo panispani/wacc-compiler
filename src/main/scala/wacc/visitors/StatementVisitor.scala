@@ -15,7 +15,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     val identifier = ctx.IDENT().toString
 
     ctx.assignRhs().accept(AssignRhsVisitor).right.flatMap(rhs => {
-      if (compatibleTypes(varType, rhs.vartype)) {
+      if (compatibleTypes(varType, rhs.varType)) {
         SymbolTable().lookup(identifier) match {
           case None =>
             val variableReference = SymbolTable().addLocalVariable(identifier, varType)
@@ -25,7 +25,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
             ctx.start))
         }
       } else Left(
-        SemanticError("Declare statement " + SemanticErrors.typeError("expression", rhs.vartype, varType),
+        SemanticError("Declare statement " + SemanticErrors.typeError("expression", rhs.varType, varType),
           ctx.start))
     }
     )
@@ -39,10 +39,10 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     } yield (lhs, rhs)
 
     pair.right flatMap {
-      case (l, r) if compatibleTypes(l.vartype, r.vartype)
+      case (l, r) if compatibleTypes(l.varType, r.varType)
         => Right(AssignStatement(l, r))
       case (l, r)
-        => Left(SemanticError("Cannot assign " + r.vartype + " to " + l.vartype, ctx.start))
+        => Left(SemanticError("Cannot assign " + r.varType + " to " + l.varType, ctx.start))
     }
   }
 
@@ -52,19 +52,19 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
 
 
   override def visitExit(ctx: ExitContext): Either[CompilationError, ExitStatement] = {
-    ctx.expression().accept(ExpressionVisitor).right.flatMap(e => e.vartype match {
+    ctx.expression().accept(ExpressionVisitor).right.flatMap(e => e.varType match {
       case Integer => Right(ExitStatement(e))
       case default => Left(SemanticError(
-          "Exit statement " + SemanticErrors.typeError("expression", e.vartype, Integer),
+          "Exit statement " + SemanticErrors.typeError("expression", e.varType, Integer),
           ctx.start))
     })
   }
 
   override def visitRead(ctx: ReadContext): Either[CompilationError, ReadStatement] = {
-    ctx.assignLhs().accept(AssignLhsVisitor).right.flatMap(lhs => lhs.vartype match {
+    ctx.assignLhs().accept(AssignLhsVisitor).right.flatMap(lhs => lhs.varType match {
       case Integer | Character => Right(ReadStatement(lhs))
       case default => Left(SemanticError(
-        "Read statement " + SemanticErrors.typeError("target", lhs.vartype, Seq(Integer, Character)),
+        "Read statement " + SemanticErrors.typeError("target", lhs.varType, Seq(Integer, Character)),
         ctx.start))
     })
   }
@@ -94,11 +94,11 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     val falseTable = SymbolTable.closeScope()
     val conditional = tuple match {
       case Left(error)                                                => Left(error)
-      case Right((expression, trueStatements, falseStatements, trueTable)) => expression.vartype match {
+      case Right((expression, trueStatements, falseStatements, trueTable)) => expression.varType match {
         case Boolean => Right(ConditionalStatement(expression, ScopeStatement(trueStatements, trueTable), ScopeStatement(falseStatements, falseTable)))
         case default => Left(
           SemanticError(
-            "Conditional statement " + SemanticErrors.typeError("expression", expression.vartype, Boolean),
+            "Conditional statement " + SemanticErrors.typeError("expression", expression.varType, Boolean),
             ctx.start))
       }
     }
@@ -116,10 +116,10 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
 
     val loop = pair match {
       case Left(error)                         => Left(error)
-      case Right((expression, statements))     => expression.vartype match {
+      case Right((expression, statements))     => expression.varType match {
         case Boolean => Right(LoopStatement(expression, statements, SymbolTable()))
         case default => Left(SemanticError(
-          "Loop statement " + SemanticErrors.typeError("expression", expression.vartype, Boolean),
+          "Loop statement " + SemanticErrors.typeError("expression", expression.varType, Boolean),
           ctx.start))
       }
     }
@@ -141,11 +141,11 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
   }
 
   override def visitFree(ctx: FreeContext): Either[CompilationError, FreeStatement] = {
-      ctx.expression().accept(ExpressionVisitor).right flatMap (e => e.vartype match {
+      ctx.expression().accept(ExpressionVisitor).right flatMap (e => e.varType match {
         case ArrayType(_) | PairType(_, _)    => Right(FreeStatement(e))
         case default                          =>
           Left(SemanticError(
-            "Free statement " + SemanticErrors.typeError("expression", e.vartype.toString, Seq(ArrayType.toString, PairType.toString)),
+            "Free statement " + SemanticErrors.typeError("expression", e.varType.toString, Seq(ArrayType.toString, PairType.toString)),
             ctx.start))
       })
   }

@@ -37,7 +37,7 @@ abstract class AbstractPrintStatement extends Statement {
   val expression: Expression
 
   def transStatement(registers: Seq[Register]): CodeSegment = {
-    val printLabel: Label = expression.vartype match {
+    val printLabel: Label = expression.varType match {
       case Integer        => StaticCode.printIntLabel
       case Character      => StaticCode.printCharLabel
       case Boolean        => StaticCode.printBoolLabel
@@ -111,7 +111,7 @@ case class ReadStatement(target: AssignTarget) extends Statement {
       }
     }
 
-    val readLabel: Label = target.vartype match {
+    val readLabel: Label = target.varType match {
       case Integer   => StaticCode.readIntLabel
       case Character => StaticCode.readCharLabel
     }

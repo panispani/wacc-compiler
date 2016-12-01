@@ -10,7 +10,7 @@ object Macros {
   def store(lhs: AssignTarget, registers: Seq[Register]): Seq[Instruction] = {
     lhs match {
       case VariableReference(name, vartype, offset) => {
-        lhs.vartype match {
+        lhs.varType match {
           case Boolean | Character => Seq(STRB(registers.head, RegisterAddress(FP, offset)))
           case default             => Seq(STR(registers.head, RegisterAddress(FP, offset)))
         }
@@ -32,7 +32,7 @@ object Macros {
 
       case pe @ PairElement(selector, variableReference: Expression, elemType) => {
         val instruction = TransAssignRhs.getPairElementPointer(pe, registers.tail)
-        val store = pe.vartype match {
+        val store = pe.varType match {
           case Character | Boolean => STRB(registers.head, RegisterAddress(registers(1)))
           case default => STR(registers.head, RegisterAddress(registers(1)))
         }

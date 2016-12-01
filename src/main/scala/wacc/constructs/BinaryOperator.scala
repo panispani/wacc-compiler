@@ -7,7 +7,7 @@ import wacc.codegeneration.{CodeSegment, StaticCode}
   * Created by panayiotis on 08/11/16.
   */
 case class BinaryOperatorExpr(expression1: Expression, binaryOperator: BinaryOperator, expression2: Expression) extends Expression {
-  override val vartype = binaryOperator match {
+  override val varType = binaryOperator match {
     case TimesBinOp
        | DivBinOp
        | ModBinOp

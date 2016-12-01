@@ -46,7 +46,7 @@ object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError
   private def matchArgumentLists(l1: Seq[Type], l2: Seq[Expression]) = l1.size == l2.size && matchTypes(l1, l2)
 
   private def matchTypes(l1: Seq[Type], l2: Seq[Expression]): Boolean = {
-    val matchList = (l1, l2).zipped map((e1, e2) => compatibleTypes(e1, e2.vartype))
+    val matchList = (l1, l2).zipped map((e1, e2) => compatibleTypes(e1, e2.varType))
     matchList.forall(b => b)
   }
 }

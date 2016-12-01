@@ -1,7 +1,7 @@
 package wacc.constructs
 
 trait Typed {
-  val vartype: Type
+  val varType: Type
 }
 
 trait AssignValue extends Typed
