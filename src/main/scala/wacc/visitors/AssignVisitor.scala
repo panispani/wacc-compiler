@@ -33,4 +33,7 @@ object AssignRhsVisitor extends WACCParserBaseVisitor[Either[CompilationError, A
 
   override def visitAssignRhsFunctionCall(ctx: AssignRhsFunctionCallContext): Either[CompilationError, AssignValue] =
     ctx.functionCall().accept(FunctionCallVisitor)
+
+  override def visitAssignRhsStructLiteral(ctx: AssignRhsStructLiteralContext): Either[CompilationError, AssignValue] =
+    ctx.structLiteral().accept(StructLiteralVisitor)
 }
