@@ -7,7 +7,7 @@ class PrintStatementTest extends VisitorTest {
 
   "Visiting a print statement" should "allow int arguments" in {
     val parser = TestUtilities.setupParser("print 3")
-    val result = TestUtilities.buildSubProgram(parser.conditionalStatement, ConditionalVisitor)
+    val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
     result.right.value should be (PrintStatement(IntegerLiteral(3)))
   }

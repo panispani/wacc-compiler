@@ -46,10 +46,16 @@ class IfStatementTest extends VisitorTest {
   }
 
   "Recursive If" should "be a ConditionalRecursiveStatement" in {
-    val parser = TestUtilities.setupParser("if true then skip else if false skip else skip fi")
+    val parser = TestUtilities.setupParser("if true then skip else if false then skip else skip fi")
     val result = TestUtilities.buildSubProgram(parser.conditionalStatement, ConditionalVisitor)
 
-    println(result.right.value)
+    result.right.value should be (ConditionalRecursiveStatement(
+                                    BoolLiteral(true),
+                                    ScopeStatement(List(SkipStatement()),SymbolTable(Some(SymbolTable(None)))),
+                                    ConditionalElseStatement(
+                                        BoolLiteral(false),
+                                        ScopeStatement(List(SkipStatement()),SymbolTable(Some(SymbolTable(None)))),
+                                        ScopeStatement(List(SkipStatement()),SymbolTable(Some(SymbolTable(None)))))))
   }
 
 }
