@@ -117,8 +117,7 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
   }
 
   override def visitFor(ctx: ForContext): Either[CompilationError, Statement] = {
-    ctx.body.statement().add(0, ctx.init)
-    val loopScope = SequenceVisitor.visitScopedSequence(ctx.sequence())
+    val loopScope = SequenceVisitor.visitScopedSequence(ctx.init +: ctx.body.statement().toList)
 
     /** cond and step are translated out of the loop scope but should have
       * access to the variable reference from init which is declared in the
