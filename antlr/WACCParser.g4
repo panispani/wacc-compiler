@@ -6,6 +6,8 @@ program : BEGIN struct* function* sequence END EOF;
 
 struct : STRUCT IDENT (structMember SEMICOLON)* ;
 structMember : type IDENT ;
+structType : STRUCT IDENT ;
+structLiteral : LC (expression (COMMA expression)*)? RC ;
 
 function : type IDENT LP parameterList? RP IS sequence END ;
 parameterList : parameter (COMMA parameter)* ;
@@ -41,11 +43,13 @@ assignRhs : expression      # AssignRhsExpression
           | pairConstructor # AssignRhsPairConstructor
           | pairElement     # AssignRhsPairElement
           | functionCall    # AssignRhsFunctionCall
+          | structLiteral   # AssignRhsStructLiteral
           ;
 
 type : primitiveType
      | arrayType
      | pairType
+     | structType
      ;
 
 primitiveType : INT | BOOL | CHAR | STRING ;

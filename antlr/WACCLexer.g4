@@ -47,6 +47,9 @@ LP : '(' ;
 RP : ')' ;
 LB : '[' ;
 RB : ']' ;
+LC : '{' ;
+RC : '}' ;
+
 
 // stat keywords
 NOP : 'skip' ;
