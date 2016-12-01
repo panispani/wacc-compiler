@@ -1,24 +1,16 @@
 package wacc.visitors
 
-import antlr.WACCParser.ArrayLiteralContext
+import antlr.WACCParser.{StructLiteralContext}
 import antlr.WACCParserBaseVisitor
-import wacc.constructs.{ArrayLiteral, CompilationError, Expression, SemanticError}
+import wacc.constructs.{CompilationError, SemanticError, StructLiteral}
 
 import scala.collection.JavaConversions._
 
-object ArrayLiteralVisitor extends WACCParserBaseVisitor[Either[CompilationError, ArrayLiteral]] {
-  def sameType(types: Seq[Expression]): Boolean = {
-    if (types.nonEmpty) types.forall(_.varType == types.head.varType) else true
-  }
+object StructLiteralVisitor extends WACCParserBaseVisitor[Either[CompilationError, StructLiteral]] {
 
-  override def visitArrayLiteral(ctx: ArrayLiteralContext): Either[CompilationError, ArrayLiteral] = {
+  override def visitStructLiteral(ctx: StructLiteralContext): Either[CompilationError, StructLiteral] = {
     val literals = ctx.expression().toList map (_.accept(ExpressionVisitor))
 
-    sequenceOrLast(literals).right flatMap (ls =>
-      if (!sameType(ls)) {
-        val message = ctx.start.getLine + ":" + ctx.start.getCharPositionInLine + "Array literal types don't match"
-        Left(SemanticError(message, ctx.LB().getSymbol))
-      }
-      else Right(ArrayLiteral(ls)))
+    sequenceOrLast(literals).right flatMap (ls => Right(StructLiteral(ls)))
   }
 }
