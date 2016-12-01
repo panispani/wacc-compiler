@@ -8,6 +8,7 @@ struct : STRUCT IDENT (structMember SEMICOLON)* ;
 structMember : type IDENT ;
 structType : STRUCT IDENT ;
 structLiteral : LC (expression (COMMA expression)*)? RC ;
+structElement : IDENT DOT IDENT ;
 
 function : type IDENT LP parameterList? RP IS sequence END ;
 parameterList : parameter (COMMA parameter)* ;
@@ -47,6 +48,7 @@ loopStatement : WHILE expression DO sequence DONE                               
 assignLhs : variableReference # AssignLhsIdent
           | arrayElement      # AssignLhsArrayElement
           | pairElement       # AssignLhsPairElement
+          | structElement     # AssignLhsStructElement
           ;
 
 assignRhs : expression      # AssignRhsExpression
@@ -55,6 +57,7 @@ assignRhs : expression      # AssignRhsExpression
           | pairElement     # AssignRhsPairElement
           | functionCall    # AssignRhsFunctionCall
           | structLiteral   # AssignRhsStructLiteral
+          | structElement   # AssignRhsStructElement
           ;
 
 type : primitiveType
