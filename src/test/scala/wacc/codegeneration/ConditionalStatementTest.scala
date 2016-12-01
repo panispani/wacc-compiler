@@ -5,9 +5,6 @@ import wacc.arm._
 import wacc.visitors.StatementVisitor
 import wacc.{SymbolTable, TestUtilities}
 
-/**
-  * Created by panayiotis on 21/11/16.
-  */
 @Ignore
 class ConditionalStatementTest extends CodeGenTest {
 
