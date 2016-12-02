@@ -3,6 +3,9 @@
 import os
 import commands
 import sys
+import re
+
+address_pattern = r"0x[0-9a-f]{5}"
 
 correct = 0
 total = 0
@@ -25,7 +28,7 @@ for root, dirs, files in os.walk("wacc_examples"):
         (ref_status, ref_out) = commands.getstatusoutput("wacc_examples/refCompile -x {} < {}".format(full_path, input_file))
         (our_status, our_out) = commands.getstatusoutput("./execute.sh {} < {}".format(full_path, input_file))
         our_status = os.WEXITSTATUS(our_status)
-        ref_status = -1
+        ref_status = -9999
 
         if (os.path.isfile(os.path.splitext(file)[0] + ".s")):
             os.remove(os.path.splitext(file)[0] + ".s")
@@ -33,6 +36,7 @@ for root, dirs, files in os.walk("wacc_examples"):
         if (os.path.isfile(os.path.splitext(file)[0])):
             os.remove(os.path.splitext(file)[0])
 
+        our_out = re.sub(address_pattern, "#address#", our_out)
         ref_out = ref_out.split("\n")
         program_output = ""
         outputting = False
@@ -47,6 +51,7 @@ for root, dirs, files in os.walk("wacc_examples"):
                 continue
 
             if outputting:
+                line = re.sub(address_pattern, "#address#", line)
                 program_output += line + "\n"
 
         program_output = program_output[:-1]
@@ -68,7 +73,7 @@ for root, dirs, files in os.walk("wacc_examples"):
 
         total = total + 1
 
-print("TEST CASES PASSED: {}/{} ({:.2f}%)".format(correct, total, correct / total * 100.0))
+print("TEST CASES PASSED: {}/{} ({:.1%})".format(correct, total, correct / float(total)))
 
 if correct != total:
     sys.exit(1)
