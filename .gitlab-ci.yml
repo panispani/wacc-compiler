@@ -8,7 +8,7 @@ build:
   artifacts:
     paths:
       - target/
-      - bin/
+      - src/main/java
     expire_in: 24 hours
 
 # These jobs run in parallel as part of the test stage
