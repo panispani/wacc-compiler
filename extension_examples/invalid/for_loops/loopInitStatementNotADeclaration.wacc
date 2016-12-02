@@ -1,0 +1,10 @@
+# Syntax error - the first statement of the for loop must be a declaration
+
+begin
+
+int i = 0;
+for println "error"; i < 10; i = i + 1 do
+    println i
+done
+
+end
