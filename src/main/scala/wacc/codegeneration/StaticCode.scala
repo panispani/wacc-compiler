@@ -100,7 +100,10 @@ object StaticCode {
       BL(Label("strlen")),            // R0 = len(stringB)
       ADD(R0, R0, R2),                // R0 = len(stringA) + len(stringB)
       ADD(R0, R0, ImmOperand(1)),     // R0 = len(stringA) + len(stringB) + 1
+      MOV(R1, R0),                    // R1 = len(stringA) + len(stringB) + 1
       BL(Label("malloc")),            // R0 = newstring*
+      STR(R1, RegisterAddress(R0)),   // *newstring = length of string
+      ADD(R0, R0, ImmOperand(4)),     // newstring++
       POP(Seq(R1)),                   // Restore stringA into R1
       BL(Label("strcat")),            // *newstring += stringA
       POP(Seq(R1)),                   // Restore stringB into R1
