@@ -28,6 +28,7 @@ object StaticCode {
     .extend(throwOverflowError)
     .extend(freePairFunction)
     .extend(checkNullPointerFunction)
+    .extend(concatinateStrings)
 
   def staticData: CodeSegment = CodeSegment()
     .extend(DefineLabel(intFormatLabel))
@@ -84,6 +85,28 @@ object StaticCode {
   def nullReferenceErrorLabel: Label = Label("null_reference_error")
   def freePairLabel: Label = Label("free_pair")
   def checkNullPointerFunctionLabel: Label = Label("check_null_pointer")
+  def concatinateStringsLabel: Label = Label("concatinate_strings")
+
+  def concatinateStrings: CodeSegment = {
+    //R0 stringA, R1 stringB
+    CodeSegment(
+      DefineLabel(concatinateStringsLabel),
+      NEW_STACK_FRAME,
+      PUSH(Seq(R0)),                  // Save stringA
+      BL(Label("strlen")),
+      MOV(R2, R0),                    // R2 = len(stringA)
+      MOV(R0, R1),
+      BL(Label("strlen")),            // R0 = len(stringB)
+      ADD(R0, R0, R2),                // R0 = len(stringA) + len(stringB)
+      ADD(R0, R0, ImmOperand(1)),     // R0 = len(stringA) + len(stringB) + 1
+      BL(Label("malloc")),            // R0 = newstring*
+      POP(Seq(R0)),                   // Restore stringA
+      BL(Label("strcat")),            // *newstring += stringA
+      MOV(R0, R1),
+      BL(Label("strcat")),            // *newstring += stringB
+      RETURN
+    )
+  }
 
   def readIntFunction: CodeSegment = {
     CodeSegment()
