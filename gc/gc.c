@@ -6,6 +6,7 @@
 // traverse entire object graph, mark each one as reachable
 // traverse heap and delete objects that are unreachable
 
+/************ DATA STRUCTURES *****************/
 //maybe not all of them are needed e.g. array
 typedef enum {
 	INT,
@@ -55,6 +56,19 @@ typedef struct _object {
 	};
 } object;
 
+// may keep also a field of when to trigger a GC
+// also maybe add a stack maximum? i think not needed
+typedef struct {
+	// list of object pointers, until malloc fails
+	Object** stack;
+	// head of object list
+	Object* head; 
+	// current number of objects
+	int stack_size;
+} VM;
+
+
+/************ FUNCTIONS *****************/
 static Object *newObject(VM* vm, int type, int stackbytes, int refbytes) {
 	return NULL;
 }
