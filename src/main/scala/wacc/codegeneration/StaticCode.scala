@@ -92,6 +92,7 @@ object StaticCode {
     CodeSegment(
       DefineLabel(concatinateStringsLabel),
       NEW_STACK_FRAME,
+      PUSH(Seq(R1)),                  // Save stringB
       PUSH(Seq(R0)),                  // Save stringA
       BL(Label("strlen")),
       MOV(R2, R0),                    // R2 = len(stringA)
@@ -100,9 +101,9 @@ object StaticCode {
       ADD(R0, R0, R2),                // R0 = len(stringA) + len(stringB)
       ADD(R0, R0, ImmOperand(1)),     // R0 = len(stringA) + len(stringB) + 1
       BL(Label("malloc")),            // R0 = newstring*
-      POP(Seq(R0)),                   // Restore stringA
+      POP(Seq(R1)),                   // Restore stringA into R1
       BL(Label("strcat")),            // *newstring += stringA
-      MOV(R0, R1),
+      POP(Seq(R1)),                   // Restore stringB into R1
       BL(Label("strcat")),            // *newstring += stringB
       RETURN
     )

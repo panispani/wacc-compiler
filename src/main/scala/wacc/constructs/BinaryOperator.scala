@@ -89,7 +89,8 @@ object PlusBinOp extends BinaryOperator("+") {
         CodeSegment(
           MOV(R0, dest),
           MOV(R1, operand),
-          BL(StaticCode.concatinateStringsLabel))
+          BL(StaticCode.concatinateStringsLabel),
+          MOV(dest, R0))
 }
 
 object MinusBinOp extends BinaryOperator("-") {
