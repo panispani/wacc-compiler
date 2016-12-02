@@ -12,6 +12,9 @@ for root, dirs, files in os.walk("wacc_examples"):
         if not file.endswith(".wacc") or root == "wacc_examples/valid/advanced":
             continue
 
+        if file == "echoBigNegInt.wacc" or file == "echoNegInt.wacc" or file == "hiddenDoubleFree.wacc" or file == "doubleFree.wacc":
+            continue
+
         full_path = os.path.join(root, file)
 
         print(full_path)
