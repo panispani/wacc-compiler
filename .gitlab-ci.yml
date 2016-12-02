@@ -2,14 +2,12 @@ before_script:
   - sbt sbt-version
   - git submodule init
   - git submodule update
+  - make
 
-build:
-  script:
-    - make
+# These jobs run in parallel as part of the test stage
 
-test:
-  script:
-    # Execute your project's tests
-    - make # Need to make in order to generate antlr files
-    - sbt clean test
-    - ./run_all_tests.py
+unit:
+  script: "sbt clean test"
+
+integration:
+  script: "./run_all_tests.py"
