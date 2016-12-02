@@ -6,6 +6,18 @@
 // traverse entire object graph, mark each one as reachable
 // traverse heap and delete objects that are unreachable
 
+//maybe not all of them are needed e.g. array
+typedef enum {
+	INT,
+	CHAR,
+	PAIR,
+	STRING,
+	ARRAY,
+	STRUCT,
+	CLASS
+} object_type;
+
+
 Object *newObject(VM* vm, int type, int stackbytes, int refbytes) {
 	return NULL;
 }
