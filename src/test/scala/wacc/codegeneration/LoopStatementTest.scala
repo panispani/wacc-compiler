@@ -78,18 +78,13 @@ class LoopStatementTest extends CodeGenTest {
 
     val instructions = TransStatements.transStatement(program.right.get, availableRegisters)
 
-    val labels = instructions.filter({
-      case DefineLabel(_) => true
-      case _ => false
-    })
-
     val frameSize = 2
-    val firstLabelIdx = instructions.indexOf(labels.head)
+    val loopEntryIdx = instructions.indexWhere(_.isInstanceOf[B])
 
-    val initStatement = instructions.slice(frameSize, firstLabelIdx - 1)
+    val initCode = instructions.slice(frameSize, loopEntryIdx)
 
     val init = program.right.value.asInstanceOf[ForLoopStatement].init
-    initStatement should be (init.transStatement(availableRegisters).instructions)
+    initCode should be (init.transStatement(availableRegisters).instructions)
 
   }
 
