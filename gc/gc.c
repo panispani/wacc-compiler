@@ -16,10 +16,10 @@ typedef enum {
 	ARRAY,
 	STRUCT,
 	CLASS
-} object_type;
+} Object_type;
 
 typedef struct _object {
-	object_type type;
+	Object_type type;
 	unsigned char marked; // 1 byte, bool is 4 bytes
 	
 	union fields {
@@ -54,7 +54,7 @@ typedef struct _object {
 		};
 		
 	};
-} object;
+} Object;
 
 // may keep also a field of when to trigger a GC
 // also maybe add a stack maximum? i think not needed
@@ -64,30 +64,52 @@ typedef struct {
 	// head of object list
 	Object* head; 
 	// current number of objects
-	int stack_size;
+	int num_objects;
 } VM;
 
 
 /************ FUNCTIONS *****************/
-static Object *newObject(VM* vm, int type, int stackbytes, int refbytes) {
-	return NULL;
-}
-	
+
 //todo
 static VM* newVM() {
 	  VM* vm = malloc(sizeof(VM));
+	  vm->num_objects = 0;
+	  vm->head = NULL;
+	  // add dummy head to stack?
 	  return vm;
 }
-
 
 static void gc() {
 	
 }
 
+// heuristics of when to call GC
+static int should_gc() {
+	// casted to false
+	return 0;
+}
+
+static Object* new_object(VM* vm, int type, int stackbytes, int refbytes) {
+	if (should_gc()) {
+		gc();
+	}
+	Object* object = malloc();
+	object->type = type;
+	object->marked = 0;
+	// append to front of VM object list
+	object->next = vm->next;
+	vm->head = object;
+	vm->num_objects = vm->num_objects + 1;
+	return object;
+}
+
+
+
+
 // only call this function
 void gc_malloc(int type, int stackbytes, int refbytes) {
 	static VM vm = newVM();
-	Object *object = newObject(vm, type, stackbytes, refbytes);
+	Object *object = new_object(vm, type, stackbytes, refbytes);
 	// pop from vm stack the refbytes in object list
 	// push(vm, object);
 }
