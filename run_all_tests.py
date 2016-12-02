@@ -3,10 +3,10 @@
 import os
 import commands
 
-correct = 98
-total = 98
+correct = 0
+total = 0
 
-for root, dirs, files in os.walk("wacc_examples/valid"):
+for root, dirs, files in os.walk("wacc_examples"):
     for file in files:
         if not file.endswith(".wacc") or root == "wacc_examples/valid/advanced":
             continue
@@ -18,8 +18,8 @@ for root, dirs, files in os.walk("wacc_examples/valid"):
         if not os.path.isfile(input_file):
             input_file = "empty.in"
 
-        ref_out = commands.getoutput("wacc_examples/refCompile -x {} < {}".format(full_path, input_file))
-        our_out = commands.getoutput("./execute.sh {} < {}".format(full_path, input_file))
+        (ref_status, ref_out) = commands.getstatusoutput("wacc_examples/refCompile -x {} < {}".format(full_path, input_file))
+        (our_status, our_out) = commands.getstatusoutput("./execute.sh {} < {}".format(full_path, input_file))
 
         if (os.path.isfile(os.path.splitext(file)[0] + ".s")):
             os.remove(os.path.splitext(file)[0] + ".s")
@@ -41,14 +41,21 @@ for root, dirs, files in os.walk("wacc_examples/valid"):
 
         program_output = program_output[:-1]
 
-        if program_output != our_out:
-            print("FAIL")
-            print("Theirs (Length {})".format(len(program_output)))
-            print(program_output)
-            print("Ours (Length {})".format(len(our_out)))
-            print(our_out)
+        if ref_status == our_status:
+            if program_output == our_out:
+                correct = correct + 1
+            else:
+                print("=================OUTPUT MISMATCH===========================")
+                print("Theirs (Length {}):".format(len(program_output)))
+                print(program_output)
+                print("Ours (Length {}):".format(len(our_out)))
+                print(our_out)
+                print("================/OUTPUT MISMATCH===========================")
         else:
-            correct = correct + 1
+            print("==================STATUS MISMATCH==========================")
+            print("Theirs: {}".format(ref_status))
+            print("Ours  : {}".format(our_status))
+            print("==================/STATUS MISMATCH==========================")
 
         total = total + 1
 
