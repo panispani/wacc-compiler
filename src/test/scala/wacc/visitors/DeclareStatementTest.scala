@@ -34,6 +34,13 @@ class DeclareStatementTest extends VisitorTest {
     result.left.value shouldBe a[SemanticError]
   }
 
+  ignore should "be valid when lhs is struct and rhs struct literal" in {
+    val parser = TestUtilities.setupParser("struct car c = {1, 2}")
+    val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
+
+    result.left.value shouldBe a[SemanticError]
+  }
+
   "Integer declaration " should " be built correctly " in {
     val parser = TestUtilities.setupParser("int x = 1")
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
