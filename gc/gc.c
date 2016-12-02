@@ -17,6 +17,43 @@ typedef enum {
 	CLASS
 } object_type;
 
+typedef struct _object {
+	object_type type;
+	unsigned char marked; // 1 byte, bool is 4 bytes
+	
+	union fields {
+		// INT
+		int value;
+		
+		// CHAR
+		char value;
+		
+		// PAIR
+		struct {
+			struct _object *first;
+			struct _object *second;
+		};
+		
+		// STRING
+		struct {
+			struct _object *ch;    // char, last one is '\0'
+			struct _object *next; // a pair
+		};
+		
+		// ARRAY - will think about it
+		
+		// STRUCT
+		struct {
+			struct _object *list; // list of pairs, each pair having an element and next pair
+		};
+		
+		// CLASS
+		struct {
+			struct _object *list; // list of pairs, each pair having an element and next pair
+		};
+		
+	};
+} object;
 
 static Object *newObject(VM* vm, int type, int stackbytes, int refbytes) {
 	return NULL;
