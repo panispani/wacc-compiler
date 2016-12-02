@@ -13,7 +13,7 @@ case class ExitStatement(exitCode: Expression) extends Statement {
 
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     CodeSegment()
-      .extend(TransExpressions.transExpression(exitCode, registers))
+      .extend(exitCode.transAssignRhs(registers))
       .extend(MOV(R0, registers.head))
       .extend(BL(Label("exit")))
   }
@@ -24,7 +24,7 @@ case class ReturnStatement(returnValue: Expression) extends Statement {
   override def transStatement(registers: Seq[Register]): CodeSegment = {
 
     CodeSegment()
-      .extend(TransExpressions.transExpression(returnValue, registers))
+      .extend(returnValue.transAssignRhs(registers))
       .extend(MOV(R0, registers.head))
       .extend(MOV(SP, FSP))
       .extend(POP(Seq(FSP)))
@@ -48,7 +48,7 @@ abstract class AbstractPrintStatement extends Statement {
     }
 
     CodeSegment()
-      .extend(TransExpressions.transExpression(expression, registers)) // eval expression to print
+      .extend(expression.transAssignRhs(registers)) // eval expression to print
       .extend(MOV(R0, registers.head)) // setup function call
       .extend(BL(printLabel))
   }
@@ -105,8 +105,8 @@ case class ReadStatement(target: AssignTarget) extends Statement {
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     val instructions: CodeSegment = target match {
       case vr: VariableReference => CodeSegment().extend(ADD(registers.head, FP, ImmOperand(vr.offset)))
-      case pe: PairElement => CodeSegment().extend(TransAssignRhs.getPairElementPointer(pe, registers))
-      case ae@ArrayElement(vr, indexes, elemType) => {
+      case pe: PairElement       => CodeSegment().extend(pe.getPairElementPointer(registers))
+      case ae @ ArrayElement(vr, indexes, elemType) => {
         CodeSegment(ADD(registers.head, FP, ImmOperand(vr.offset)))
           .extend(Macros.getNestedElementAddress(indexes, registers, elemType.size))
       }
@@ -139,7 +139,7 @@ case class ConditionalStatement(expression: Expression, trueStatements: ScopeSta
 
     //stack allocation is not done TODO- experimental
     CodeSegment()
-      .extend(TransExpressions.transExpression(expression, registers))
+      .extend(expression.transAssignRhs(registers))
       .extend(CMP(registers.head, ImmOperand(1)))
       .extend(B(L0, EQ))
       .extend(falseStatements.transStatement(registers))
@@ -175,7 +175,7 @@ case class LoopStatement(condition: Expression, statements: Seq[Statement], symb
       .extend(DefineLabel(L1))
       .extend(TransStatements.transStatementSequence(statements, registers))
       .extend(DefineLabel(L0))
-      .extend(TransExpressions.transExpression(condition, registers))
+      .extend(condition.transAssignRhs(registers)) // Norbert are you sure?
       .extend(CMP(registers.head, ImmOperand(1)))
       .extend(B(L1, EQ))
       .extend(endFrame)
@@ -196,7 +196,7 @@ case class ForLoopStatement(init: DeclareStatement, cond: Expression, step: Stat
       .extend(TransStatements.transStatementSequence(body, registers))
       .extend(step.transStatement(registers))
       .extend(DefineLabel(L0))
-      .extend(TransExpressions.transExpression(cond, registers))
+      .extend(cond.transAssignRhs(registers)) // Norb idea
       .extend(CMP(registers.head, ImmOperand(1)))
       .extend(B(L1, EQ))
       .extend(endFrame)
