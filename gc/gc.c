@@ -18,20 +18,22 @@ typedef enum {
 } object_type;
 
 
-Object *newObject(VM* vm, int type, int stackbytes, int refbytes) {
+static Object *newObject(VM* vm, int type, int stackbytes, int refbytes) {
 	return NULL;
 }
 	
-gc_init() {
-	vm = newVM();
-}
-
 //todo
-VM* newVM() {
+static VM* newVM() {
 	  VM* vm = malloc(sizeof(VM));
 	  return vm;
 }
 
+
+static void gc() {
+	
+}
+
+// only call this function
 void gc_malloc(int type, int stackbytes, int refbytes) {
 	static VM vm = newVM();
 	Object *object = newObject(vm, type, stackbytes, refbytes);
@@ -39,10 +41,5 @@ void gc_malloc(int type, int stackbytes, int refbytes) {
 	// push(vm, object);
 }
 
-void gc() {
-	
-}
-
-void gc_free() {
-	// gc_free is not needed for now
-}
+// gc_free is not needed for now
+void gc_free() {}
