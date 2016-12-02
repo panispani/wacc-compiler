@@ -6,8 +6,25 @@
 // traverse entire object graph, mark each one as reachable
 // traverse heap and delete objects that are unreachable
 
-void gc_malloc() {
+Object *newObject(VM* vm, int type, int stackbytes, int refbytes) {
+	return NULL;
+}
 	
+gc_init() {
+	vm = newVM();
+}
+
+//todo
+VM* newVM() {
+	  VM* vm = malloc(sizeof(VM));
+	  return vm;
+}
+
+void gc_malloc(int type, int stackbytes, int refbytes) {
+	static VM vm = newVM();
+	Object *object = newObject(vm, type, stackbytes, refbytes);
+	// pop from vm stack the refbytes in object list
+	// push(vm, object);
 }
 
 void gc() {
