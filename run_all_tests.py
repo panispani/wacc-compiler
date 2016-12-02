@@ -2,6 +2,7 @@
 
 import os
 import commands
+import sys
 
 correct = 0
 total = 0
