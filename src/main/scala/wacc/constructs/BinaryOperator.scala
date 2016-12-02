@@ -24,8 +24,8 @@ case class BinaryOperatorExpr(expression1: Expression, binaryOperator: BinaryOpe
        | OrBinOp
       => Boolean
 
-    case PlusBinOp => if (expression1.vartype == Integer && expression2.vartype == Integer) Integer else
-                      if (expression1.vartype == String && expression2.vartype == String) String
+    case PlusBinOp
+      => expression1.vartype
   }
 }
 
