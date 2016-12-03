@@ -122,6 +122,25 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
       case _ => Left(SemanticError("Identifier is not an array reference", ctx.start))
     }
   }
+
+  //TODO
+//  override def visitStructElement(ctx: StructElementContext): Either[CompilationError, StructMember] = {
+//    val identifier = ctx.variableReference().getText
+//
+//    SymbolTable().lookupDeep(identifier) match {
+//      case Some(ref @ VariableReference(x, arrayType: ArrayType, offset)) => for {
+//        indexes <- sequenceOrLast(ctx.expression().toList map (e => e.accept(ExpressionVisitor))).right
+//      } yield ArrayElement(ref, indexes, arrayType.typeAt(indexes.size))
+//
+//      // Special case for string indexing
+//      case Some(vr @ VariableReference(_, String, _)) => for {
+//        indexes <- sequenceOrLast(ctx.expression().toList map (e => e.accept(ExpressionVisitor))).right
+//      } yield ArrayElement(vr, indexes, Character)
+//
+//      case None    => Left(SemanticError("Variable not declared", ctx.start))
+//      case _ => Left(SemanticError("Identifier is not an array reference", ctx.start))
+//    }
+//  }
 }
 
 

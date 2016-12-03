@@ -37,8 +37,10 @@ object TypeVisitor extends WACCParserBaseVisitor[Type] {
     PairType(AnyType, AnyType)
   }
 
+  //TODO: refactor typevisitor to return an Either[SemanticError, Type]
   override def visitStructType(ctx: StructTypeContext): Type = {
     val name: String = ctx.IDENT().getText
+    //TODO: case when a struct type is not defined
     val members = SymbolTable.structsTable(name).members
     StructType(name, members map (m => (m.name, m.varType)))
   }

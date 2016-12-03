@@ -1,6 +1,6 @@
 package wacc.visitors
 
-import wacc.{TestUtilities, VariableReference}
+import wacc.{SymbolTable, TestUtilities, VariableReference}
 import wacc.constructs._
 
 class DeclareStatementTest extends VisitorTest {
@@ -34,7 +34,17 @@ class DeclareStatementTest extends VisitorTest {
     result.left.value shouldBe a[SemanticError]
   }
 
-  ignore should "be valid when lhs is struct and rhs struct literal" in {
+  it should "struct type declaration should be valid" in {
+    val parser = TestUtilities.setupParser("struct car c = {1, 'a'}")
+    SymbolTable.structsTable += "car" -> Struct("car", Seq(VariableReference("a", Integer, 0), VariableReference("b", Character, 0)))
+    val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
+
+    result.right.get shouldBe DeclareStatement(StructType("car",List(("a",Integer), ("b",Character))),
+      VariableReference("c",StructType("car",List(("a",Integer), ("b",Character))),-4),StructLiteral(List(IntegerLiteral(1), CharLiteral("a"))))
+  }
+
+  //TODO: remove ignore and fix test
+  ignore should "be semantic error when lhs is a struct that has not been defined" in {
     val parser = TestUtilities.setupParser("struct car c = {1, 2}")
     val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
