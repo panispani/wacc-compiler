@@ -43,7 +43,7 @@ typedef struct _object {
 			struct _object *second;
 		};
 
-		// STRING
+		// STRING - maybe merge with ARRAY
 		struct {
 			struct _object *ch;    // char, last one is '\0'
 			struct _object *next; // a pair
@@ -150,7 +150,6 @@ static Object* get_object_with_id(int id) {
 }
 
 // called every time you declare a pair
-// do we need the 2 types?
 Object* declare_pair_constructor(int id, int val1_id, int val2_id) {
 	Object* object = new_object();
 	object->type = PAIR;
@@ -170,7 +169,9 @@ Object* declare_pair_copy(int id1, int id2) {
 }
 // called every time you assign an pair
 Object* assign_pair(int id1, int id2) {
-	return NULL;
+	Object* object = get_object_with_id(id2);
+	pushVM(object, id1);
+	return object;
 }
 
 
@@ -178,20 +179,9 @@ Object* assign_pair(int id1, int id2) {
 
 
 
-
-
 //called once on startup
 void gc_init() {
     vm = newVM();
-}
-
-// only call this function - this is only true for struct types..
-// this method doesnt work and shouldnt be used for now - for anyone that reads the code
-void* gc_malloc(int type, int stackbytes, int refbytes) {
-	//Object *object = new_object(type, stackbytes, refbytes);
-	//return (void*)object;
-	// pop from vm stack the refbytes in object list
-	return NULL;
 }
 
 // gc_free is not needed for now
