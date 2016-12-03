@@ -98,7 +98,11 @@ static Object* new_object(VM* vm, int type, int stackbytes, int refbytes) {
 	object->type = type;
 	object->marked = 0;
 	// append to front of VM object list
-	object->next = vm->head->next;
+	if (vm->head == NULL) {
+      object->next = NULL;
+	} else {
+      object->next = vm->head->next;
+	}
 	vm->head = object;
 	vm->num_objects = vm->num_objects + 1;
 	return object;
