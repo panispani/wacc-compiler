@@ -3,14 +3,14 @@ package wacc.visitors
 import wacc.constructs._
 import wacc.{SymbolTable, TestUtilities, VariableReference}
 
-class StructVisitorTest extends VisitorTest {
+class StructMemberTest extends VisitorTest {
 
   it should "struct type declaration should be valid" in {
-    val parser = TestUtilities.setupParser("struct car")
+    val parser = TestUtilities.setupParser("struct car c = {1, 'a'}")
     SymbolTable.structsTable += "car" -> Struct("car", Seq(VariableReference("a", Integer, 0), VariableReference("b", Character, 0)))
-    val result = TestUtilities.buildSubProgram(parser.structType, TypeVisitor)
+    val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
-    result shouldBe StructType("car", Seq(("a", Integer), ("b", Character)))
+    result.right.get shouldBe DeclareStatement(StructType("car",List(("a",Integer), ("b",Character))),VariableReference("c",StructType("car",List(("a",Integer), ("b",Character))),-4),StructLiteral(List(IntegerLiteral(1), CharLiteral("a"))))
   }
 
   "Visiting a struct" should "create struct construct with the correct symbol table" in {
