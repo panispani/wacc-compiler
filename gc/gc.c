@@ -10,7 +10,7 @@
  *  we make a graph of reachable objects
  *  traverse entire object graph, mark each one as reachable
  *  traverse heap and delete objects that are unreachable
- * /
+ */
 
 /************ DATA STRUCTURES *****************/
 //maybe not all of them are needed e.g. array
@@ -65,10 +65,13 @@ typedef struct _object {
 } Object;
 
 // may keep also a field of when to trigger a GC
-// also maybe add a stack maximum? i think not needed
+// dynamically resizable aaray with realloc - do later
+//TODO how do i remove ariables with scope? I rewrite old ones :)
+#define MAX_STACK_SIZE 4096
 typedef struct {
-	// list of object pointers, until malloc fails
-	Object** stack;
+	// array of object pointers
+	Object* stack[MAX_STACK_SIZE];
+	int stack_size;
 	// head of object list
 	Object* head;
 	// current number of objects
@@ -82,6 +85,7 @@ static VM* vm;
 static VM* newVM() {
 	  VM* vm = malloc(sizeof(VM));
 	  vm->num_objects = 0;
+	  vm->stack_size = 0;
 	  vm->head = NULL;
 	  return vm;
 }
@@ -104,25 +108,6 @@ static int should_gc() {
 #define CHARTYPE 3
 #define ARRAYTYPE 4
 #define STRUCTTYPE 5
-
-struct {
-	int i = 0;
-	int j = 0;
-	struct k = 0;
-	};
-	
-	4
-	s.k
-	
-	
-	
-	4
-	8
-	p.x p+4
-
-static void pushVM(Object* object) {
-	// put on stack of VM
-}
 
 static Object* new_object() {
 	if (should_gc()) {
@@ -148,25 +133,44 @@ static Object* new_object() {
 	return object;
 }
 
+static void pushVM(Object* object, int id) {
+	// put on stack of VM
+	vm->stack[id] = object;
+	vm->stack_size++;
+	//stack_size == id?
+}
+
+// look on stack for object with corresponing id
+static Object* get_object_with_id(int id) {
+	if (id == -1) {
+		// not a reference type, shouldn't care
+		return NULL; // or int-singleton
+	}
+	return vm->stack[id];
+}
+
 // called every time you declare a pair
 Object* declare_pair_constructor(int id, int type1, int  type2, int val1_id, int val2_id) {
 	Object* object = new_object();
 	object->type = PAIRTYPE; 
-	object->first = get_object_with_id(val1_id);
-	object->second = get_object_with_id(val2_id);
-	pushVM(object);
+	object->fields.first = get_object_with_id(val1_id);
+	object->fields.second = get_object_with_id(val2_id);
+	pushVM(object, id);
+	return object;
 }
+
 Object* declare_pair_copy(int type1, int type2, int id1, int id2) {
-	Object* object = new_object(PAIRTYPE, );  
-	pushVM(object);
+	Object* object = new_object();  
+	pushVM(object, id1);
+	return object;
 }
 // called every time you assign an pair
 Object* assign_pair(int id1, int id2) {
-	
+	return NULL;
 }
 
 
-// separate functions for each type
+/* separate functions for each type */
 
 
 
@@ -183,6 +187,7 @@ void* gc_malloc(int type, int stackbytes, int refbytes) {
 	//Object *object = new_object(type, stackbytes, refbytes);
 	//return (void*)object;
 	// pop from vm stack the refbytes in object list
+	return NULL;
 }
 
 // gc_free is not needed for now
@@ -194,6 +199,6 @@ int main() {
     Object* object = declare_pair_constructor(1, INTTYPE, INTTYPE, -1, -1);
     // should be an int, int pair
     
-    //printf("%d\n", vm->head->type);
+    printf("%d\n", object->type);
     return 0;
 }
