@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-/* 
+/*
  * What Garbage collection will do
- * 
+ *
  * "in use" means referenced by a variable in scope
  *  or the object referenced by another object that is in use
  *  mark and sweep method
@@ -129,7 +129,7 @@ static Object* new_object() {
 	}
 	vm->head = object;
 	vm->num_objects = vm->num_objects + 1;
-	
+
 	return object;
 }
 
@@ -151,17 +151,20 @@ static Object* get_object_with_id(int id) {
 
 // called every time you declare a pair
 // do we need the 2 types?
-Object* declare_pair_constructor(int id, int type1, int  type2, int val1_id, int val2_id) {
+Object* declare_pair_constructor(int id, int val1_id, int val2_id) {
 	Object* object = new_object();
-	object->type = PAIR; 
+	object->type = PAIR;
 	object->fields.first = get_object_with_id(val1_id);
 	object->fields.second = get_object_with_id(val2_id);
 	pushVM(object, id);
 	return object;
 }
 
-Object* declare_pair_copy(int type1, int type2, int id1, int id2) {
-	Object* object = new_object();  
+Object* declare_pair_copy(int id1, int id2) {
+	Object* object = new_object();
+	Object* copyfrom = get_object_with_id(id2);
+	object->type = PAIR;
+	object->fields = copyfrom->fields;
 	pushVM(object, id1);
 	return object;
 }
@@ -196,10 +199,11 @@ void gc_free() {}
 
 int main() {
     gc_init();
-    
-    Object* object = declare_pair_constructor(1, INTTYPE, INTTYPE, -1, -1);
+
+    Object* object = declare_pair_constructor(1, -1, -1);
+    Object* object2 = declare_pair_copy(2, 1);
     // should be an int, int pair
-    
-    printf("%d\n", object->type);
+
+    printf("%d %d\n", object->type, object2->type);
     return 0;
 }
