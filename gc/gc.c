@@ -96,17 +96,45 @@ static int should_gc() {
 	return 0;
 }
 
-static Object* new_object(int type, int bytes) {
+
+
+// should think of a clever way to pop struct fields of the stack
+#define INTTYPE 1
+#define PAIRTYPE 2
+#define CHARTYPE 3
+#define ARRAYTYPE 4
+#define STRUCTTYPE 5
+
+struct {
+	int i = 0;
+	int j = 0;
+	struct k = 0;
+	};
+	
+	4
+	s.k
+	
+	
+	
+	4
+	8
+	p.x p+4
+
+static void pushVM(Object* object) {
+	// put on stack of VM
+}
+
+static Object* new_object() {
 	if (should_gc()) {
 		gc();
 	}
 	// rethink
-	Object* object = malloc(bytes);
+	Object* object = malloc(sizeof(Object));
 	if (object == NULL) {
 		printf("%s\n", "Stack overflow");
 		return object;
 	}
-	object->type = type;
+
 	object->marked = 0;
 	// append to front of VM object list
 	if (vm->head == NULL) {
@@ -117,32 +145,23 @@ static Object* new_object(int type, int bytes) {
 	vm->head = object;
 	vm->num_objects = vm->num_objects + 1;
 	
-	//initialise depending on type to default
-	
-	
 	return object;
 }
 
-// should think of a clever way to pop struct fields of the stack
 // called every time you declare a pair
-#define INTTYPE 1
-#define PAIRTYPE 2
-#define CHARTYPE 3
-#define ARRAYTYPE 4
-#define STRUCTTYPE 5
-
-
-static void pushVM(Object* object) {
-	// put on stack of VM
-}
-
-
-void declare_pair() {
-	Object* object = new_object(PAIRTYPE, 2 * sizeof(size_t)); // pointer size
+Object* declare_pair_constructor(int id, int type1, int  type2, int val1_id, int val2_id) {
+	Object* object = new_object();
+	object->type = PAIRTYPE; 
+	object->first = get_object_with_id(val1_id);
+	object->second = get_object_with_id(val2_id);
 	pushVM(object);
 }
-// called every time you assign an integer	
-void assign_pair() {
+Object* declare_pair_copy(int type1, int type2, int id1, int id2) {
+	Object* object = new_object(PAIRTYPE, );  
+	pushVM(object);
+}
+// called every time you assign an pair
+Object* assign_pair(int id1, int id2) {
 	
 }
 
@@ -159,6 +178,7 @@ void gc_init() {
 }
 
 // only call this function - this is only true for struct types..
+// this method doesnt work and shouldnt be used for now - for anyone that reads the code
 void* gc_malloc(int type, int stackbytes, int refbytes) {
 	//Object *object = new_object(type, stackbytes, refbytes);
 	//return (void*)object;
@@ -170,7 +190,10 @@ void gc_free() {}
 
 int main() {
     gc_init();
-    Object* object = gc_malloc(42, 4, 0);
-    printf("%d\n", vm->head->type);
+    
+    Object* object = declare_pair_constructor(1, INTTYPE, INTTYPE, -1, -1);
+    // should be an int, int pair
+    
+    //printf("%d\n", vm->head->type);
     return 0;
 }
