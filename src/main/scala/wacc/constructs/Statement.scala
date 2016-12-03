@@ -66,7 +66,7 @@ case class AssignStatement(lhs: AssignTarget, rhs: AssignValue) extends Statemen
 
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     CodeSegment()
-      .extend(TransAssignRhs.transAssignRhs(rhs, registers))
+      .extend(rhs.transAssignRhs(registers))
       .extend(Macros.store(lhs, registers))
   }
 }
@@ -192,7 +192,7 @@ case class DeclareStatement(vartype: Type, newReference: VariableReference, valu
 
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     CodeSegment()
-      .extend(TransAssignRhs.transAssignRhs(value, registers))
+      .extend(value.transAssignRhs(registers))
       .extend(Macros.store(newReference, registers))
   }
 }

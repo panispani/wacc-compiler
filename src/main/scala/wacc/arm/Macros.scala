@@ -1,7 +1,7 @@
 package wacc.arm
 
 import wacc.VariableReference
-import wacc.codegeneration.{CodeSegment, StaticCode, TransAssignRhs, TransExpressions}
+import wacc.codegeneration.{CodeSegment, StaticCode}
 import wacc.constructs._
 
 import scala.collection.+:
