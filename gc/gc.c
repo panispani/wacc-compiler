@@ -1,11 +1,13 @@
 #include <stdlib.h>
 
-// in use means referenced by a variable in scope
-// or the object referenced by another object that is in use
-// make a graph of reachable objects
-// mark and sweep
-// traverse entire object graph, mark each one as reachable
-// traverse heap and delete objects that are unreachable
+/* What Garbage collection will do
+ * "in use" means referenced by a variable in scope
+ *  or the object referenced by another object that is in use
+ *  mark and sweep method
+ *  we make a graph of reachable objects
+ *  traverse entire object graph, mark each one as reachable
+ *  traverse heap and delete objects that are unreachable
+ * /
 
 /************ DATA STRUCTURES *****************/
 //maybe not all of them are needed e.g. array
