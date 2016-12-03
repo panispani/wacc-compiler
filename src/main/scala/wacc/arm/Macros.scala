@@ -107,7 +107,7 @@ object Macros {
   }
 
   def functionCallFrameStart(size: Int): CodeSegment = {
-    val start = CodeSegment(PUSH(Seq(FP)), MOV(FP, SP))
+    val start = CodeSegment(PUSH(Seq(LR)), PUSH(Seq(FP)), MOV(FP, SP))
       .extend(semanticFrame(size)._1)
 
     start
