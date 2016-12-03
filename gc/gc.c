@@ -83,7 +83,7 @@ static VM* vm;
 /************ FUNCTIONS *****************/
 
 static VM* newVM() {
-	  VM* vm = malloc(sizeof(VM));
+	  VM* vm = (VM*)malloc(sizeof(VM));
 	  vm->num_objects = 0;
 	  vm->stack_size = 0;
 	  vm->head = NULL;
@@ -114,7 +114,7 @@ static Object* new_object() {
 		gc();
 	}
 	// rethink
-	Object* object = malloc(sizeof(Object));
+	Object* object = (Object*)malloc(sizeof(Object));
 	if (object == NULL) {
 		printf("%s\n", "Stack overflow");
 		return object;
@@ -150,9 +150,10 @@ static Object* get_object_with_id(int id) {
 }
 
 // called every time you declare a pair
+// do we need the 2 types?
 Object* declare_pair_constructor(int id, int type1, int  type2, int val1_id, int val2_id) {
 	Object* object = new_object();
-	object->type = PAIRTYPE; 
+	object->type = PAIR; 
 	object->fields.first = get_object_with_id(val1_id);
 	object->fields.second = get_object_with_id(val2_id);
 	pushVM(object, id);
