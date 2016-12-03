@@ -6,8 +6,8 @@ abstract class DataInstruction extends Instruction {
 
 case class AsciiData(data: String) extends DataInstruction {
   private val DOUBLEQUOTES: Int = 2
-  override val size: Int    = data.length - countEscapedCharacters(data)// - count of escaped chars in data // double quotes
-  override val name: String = ".word " + size + "\n.ascii " + data
+  override val size: Int    = data.length - countEscapedCharacters(data) + 1 // - count of escaped chars in data // double quotes
+  override val name: String = ".word " + size + "\n.ascii " + data + "\u0000"
 
   /*
    * half of escaped characters are printed except from the 2 quotes
