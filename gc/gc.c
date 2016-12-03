@@ -21,9 +21,10 @@ typedef enum {
 
 typedef struct _object {
 	Object_type type;
+	struct _object *next; // next object in VM stack
 	unsigned char marked; // 1 byte, bool is 4 bytes
 
-	union fields {
+	union {
 		// INT
 		int value;
 
@@ -54,7 +55,7 @@ typedef struct _object {
 			struct _object *classlist; // list of pairs, each pair having an element and next pair
 		};
 
-	};
+	} fields;
 } Object;
 
 // may keep also a field of when to trigger a GC
@@ -126,6 +127,7 @@ void gc_free() {}
 
 int main() {
     gc_init();
-    Object* object = gc_malloc(41, 4, 0);
+    Object* object = gc_malloc(42, 4, 0);
+    printf("%d\n", vm->head->type);
     return 0;
 }
