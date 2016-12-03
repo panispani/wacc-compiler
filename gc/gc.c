@@ -14,6 +14,7 @@
 
 /************ DATA STRUCTURES *****************/
 //maybe not all of them are needed e.g. array
+// do integers even need to be in the VM stack?
 typedef enum {
 	INT,
 	CHAR,
@@ -114,8 +115,37 @@ static Object* new_object(VM* vm, int type, int stackbytes, int refbytes) {
 	}
 	vm->head = object;
 	vm->num_objects = vm->num_objects + 1;
+	
+	//initialise depending on type to default
+	
+	
 	return object;
 }
+
+// should think of a clever way to pop struct fields of the stack
+// called every time you declare a pair
+#define INTTYPE 1
+#define PAIRTYPE 2
+#define CHARTYPE 3
+#define ARRAYTYPE 4
+#define STRUCTTYPE 5
+
+void declare_pair() {
+	Object* object = new_object(vm, PAIRTYPE, sizeof(size_t)); // pointer size
+}
+// called every time you assign an integer	
+void assign_pair() {
+	
+}
+
+
+// separate functions for each type
+
+
+
+
+
+
 
 static VM* vm;
 //called once on startup
@@ -123,7 +153,7 @@ void gc_init() {
     vm = newVM();
 }
 
-// only call this function
+// only call this function - this is only true for struct types..
 void* gc_malloc(int type, int stackbytes, int refbytes) {
 	Object *object = new_object(vm, type, stackbytes, refbytes);
 	return (void*)object;
