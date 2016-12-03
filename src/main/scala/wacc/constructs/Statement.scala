@@ -195,7 +195,6 @@ case class DeclareStatement(vartype: Type, newReference: VariableReference, valu
     CodeSegment()
       .extend(TransAssignRhs.transAssignRhs(value, registers))
       .extend(Macros.store(newReference, registers))
-      .extend(SUB(SP, SP, ImmOperand(vartype.size)))
   }
 }
 

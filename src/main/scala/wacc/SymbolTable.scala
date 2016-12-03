@@ -13,8 +13,8 @@ case class FunctionReference(name: String, returnType: Type, argumentTypes : Seq
 
 case class SymbolTable(parent: Option[SymbolTable], var currentOffset: Int = 0) {
 
-//  private var currentOffset: Int = 0
-  def sizeInBytes = currentOffset
+  private val initialOffset = currentOffset
+  def sizeInBytes = currentOffset - initialOffset
 
   private var map: mutable.Map[String, VariableReference] = mutable.Map()
 
