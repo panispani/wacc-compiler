@@ -1,6 +1,9 @@
 #include <stdlib.h>
+#include <stdio.h>
 
-/* What Garbage collection will do
+/* 
+ * What Garbage collection will do
+ * 
  * "in use" means referenced by a variable in scope
  *  or the object referenced by another object that is in use
  *  mark and sweep method
@@ -78,7 +81,6 @@ static VM* newVM() {
 	  VM* vm = malloc(sizeof(VM));
 	  vm->num_objects = 0;
 	  vm->head = NULL;
-	  // add dummy head to stack? YES we now get null pointer excpection
 	  return vm;
 }
 
@@ -98,6 +100,10 @@ static Object* new_object(VM* vm, int type, int stackbytes, int refbytes) {
 	}
 	// rethink
 	Object* object = malloc(stackbytes + refbytes);
+	if (object == NULL) {
+		printf("%s\n", "Stack overflow");
+		return object;
+	}
 	object->type = type;
 	object->marked = 0;
 	// append to front of VM object list
