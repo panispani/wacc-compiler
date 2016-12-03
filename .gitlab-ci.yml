@@ -20,6 +20,6 @@ unit:
 integration:
   stage: test
   before_script:
-    - git submodule init
-    - git submodule update
+    - git submodule sync
+    - git submodule update --init
   script: ./run_all_tests.py
