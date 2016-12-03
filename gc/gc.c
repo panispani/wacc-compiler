@@ -108,10 +108,14 @@ static Object* new_object(VM* vm, int type, int stackbytes, int refbytes) {
 	return object;
 }
 
+static VM* vm;
+//called once on startup
+void gc_init() {
+    vm = newVM();
+}
 
 // only call this function
 void* gc_malloc(int type, int stackbytes, int refbytes) {
-	VM* vm = newVM(); // TODO make static
 	Object *object = new_object(vm, type, stackbytes, refbytes);
 	return (void*)object;
 	// pop from vm stack the refbytes in object list
@@ -121,6 +125,7 @@ void* gc_malloc(int type, int stackbytes, int refbytes) {
 void gc_free() {}
 
 int main() {
-    Object* object = gc_malloc(0, 4, 0);
+    gc_init();
+    Object* object = gc_malloc(41, 4, 0);
     return 0;
 }
