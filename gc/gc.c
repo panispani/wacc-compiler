@@ -13,8 +13,9 @@
  */
 
 /************ DATA STRUCTURES *****************/
-//maybe not all of them are needed e.g. array
-// do integers even need to be in the VM stack?
+//maybe not all of them are needed (primitives)
+// do integers even need to be in the VM stack? NO, they
+// actually populate it even when we exit scope, TODO
 typedef enum {
 	INT,
 	CHAR,
@@ -49,7 +50,11 @@ typedef struct _object {
 			struct _object *next; // a pair
 		};
 
-		// ARRAY - will think about it
+		// ARRAY
+		struct {
+			struct _object *elem; // last is NULL
+			struct _object *next; // pair of next elem and next next pair
+		};
 
 		// STRUCT
 		struct {
@@ -149,7 +154,7 @@ static Object* get_object_with_id(int id) {
 	return vm->stack[id];
 }
 
-// called every time you declare a pair
+/*** PAIR ***/
 Object* declare_pair_constructor(int id, int val1_id, int val2_id) {
 	Object* object = new_object();
 	object->type = PAIR;
@@ -167,15 +172,44 @@ Object* declare_pair_copy(int id1, int id2) {
 	pushVM(object, id1);
 	return object;
 }
-// called every time you assign an pair
+
 Object* assign_pair(int id1, int id2) {
 	Object* object = get_object_with_id(id2);
 	pushVM(object, id1);
 	return object;
 }
 
+/*** ARRAY ***/
+Object* declare_array_literal(int id) {
+	Object* object = new_object();
+	object->type = ARRAY;
+	// how are we initialising that? BIG TODO
+	pushVM(object, id);
+	return object;
+}
 
-/* separate functions for each type */
+// refactoring to be done - but NOT now
+Object* declare_array_copy(int id1, int id2) {
+	Object* object = new_object();
+	Object* copyfrom = get_object_with_id(id2);
+	object->type = ARRAY;
+	object->fields = copyfrom->fields;
+	pushVM(object, id1);
+	return object;
+}
+
+// refactoring to be done - but NOT now
+Object* assign_array() {
+	Object* object = get_object_with_id(id2);
+	pushVM(object, id1);
+	return object;
+}
+
+/*** STRING ***/
+
+/*** STRUCT ***/
+
+/*** CLASS ***/
 
 
 
