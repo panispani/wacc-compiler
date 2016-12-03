@@ -75,6 +75,7 @@ typedef struct {
 	int num_objects;
 } VM;
 
+static VM* vm;
 
 /************ FUNCTIONS *****************/
 
@@ -95,12 +96,12 @@ static int should_gc() {
 	return 0;
 }
 
-static Object* new_object(VM* vm, int type, int stackbytes, int refbytes) {
+static Object* new_object(int type, int bytes) {
 	if (should_gc()) {
 		gc();
 	}
 	// rethink
-	Object* object = malloc(stackbytes + refbytes);
+	Object* object = malloc(bytes);
 	if (object == NULL) {
 		printf("%s\n", "Stack overflow");
 		return object;
@@ -130,8 +131,15 @@ static Object* new_object(VM* vm, int type, int stackbytes, int refbytes) {
 #define ARRAYTYPE 4
 #define STRUCTTYPE 5
 
+
+static void pushVM(Object* object) {
+	// put on stack of VM
+}
+
+
 void declare_pair() {
-	Object* object = new_object(vm, PAIRTYPE, sizeof(size_t)); // pointer size
+	Object* object = new_object(PAIRTYPE, 2 * sizeof(size_t)); // pointer size
+	pushVM(object);
 }
 // called every time you assign an integer	
 void assign_pair() {
@@ -145,9 +153,6 @@ void assign_pair() {
 
 
 
-
-
-static VM* vm;
 //called once on startup
 void gc_init() {
     vm = newVM();
@@ -155,8 +160,8 @@ void gc_init() {
 
 // only call this function - this is only true for struct types..
 void* gc_malloc(int type, int stackbytes, int refbytes) {
-	Object *object = new_object(vm, type, stackbytes, refbytes);
-	return (void*)object;
+	//Object *object = new_object(type, stackbytes, refbytes);
+	//return (void*)object;
 	// pop from vm stack the refbytes in object list
 }
 
