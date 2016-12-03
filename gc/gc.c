@@ -52,8 +52,7 @@ typedef struct _object {
 
 		// ARRAY
 		struct {
-			struct _object *elem; // last is NULL
-			struct _object *next; // pair of next elem and next next pair
+			struct _object *array;
 		};
 
 		// STRUCT
@@ -180,10 +179,10 @@ Object* assign_pair(int id1, int id2) {
 }
 
 /*** ARRAY ***/
-Object* declare_array_literal(int id) {
+Object* declare_array_literal(int id, int size) {
 	Object* object = new_object();
 	object->type = ARRAY;
-	// how are we initialising that? BIG TODO
+	object->fields.array = (Object*)malloc(size * sizeof(Object));
 	pushVM(object, id);
 	return object;
 }
@@ -199,7 +198,7 @@ Object* declare_array_copy(int id1, int id2) {
 }
 
 // refactoring to be done - but NOT now
-Object* assign_array() {
+Object* assign_array(int id1, int id2) {
 	Object* object = get_object_with_id(id2);
 	pushVM(object, id1);
 	return object;
