@@ -1,6 +1,6 @@
 package wacc
 
-import wacc.constructs.{AnyType, ArrayType, PairType, Type}
+import wacc.constructs.{AnyType, ArrayType, PairType, StructType, Type}
 
 package object visitors {
 
@@ -26,6 +26,11 @@ package object visitors {
         case PairType(bFst, bSnd) => compatibleTypes(aFst, bFst) && compatibleTypes(aSnd, bSnd)
         case default => a == b
       }
+      case StructType(_, bs) => a match {
+        case StructType(_, as) => (as zip bs).forall(p => compatibleTypes(p._1._2, p._2._2))
+        case default => false
+      }
+
       case default => a == b
     })
   }
