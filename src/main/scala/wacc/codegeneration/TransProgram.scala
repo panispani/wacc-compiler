@@ -22,6 +22,7 @@ object TransProgram {
                   .extend(GLOBAL("main"))
                   .extend(DefineLabel(Label("main")))
                   .extend(PUSH(Seq(LR)))
+                  .extend(MOV(FP, SP))
                   .extend(beginFrame)
                   .extend(COMMENT("----------- MAIN  ------------"))
                   .extend(mainInstructions.flatten)
