@@ -76,12 +76,11 @@ class LoopStatementTest extends CodeGenTest {
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
     val availableRegisters = Seq(R0, R1, R2, R3, R4, R5, R6, R7, R8)
 
-    val instructions = TransStatements.transStatement(program.right.get, availableRegisters)
+    val instructions = program.right.get.transStatement(availableRegisters).instructions
 
-    val frameSize = 2
     val loopEntryIdx = instructions.indexWhere(_.isInstanceOf[B])
 
-    val initCode = instructions.slice(frameSize, loopEntryIdx)
+    val initCode = instructions.slice(1, loopEntryIdx)
 
     val init = program.right.value.asInstanceOf[ForLoopStatement].init
     initCode should be (init.transStatement(availableRegisters).instructions)
