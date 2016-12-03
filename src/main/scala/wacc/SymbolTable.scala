@@ -90,10 +90,13 @@ object SymbolTable {
   val globalTable: SymbolTable = SymbolTable(None)
   private var currentTable: SymbolTable = globalTable
   val functionsTable: mutable.Map[String, FunctionTable] = mutable.Map()
+  //Todo: Not sure mapping to Struct is the correct thing
+  val structsTable: mutable.Map[String, Struct] = mutable.Map()
 
   def clearAll() = {
     globalTable.clear()
     functionsTable.clear()
+    structsTable.clear()
     currentTable = globalTable
   }
 
@@ -134,6 +137,11 @@ object SymbolTable {
     val function = functionsTable(identifier)
     currentTable = function.symbolTable
     function.symbolTable.map.values.toList
+  }
+
+  //TODO: ok?
+  def declareStruct(struct: Struct): Unit = {
+    structsTable += struct.identifier -> struct
   }
 
   def completeFunctionDefinition(): SymbolTable = {
