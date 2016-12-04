@@ -119,7 +119,9 @@ static void mark(Object* object) {
 static void markAll() {
     // start marking from the stack allocated variables
     int i;
+    printf("%d\n", vm->stack_size);
     for (i = 0; i < vm->stack_size; i++) {
+            printf("1\n");
         mark(vm->stack[i]);
     }
 }
@@ -143,7 +145,7 @@ void sweep() {
 
 static void gc() {
     markAll();
-    sweep();
+    //sweep();
 }
 
 // heuristics of when to call GC
@@ -186,11 +188,13 @@ static Object* new_object() {
         return object;
 }
 
+// put on stack of VM
 static void pushVM(Object* object, int id) {
-        // put on stack of VM
+        // take in account stack re-pushing
+        if (vm->stack[id] == NULL) {
+            vm->stack_size++;
+        }
         vm->stack[id] = object;
-        vm->stack_size++;
-        //stack_size == id?
 }
 
 // look on stack for object with corresponing id
@@ -279,14 +283,14 @@ int main() {
     }
 
     // 2 is garbage collected
-    //gc();
-/*
+    gc();
+
     p = vm->head;
     while(p != NULL) {
         printf("%p\n", p);
         p = p->next;
     }
-*/
+
     printf("%d %d\n", object->type, obj2->type);
     return 0;
 }
