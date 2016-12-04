@@ -119,9 +119,7 @@ static void mark(Object* object) {
 static void markAll() {
     // start marking from the stack allocated variables
     int i;
-    printf("%d\n", vm->stack_size);
     for (i = 0; i < vm->stack_size; i++) {
-            printf("1\n");
         mark(vm->stack[i]);
     }
 }
@@ -274,7 +272,6 @@ int main() {
 
     Object* object = declare_pair_constructor(1, -1, -1);
     Object* obj2 = declare_pair_constructor(2, -1, -1);
-    printf("it is %d\n", obj2->type);
     declare_pair_copy(1, 2);
 
     printf("Before VM heap\n");
@@ -287,13 +284,12 @@ int main() {
     // 2 is garbage collected
     gc();
 
+    printf("\nAfter VM heap\n");
     p = vm->head;
     while(p != NULL) {
         printf("%p\n", p);
         p = p->next;
     }
 
-    printf("it becomes %d\n", object->type);
-    printf("%d %d\n", object->type, obj2->type);
     return 0;
 }
