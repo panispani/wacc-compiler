@@ -94,20 +94,28 @@ object StaticCode {
       NEW_STACK_FRAME,
       PUSH(Seq(R1)),                  // Save stringB
       PUSH(Seq(R0)),                  // Save stringA
-      BL(Label("strlen")),
-      MOV(R2, R0),                    // R2 = len(stringA)
-      MOV(R0, R1),
-      BL(Label("strlen")),            // R0 = len(stringB)
+      LDR(R2, RegisterAddress(R0)),   // R2 = len(stringA)
+      LDR(R0, RegisterAddress(R1)),   // R0 = len(stringB)
+      MOV(R3, R0),
       ADD(R0, R0, R2),                // R0 = len(stringA) + len(stringB)
-      ADD(R0, R0, ImmOperand(1)),     // R0 = len(stringA) + len(stringB) + 1
-      MOV(R1, R0),                    // R1 = len(stringA) + len(stringB) + 1
+      PUSH(Seq(R0, R2, R3)),
       BL(Label("malloc")),            // R0 = newstring*
-      STR(R1, RegisterAddress(R0)),   // *newstring = length of string
+      POP(Seq(R1, R2, R3)),
+      STR(R1, RegisterAddress(R0)),   // *newstring = length(stringA) + len(stringB)
       ADD(R0, R0, ImmOperand(4)),     // newstring++
       POP(Seq(R1)),                   // Restore stringA into R1
-      BL(Label("strcat")),            // *newstring += stringA
+      ADD(R1, R1, ImmOperand(4)),
+      PUSH(Seq(R2, R3)),
+      BL(Label("memcpy")),            // memcpy(newstring, stringA, len(stringA))
+      POP(Seq(R2, R3)),
       POP(Seq(R1)),                   // Restore stringB into R1
-      BL(Label("strcat")),            // *newstring += stringB
+      ADD(R1, R1, ImmOperand(4)),
+      PUSH(Seq(R0)),
+      ADD(R0, R0, R2),                // newstring += len(stringA)
+      MOV(R2, R3),
+      BL(Label("memcpy")),            // memcpy(newstring, stringB, len(stringB))
+      POP(Seq(R0)),
+      SUB(R0, R0, ImmOperand(4)),
       RETURN
     )
   }
