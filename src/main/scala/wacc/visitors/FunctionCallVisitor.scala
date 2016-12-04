@@ -11,6 +11,7 @@ import scala.collection.JavaConversions._
 object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError, FunctionCall]] {
 
   override def visitFunctionCall(ctx: FunctionCallContext): Either[CompilationError, FunctionCall] = {
+    val name = ctx.IDENT().getText
     val ctxArgList = Option(ctx.argumentList())
     val untypedArgList = ctxArgList match {
       case None => Seq()
@@ -23,12 +24,12 @@ object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError
       typedArgList match {
         case Right(argList) => {
           val argTypes = argList map (e => e.vartype)
-          val typed_name   = Function.appendFunctionTypes(ctx.IDENT().getText, argTypes)
+          val typed_name   = Function.appendFunctionTypes(name, argTypes)
 
           SymbolTable.functionsTable.get(typed_name) match {
             case Some(function) => {
               function.reference match {
-                case FunctionReference(f, returnType, argumentTypes) => Right((typed_name, returnType, argumentTypes))
+                case FunctionReference(f, returnType, argumentTypes) => Right((name, returnType, argumentTypes))
                 case default => Left(SemanticError(ctx.IDENT().getText + " is not a function", ctx.start))
               }
             }
@@ -42,8 +43,8 @@ object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError
     typedArgList match {
       case Right(argList) =>
         functionSignature match {
-          case Right((typed_name, returnType, argTypes)) =>
-            if (matchArgumentLists(argTypes, argList)) Right(FunctionCall(typed_name, argList, returnType))
+          case Right((name, returnType, argTypes)) =>
+            if (matchArgumentLists(argTypes, argList)) Right(FunctionCall(name, argList, returnType))
             else Left(SemanticError("Argument list types don't match up", ctx.start))
           case Left(error) => Left(error)
         }

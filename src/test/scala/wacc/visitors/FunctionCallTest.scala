@@ -47,6 +47,7 @@ class FunctionCallTest extends VisitorTest{
         Integer
       )
     ))
+
   }
 
   it should "succeed when the argument types match an overloaded function" in {

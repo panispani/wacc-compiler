@@ -13,7 +13,7 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
     val name = ctx.IDENT().getText
     val returnType = ctx.`type`().accept(TypeVisitor)
     val (parameterNames, parameterTypes) = FunctionVisitor.getParameters(ctx)
-    val typed_name = SymbolTable.appendFunctionTypes(name, parameterTypes)
+    val typed_name = Function.appendFunctionTypes(name, parameterTypes)
 
     // Check for duplicate function name
     if (SymbolTable.functionsTable contains typed_name)
