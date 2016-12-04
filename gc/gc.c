@@ -217,7 +217,10 @@ Object* declare_pair_constructor(int id, int val1_id, int val2_id) {
 }
 
 Object* declare_pair_copy(int id1, int id2) {
-        Object* object = get_object_with_id(id2);
+        Object* object = new_object();
+        Object* copyfrom = get_object_with_id(id2);
+        object->type = PAIR;
+        object->fields = copyfrom->fields;
         pushVM(object, id1);
         return object;
 }
@@ -240,7 +243,10 @@ Object* declare_array_literal(int id, int size) {
 
 // refactoring to be done - but NOT now
 Object* declare_array_copy(int id1, int id2) {
-        Object* object = get_object_with_id(id2);
+        Object* object = new_object();
+        Object* copyfrom = get_object_with_id(id2);
+        object->type = ARRAY;
+        object->fields = copyfrom->fields;
         pushVM(object, id1);
         return object;
 }
