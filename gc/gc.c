@@ -127,25 +127,27 @@ static void markAll() {
 }
 
 
-// null pointer?
+// we use pointer to pointer so we can change
+// the list(remove element) and it retains its structure!
 void sweep() {
-  Object* object = vm->head;
-  while (object != NULL) {
-    if (!object->marked) {
-      Object* unreached = object;
-      object = unreached->next;
+  Object** object = &vm->head;
+  while (*object != NULL) {
+    if (!(*object)->marked) {
+      Object* unreached = *object;
+      *object = unreached->next;
       free(unreached);
     } else {
       // object was reached by marking, reset it for next GC
-      object->marked = 0;
-      object = object->next;
+      (*object)->marked = 0;
+      object = &(*object)->next;
     }
   }
 }
 
+
 static void gc() {
     markAll();
-    //sweep();
+    sweep();
 }
 
 // heuristics of when to call GC
@@ -165,7 +167,7 @@ static int should_gc() {
 
 static Object* new_object() {
         if (should_gc()) {
-                gc();
+            gc();
         }
         // rethink
         Object* object = (Object*)malloc(sizeof(Object));
@@ -176,7 +178,6 @@ static Object* new_object() {
 
         object->marked = 0;
         // append to front of VM object list
-        printf("append\n");
         if (vm->head == NULL) {
             object->next = NULL;
         } else {
@@ -273,6 +274,7 @@ int main() {
 
     Object* object = declare_pair_constructor(1, -1, -1);
     Object* obj2 = declare_pair_constructor(2, -1, -1);
+    printf("it is %d\n", obj2->type);
     declare_pair_copy(1, 2);
 
     printf("Before VM heap\n");
@@ -291,6 +293,7 @@ int main() {
         p = p->next;
     }
 
+    printf("it becomes %d\n", object->type);
     printf("%d %d\n", object->type, obj2->type);
     return 0;
 }
