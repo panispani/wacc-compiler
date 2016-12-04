@@ -142,15 +142,6 @@ Object* declare_pair_constructor(int id, int val1_id, int val2_id) {
         return object;
 }
 
-Object* declare_pair_copy(int id1, int id2) {
-        Object* object = new_object();
-        Object* copyfrom = get_object_with_id(id2);
-        object->type = PAIR;
-        object->fields = copyfrom->fields;
-        pushVM(object, id1);
-        return object;
-}
-
 Object* assign_pair_constructor(int id, int val1_id, int val2_id) {
     // new object should be called
     // as we create a new object
@@ -179,18 +170,8 @@ Object* declare_array_literal(int id, int size) {
         return object;
 }
 
-// refactoring to be done - but NOT now
-Object* declare_array_copy(int id1, int id2) {
-        Object* object = new_object();
-        Object* copyfrom = get_object_with_id(id2);
-        object->type = ARRAY;
-        object->fields = copyfrom->fields;
-        pushVM(object, id1);
-        return object;
-}
 
 Object* assign_array_constructor(int id, int size) {
-    // for now no difference with declare_array_literal
     Object* object = new_object();
     object->type = ARRAY;
     // think of using calloc
@@ -215,18 +196,9 @@ Object* declare_string_literal(int id, int size) {
         return object;
 }
 
-// refactoring to be done - but NOT now
-Object* declare_string_copy(int id1, int id2) {
-        Object* object = new_object();
-        Object* copyfrom = get_object_with_id(id2);
-        object->type = STRING;
-        object->fields = copyfrom->fields;
-        pushVM(object, id1);
-        return object;
-}
+
 
 Object* assign_string_constructor(int id, int size) {
-    // for now no difference with declare_array_literal
     Object* object = new_object();
     object->type = STRING;
     // think of using calloc
@@ -242,12 +214,22 @@ Object* assign_string_constructor(int id, int size) {
 
 /*** CLASS ***/
 
+/*** COMMON METHODS ***/
 // form: foo(dst, src)
 // assign_pair_copy, assign_array_copy, assign_string_copy
 Object* assign_copy(int id1, int id2) {
     Object* object = get_object_with_id(id2);
     pushVM(object, id1);
     return object;
+}
+
+Object* declare_copy(int id1, int id2) {
+        Object* object = new_object();
+        Object* copyfrom = get_object_with_id(id2);
+        object->type = copyfrom->type;
+        object->fields = copyfrom->fields;
+        pushVM(object, id1);
+        return object;
 }
 
 //called once on startup
@@ -306,7 +288,7 @@ static void test_complex1_gc() {
     Object* obj2 = declare_pair_constructor(1, -1, -1);
     Object* obj3 = declare_array_literal(2, 15);
     Object* obj4 = declare_array_literal(3, 129);
-    declare_pair_copy(4, 0);
+    declare_copy(4, 0);
     assign_copy(1, 0);
     run_gc();
 }
