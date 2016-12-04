@@ -165,11 +165,7 @@ Object* assign_pair_constructor(int id, int val1_id, int val2_id) {
     return object;
 }
 
-Object* assign_pair_copy(int id1, int id2) {
-        Object* object = get_object_with_id(id2);
-        pushVM(object, id1);
-        return object;
-}
+
 
 /*** ARRAY ***/
 Object* declare_array_literal(int id, int size) {
@@ -205,13 +201,7 @@ Object* assign_array_constructor(int id, int size) {
     return object;
 }
 
-// refactoring to be done - but NOT now
-// form: foo(dst, src)
-Object* assign_array_copy(int id1, int id2) {
-        Object* object = get_object_with_id(id2);
-        pushVM(object, id1);
-        return object;
-}
+
 
 /*** STRING ***/
 Object* declare_string_literal(int id, int size) {
@@ -247,20 +237,18 @@ Object* assign_string_constructor(int id, int size) {
     return object;
 }
 
-// refactoring to be done - but NOT now
-// form: foo(dst, src)
-Object* assign_string_copy(int id1, int id2) {
-        Object* object = get_object_with_id(id2);
-        pushVM(object, id1);
-        return object;
-}
-
 
 /*** STRUCT ***/
 
 /*** CLASS ***/
 
-
+// form: foo(dst, src)
+// assign_pair_copy, assign_array_copy, assign_string_copy
+Object* assign_copy(int id1, int id2) {
+    Object* object = get_object_with_id(id2);
+    pushVM(object, id1);
+    return object;
+}
 
 //called once on startup
 void gc_begin() {
@@ -301,14 +289,14 @@ static void run_gc() {
 static void test_pair_copy_gc() {
     Object* obj1 = declare_pair_constructor(0, -1, -1);
     Object* obj2 = declare_pair_constructor(1, -1, -1);
-    assign_pair_copy(0, 1);
+    assign_copy(0, 1);
     run_gc();
 }
 
 static void test_array_copy_gc() {
     Object *obj1 = declare_array_literal(0, 15);
     Object *obj2 = declare_array_literal(1, 129);
-    assign_array_copy(0, 1);
+    assign_copy(0, 1);
     run_gc();
 }
 
@@ -319,7 +307,7 @@ static void test_complex1_gc() {
     Object* obj3 = declare_array_literal(2, 15);
     Object* obj4 = declare_array_literal(3, 129);
     declare_pair_copy(4, 0);
-    assign_pair_copy(1, 0);
+    assign_copy(1, 0);
     run_gc();
 }
 
@@ -332,7 +320,7 @@ static void test_complex2_gc() {
     Object* o2 = declare_array_literal(1, 2938);
     assign_array_constructor(0, 10);
     assign_array_constructor(1, 20);
-    assign_array_copy(1, 0);
+    assign_copy(1, 0);
     run_gc();
 }
 
