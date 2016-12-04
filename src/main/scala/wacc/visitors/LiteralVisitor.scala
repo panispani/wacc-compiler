@@ -3,7 +3,7 @@ package wacc.visitors
 import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
 import wacc.constructs.{CharLiteral, StringLiteral, _}
-import java.lang.Integer.parseInt;
+import java.lang.Integer.parseInt
 
 /**
   * It only visits expression literals
