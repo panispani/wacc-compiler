@@ -97,7 +97,8 @@ static VM* newVM() {
 
 static void markAll() {
     // start marking from the stack allocated variables
-    for (int i = 0; i < vm->stack_size; i++) {
+    int i;
+    for (i = 0; i < vm->stack_size; i++) {
         mark(vm->stack);
     }
 }
@@ -122,8 +123,25 @@ static void mark(Object* object) {
     // TODO REST
 }
 
-static void gc() {
+// null pointer?
+void sweep() {
+  Object* object = vm->head;
+  while (object != NULL) {
+    if (!object->marked) {
+      Object* unreached = object;
+      object = unreached->next;
+      free(unreached);
+    } else {
+      // object was reached by marking, reset it for next GC
+      object->marked = 0;
+      object = object->next;
+    }
+  }
+}
 
+static void gc() {
+    markAll();
+    sweep();
 }
 
 // heuristics of when to call GC
