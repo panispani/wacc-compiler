@@ -102,7 +102,19 @@ static void markAll() {
 }
 
 static void mark(Object* object) {
-    // if marked finish, recurse on childs
+    // cycle or already done
+    if (object->marked) {
+        return;
+    }
+    object->marked = 1;
+    switch(object->type) {
+    case PAIR:
+
+        break;
+    case ARRAY:
+        break;
+    }
+    // TODO REST
 }
 
 static void gc() {
