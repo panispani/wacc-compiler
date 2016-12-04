@@ -26,7 +26,8 @@ static VM* newVM() {
 }
 
 static void mark(Object* object) {
-    // primitives are null for now cycle or already done
+    // primitives are null for now
+    // cycle or already done
     // printf("marking: %p\n", object);
     if (object == NULL || object->marked) {
         return;
@@ -213,6 +214,47 @@ Object* assign_array_copy(int id1, int id2) {
 }
 
 /*** STRING ***/
+Object* declare_string_literal(int id, int size) {
+        Object* object = new_object();
+        object->type = STRING;
+        // think of using calloc
+        object->fields.string = (Object**)malloc(size * sizeof(Object*));
+        memset(object->fields.string, 0, size);
+        object->fields.string_size = size;
+        pushVM(object, id);
+        return object;
+}
+
+// refactoring to be done - but NOT now
+Object* declare_string_copy(int id1, int id2) {
+        Object* object = new_object();
+        Object* copyfrom = get_object_with_id(id2);
+        object->type = STRING;
+        object->fields = copyfrom->fields;
+        pushVM(object, id1);
+        return object;
+}
+
+Object* assign_string_constructor(int id, int size) {
+    // for now no difference with declare_array_literal
+    Object* object = new_object();
+    object->type = STRING;
+    // think of using calloc
+    object->fields.array = (Object**)malloc(size * sizeof(Object*));
+    memset(object->fields.array, 0, size);
+    object->fields.array_size = size;
+    pushVM(object, id);
+    return object;
+}
+
+// refactoring to be done - but NOT now
+// form: foo(dst, src)
+Object* assign_string_copy(int id1, int id2) {
+        Object* object = get_object_with_id(id2);
+        pushVM(object, id1);
+        return object;
+}
+
 
 /*** STRUCT ***/
 
