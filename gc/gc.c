@@ -52,7 +52,7 @@ typedef struct _object {
 
                 // ARRAY
                 struct {
-                        struct _object *array;
+                        struct _object **array;
                         int array_size;
                 };
 
@@ -95,14 +95,6 @@ static VM* newVM() {
           return vm;
 }
 
-static void markAll() {
-    // start marking from the stack allocated variables
-    int i;
-    for (i = 0; i < vm->stack_size; i++) {
-        mark(vm->stack);
-    }
-}
-
 static void mark(Object* object) {
     // primitives are null for now cycle or already done
     if (object == NULL || object->marked) {
@@ -111,17 +103,27 @@ static void mark(Object* object) {
     object->marked = 1;
     switch(object->type) {
     case PAIR:
-        mark(object->first);
-        mark(object->second);
+        mark(object->fields.first);
+        mark(object->fields.second);
         break;
     case ARRAY:
-        for (int i = 0; i < object->fields.array_size; i++) {
-            mark(object->fields.array + i * size_t);
+        ;int i = 0;
+        for (; i < object->fields.array_size; i++) {
+            mark(object->fields.array[i * sizeof(size_t)]);
         }
         break;
     }
     // TODO REST
 }
+
+static void markAll() {
+    // start marking from the stack allocated variables
+    int i;
+    for (i = 0; i < vm->stack_size; i++) {
+        mark(vm->stack[i]);
+    }
+}
+
 
 // null pointer?
 void sweep() {
@@ -193,8 +195,8 @@ static void pushVM(Object* object, int id) {
 // look on stack for object with corresponing id
 static Object* get_object_with_id(int id) {
         if (id == -1) {
-                // not a reference type, shouldn't care
-                return NULL; // or int-singleton
+            // not a reference type, shouldn't care
+            return NULL; // or int-singleton
         }
         return vm->stack[id];
 }
@@ -228,7 +230,7 @@ Object* assign_pair(int id1, int id2) {
 Object* declare_array_literal(int id, int size) {
         Object* object = new_object();
         object->type = ARRAY;
-        object->fields.array = (Object*)malloc(size * sizeof(Object));
+        object->fields.array = (Object**)malloc(size * sizeof(Object*));
         object->fields.array_size = size;
         pushVM(object, id);
         return object;
