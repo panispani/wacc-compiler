@@ -213,10 +213,7 @@ Object* declare_pair_constructor(int id, int val1_id, int val2_id) {
 }
 
 Object* declare_pair_copy(int id1, int id2) {
-        Object* object = new_object();
-        Object* copyfrom = get_object_with_id(id2);
-        object->type = PAIR;
-        object->fields = copyfrom->fields;
+        Object* object = get_object_with_id(id2);
         pushVM(object, id1);
         return object;
 }
@@ -239,10 +236,7 @@ Object* declare_array_literal(int id, int size) {
 
 // refactoring to be done - but NOT now
 Object* declare_array_copy(int id1, int id2) {
-        Object* object = new_object();
-        Object* copyfrom = get_object_with_id(id2);
-        object->type = ARRAY;
-        object->fields = copyfrom->fields;
+        Object* object = get_object_with_id(id2);
         pushVM(object, id1);
         return object;
 }
@@ -275,7 +269,7 @@ int main() {
 
     Object* object = declare_pair_constructor(1, -1, -1);
     Object* obj2 = declare_pair_constructor(2, -1, -1);
-    //declare_pair_copy(1, 2);
+    declare_pair_copy(1, 2);
 
     printf("Before VM heap\n");
     Object* p = vm->head;
