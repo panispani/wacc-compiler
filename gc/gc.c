@@ -221,13 +221,16 @@ Object* assign_array_copy(int id1, int id2) {
 
 
 //called once on startup
-void gc_init() {
+void gc_begin() {
     vm = newVM();
 }
 
-// gc_free is not needed for now
-// TODO make a "FREE" called in end of execution
-void gc_free() {}
+// free heap
+void gc_end() {
+    vm->stack_size = 0;
+    gc();
+    free(vm);
+}
 
 /********************* TESTS *************************/
 static void run_gc() {
@@ -293,7 +296,8 @@ static void test_complex2_gc() {
 
 /************ MAIN *****************/
 int main() {
-    gc_init();
+    gc_begin();
     test_complex2_gc();
+    gc_end();
     return 0;
 }
