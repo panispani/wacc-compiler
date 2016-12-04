@@ -133,16 +133,8 @@ static Object* get_object_with_id(int id) {
 
 /************ PUBLIC FUNCTIONS *****************/
 /*** PAIR ***/
-Object* declare_pair_constructor(int id, int val1_id, int val2_id) {
-        Object* object = new_object();
-        object->type = PAIR;
-        object->fields.first = get_object_with_id(val1_id);
-        object->fields.second = get_object_with_id(val2_id);
-        pushVM(object, id);
-        return object;
-}
-
-Object* assign_pair_constructor(int id, int val1_id, int val2_id) {
+// how about pair literal? is it even needed?
+Object* new_pair_constructor(int id, int val1_id, int val2_id) {
     // new object should be called
     // as we create a new object
     // what we should look out for is not creating a new variable
@@ -157,9 +149,10 @@ Object* assign_pair_constructor(int id, int val1_id, int val2_id) {
 }
 
 
-
 /*** ARRAY ***/
-Object* declare_array_literal(int id, int size) {
+// declare and assign
+// NOTE: dont refactor with string yet
+Object* new_array_literal(int id, int size) {
         Object* object = new_object();
         object->type = ARRAY;
         // think of using calloc
@@ -171,21 +164,8 @@ Object* declare_array_literal(int id, int size) {
 }
 
 
-Object* assign_array_constructor(int id, int size) {
-    Object* object = new_object();
-    object->type = ARRAY;
-    // think of using calloc
-    object->fields.array = (Object**)malloc(size * sizeof(Object*));
-    memset(object->fields.array, 0, size);
-    object->fields.array_size = size;
-    pushVM(object, id);
-    return object;
-}
-
-
-
 /*** STRING ***/
-Object* declare_string_literal(int id, int size) {
+Object* new_string_literal(int id, int size) {
         Object* object = new_object();
         object->type = STRING;
         // think of using calloc
@@ -196,20 +176,6 @@ Object* declare_string_literal(int id, int size) {
         return object;
 }
 
-
-
-Object* assign_string_constructor(int id, int size) {
-    Object* object = new_object();
-    object->type = STRING;
-    // think of using calloc
-    object->fields.array = (Object**)malloc(size * sizeof(Object*));
-    memset(object->fields.array, 0, size);
-    object->fields.array_size = size;
-    pushVM(object, id);
-    return object;
-}
-
-
 /*** STRUCT ***/
 
 /*** CLASS ***/
@@ -217,6 +183,8 @@ Object* assign_string_constructor(int id, int size) {
 /*** COMMON METHODS ***/
 // form: foo(dst, src)
 // assign_pair_copy, assign_array_copy, assign_string_copy
+//
+// REFACTOR THESE TWO IN ONE METHOD
 Object* assign_copy(int id1, int id2) {
     Object* object = get_object_with_id(id2);
     pushVM(object, id1);
