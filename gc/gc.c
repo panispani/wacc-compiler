@@ -40,30 +40,30 @@ typedef struct _object {
 
                 // PAIR
                 struct {
-                        struct _object *first;
-                        struct _object *second;
+                    struct _object *first;
+                    struct _object *second;
                 };
 
                 // STRING - maybe merge with ARRAY
                 struct {
-                        struct _object *ch;    // char, last one is '\0'
-                        struct _object *next; // a pair
+                    struct _object **string;
+                    int string_size;
                 };
 
                 // ARRAY
                 struct {
-                        struct _object **array;
-                        int array_size;
+                    struct _object **array;
+                    int array_size;
                 };
 
                 // STRUCT
                 struct {
-                        struct _object *structlist; // list of pairs, each pair having an element and next pair
+                    struct _object *structlist; // list of pairs, each pair having an element and next pair
                 };
 
                 // CLASS
                 struct {
-                        struct _object *classlist; // list of pairs, each pair having an element and next pair
+                    struct _object *classlist; // list of pairs, each pair having an element and next pair
                 };
 
         } fields;
@@ -85,7 +85,7 @@ typedef struct {
 
 static VM* vm;
 
-/************ FUNCTIONS *****************/
+/************ STATIC FUNCTIONS *****************/
 
 static VM* newVM() {
           VM* vm = (VM*)malloc(sizeof(VM));
@@ -150,10 +150,9 @@ static void gc() {
 
 // heuristics of when to call GC
 static int should_gc() {
-        // casted to false
-        return 0;
+    // casted to false
+    return 0;
 }
-
 
 
 // should think of a clever way to pop struct fields of the stack
@@ -205,6 +204,8 @@ static Object* get_object_with_id(int id) {
         return vm->stack[id];
 }
 
+
+/************ PUBLIC FUNCTIONS *****************/
 /*** PAIR ***/
 Object* declare_pair_constructor(int id, int val1_id, int val2_id) {
         Object* object = new_object();
@@ -267,13 +268,8 @@ void gc_init() {
 // gc_free is not needed for now
 void gc_free() {}
 
-int main() {
-    gc_init();
-
-    Object* object = declare_pair_constructor(1, -1, -1);
-    Object* obj2 = declare_pair_constructor(2, -1, -1);
-    declare_pair_copy(1, 2);
-
+/*** TESTS ***/
+static void run_gc() {
     printf("Before VM heap\n");
     Object* p = vm->head;
     while(p != NULL) {
@@ -290,6 +286,25 @@ int main() {
         printf("%p\n", p);
         p = p->next;
     }
+}
 
+static void test_pair_copy_gc() {
+    Object* obj1 = declare_pair_constructor(1, -1, -1);
+    Object* obj2 = declare_pair_constructor(2, -1, -1);
+    assign_pair(1, 2);
+    run_gc();
+}
+
+static void test_array_copy_gc() {
+    //Object *obj1 = declare_array_literal();
+    //Object *obj2 = declare_array_literal();
+
+    run_gc();
+}
+
+/************ MAIN *****************/
+int main() {
+    gc_init();
+    test_array_copy_gc();
     return 0;
 }
