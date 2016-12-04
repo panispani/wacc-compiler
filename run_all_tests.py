@@ -89,7 +89,8 @@ for root, dirs, files in os.walk("extension_examples"):
             continue
 
         output_file = open(output_file, "r").read()[:-1]
-        if test_file(full_path, False, 0, output_file):
+        invalid = root.startswith("extension_examples/invalid") 
+        if test_file(full_path, invalid, int(output_file) if invalid else 0, output_file):
             extensions_correct += 1
 
 print_stats("EXTENSION", extensions_correct, extensions_total)
