@@ -150,7 +150,21 @@ Object* declare_pair_copy(int id1, int id2) {
         return object;
 }
 
-Object* assign_pair(int id1, int id2) {
+Object* assign_pair_constructor(int id, int val1_id, int val2_id) {
+    // new object should be called
+    // as we create a new object
+    // what we should look out for is not creating a new variable
+    // on the stack, currently in pushVM this makes no difference
+    // but keep a note about it
+    Object* object = new_object();
+    object->type = PAIR;
+    object->fields.first = get_object_with_id(val1_id);
+    object->fields.second = get_object_with_id(val2_id);
+    pushVM(object, id);
+    return object;
+}
+
+Object* assign_pair_copy(int id1, int id2) {
         Object* object = get_object_with_id(id2);
         pushVM(object, id1);
         return object;
@@ -160,7 +174,8 @@ Object* assign_pair(int id1, int id2) {
 Object* declare_array_literal(int id, int size) {
         Object* object = new_object();
         object->type = ARRAY;
-        object->fields.array = (Object**)malloc(size * sizeof(Object*)); // think of using calloc
+        // think of using calloc
+        object->fields.array = (Object**)malloc(size * sizeof(Object*));
         memset(object->fields.array, 0, size);
         object->fields.array_size = size;
         pushVM(object, id);
@@ -177,8 +192,20 @@ Object* declare_array_copy(int id1, int id2) {
         return object;
 }
 
+Object* assign_array_constructor(int id, int size) {
+    // for now no difference with declare_array_literal
+    Object* object = new_object();
+    object->type = ARRAY;
+    // think of using calloc
+    object->fields.array = (Object**)malloc(size * sizeof(Object*));
+    memset(object->fields.array, 0, size);
+    object->fields.array_size = size;
+    pushVM(object, id);
+    return object;
+}
+
 // refactoring to be done - but NOT now
-Object* assign_array(int id1, int id2) {
+Object* assign_array_copy(int id1, int id2) {
         Object* object = get_object_with_id(id2);
         pushVM(object, id1);
         return object;
@@ -227,14 +254,14 @@ static void run_gc() {
 static void test_pair_copy_gc() {
     Object* obj1 = declare_pair_constructor(0, -1, -1);
     Object* obj2 = declare_pair_constructor(1, -1, -1);
-    assign_pair(0, 1);
+    assign_pair_copy(0, 1);
     run_gc();
 }
 
 static void test_array_copy_gc() {
     Object *obj1 = declare_array_literal(0, 15);
     Object *obj2 = declare_array_literal(1, 129);
-    assign_array(0, 1);
+    assign_array_copy(0, 1);
     run_gc();
 }
 
@@ -245,7 +272,7 @@ static void test_complex1_gc() {
     Object* obj3 = declare_array_literal(2, 15);
     Object* obj4 = declare_array_literal(3, 129);
     declare_pair_copy(4, 0);
-    assign_pair(1, 0);
+    assign_pair_copy(1, 0);
     run_gc();
 }
 
