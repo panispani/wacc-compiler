@@ -98,7 +98,7 @@ static VM* newVM() {
 
 static void mark(Object* object) {
     // primitives are null for now cycle or already done
-    printf("marking: %p\n", object);
+    // printf("marking: %p\n", object);
     if (object == NULL || object->marked) {
         return;
     }
@@ -122,9 +122,9 @@ static void markAll() {
     // start marking from the stack allocated variables
     int i;
     for (i = 0; i < vm->stack_size; i++) {
-        printf("in %p %d\n", vm->stack[i], vm->stack[i]->type);
+        //printf("in %p %d\n", vm->stack[i], vm->stack[i]->type);
         mark(vm->stack[i]);
-        printf("out %p\n", vm->stack[i]);
+        //printf("out %p\n", vm->stack[i]);
     }
 }
 
@@ -313,7 +313,7 @@ static void test_pair_copy_gc() {
 static void test_array_copy_gc() {
     Object *obj1 = declare_array_literal(0, 15);
     Object *obj2 = declare_array_literal(1, 129);
-    //assign_array(0, 1);
+    assign_array(0, 1);
     run_gc();
 }
 
@@ -323,13 +323,14 @@ static void test_complex1_gc() {
     Object* obj2 = declare_pair_constructor(1, -1, -1);
     Object* obj3 = declare_array_literal(2, 15);
     Object* obj4 = declare_array_literal(3, 129);
-    declare_pair_copy(4, 1);
-    assign_pair(0, 1);
+    declare_pair_copy(4, 0);
+    assign_pair(1, 0);
     run_gc();
 }
+
 /************ MAIN *****************/
 int main() {
     gc_init();
-    test_array_copy_gc();
+    test_complex1_gc();
     return 0;
 }
