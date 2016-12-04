@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 
 /*
@@ -71,7 +72,7 @@ typedef struct _object {
 
 // may keep also a field of when to trigger a GC
 // dynamically resizable aaray with realloc - do later
-//TODO how do i remove ariables with scope? I rewrite old ones :)
+//TODO how do i remove variables with scope? I rewrite old ones :)
 #define MAX_STACK_SIZE 4096
 typedef struct {
         // array of object pointers
@@ -97,6 +98,7 @@ static VM* newVM() {
 
 static void mark(Object* object) {
     // primitives are null for now cycle or already done
+    printf("marking: %p\n", object);
     if (object == NULL || object->marked) {
         return;
     }
@@ -109,7 +111,7 @@ static void mark(Object* object) {
     case ARRAY:
         ;int i = 0;
         for (; i < object->fields.array_size; i++) {
-            mark(object->fields.array[i * sizeof(size_t)]);
+            mark(object->fields.array[i]);
         }
         break;
     }
@@ -120,7 +122,9 @@ static void markAll() {
     // start marking from the stack allocated variables
     int i;
     for (i = 0; i < vm->stack_size; i++) {
+        printf("in %p %d\n", vm->stack[i], vm->stack[i]->type);
         mark(vm->stack[i]);
+        printf("out %p\n", vm->stack[i]);
     }
 }
 
@@ -235,7 +239,8 @@ Object* assign_pair(int id1, int id2) {
 Object* declare_array_literal(int id, int size) {
         Object* object = new_object();
         object->type = ARRAY;
-        object->fields.array = (Object**)malloc(size * sizeof(Object*));
+        object->fields.array = (Object**)malloc(size * sizeof(Object*)); // think of using calloc
+        memset(object->fields.array, 0, size);
         object->fields.array_size = size;
         pushVM(object, id);
         return object;
@@ -276,10 +281,14 @@ void gc_free() {}
 
 /*** TESTS ***/
 static void run_gc() {
-    printf("Before VM heap\n");
+
+    // subject to change
+    printf("INTTYPE 1\nPAIRTYPE 2\nCHARTYPE 3\nARRAYTYPE 4\nSTRUCTTYPE 5\n");
+
+    printf("\nBefore VM heap\n");
     Object* p = vm->head;
     while(p != NULL) {
-        printf("%p\n", p);
+        printf("%p of type: %d\n", p, p->type);
         p = p->next;
     }
 
@@ -289,25 +298,35 @@ static void run_gc() {
     printf("\nAfter VM heap\n");
     p = vm->head;
     while(p != NULL) {
-        printf("%p\n", p);
+        printf("%p of type: %d\n", p, p->type);
         p = p->next;
     }
 }
 
 static void test_pair_copy_gc() {
-    Object* obj1 = declare_pair_constructor(1, -1, -1);
-    Object* obj2 = declare_pair_constructor(2, -1, -1);
-    assign_pair(1, 2);
+    Object* obj1 = declare_pair_constructor(0, -1, -1);
+    Object* obj2 = declare_pair_constructor(1, -1, -1);
+    assign_pair(0, 1);
     run_gc();
 }
 
 static void test_array_copy_gc() {
-    Object *obj1 = declare_array_literal(1, 15);
-    Object *obj2 = declare_array_literal(2, 129);
-    assign_array(1, 2);
+    Object *obj1 = declare_array_literal(0, 15);
+    Object *obj2 = declare_array_literal(1, 129);
+    //assign_array(0, 1);
     run_gc();
 }
 
+
+static void test_complex1_gc() {
+    Object* obj1 = declare_pair_constructor(0, -1, -1);
+    Object* obj2 = declare_pair_constructor(1, -1, -1);
+    Object* obj3 = declare_array_literal(2, 15);
+    Object* obj4 = declare_array_literal(3, 129);
+    declare_pair_copy(4, 1);
+    assign_pair(0, 1);
+    run_gc();
+}
 /************ MAIN *****************/
 int main() {
     gc_init();
