@@ -49,6 +49,36 @@ class FunctionCallTest extends VisitorTest{
     ))
   }
 
+  it should "succeed when the argument types match an overloaded function" in {
+    val parser = TestUtilities.setupParser("begin int foo(int a) is return a end string foo(string a) is return a end int a = call foo(2) end")
+    val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
+
+    result.right.value.main.statements.head should be (DeclareStatement(
+      Integer,
+      VariableReference("a", Integer, -4),
+      FunctionCall(
+        "foo",
+        List(IntegerLiteral(2)),
+        Integer
+      )
+    ))
+  }
+
+  it should "succeed when the argument types match another overloaded function" in {
+    val parser = TestUtilities.setupParser("begin int foo(int a) is return a end string foo(string a) is return a end string a = call foo(\"hi\") end")
+    val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
+
+    result.right.value.main.statements.head should be (DeclareStatement(
+      ArrayType(Character),
+      VariableReference("a", ArrayType(Character), -4),
+      FunctionCall(
+        "foo",
+        List(StringLiteral("\"hi\"")),
+        ArrayType(Character)
+      )
+    ))
+  }
+
   it should "fail when argument types don't match" in {
     val parser = TestUtilities.setupParser("begin int foo(int a) is return a end int a = call foo('a') end")
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
