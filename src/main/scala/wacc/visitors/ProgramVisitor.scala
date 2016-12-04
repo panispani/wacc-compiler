@@ -23,7 +23,6 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
     if (parameterNames.distinct.size != parameterNames.size)
       return Some(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
 
-
     // The function signature is as follows
     SymbolTable.declareFunction(FunctionReference(typed_name, returnType, parameterTypes))
     (parameterNames, parameterTypes).zipped map SymbolTable().addFunctionArgument

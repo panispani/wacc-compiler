@@ -2,11 +2,9 @@ package wacc.constructs
 
 import wacc.{SymbolTable, VariableReference}
 
-case class Function(identifier: String, params: Seq[VariableReference],
+case class Function(identifier: String, typed_name: String, params: Seq[VariableReference],
                     vartype: Type, statements: Seq[Statement],
                     symbolTable: SymbolTable) {
-
-  def getTypedName: String = Function.appendFunctionTypes(identifier, params map (_.vartype))
 }
 
 object Function {

@@ -16,7 +16,6 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
       case Some(ls) => ls.parameter().toList
     }
     val parameterNames = params.map(_.IDENT().getText)
-
     val argumentTypes = params.map(_.`type`().accept(TypeVisitor))
 
     (parameterNames, argumentTypes)
@@ -25,13 +24,6 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
   override def visitFunction(ctx: FunctionContext): Either[CompilationError, Function] = {
     val name = ctx.IDENT().getText
     val returnType = ctx.`type`().accept(TypeVisitor)
-
-    // Parameters could be null so convert to empty sequence in that case
-    val params = Option(ctx.parameterList()) match {
-      case None => Seq()
-      case Some(ls) => ls.parameter().toList
-    }
-
     val typed_name = Function.appendFunctionTypes(name, getParameters(ctx)._2)
     val arguments = SymbolTable.defineFunction(typed_name)
 
@@ -53,7 +45,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
     for {
       statements <- sequenceOrLast(ctx.sequence.statement.toList map (_.accept(StatementVisitor))).right
       lastStatement <- validateFunctionReturn(statements.last).right
-    } yield Function(name, arguments, returnType, statements, SymbolTable.completeFunctionDefinition())
+    } yield Function(name, typed_name, arguments, returnType, statements, SymbolTable.completeFunctionDefinition())
 
   }
 
