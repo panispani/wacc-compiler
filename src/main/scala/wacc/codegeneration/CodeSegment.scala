@@ -1,6 +1,6 @@
 package wacc.codegeneration
 
-import wacc.arm.Instruction
+import wacc.arm.{ARMSection, DefineLabel, DefineStringLabel, Instruction}
 
 class CodeSegment private(initial: Seq[Instruction]) {
   val instructions: Vector[Instruction] = initial.toVector
@@ -37,5 +37,11 @@ object CodeSegment {
 
   // Default consumer which just prints all instructions
   implicit def outputConsumer(codeSegment: CodeSegment): Unit
-  = codeSegment.instructions foreach(println(_))
+  = for (i <- codeSegment.instructions) i match {
+      case i: DefineLabel       => println(i)
+      case i: DefineStringLabel => println(i)
+      case i: ARMSection        => println(i)
+      case default              => println("    " + i)
+    }
+
 }
