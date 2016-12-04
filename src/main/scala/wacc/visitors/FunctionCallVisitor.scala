@@ -12,7 +12,6 @@ object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError
 
   override def visitFunctionCall(ctx: FunctionCallContext): Either[CompilationError, FunctionCall] = {
     val ctxArgList = Option(ctx.argumentList())
-
     val untypedArgList = ctxArgList match {
       case None => Seq()
       case Some(ls) => ls.expression().toList
@@ -20,22 +19,31 @@ object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError
 
     val typedArgList = sequenceOrLast(untypedArgList map (_.accept(ExpressionVisitor)))
 
-    val functionSignature: Either[CompilationError, (Type, Seq[Type])] =
-      SymbolTable.functionsTable.get(ctx.IDENT().getText) match {
-      case Some(function) => {
-        function.reference match {
-          case FunctionReference(f, returnType, argumentTypes) => Right((returnType, argumentTypes))
-          case default => Left(SemanticError(ctx.IDENT().getText + " is not a function", ctx.start))
+    val functionSignature: Either[CompilationError, (String, Type, Seq[Type])] = {
+      typedArgList match {
+        case Right(argList) => {
+          val argTypes = argList map (e => e.vartype)
+          val typed_name   = Function.appendFunctionTypes(ctx.IDENT().getText, argTypes)
+
+          SymbolTable.functionsTable.get(typed_name) match {
+            case Some(function) => {
+              function.reference match {
+                case FunctionReference(f, returnType, argumentTypes) => Right((typed_name, returnType, argumentTypes))
+                case default => Left(SemanticError(ctx.IDENT().getText + " is not a function", ctx.start))
+              }
+            }
+            case None => Left(SemanticError("Function " + ctx.IDENT().getText + "(" + argTypes.mkString(", ") + ") is undefined", ctx.start))
+          }
         }
+        case Left(error) => Left(error)
       }
-      case None => Left(SemanticError("Function " + ctx.IDENT().getText + " is undefined", ctx.start))
     }
 
     typedArgList match {
       case Right(argList) =>
         functionSignature match {
-          case Right((returnType, argTypes)) =>
-            if (matchArgumentLists(argTypes, argList)) Right(FunctionCall(ctx.IDENT().getText, argList, returnType))
+          case Right((typed_name, returnType, argTypes)) =>
+            if (matchArgumentLists(argTypes, argList)) Right(FunctionCall(typed_name, argList, returnType))
             else Left(SemanticError("Argument list types don't match up", ctx.start))
           case Left(error) => Left(error)
         }
