@@ -74,8 +74,7 @@ typedef struct {
 void gc_begin();
 void gc_end();
 /*** Should declare methods of creating objects when they are finished ***/
-Object* declare_pair_constructor(int id, int val1_id, int val2_id);
-Object* assign_pair_constructor(int id, int val1_id, int val2_id);
+Object* new_pair_constructor(int id, int val1_id, int val2_id);
 Object* declare_copy(int id1, int id2);
 Object* assign_copy(int id1, int id2);
 

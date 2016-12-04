@@ -182,15 +182,16 @@ Object* new_string_literal(int id, int size) {
 
 /*** COMMON METHODS ***/
 // form: foo(dst, src)
-// assign_pair_copy, assign_array_copy, assign_string_copy
-//
-// REFACTOR THESE TWO IN ONE METHOD
-Object* assign_copy(int id1, int id2) {
+// this is ugly and will change in the process of refactoring
+Object* _copy(int id1, int id2) {
     Object* object = get_object_with_id(id2);
     pushVM(object, id1);
     return object;
 }
 
+/* Dont delete yet, creating a new object is wrong
+ * delcaring in on the stack, there is no new
+ * variable on the heap
 Object* declare_copy(int id1, int id2) {
         Object* object = new_object();
         Object* copyfrom = get_object_with_id(id2);
@@ -199,6 +200,7 @@ Object* declare_copy(int id1, int id2) {
         pushVM(object, id1);
         return object;
 }
+*/
 
 //called once on startup
 void gc_begin() {
@@ -237,27 +239,27 @@ static void run_gc() {
 }
 
 static void test_pair_copy_gc() {
-    Object* obj1 = declare_pair_constructor(0, -1, -1);
-    Object* obj2 = declare_pair_constructor(1, -1, -1);
-    assign_copy(0, 1);
+    new_pair_constructor(0, -1, -1);
+    new_pair_constructor(1, -1, -1);
+    _copy(0, 1);
     run_gc();
 }
 
 static void test_array_copy_gc() {
-    Object *obj1 = declare_array_literal(0, 15);
-    Object *obj2 = declare_array_literal(1, 129);
-    assign_copy(0, 1);
+    new_array_literal(0, 15);
+    new_array_literal(1, 129);
+    _copy(0, 1);
     run_gc();
 }
 
 
 static void test_complex1_gc() {
-    Object* obj1 = declare_pair_constructor(0, -1, -1);
-    Object* obj2 = declare_pair_constructor(1, -1, -1);
-    Object* obj3 = declare_array_literal(2, 15);
-    Object* obj4 = declare_array_literal(3, 129);
-    declare_copy(4, 0);
-    assign_copy(1, 0);
+    new_pair_constructor(0, -1, -1);
+    new_pair_constructor(1, -1, -1);
+    new_array_literal(2, 15);
+    new_array_literal(3, 129);
+    _copy(4, 0);
+    _copy(1, 0);
     run_gc();
 }
 
@@ -266,18 +268,18 @@ static void test_complex1_gc() {
  * 3 objects should be collected, all but the third created
  */
 static void test_complex2_gc() {
-    Object* o1 = declare_array_literal(0, 2);
-    Object* o2 = declare_array_literal(1, 2938);
-    assign_array_constructor(0, 10);
-    assign_array_constructor(1, 20);
-    assign_copy(1, 0);
+    new_array_literal(0, 2);
+    new_array_literal(1, 2938);
+    new_array_literal(0, 10);
+    new_array_literal(1, 20);
+    _copy(1, 0);
     run_gc();
 }
 
 /************ MAIN *****************/
 int main() {
     gc_begin();
-    test_complex2_gc();
+    test_pair_copy_gc();
     gc_end();
     return 0;
 }
