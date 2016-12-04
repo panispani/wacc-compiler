@@ -1,6 +1,3 @@
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
 #include "gc.h"
 
 /*
@@ -61,7 +58,7 @@ static void markAll() {
 
 // we use pointer to pointer so we can change
 // the list(remove element) and it retains its structure!
-void sweep() {
+static void sweep() {
   Object** object = &vm->head;
   while (*object != NULL) {
     if (!(*object)->marked) {

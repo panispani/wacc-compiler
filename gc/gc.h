@@ -1,6 +1,10 @@
 #ifndef __GC_H
 #define __GC_H
 
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+
 //maybe not all of them are needed (primitives)
 // do integers even need to be in the VM stack? NO, they
 // actually populate it even when we exit scope, TODO
@@ -75,7 +79,8 @@ void gc_begin();
 void gc_end();
 /*** Should declare methods of creating objects when they are finished ***/
 Object* new_pair_constructor(int id, int val1_id, int val2_id);
-Object* declare_copy(int id1, int id2);
-Object* assign_copy(int id1, int id2);
+Object* new_array_literal(int id, int size);
+Object* new_string_literal(int id, int size);
+Object* _copy(int id1, int id2);
 
 #endif
