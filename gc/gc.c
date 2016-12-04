@@ -168,16 +168,17 @@ static Object* new_object() {
         // rethink
         Object* object = (Object*)malloc(sizeof(Object));
         if (object == NULL) {
-                printf("%s\n", "Stack overflow");
-                return object;
+            printf("%s\n", "Stack overflow");
+            return object;
         }
 
         object->marked = 0;
         // append to front of VM object list
+        printf("append\n");
         if (vm->head == NULL) {
-      object->next = NULL;
+            object->next = NULL;
         } else {
-      object->next = vm->head->next;
+            object->next = vm->head;
         }
         vm->head = object;
         vm->num_objects = vm->num_objects + 1;
@@ -273,9 +274,25 @@ int main() {
     gc_init();
 
     Object* object = declare_pair_constructor(1, -1, -1);
-    Object* object2 = declare_pair_copy(2, 1);
-    // should be an int, int pair
+    Object* obj2 = declare_pair_constructor(2, -1, -1);
+    //declare_pair_copy(1, 2);
 
-    printf("%d %d\n", object->type, object2->type);
+    printf("Before VM heap\n");
+    Object* p = vm->head;
+    while(p != NULL) {
+        printf("%p\n", p);
+        p = p->next;
+    }
+
+    // 2 is garbage collected
+    //gc();
+/*
+    p = vm->head;
+    while(p != NULL) {
+        printf("%p\n", p);
+        p = p->next;
+    }
+*/
+    printf("%d %d\n", object->type, obj2->type);
     return 0;
 }
