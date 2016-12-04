@@ -205,6 +205,7 @@ Object* assign_array_constructor(int id, int size) {
 }
 
 // refactoring to be done - but NOT now
+// form: foo(dst, src)
 Object* assign_array_copy(int id1, int id2) {
         Object* object = get_object_with_id(id2);
         pushVM(object, id1);
@@ -225,9 +226,10 @@ void gc_init() {
 }
 
 // gc_free is not needed for now
+// TODO make a "FREE" called in end of execution
 void gc_free() {}
 
-/*** TESTS ***/
+/********************* TESTS *************************/
 static void run_gc() {
 
     // subject to change
@@ -276,9 +278,22 @@ static void test_complex1_gc() {
     run_gc();
 }
 
+/*
+ * 4 objects created, id(0) and id(1) point to the same object
+ * 3 objects should be collected, all but the third created
+ */
+static void test_complex2_gc() {
+    Object* o1 = declare_array_literal(0, 2);
+    Object* o2 = declare_array_literal(1, 2938);
+    assign_array_constructor(0, 10);
+    assign_array_constructor(1, 20);
+    assign_array_copy(1, 0);
+    run_gc();
+}
+
 /************ MAIN *****************/
 int main() {
     gc_init();
-    test_complex1_gc();
+    test_complex2_gc();
     return 0;
 }

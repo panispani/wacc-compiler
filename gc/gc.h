@@ -46,12 +46,12 @@ typedef struct _object {
 
                 // STRUCT
                 struct {
-                    struct _object *structlist; // list of pairs, each pair having an element and next pair
+                    struct _object **structlist; // list of pairs, each pair having an element and next pair
                 };
 
                 // CLASS
                 struct {
-                    struct _object *classlist; // list of pairs, each pair having an element and next pair
+                    struct _object **classlist; // list of pairs, each pair having an element and next pair
                 };
 
         } fields;
