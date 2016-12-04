@@ -53,6 +53,7 @@ typedef struct _object {
                 // ARRAY
                 struct {
                         struct _object *array;
+                        int array_size;
                 };
 
                 // STRUCT
@@ -102,16 +103,20 @@ static void markAll() {
 }
 
 static void mark(Object* object) {
-    // cycle or already done
-    if (object->marked) {
+    // primitives are null for now cycle or already done
+    if (object == NULL || object->marked) {
         return;
     }
     object->marked = 1;
     switch(object->type) {
     case PAIR:
-
+        mark(object->first);
+        mark(object->second);
         break;
     case ARRAY:
+        for (int i = 0; i < object->fields.array_size; i++) {
+            mark(object->fields.array + i * size_t);
+        }
         break;
     }
     // TODO REST
@@ -206,6 +211,7 @@ Object* declare_array_literal(int id, int size) {
         Object* object = new_object();
         object->type = ARRAY;
         object->fields.array = (Object*)malloc(size * sizeof(Object));
+        object->fields.array_size = size;
         pushVM(object, id);
         return object;
 }
