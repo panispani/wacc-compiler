@@ -302,9 +302,9 @@ static void test_pair_copy_gc() {
 }
 
 static void test_array_copy_gc() {
-    //Object *obj1 = declare_array_literal();
-    //Object *obj2 = declare_array_literal();
-
+    Object *obj1 = declare_array_literal(1, 15);
+    Object *obj2 = declare_array_literal(2, 129);
+    assign_array(1, 2);
     run_gc();
 }
 
