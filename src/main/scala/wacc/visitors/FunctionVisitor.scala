@@ -14,10 +14,10 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
     val name = ctx.IDENT().getText
     val returnType = ctx.`type`().accept(TypeVisitor)
     val (parameterNames, parameterTypes) = FunctionVisitor.getParameters(ctx)
-    val typed_name = Function.getFullyQualifiedName(name, parameterTypes)
+    val identifier = Function.fullName(name, parameterTypes)
 
     // Check for duplicate function name
-    if (SymbolTable.functionsTable contains typed_name)
+    if (SymbolTable.functionsTable contains identifier)
       return Left(SemanticError(
         "Attempted redefinition of function " +
           SemanticErrors.functionSignatureToString(name, parameterNames, parameterTypes), ctx.start))
@@ -27,7 +27,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
       return Left(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
 
     // The function signature is as follows
-    SymbolTable.declareFunction(FunctionReference(typed_name, returnType, parameterTypes))
+    SymbolTable.declareFunction(FunctionReference(identifier, returnType, parameterTypes))
     (parameterNames, parameterTypes).zipped map SymbolTable().addFunctionArgument
     SymbolTable.completeFunctionDeclaration()
 
@@ -37,8 +37,8 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
   override def visitFunction(ctx: FunctionContext): Either[CompilationError, Function] = {
     val name = ctx.IDENT().getText
     val returnType = ctx.`type`().accept(TypeVisitor)
-    val typed_name = Function.getFullyQualifiedName(name, getParameters(ctx)._2)
-    val arguments = SymbolTable.defineFunction(typed_name)
+    val identifier = Function.fullName(name, getParameters(ctx)._2)
+    val arguments = SymbolTable.defineFunction(identifier)
 
     val matchReturnType: PartialFunction[Statement, Either[SemanticError, Statement]] = {
       case s @ ReturnStatement(expression) =>
@@ -58,7 +58,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
     for {
       statements <- sequenceOrLast(ctx.sequence.statement.toList map (_.accept(StatementVisitor))).right
       lastStatement <- validateFunctionReturn(statements.last).right
-    } yield Function(name, typed_name, arguments, returnType, statements, SymbolTable.completeFunctionDefinition())
+    } yield Function(name, arguments, returnType, statements, SymbolTable.completeFunctionDefinition())
 
   }
 
