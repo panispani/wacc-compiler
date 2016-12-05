@@ -40,13 +40,13 @@ case class ArrayLiteral(elements: Seq[Expression]) extends AssignValue {
 
     }
 
-    CodeSegment(
-      LDR(R0, Const(arraySize)),
-      BL(Label("malloc")),
-      MOV(registers.head, R0),
-      LDR(registers(1), Const(elements.size)),
-      STR(registers(1), RegisterAddress(registers.head, 0)))
-      .extend(instructions : _*)
+    CodeSegment()
+      .extend(LDR(R0, Const(arraySize)))
+      .extend(BL(Label("malloc")))
+      .extend(MOV(registers.head, R0))
+      .extend(LDR(registers(1), Const(elements.size)))
+      .extend(STR(registers(1), RegisterAddress(registers.head, 0)))
+      .extend(instructions)
   }
 }
 

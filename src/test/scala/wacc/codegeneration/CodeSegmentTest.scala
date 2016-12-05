@@ -15,10 +15,15 @@ class CodeSegmentTest extends CodeGenTest {
 
   it should "build a code segment when chaining append and extend" in {
     val instruction = MOV(R0, R1)
+    val instructions = Seq(
+      MOV(R1, R2),
+      MOV(R2, R3)
+    )
 
-
-    CodeSegment(instruction).extend(MOV(R1, R2), MOV(R2, R3))
-      .instructions should be (instruction +: Seq(MOV(R1, R2), MOV(R2, R3)))
+    CodeSegment()
+      .extend(instruction)
+      .extend(instructions)
+      .instructions should be (instruction +: instructions)
   }
 
   it should "accept custom consumers" in {

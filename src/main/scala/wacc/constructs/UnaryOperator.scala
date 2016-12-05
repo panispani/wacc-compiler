@@ -1,9 +1,7 @@
 package wacc.constructs
 
 import wacc.arm._
-import wacc.codegeneration.CodeSegment
-import wacc.codegeneration.predefined.StaticCode
-import wacc.codegeneration.predefined.std.StandardLibrary
+import wacc.codegeneration.{CodeSegment, StaticCode}
 
 /**
   * Created by panayiotis on 08/11/16.
@@ -34,9 +32,7 @@ object NotOp extends UnaryOperator("!") {
   override def translate(dest: Register): CodeSegment = CodeSegment(EOR(dest, dest, ImmOperand(1)))
 }
 object MinusOp extends UnaryOperator("-") {
-  override def translate(dest: Register): CodeSegment = CodeSegment(
-    RSBS(dest, dest, ImmOperand(0)),
-    BL(StaticCode.getStaticFunction(StandardLibrary.throwOverflowError), VS))
+  override def translate(dest: Register): CodeSegment = CodeSegment(RSBS(dest, dest, ImmOperand(0)), BL(StaticCode.throwOverflowErrorFunctionLabel, VS))
 }
 object LenOp extends UnaryOperator("len") {
   override def translate(dest: Register): CodeSegment = CodeSegment(LDR(dest, RegisterAddress(dest, 0)))
