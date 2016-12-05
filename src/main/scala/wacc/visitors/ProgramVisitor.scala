@@ -9,7 +9,7 @@ import scala.collection.JavaConversions._
 
 object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError], Program]] {
 
-  private def defineFunction(ctx: FunctionContext): Option[SemanticError] = {
+  def defineFunction(ctx: FunctionContext): Option[SemanticError] = {
 
     val name = ctx.IDENT().getText
 

@@ -1,4 +1,4 @@
-package wacc.interpreter
+package wacc.interactive
 
 import org.antlr.v4.runtime.{BaseErrorListener, RecognitionException, Recognizer}
 

@@ -13,7 +13,7 @@ fi
 # Modes of compiler
 if [[ $1 = "--interactive" ]]; then
     scala -cp ${DIR}/target/scala-2.11/wacc_27_2.11-1.0.jar:${DIR}/lib/antlr-4.5.3-complete.jar \
-          wacc.ICompiler
+          wacc.interactive.ICompiler
 else
     SOURCE_PATH=$1
     SOURCE_FILE=$(basename ${SOURCE_PATH})
