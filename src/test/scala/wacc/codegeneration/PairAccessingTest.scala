@@ -4,7 +4,7 @@ import wacc.arm._
 import wacc.visitors.StatementVisitor
 import wacc.{SymbolTable, TestUtilities}
 
-class pairAccessingTest extends CodeGenTest {
+class PairAccessingTest extends CodeGenTest {
 
   it should "be able to handle declaring an int with assign value another variable" in {
     val parser = TestUtilities.setupParser("pair(int, int) p = null")

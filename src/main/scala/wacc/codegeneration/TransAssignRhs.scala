@@ -11,7 +11,7 @@ object TransAssignRhs {
   //Todo: probably needs ArrayElement as well
   def transAssignRhs(value: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
     value match {
-      case e: Expression       => TransExpressions.transExpression(e, registers)
+      case e: Expression       => e.transAssignRhs(registers).instructions
       case al: ArrayLiteral    => transDeclareRhsArrayLiteral(al, registers)
       case pc: PairConstructor => transPairConstructor(pc, registers)
       case pe: PairElement     => transDeclareRhsPairElement(pe, registers)
@@ -23,7 +23,7 @@ object TransAssignRhs {
 
   def getPairElementPointer(pe: PairElement, registers: Seq[Register]): CodeSegment = {
     CodeSegment()
-      .extend(TransExpressions.transExpression(pe.expression, registers)) // Translate expression inside selector
+      .extend(pe.transAssignRhs(registers)) // Translate expression inside selector
       .extend(MOV(R0, registers.head))                                                 // Check if address is null
       .extend(BL(StaticCode.checkNullPointerFunctionLabel))                            // Check if address is null
       .extend(LDR(registers.head, RegisterAddress(registers.head, pe.selector match {
@@ -45,7 +45,7 @@ object TransAssignRhs {
     var instructions: Seq[Instruction] = Seq()
 
     for (elem <- al.elements) {
-      instructions ++= TransExpressions.transExpression(elem, registers.tail) :+ STR(registers(1), RegisterAddress(registers.head, offset))
+      instructions ++= elem.transAssignRhs(registers.tail).instructions :+ STR(registers(1), RegisterAddress(registers.head, offset))
       offset += al.varType.elemtype.size
     }
 
@@ -63,7 +63,7 @@ object TransAssignRhs {
     CodeSegment()
       .extend(fc.args.reverse flatMap (e => {
         // Evaluate each argument and push them on stack in reverse order (first arg is closest to new frame)
-        val argumentEvalInstructions = TransExpressions.transExpression(e, registers)
+        val argumentEvalInstructions = e.transAssignRhs(registers).instructions
         argumentEvalInstructions :+ (e.varType match {
           case Character | Boolean => STRB(registers.head, RegisterAddress(SP, -e.varType.size, writeback = true))
           case _ => STR(registers.head, RegisterAddress(SP, -e.varType.size, writeback = true))
@@ -93,13 +93,13 @@ object TransAssignRhs {
       LDR(R0, Const(8)),      //Load the size of the pair in R0
       BL(Label("malloc")),
       MOV(registers.head, R0)
-    ) ++ TransExpressions.transExpression(pc.firstExp, registers.tail) ++
+    ) ++ pc.firstExp.transAssignRhs(registers.tail).instructions ++
       Seq (
         LDR(R0, Const(firstType.size)),
         BL(Label("malloc")),
         store1,  //Store the value for the first element in its memory
         STR(R0, RegisterAddress(registers.head)) //Put address of first element in memory of pair
-      ) ++ TransExpressions.transExpression(pc.secondExp, registers.tail) ++
+      ) ++ pc.secondExp.transAssignRhs(registers.tail).instructions ++
       Seq(
         LDR(R0, Const(secondType.size)),
         BL(Label("malloc")),

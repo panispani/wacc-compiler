@@ -1,0 +1,12 @@
+begin
+  int f(string a) is
+    return 5
+  end
+
+  string f(string a) is
+    return a
+  end
+
+  string hi = call f("hi");
+  println(hi)
+end

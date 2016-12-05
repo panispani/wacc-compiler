@@ -11,10 +11,10 @@ trait Reference extends Typed {
 case class VariableReference(name: String, varType: Type, offset: Int) extends Reference with Expression
 case class FunctionReference(name: String, returnType: Type, argumentTypes : Seq[Type])
 
-case class SymbolTable(parent: Option[SymbolTable]) {
+case class SymbolTable(parent: Option[SymbolTable], var currentOffset: Int = 0) {
 
-  private var currentOffset: Int = 0
-  def sizeInBytes = currentOffset
+  private val initialOffset = currentOffset
+  def sizeInBytes = currentOffset - initialOffset
 
   private var map: mutable.Map[String, VariableReference] = mutable.Map()
 
@@ -22,17 +22,29 @@ case class SymbolTable(parent: Option[SymbolTable]) {
   // The offset to argument 0 is 8 and the rest depend on the argument sizes
   // We could treat all types as 4 bytes and simplify this (it will also let us do PUSH of multiple
   // registers which simplifies the code even more)
-  def addFunctionArgument(name: String, vartype: Type): Unit = {
-    map += name -> VariableReference(name, vartype, currentOffset)
-    currentOffset += vartype.size
+  def addFunctionArgument(name: String, varType: Type): Unit = {
+    map += name -> VariableReference(name, varType, currentOffset)
+    currentOffset += varType.size
   }
 
   // The offset here is relative to the frame pointer and is negative
-  def addLocalVariable(identifier: String, vartype: Type): VariableReference = {
-    currentOffset += vartype.size
-    val variableReference = VariableReference(identifier, vartype, -currentOffset)
+  def addLocalVariable(identifier: String, varType: Type): VariableReference = {
+    currentOffset += varType.size
+    val variableReference = VariableReference(identifier, varType, -currentOffset)
     map += identifier -> variableReference
     variableReference
+  }
+
+  // A bit of a hack - ask Tencho or Pani if you don't know what it does
+  // If they left the company, don't use it but don't delete!!! :)
+  def injectReference(reference: VariableReference): Option[VariableReference] = {
+    val oldRef = map.remove(reference.name)
+    map += reference.name -> reference
+    oldRef
+  }
+
+  def removeReference(name: String): Unit = {
+    map.remove(name)
   }
 
   def lookup(identifier: String): Option[VariableReference]
@@ -42,10 +54,7 @@ case class SymbolTable(parent: Option[SymbolTable]) {
   }
 
   def lookupDeep(identifier: String): Option[VariableReference]
-  = lookup(identifier) match {
-    case Some(ident) => Some(ident)
-    case None => parent.flatMap(_.lookupWithOffsetAccumulator(identifier, 0))
-  }
+  = lookup(identifier).orElse(parent.flatMap(_.lookupDeep(identifier)))
 
   /**
     * Compute the offset of a variable relative to the FP of the scope which initiates the lookup
@@ -86,7 +95,6 @@ case class SymbolTable(parent: Option[SymbolTable]) {
 case class FunctionTable(reference: FunctionReference, symbolTable: SymbolTable)
 
 object SymbolTable {
-
   val globalTable: SymbolTable = SymbolTable(None)
   private var currentTable: SymbolTable = globalTable
   val functionsTable: mutable.Map[String, FunctionTable] = mutable.Map()
@@ -101,7 +109,7 @@ object SymbolTable {
   }
 
   def openScope() = {
-    currentTable = SymbolTable(Some(currentTable))
+    currentTable = SymbolTable(Some(currentTable), currentTable.currentOffset)
   }
 
   def closeScope() = {
@@ -122,7 +130,7 @@ object SymbolTable {
       * */
     currentTable = SymbolTable(None)
     functionsTable += function.name -> FunctionTable(function, currentTable)
-    currentTable.currentOffset = 12 // over PC and FP, FSP for computing offsets to arguments
+    currentTable.currentOffset = 8 // over LR and FP for computing offsets to arguments
   }
 
   // A helper that must be called in order to close the scope for a function table

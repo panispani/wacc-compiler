@@ -11,12 +11,34 @@ class SymbolTableTest extends FlatSpec
 
   override def beforeEach(): Unit = {
     // Seed the table with the example below
-    SymbolTable().addLocalVariable("x", Integer)
+    SymbolTable().addLocalVariable("x", Integer) // -4
       SymbolTable.openScope()
-      SymbolTable().addLocalVariable("y", Boolean)
-      SymbolTable().addLocalVariable("z", Integer)
+      SymbolTable().addLocalVariable("y", Boolean) // -5
+      SymbolTable().addLocalVariable("z", Integer) // -9
         SymbolTable.openScope()
-        SymbolTable().addLocalVariable("a", Integer)
+        SymbolTable().addLocalVariable("a", Integer) // -13
+  }
+
+  "Injecting a reference" should "return the reference with the same name if it existed" in {
+    SymbolTable().lookup("a").get.varType should be (Integer)
+    SymbolTable().lookup("a").get.offset should be (-13)
+
+    val oldRef = SymbolTable().injectReference(VariableReference("a", Boolean, 10))
+
+    SymbolTable().lookup("a").get.varType should be (Boolean)
+    SymbolTable().lookup("a").get.offset should be (10)
+
+    oldRef.get.varType should be (Integer)
+    oldRef.get.offset should be (-13)
+  }
+
+  it should "return None if it is a new reference" in {
+    val oldRef = SymbolTable().injectReference(VariableReference("b", Boolean, 10))
+
+    SymbolTable().lookup("b").get.varType should be (Boolean)
+    SymbolTable().lookup("b").get.offset should be (10)
+
+    oldRef should be (None)
   }
 
   /** Symbol table                 ARM11 Stack (offsets relative to SP at time of adding)
@@ -39,7 +61,7 @@ class SymbolTableTest extends FlatSpec
     * */
 
   "A parent lookup" should "have the correct offset" in {
-    SymbolTable().lookupDeep("y").get.offset should be (8)
+    SymbolTable().lookupDeep("y").get.offset should be (-5)
   }
 
   it should "preserve the type and identifier of the looked up variable" in {
@@ -51,6 +73,6 @@ class SymbolTableTest extends FlatSpec
   }
 
   "A deeper lookup" should "have the correct offset" in {
-    SymbolTable().lookupDeep("x").get.offset should be (13)
+    SymbolTable().lookupDeep("x").get.offset should be (-4)
   }
 }

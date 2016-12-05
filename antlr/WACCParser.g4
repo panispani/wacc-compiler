@@ -28,11 +28,22 @@ statement : NOP                                                                 
           | EXIT expression                                                               # Exit
           | PRINT expression                                                              # Print
           | PRINTLN expression                                                            # PrintLn
-          | IF expression THEN trueSequence=sequence ELSE falseSequence=sequence FI       # Conditional
-          | WHILE expression DO sequence DONE                                             # Loop
+          | conditionalStatement                                                          # Conditional
+          | loopStatement                                                                 # Loop
           | BEGIN sequence END                                                            # Scope
           ;
 
+conditionalStatement : IF expression THEN trueSequence=sequence FI                              # IfSimple
+                     | IF expression THEN trueSequence=sequence ELSE falseSequence=sequence FI  # IfElse
+                     | IF expression THEN trueSequence=sequence ELSE conditionalStatement       # IfRecursive
+                     ;
+
+loopStatement : WHILE expression DO sequence DONE                                              # While
+              | DO sequence WHILE expression                                                   # DoWhile
+              | FOR (init=statement)? SEMICOLON
+                    cond=expression SEMICOLON
+                    (step=statement)? DO body=sequence DONE                               # For
+              ;
 
 assignLhs : variableReference # AssignLhsIdent
           | arrayElement      # AssignLhsArrayElement

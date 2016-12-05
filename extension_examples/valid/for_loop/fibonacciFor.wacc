@@ -1,0 +1,23 @@
+# Prints Fibonacci sequence up to a given limit
+
+begin
+
+int a1 = 1;
+int limit = 0;
+
+read limit;
+
+# We should have access to limit (from the parent scope) in the condition
+# We should also have access to a2 (the loop vairable)
+# but we shouldn't have access to local variables of the loop such as temp
+
+# There is a semantic test for that
+
+for int a2 = 1; a2 < limit; skip do
+    println a1;
+    int temp = a1;
+    a1 = a2;
+    a2 = a2 + temp
+done
+
+end

@@ -22,8 +22,8 @@ case class SyntaxError(message: String, symbol: Token) extends CompilationError 
   override val exitCode: Int = 100
 
   override def raise(): Unit = {
+    System.err.print("Syntax Error - ")
     super.raise()
-    System.err.println("Syntax error")
   }
 }
 
@@ -31,7 +31,7 @@ case class SemanticError(message: String, symbol: Token) extends CompilationErro
   override val exitCode: Int = 200
 
   override def raise(): Unit = {
+    System.err.print("Semantic Error - ")
     super.raise()
-    System.err.println("Semantic error")
   }
 }

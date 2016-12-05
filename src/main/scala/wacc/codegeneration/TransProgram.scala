@@ -9,7 +9,7 @@ object TransProgram {
     val mainInstructions     = program.main.statements map (
       s => TransStatements.transStatement(s, Registers.expressionRegs))
 
-    val (beginFrame, endFrame) = Macros.frame(program.main.symbolTable.sizeInBytes)
+    val (beginFrame, endFrame) = Macros.semanticFrame(program.main.symbolTable.sizeInBytes)
     val data = StaticCode.staticData.extend(LabelTable.outputLabels)
     val text = CodeSegment()
                   .extend(COMMENT("Static code"))
@@ -22,6 +22,7 @@ object TransProgram {
                   .extend(GLOBAL("main"))
                   .extend(DefineLabel(Label("main")))
                   .extend(PUSH(Seq(LR)))
+                  .extend(MOV(FP, SP))
                   .extend(beginFrame)
                   .extend(COMMENT("----------- MAIN  ------------"))
                   .extend(mainInstructions.flatten)

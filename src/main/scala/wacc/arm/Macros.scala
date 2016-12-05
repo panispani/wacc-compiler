@@ -1,7 +1,7 @@
 package wacc.arm
 
 import wacc.VariableReference
-import wacc.codegeneration.{CodeSegment, StaticCode, TransAssignRhs, TransExpressions}
+import wacc.codegeneration.{CodeSegment, StaticCode}
 import wacc.constructs._
 
 import scala.collection.+:
@@ -9,7 +9,7 @@ import scala.collection.+:
 object Macros {
   def store(lhs: AssignTarget, registers: Seq[Register]): Seq[Instruction] = {
     lhs match {
-      case VariableReference(name, vartype, offset) => {
+      case VariableReference(name, varType, offset) => {
         lhs.varType match {
           case Boolean | Character => Seq(STRB(registers.head, RegisterAddress(FP, offset)))
           case default             => Seq(STR(registers.head, RegisterAddress(FP, offset)))
@@ -31,7 +31,7 @@ object Macros {
       }
 
       case pe @ PairElement(selector, variableReference: Expression, elemType) => {
-        val instruction = TransAssignRhs.getPairElementPointer(pe, registers.tail)
+        val instruction = pe.getPairElementPointer(registers.tail)
         val store = pe.varType match {
           case Character | Boolean => STRB(registers.head, RegisterAddress(registers(1)))
           case default => STR(registers.head, RegisterAddress(registers(1)))
@@ -49,7 +49,7 @@ object Macros {
 
     indexes.foldLeft(CodeSegment()) ((accumulator, index) => {
       accumulator
-        .extend(TransExpressions.transExpression(index, reg2 +: regs))
+        .extend(index.transAssignRhs(reg2 +: regs))
         .extend(Macros.checkAndGetArrayElemAddress(reg1 +: reg2 +: regs, elemSize))
     })
   }
@@ -71,7 +71,7 @@ object Macros {
       ))
   }
 
-  def load(reg1: Register, offset: Int, vartype: Type): Instruction = vartype match {
+  def load(reg1: Register, offset: Int, varType: Type): Instruction = varType match {
     case Boolean | Character => LDRB(reg1, RegisterAddress(FP, offset))
     case default => LDR(reg1, RegisterAddress(FP, offset))
   }
@@ -85,31 +85,34 @@ object Macros {
   )
 
   /**
-    * Returns the code for opening and closing a scope
-    * If the scope is a function call the isBranch flag must be set to true
-    * so that the LR and PC are handled appropriately
+    * Returns the code for opening and closing a semantic scope
+    * based on the size of the given scope (not including child scope sizes)
     * */
-  //    * TODO: make functionally
-  def frame(size: Int): (CodeSegment, CodeSegment) = {
+  def semanticFrame(size: Int): (CodeSegment, CodeSegment) = {
     val MAX_SIZE = 1024
-
-    var start = CodeSegment()
-
-    start = start.extend(Seq(PUSH(Seq(FP)), MOV(FP, SP)))
-
-    var end = CodeSegment()
 
     // Handle large scopes by adding / subtracting several times
     val blocks = size / MAX_SIZE
     val remainder = size % MAX_SIZE
 
-    for (i <- 1 to blocks) {
-      end = end.extend(ADD(SP, SP, ImmOperand(MAX_SIZE)))
-    }
+    val start = (1 to blocks).foldLeft (
+      CodeSegment(SUB(SP, SP, ImmOperand(remainder))))(
+      (acc, _) => acc.extend(SUB(SP, SP, ImmOperand(MAX_SIZE))))
 
-    end = end.extend(ADD(SP, SP, ImmOperand(remainder)))
-             .extend(POP(Seq(FP)))
+    val end = (1 to blocks).foldLeft (
+      CodeSegment(ADD(SP, SP, ImmOperand(remainder))))(
+      (acc, _) => acc.extend(ADD(SP, SP, ImmOperand(MAX_SIZE))))
 
     (start, end)
+  }
+
+  def functionCallFrameStart(size: Int): CodeSegment = {
+    val start = CodeSegment(PUSH(Seq(LR)), PUSH(Seq(FP)), MOV(FP, SP))
+      .extend(semanticFrame(size)._1)
+
+    start
+    // this does not attempt to generate the function frame end because it is contained in return statements
+    // which should always be the last statement in a function. Return statements in different branches could
+    // end up having different stack sizes to restore
   }
 }
