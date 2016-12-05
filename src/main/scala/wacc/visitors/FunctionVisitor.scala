@@ -22,7 +22,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
     (parameterNames, argumentTypes)
   }
 
-  def defineFunction(ctx: FunctionContext): Option[SemanticError] = {
+  def defineFunction(ctx: FunctionContext): Either[SemanticError, FunctionContext] = {
     val name = ctx.IDENT().getText
     val returnType = ctx.`type`().accept(TypeVisitor)
     val (parameterNames, parameterTypes) = FunctionVisitor.getParameters(ctx)
@@ -30,20 +30,20 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
 
     // Check for duplicate function name
     if (SymbolTable.functionsTable contains typed_name)
-      return Some(SemanticError(
+      return Left(SemanticError(
         "Attempted redefinition of function " +
           SemanticErrors.functionSignatureToString(name, parameterNames, parameterTypes), ctx.start))
 
     // Validate parameters
     if (parameterNames.distinct.size != parameterNames.size)
-      return Some(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
+      return Left(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
 
     // The function signature is as follows
     SymbolTable.declareFunction(FunctionReference(typed_name, returnType, parameterTypes))
     (parameterNames, parameterTypes).zipped map SymbolTable().addFunctionArgument
     SymbolTable.completeFunctionDeclaration()
 
-    None
+    Right(ctx)
   }
 
   override def visitFunction(ctx: FunctionContext): Either[CompilationError, Function] = {
