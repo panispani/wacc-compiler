@@ -1,9 +1,10 @@
 package wacc.visitors
 
-import antlr.WACCParser.{FunctionContext, ParameterContext}
+import antlr.WACCParser.FunctionContext
 import antlr.WACCParserBaseVisitor
 import wacc.constructs._
-import wacc.{FunctionReference, SymbolTable, VariableReference}
+import wacc.util.SemanticErrors
+import wacc.{FunctionReference, SymbolTable}
 
 import scala.collection.JavaConversions._
 
@@ -19,6 +20,30 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
     val argumentTypes = params.map(_.`type`().accept(TypeVisitor))
 
     (parameterNames, argumentTypes)
+  }
+
+  def defineFunction(ctx: FunctionContext): Option[SemanticError] = {
+    val name = ctx.IDENT().getText
+    val returnType = ctx.`type`().accept(TypeVisitor)
+    val (parameterNames, parameterTypes) = FunctionVisitor.getParameters(ctx)
+    val typed_name = Function.appendFunctionTypes(name, parameterTypes)
+
+    // Check for duplicate function name
+    if (SymbolTable.functionsTable contains typed_name)
+      return Some(SemanticError(
+        "Attempted redefinition of function " +
+          SemanticErrors.functionSignatureToString(name, parameterNames, parameterTypes), ctx.start))
+
+    // Validate parameters
+    if (parameterNames.distinct.size != parameterNames.size)
+      return Some(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
+
+    // The function signature is as follows
+    SymbolTable.declareFunction(FunctionReference(typed_name, returnType, parameterTypes))
+    (parameterNames, parameterTypes).zipped map SymbolTable().addFunctionArgument
+    SymbolTable.completeFunctionDeclaration()
+
+    None
   }
 
   override def visitFunction(ctx: FunctionContext): Either[CompilationError, Function] = {
