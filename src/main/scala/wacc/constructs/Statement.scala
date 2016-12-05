@@ -239,8 +239,7 @@ case class LoopStatement(condition: Expression, body: Seq[Statement], symbolTabl
   }
 }
 
-case class ForLoopStatement(init: DeclareStatement, cond: Expression, step: Statement,
-                            body: Seq[Statement], symbolTable: SymbolTable) extends Statement {
+case class ForLoopStatement(init: Statement, cond: Expression, step: Statement, body: Seq[Statement], symbolTable: SymbolTable) extends Statement {
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     val L0 = Label()
     val L1 = Label()
