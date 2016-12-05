@@ -15,7 +15,7 @@ object ICompiler extends App {
     val parser = new WACCParser(tokens)
     parser.addErrorListener(new ISyntaxErrorListener())
     val tree = parser.statement()
-    if (!tree.isEmpty)
+    if (tree.isEmpty)  // this doesnt work
       StatementVisitor.visit(tree)
     else
       Left(SyntaxError("It's not a statement", tree.start))
@@ -34,19 +34,18 @@ object ICompiler extends App {
 
   // make it loop for statements and functions
   while (true) {
-    val inputStatement = scala.io.StdIn.readLine()
+    val inputStatement = scala.io.StdIn.readLine("wacc> ")
     val input = new ANTLRInputStream(new ByteArrayInputStream(inputStatement.getBytes()))
     val lexer = new WACCLexer(input)
     val tokens = new CommonTokenStream(lexer)
 
     execStatement(tokens) match {
-      case Right(stmt) => {
+      case Right(stmt) =>
         CodeSegment().extend(TransStatements.transStatement(stmt, Registers.expressionRegs)).release()
-      }
-      case Left(error) => println("here"); println(tokens)
+      case Left(error) =>
         execFunction(tokens) match {
-          case Right(f) => println("asd"); println(f); CodeSegment().extend(TransFunctions.transFunction(f, Registers.expressionRegs)).release()
-          case Left(fError) => println("123");//fError.raise() ; error.raise() // TODO: only one of the two is needed
+          case Right(f) => CodeSegment().extend(TransFunctions.transFunction(f, Registers.expressionRegs)).release()
+          case Left(fError) => fError.raise() ; error.raise() // TODO: only one of the two is needed
         }
     }
 
