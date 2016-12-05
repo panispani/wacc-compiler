@@ -3,6 +3,8 @@ package wacc.constructs
 import wacc.arm.{Label, R0}
 import wacc.codegeneration._
 import wacc.arm._
+import wacc.codegeneration.predefined.StaticCode
+import wacc.codegeneration.predefined.std.StandardLibrary
 import wacc.{SymbolTable, VariableReference}
 
 abstract class Statement {
@@ -37,13 +39,13 @@ abstract class AbstractPrintStatement extends Statement {
 
   def transStatement(registers: Seq[Register]): CodeSegment = {
     val printLabel: Label = expression.vartype match {
-      case Integer => StaticCode.printIntLabel
-      case Character => StaticCode.printCharLabel
-      case Boolean => StaticCode.printBoolLabel
-      case String => StaticCode.printFunctionLabel
-      case ArrayType(_) => StaticCode.printReferenceFunctionLabel
-      case PairType(_, _) => StaticCode.printReferenceFunctionLabel
-      case _ => StaticCode.printFunctionLabel
+      case Integer        => StaticCode.getStaticFunction(StandardLibrary.printInt)
+      case Character      => StaticCode.getStaticFunction(StandardLibrary.printChar)
+      case Boolean        => StaticCode.getStaticFunction(StandardLibrary.printBool)
+      case String         => StaticCode.getStaticFunction(StandardLibrary.printString)
+      case ArrayType(_)   => StaticCode.getStaticFunction(StandardLibrary.printReference)
+      case PairType(_, _) => StaticCode.getStaticFunction(StandardLibrary.printReference)
+      case _              => StaticCode.getStaticFunction(StandardLibrary.printString)
     }
 
     CodeSegment()
@@ -58,7 +60,8 @@ case class PrintStatement(expression: Expression) extends AbstractPrintStatement
 case class PrintLnStatement(expression: Expression) extends AbstractPrintStatement {
 
   override def transStatement(registers: Seq[Register]): CodeSegment = {
-    super.transStatement(registers).extend(BL(StaticCode.printLnFunctionLabel))
+      super.transStatement(registers)
+        .extend(BL(StaticCode.getStaticFunction(StandardLibrary.printLn)))
   }
 }
 
@@ -79,7 +82,7 @@ case class FreeStatement(expression: Expression) extends Statement {
         CodeSegment()
           .extend(LDR(registers.head, RegisterAddress(FP, offset)))
           .extend(MOV(R0, registers.head))
-          .extend(BL(StaticCode.freePairLabel))
+          .extend(BL(StaticCode.getStaticFunction(StandardLibrary.freePair)))
       }
     }
   }
@@ -89,11 +92,12 @@ case class ScopeStatement(statements: Seq[Statement], symbolTable: SymbolTable) 
 
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     // Make sure the same registers are available after each statement is translated! TODO
-    val instructions = statements map (_.transStatement(registers))
-    val (beginFrame, endFrame) = Macros.semanticFrame(this.symbolTable.sizeInBytes)
+    val instructions = statements map (_.transStatement(registers).instructions)
+    val (beginFrame, endFrame) = Macros.frame(this.symbolTable.sizeInBytes)
 
-    beginFrame
-      .extend(instructions.foldLeft(CodeSegment())((acc, x) => acc.extend(x)))
+    CodeSegment()
+      .extend(beginFrame)
+      .extend(instructions.flatten : _*)
       .extend(endFrame)
   }
 }
@@ -111,8 +115,8 @@ case class ReadStatement(target: AssignTarget) extends Statement {
     }
 
     val readLabel: Label = target.vartype match {
-      case Integer => StaticCode.readIntLabel
-      case Character => StaticCode.readCharLabel
+      case Integer   => StaticCode.getStaticFunction(StandardLibrary.readInt)
+      case Character => StaticCode.getStaticFunction(StandardLibrary.readChar)
     }
 
     CodeSegment()
@@ -204,7 +208,7 @@ case class LoopStatement(condition: Expression, body: Seq[Statement], symbolTabl
     val L0 = Label()
     val L1 = Label()
 
-    val (begin, end) = Macros.semanticFrame(symbolTable.sizeInBytes)
+    val (begin, end) = Macros.frame(symbolTable.sizeInBytes)
 
     (if (doWhile) begin else begin.extend(B(L0)))
       .extend(DefineLabel(L1))
@@ -223,7 +227,7 @@ case class ForLoopStatement(init: DeclareStatement, cond: Expression, step: Stat
     val L0 = Label()
     val L1 = Label()
 
-    val (begin, end) = Macros.semanticFrame(symbolTable.sizeInBytes)
+    val (begin, end) = Macros.frame(symbolTable.sizeInBytes)
 
     implicit val regs = registers
 

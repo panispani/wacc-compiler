@@ -5,11 +5,14 @@ import wacc.constructs._
 
 object TransFunctions {
   def transFunction(function: Function, registers: Seq[Register]): Seq[Instruction] = {
-    val beginFrame = Macros.functionCallFrameStart(function.symbolTable.sizeInBytes)
-    CodeSegment(DefineLabel(Label(function.typed_name)))
-      .extend(beginFrame)
-      .extend(function.statements.map(_.transStatement(registers)).foldLeft(CodeSegment())((acc, x) => acc.extend(x)))
-      .extend(POP(Seq(PC)))
+    val (beginFrame, endFrame) = Macros.frame(function.symbolTable.sizeInBytes, isBranch = true)
+
+    CodeSegment()
+       .extend(DefineLabel(Label(function.identifier)))
+       .extend(beginFrame)
+       .extend(function.statements flatMap (s => s.transStatement(registers).instructions) : _*)
+       .extend(endFrame)
       .instructions
+
   }
 }

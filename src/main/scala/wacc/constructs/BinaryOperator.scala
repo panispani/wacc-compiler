@@ -1,11 +1,10 @@
 package wacc.constructs
 
 import wacc.arm._
-import wacc.codegeneration.{CodeSegment, StaticCode}
+import wacc.codegeneration.CodeSegment
+import wacc.codegeneration.predefined.StaticCode
+import wacc.codegeneration.predefined.std.StandardLibrary
 
-/**
-  * Created by panayiotis on 08/11/16.
-  */
 case class BinaryOperatorExpr(expression1: Expression, binaryOperator: BinaryOperator, expression2: Expression) extends Expression {
   override val vartype = binaryOperator match {
     case TimesBinOp
@@ -54,20 +53,19 @@ object BinaryOperator {
 /* Integers */
 object TimesBinOp extends BinaryOperator("*") {
   override def translate(vartype: Type, dest: Register, operand: Register): CodeSegment
-    = CodeSegment(
-        SMULL(dest, operand, dest, operand),
-        CMPSHIFT(operand, dest, ASR(31)),
-        BL(StaticCode.throwOverflowErrorFunctionLabel, NE))
+  = CodeSegment(SMULL(dest, operand, dest, operand),
+    CMPSHIFT(operand, dest, ASR(31)),
+    BL(StaticCode.getStaticFunction(StandardLibrary.throwOverflowError), NE))
 }
 
 object DivBinOp extends BinaryOperator("/") {
   override def translate(vartype: Type, dest: Register, operand: Register): CodeSegment
-    = CodeSegment(
-        MOV(R0, dest),
-        MOV(R1, operand),
-        BL(StaticCode.checkDivideByZeroLabel),
-        BL(StaticCode.divisionLabel),
-        MOV(dest, R0))
+  = CodeSegment(
+    MOV(R0, dest),
+    MOV(R1, operand),
+    BL(StaticCode.getStaticFunction(StandardLibrary.div)),
+    MOV(dest, R0)
+  )
 }
 
 object ModBinOp extends BinaryOperator("%") {
@@ -75,8 +73,7 @@ object ModBinOp extends BinaryOperator("%") {
     = CodeSegment(
         MOV(R0, dest),
         MOV(R1, operand),
-        BL(StaticCode.checkDivideByZeroLabel),
-        BL(StaticCode.moduleLabel),
+        BL(StaticCode.getStaticFunction(StandardLibrary.mod)),
         MOV(dest, R1))
 }
 object PlusBinOp extends BinaryOperator("+") {
@@ -84,12 +81,12 @@ object PlusBinOp extends BinaryOperator("+") {
     = if (vartype == Integer)
         CodeSegment(
           ADDS(dest, dest, operand),
-          BL(StaticCode.throwOverflowErrorFunctionLabel, VS))
+          BL(StaticCode.getStaticFunction(StandardLibrary.throwOverflowError), VS))
       else
         CodeSegment(
           MOV(R0, dest),
           MOV(R1, operand),
-          BL(StaticCode.concatinateStringsLabel),
+          BL(StaticCode.getStaticFunction(StandardLibrary.concatinateStrings)),
           MOV(dest, R0))
 }
 
@@ -97,7 +94,7 @@ object MinusBinOp extends BinaryOperator("-") {
   override def translate(vartype: Type, dest: Register, operand: Register): CodeSegment
     = CodeSegment(
         SUBS(dest, dest, operand),
-        BL(StaticCode.throwOverflowErrorFunctionLabel, VS))
+        BL(StaticCode.getStaticFunction(StandardLibrary.throwOverflowError), VS))
 }
 
 /* Booleans */
