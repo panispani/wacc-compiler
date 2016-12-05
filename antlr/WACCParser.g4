@@ -4,11 +4,11 @@ options { tokenVocab=WACCLexer; }
 // Top-level rule
 program : BEGIN struct* function* sequence END EOF;
 
-struct : STRUCT IDENT (structMember SEMICOLON)+ ;
-structMember : type IDENT ;
+struct : STRUCT IDENT (structMemberDeclaration SEMICOLON)+ ;
+structMemberDeclaration: type IDENT ;
 structType : STRUCT IDENT ;
 structLiteral : LC (expression (COMMA expression)*)? RC ;
-structElement : IDENT DOT IDENT ;
+structMember : IDENT DOT IDENT ;
 
 function : type IDENT LP parameterList? RP IS sequence END ;
 parameterList : parameter (COMMA parameter)* ;
@@ -37,7 +37,7 @@ statement : NOP                                                                 
 assignLhs : variableReference # AssignLhsIdent
           | arrayElement      # AssignLhsArrayElement
           | pairElement       # AssignLhsPairElement
-          | structElement     # AssignLhsStructElement
+          | structMember     # AssignLhsStructElement
           ;
 
 assignRhs : expression      # AssignRhsExpression
@@ -46,7 +46,7 @@ assignRhs : expression      # AssignRhsExpression
           | pairElement     # AssignRhsPairElement
           | functionCall    # AssignRhsFunctionCall
           | structLiteral   # AssignRhsStructLiteral
-          | structElement   # AssignRhsStructElement
+          | structMember   # AssignRhsStructElement
           ;
 
 type : primitiveType
