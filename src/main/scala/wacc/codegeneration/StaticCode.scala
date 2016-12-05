@@ -98,9 +98,11 @@ object StaticCode {
       LDR(R0, RegisterAddress(R1)),   // R0 = len(stringB)
       MOV(R3, R0),
       ADD(R0, R0, R2),                // R0 = len(stringA) + len(stringB)
+      ADD(R0, R0, ImmOperand(4)),     // R0 = len(stringA) + len(stringB) + 4
       PUSH(Seq(R0, R2, R3)),
       BL(Label("malloc")),            // R0 = newstring*
       POP(Seq(R1, R2, R3)),
+      SUB(R1, R1, ImmOperand(4)),
       STR(R1, RegisterAddress(R0)),   // *newstring = length(stringA) + len(stringB)
       ADD(R0, R0, ImmOperand(4)),     // newstring++
       POP(Seq(R1)),                   // Restore stringA into R1
