@@ -10,18 +10,6 @@ import scala.collection.JavaConversions._
 
 object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Function]] {
 
-  def getParameters(ctx: FunctionContext): (Seq[String], Seq[Type]) = {
-    // Parameters could be null so convert to empty sequence in that case
-    val params = Option(ctx.parameterList()) match {
-      case None => Seq()
-      case Some(ls) => ls.parameter().toList
-    }
-    val parameterNames = params.map(_.IDENT().getText)
-    val argumentTypes = params.map(_.`type`().accept(TypeVisitor))
-
-    (parameterNames, argumentTypes)
-  }
-
   def defineFunction(ctx: FunctionContext): Either[SemanticError, FunctionContext] = {
     val name = ctx.IDENT().getText
     val returnType = ctx.`type`().accept(TypeVisitor)
@@ -72,6 +60,19 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
       lastStatement <- validateFunctionReturn(statements.last).right
     } yield Function(name, typed_name, arguments, returnType, statements, SymbolTable.completeFunctionDefinition())
 
+  }
+
+  private def getParameters(ctx: FunctionContext): (Seq[String], Seq[Type]) = {
+    // Parameters could be null so convert to empty sequence in that case
+    val params = Option(ctx.parameterList()) match {
+      case None => Seq()
+      case Some(ls) => ls.parameter().toList
+    }
+
+    val names = params.map(_.IDENT().getText)
+    val types = params.map(_.`type`().accept(TypeVisitor))
+
+    (names, types)
   }
 
   private def mapLastStatements(lastStatement: Statement, f: Statement => Either[CompilationError, Statement])
