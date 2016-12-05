@@ -1,6 +1,6 @@
 package wacc.visitors
 
-import wacc.{TestUtilities, VariableReference}
+import wacc.{SymbolTable, TestUtilities, VariableReference}
 import wacc.constructs._
 import wacc.constructs.Integer
 
@@ -59,4 +59,37 @@ class AssignTest extends VisitorTest {
 
   }
 
+  "Assigning to struct" should "build an AssignStatement" in {
+    SymbolTable.structsTable += "car" -> Struct("car", Seq(VariableReference("a", Integer, 0), VariableReference("b", Character, 0)))
+    val parser = TestUtilities.setupParser("struct car c = {1, 'a'} ; c = {2, 'b'}")
+    val result = TestUtilities.buildSubProgram(parser.sequence, SequenceVisitor)
+
+    result.right.value should be (
+      List(
+        DeclareStatement(
+          StructType("car",List(("a", Integer), ("b", Character))),
+          VariableReference("c", StructType("car",List(("a", Integer), ("b", Character))), -4),
+          StructLiteral(
+            List(
+              IntegerLiteral(1),
+              CharLiteral("a")
+            )
+          )
+        ),
+        AssignStatement(
+          VariableReference("c",StructType("car",List(("a", Integer), ("b", Character))),-4),
+          StructLiteral(
+            List(
+              IntegerLiteral(2),
+              CharLiteral("b")
+            )
+          )
+        )
+      )
+    )
+
+  }
+
 }
+
+

@@ -1,6 +1,5 @@
 package wacc.visitors
 
-import org.scalatest.Ignore
 import wacc.constructs._
 import wacc.{SymbolTable, TestUtilities, VariableReference}
 
