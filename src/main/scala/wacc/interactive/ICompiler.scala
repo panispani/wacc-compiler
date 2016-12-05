@@ -42,16 +42,7 @@ object ICompiler extends App {
     }
   }
 
-  private def exec(): Either[CompilationError, Function] = {
-    null
-  }
-
-
-  while (true) {
-    val ss = new Scanner(System.in).useDelimiter("\n")
-    printf("\nwacc> ")
-    //val input = scala.io.StdIn.readLine()
-    val input = ss.next()
+  private def exec(input: String): Option[CodeSegment] = {
     val inputStmt = new ANTLRInputStream(new ByteArrayInputStream(input.getBytes()))
     val inputFun = new ANTLRInputStream(new ByteArrayInputStream(input.getBytes()))
     val lexerStmt = new WACCLexer(inputStmt)
@@ -61,18 +52,34 @@ object ICompiler extends App {
 
     execStatement(tokensStmt) match {
       case Right(stmt) =>
-        CodeSegment().extend(TransStatements.transStatement(stmt, Registers.expressionRegs)).release()
+        Some(CodeSegment().extend(TransStatements.transStatement(stmt, Registers.expressionRegs)))
       case Left(SyntaxError("It's not a statement", null)) =>
         execFunction(tokensFun) match {
           case Right(f) =>
-            CodeSegment().extend(TransFunctions.transFunction(f, Registers.expressionRegs)).release()
+            Some(CodeSegment().extend(TransFunctions.transFunction(f, Registers.expressionRegs)))
           case Left(SyntaxError("It's not a function", null)) =>
             println()
+            None
           case Left(fError) =>
             fError.raise()
+            None
         }
       case Left(error) =>
         error.raise()
+        None
     }
+  }
+
+
+  while (true) {
+    val ss = new Scanner(System.in).useDelimiter("\n")
+    printf("\nwacc> ")
+    val input = ss.next()
+
+    exec(input) match {
+      case Some(codesegment) =>
+      case None =>
+    }
+
   }
 }
