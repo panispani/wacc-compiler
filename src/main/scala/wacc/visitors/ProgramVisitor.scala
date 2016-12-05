@@ -3,7 +3,8 @@ package wacc.visitors
 import antlr.WACCParser.{FunctionContext, ProgramContext}
 import antlr.WACCParserBaseVisitor
 import wacc.constructs._
-import wacc.{FunctionReference, SymbolTable, VariableReference}
+import wacc.util.SemanticErrors
+import wacc.{FunctionReference, SymbolTable}
 
 import scala.collection.JavaConversions._
 
@@ -17,7 +18,9 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
 
     // Check for duplicate function name
     if (SymbolTable.functionsTable contains typed_name)
-      return Some(SemanticError("Attempted redefinition of function " + functionSignatureToString(name, parameterNames, parameterTypes), ctx.start))
+      return Some(SemanticError(
+        "Attempted redefinition of function " +
+        SemanticErrors.functionSignatureToString(name, parameterNames, parameterTypes), ctx.start))
 
     // Validate parameters
     if (parameterNames.distinct.size != parameterNames.size)
@@ -30,11 +33,6 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
 
     None
   }
-
-  private def functionSignatureToString(name: String, parameterNames: Seq[String], parameterTypes: Seq[Type]): String = {
-    s"$name(${parameterTypes.mkString(", ")})"
-  }
-
 
   override def visitProgram(ctx: ProgramContext): Either[Seq[CompilationError], Program] = {
 
