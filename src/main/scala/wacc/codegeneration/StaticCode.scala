@@ -27,6 +27,7 @@ object StaticCode {
     .extend(printReferenceFunction)
     .extend(throwOverflowError)
     .extend(freePairFunction)
+    .extend(freeArrayFunction)
     .extend(checkNullPointerFunction)
     .extend(concatinateStrings)
 
@@ -84,6 +85,7 @@ object StaticCode {
   def throwOverflowErrorLabel: Label = Label("throw_overflow_error")
   def nullReferenceErrorLabel: Label = Label("null_reference_error")
   def freePairLabel: Label = Label("free_pair")
+  def freeArrayLabel: Label = Label("free_array")
   def checkNullPointerFunctionLabel: Label = Label("check_null_pointer")
   def concatinateStringsLabel: Label = Label("concatinate_strings")
 
@@ -275,20 +277,14 @@ object StaticCode {
       .extend(POP(Seq(R0)))
       .extend(BL(Label("free")))
       .extend(RETURN)
+  }
 
-//    PUSH {lr}
-//    41		CMP r0, #0
-//    42		LDREQ r0, =msg_0
-//    43		BEQ p_throw_runtime_error
-//    44		PUSH {r0}
-//    45		LDR r0, [r0]
-//    46		BL free
-//    47		LDR r0, [sp]
-//    48		LDR r0, [r0, #4]
-//    49		BL free
-//    50		POP {r0}
-//    51		BL free
-//    52		POP {pc}
+  def freeArrayFunction: CodeSegment = {
+    CodeSegment()
+      .extend(DefineLabel(freeArrayLabel))
+      .extend(NEW_STACK_FRAME)
+      .extend(BL(Label("free")))
+      .extend(RETURN)
   }
 
   def throwOverflowError: CodeSegment = {
