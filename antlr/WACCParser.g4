@@ -37,7 +37,7 @@ statement : NOP                                                                 
 assignLhs : variableReference # AssignLhsIdent
           | arrayElement      # AssignLhsArrayElement
           | pairElement       # AssignLhsPairElement
-          | structMember     # AssignLhsStructElement
+          | structMember     # AssignLhsStructMember
           ;
 
 assignRhs : expression      # AssignRhsExpression
@@ -46,7 +46,7 @@ assignRhs : expression      # AssignRhsExpression
           | pairElement     # AssignRhsPairElement
           | functionCall    # AssignRhsFunctionCall
           | structLiteral   # AssignRhsStructLiteral
-          | structMember   # AssignRhsStructElement
+          | structMember   # AssignRhsStructMember
           ;
 
 type : primitiveType

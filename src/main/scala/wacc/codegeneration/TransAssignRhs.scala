@@ -8,7 +8,7 @@ import wacc.constructs._
   */
 object TransAssignRhs {
 
-
+  //Todo: probably needs ArrayElement as well
   def transAssignRhs(value: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
     value match {
       case e: Expression       => TransExpressions.transExpression(e, registers)
