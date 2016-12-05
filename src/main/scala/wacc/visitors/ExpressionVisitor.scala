@@ -3,7 +3,7 @@ package wacc.visitors
 import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
 import wacc.constructs._
-import wacc.{SymbolTable, VariableReference}
+import wacc.{FunctionReference, SymbolTable, VariableReference}
 
 import scala.collection.JavaConversions._
 import scala.util.Either
