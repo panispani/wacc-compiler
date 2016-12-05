@@ -18,7 +18,8 @@ object ICompiler extends App {
     try {
       StatementVisitor.visit(tree)
     } catch {
-      case _: NullPointerException => Left(SyntaxError("It's not a statement", null))
+      case _: NullPointerException =>
+        Left(SyntaxError("It's not a statement", null))
     }
   }
 
@@ -29,26 +30,29 @@ object ICompiler extends App {
     try {
       ProgramVisitor.defineFunction(tree) match {
         case Some(SemanticError(error, symbol)) =>
-          return Left(SemanticError(error, symbol))
+          Left(SemanticError(error, symbol))
         case None => FunctionVisitor.visit(tree)
       }
     } catch {
-      case _: NullPointerException => Left(SyntaxError("It's not a function", null))
+      case _: NullPointerException =>
+        Left(SyntaxError("It's not a function", null))
     }
   }
 
   while (true) {
     val inputStatement = scala.io.StdIn.readLine("wacc> ")
     val input = new ANTLRInputStream(new ByteArrayInputStream(inputStatement.getBytes()))
+    val input2 = new ANTLRInputStream(new ByteArrayInputStream(inputStatement.getBytes()))
     val lexer = new WACCLexer(input)
+    val lexer2 = new WACCLexer(input2)
     val tokens = new CommonTokenStream(lexer)
+    val tokens2 = new CommonTokenStream(lexer2)
 
     execStatement(tokens) match {
       case Right(stmt) =>
         CodeSegment().extend(TransStatements.transStatement(stmt, Registers.expressionRegs)).release()
       case Left(SyntaxError("It's not a statement", null)) =>
-        println(tokens.toString)
-        execFunction(tokens) match {
+        execFunction(tokens2) match {
           case Right(f) =>
             CodeSegment().extend(TransFunctions.transFunction(f, Registers.expressionRegs)).release()
           case Left(SyntaxError("It's not a function", null)) =>
