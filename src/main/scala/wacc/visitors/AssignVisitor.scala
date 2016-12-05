@@ -17,7 +17,7 @@ object AssignLhsVisitor extends WACCParserBaseVisitor[Either[CompilationError, A
     ctx.pairElement().accept(PairElementVisitor)
 
   override def visitAssignLhsStructElement(ctx: AssignLhsStructElementContext): Either[CompilationError, AssignTarget] =
-    ctx.structElement().accept(ExpressionVisitor)
+    ctx.structMember().accept(ExpressionVisitor)
 }
 
 object AssignRhsVisitor extends WACCParserBaseVisitor[Either[CompilationError, AssignValue]] {

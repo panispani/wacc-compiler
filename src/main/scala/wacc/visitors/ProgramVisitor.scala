@@ -17,7 +17,7 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
     if (SymbolTable.structsTable contains name)
       return Some(SemanticError("Attempted redefinition of struct " + name, ctx.start))
 
-    SymbolTable.declareStruct(Struct(name, ctx.structMember().toList map (_.accept(StructMemberVisitor))))
+    SymbolTable.declareStruct(Struct(name, ctx.structMemberDeclaration().toList map (_.accept(StructMemberDeclarationVisitor))))
 
     None
   }

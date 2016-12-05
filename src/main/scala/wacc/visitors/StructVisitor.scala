@@ -9,7 +9,7 @@ import scala.collection.JavaConversions._
 object StructVisitor extends WACCParserBaseVisitor[Either[CompilationError, Struct]] {
 
   override def visitStruct(ctx: StructContext): Either[CompilationError, Struct] = {
-    val members = ctx.structMember().toList map (_.accept(StructMemberVisitor))
+    val members = ctx.structMemberDeclaration().toList map (_.accept(StructMemberDeclarationVisitor))
 
     Right(Struct(ctx.IDENT().getText, members))
   }

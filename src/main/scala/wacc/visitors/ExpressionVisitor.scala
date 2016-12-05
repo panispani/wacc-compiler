@@ -3,7 +3,7 @@ package wacc.visitors
 import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
 import wacc.constructs._
-import wacc.{FunctionReference, SymbolTable, VariableReference}
+import wacc.{SymbolTable, VariableReference}
 
 import scala.collection.JavaConversions._
 import scala.util.Either
@@ -123,24 +123,19 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
     }
   }
 
-  //TODO
-//  override def visitStructElement(ctx: StructElementContext): Either[CompilationError, StructMember] = {
-//    val identifier = ctx.variableReference().getText
-//
-//    SymbolTable().lookupDeep(identifier) match {
-//      case Some(ref @ VariableReference(x, arrayType: ArrayType, offset)) => for {
-//        indexes <- sequenceOrLast(ctx.expression().toList map (e => e.accept(ExpressionVisitor))).right
-//      } yield ArrayElement(ref, indexes, arrayType.typeAt(indexes.size))
-//
-//      // Special case for string indexing
-//      case Some(vr @ VariableReference(_, String, _)) => for {
-//        indexes <- sequenceOrLast(ctx.expression().toList map (e => e.accept(ExpressionVisitor))).right
-//      } yield ArrayElement(vr, indexes, Character)
-//
-//      case None    => Left(SemanticError("Variable not declared", ctx.start))
-//      case _ => Left(SemanticError("Identifier is not an array reference", ctx.start))
-//    }
-//  }
+  override def visitStructMember(ctx: StructMemberContext): Either[CompilationError, Expression] = {
+    val structIdentifier = ctx.IDENT(0).getText
+    val memberIdentifier = ctx.IDENT(1).getText
+
+    SymbolTable().lookupDeep(structIdentifier) match {
+      case Some(ref @ VariableReference(x, varType: StructType, offset)) => {
+        val memberType = varType.members.find(s => s._1 == memberIdentifier).orNull._2
+        Right(StructMember(ref, memberIdentifier, memberType))
+      }
+      case None    => Left(SemanticError("Variable not declared", ctx.start))
+      case _ => Left(SemanticError("Identifier is not a struct reference", ctx.start))
+    }
+  }
 }
 
 
