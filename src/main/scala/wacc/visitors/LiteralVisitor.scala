@@ -30,7 +30,11 @@ object  LiteralVisitor extends WACCParserBaseVisitor[Either[CompilationError, Li
 
   override def visitOctalLiteral(ctx: OctalLiteralContext): Either[CompilationError, Literal] = {
     try {
-      Right(IntegerLiteral(parseInt(ctx.getText.drop(1), 8)))
+      if (ctx.getText == "0") {
+        Right(IntegerLiteral(0))
+      } else {
+        Right(IntegerLiteral(parseInt(ctx.getText.drop(1), 8)))
+      }
     } catch {
       case e: NumberFormatException => Left(SyntaxError("integer literal not in range", ctx.start))
     }
