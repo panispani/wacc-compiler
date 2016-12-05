@@ -2,9 +2,9 @@ package wacc.constructs
 
 import wacc.{SymbolTable, VariableReference}
 
-case class Function(identifier: String, typed_name: String, params: Seq[VariableReference],
-                    vartype: Type, statements: Seq[Statement],
-                    symbolTable: SymbolTable) {
+case class Function(name: String, params: Seq[VariableReference], vartype: Type, statements: Seq[Statement], symbolTable: SymbolTable) {
+
+  val identifier = Function.fullName(name, params.map(_.vartype))
 }
 
 object Function {
@@ -15,7 +15,7 @@ object Function {
     * function. If package imports are implemented this might need to
     * be extended with a prefix for the corresponding package.
     * */
-  def getFullyQualifiedName(name: String, argumentTypes: Seq[Type]): String = {
+  def fullName(name: String, argumentTypes: Seq[Type]): String = {
     if (argumentTypes.nonEmpty)
       name + "_" + (argumentTypes map (t => t.toAssemblyLabel)).mkString("_")
     else

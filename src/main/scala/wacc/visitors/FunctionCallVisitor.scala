@@ -24,9 +24,9 @@ object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError
       typedArgList match {
         case Right(argList) => {
           val argTypes = argList map (e => e.vartype)
-          val typed_name   = Function.getFullyQualifiedName(name, argTypes)
+          val identifier = Function.fullName(name, argTypes)
 
-          SymbolTable.functionsTable.get(typed_name) match {
+          SymbolTable.functionsTable.get(identifier) match {
             case Some(function) => {
               function.reference match {
                 case FunctionReference(f, returnType, argumentTypes) => Right((name, returnType, argumentTypes))

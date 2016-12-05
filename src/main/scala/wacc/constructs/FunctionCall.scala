@@ -3,9 +3,9 @@ package wacc.constructs
 import wacc.arm._
 import wacc.codegeneration._
 
-case class FunctionCall(identifier: String, args: Seq[Expression], returnType: Type) extends AssignValue {
+case class FunctionCall(name: String, args: Seq[Expression], returnType: Type) extends AssignValue {
   override val vartype = returnType
-  def getTypedName: String = Function.getFullyQualifiedName(identifier, args map (_.vartype))
+  def identifier: String = Function.fullName(name, args map (_.vartype))
 
   override def transAssignRhs(registers: Seq[Register]): CodeSegment = {
     val argumentsSize = ImmOperand(args.map(_.vartype.size).sum)
@@ -20,7 +20,7 @@ case class FunctionCall(identifier: String, args: Seq[Expression], returnType: T
           case _                   => STR(registers.head, RegisterAddress(SP, -e.vartype.size, writeback = true))
         })
       }))
-      .extend(BL(Label(getTypedName)))
+      .extend(BL(Label(identifier)))
       .extend(ADD(SP, SP, argumentsSize))
       .extend(MOV(registers.head, R0))
   }
