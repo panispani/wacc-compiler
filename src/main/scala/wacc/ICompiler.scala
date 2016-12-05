@@ -18,7 +18,7 @@ object ICompiler extends App {
     try {
       StatementVisitor.visit(tree)
     } catch {
-      case _: Any => Left(SyntaxError("It's not a statement", tree.start))
+      case _: Any => Left(SyntaxError("It's not a statement", null))
     }
   }
 
@@ -29,11 +29,10 @@ object ICompiler extends App {
     try {
       FunctionVisitor.visit(tree)
     } catch {
-      case _: Any => Left(SyntaxError("It's not a function", tree.start))
+      case _: Any => Left(SyntaxError("It's not a function", null))
     }
   }
 
-  // make it loop for statements and functions
   while (true) {
     val inputStatement = scala.io.StdIn.readLine("wacc> ")
     val input = new ANTLRInputStream(new ByteArrayInputStream(inputStatement.getBytes()))
@@ -43,11 +42,17 @@ object ICompiler extends App {
     execStatement(tokens) match {
       case Right(stmt) =>
         CodeSegment().extend(TransStatements.transStatement(stmt, Registers.expressionRegs)).release()
-      case Left(error) =>
+      case Left(SyntaxError("It's not a statement", null)) =>
         execFunction(tokens) match {
-          case Right(f) => CodeSegment().extend(TransFunctions.transFunction(f, Registers.expressionRegs)).release()
-          case Left(fError) => fError.raise() ; error.raise() // TODO: only one of the two is needed
+          case Right(f) =>
+            CodeSegment().extend(TransFunctions.transFunction(f, Registers.expressionRegs)).release()
+          case Left(SyntaxError("It's not a function", null)) =>
+            SyntaxError("Syntax error", tokens.get(0)).raise()
+          case Left(fError) =>
+            fError.raise()
         }
+      case Left(error) =>
+        error.raise()
     }
 
   }
