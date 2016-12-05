@@ -84,7 +84,7 @@ trait Expression extends AssignValue with AssignTarget {
         val reg2 = getAnotherRegister(reg1)
 
         CodeSegment()
-          .extend(PUSH(Seq(reg2)))
+          .extend(Seq(PUSH(Seq(reg2))))
           .extend(transExpressionReg(reg1, reg2, regs))
           .extend(POP(Seq(reg2)))
       }

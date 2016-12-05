@@ -1,21 +1,18 @@
 package wacc.arm
 
 import wacc.VariableReference
-import wacc.codegeneration.predefined.StaticCode
-import wacc.codegeneration.predefined.std.StandardLibrary
-import wacc.{SymbolTable, VariableReference}
-import wacc.codegeneration.{CodeSegment, TransAssignRhs}
+import wacc.codegeneration.{CodeSegment, StaticCode}
 import wacc.constructs._
 
 import scala.collection.+:
 
 object Macros {
-  def store(lhs: AssignTarget, registers: Seq[Register]): CodeSegment = {
+  def store(lhs: AssignTarget, registers: Seq[Register]): Seq[Instruction] = {
     lhs match {
       case VariableReference(name, vartype, offset) => {
         lhs.vartype match {
-          case Boolean | Character => CodeSegment(STRB(registers.head, RegisterAddress(FP, offset)))
-          case default             => CodeSegment(STR(registers.head, RegisterAddress(FP, offset)))
+          case Boolean | Character => Seq(STRB(registers.head, RegisterAddress(FP, offset)))
+          case default             => Seq(STR(registers.head, RegisterAddress(FP, offset)))
         }
       }
       case ArrayElement(reference, index, elemtype) => {
@@ -30,6 +27,7 @@ object Macros {
         CodeSegment(ADD(reg1, FP, ImmOperand(reference.offset)))
           .extend(getNestedElementAddress(index, reg1 +: regs, elemtype.size))
           .extend(store)
+          .instructions
       }
 
       case pe @ PairElement(selector, variableReference: Expression, elemType) => {
@@ -39,7 +37,8 @@ object Macros {
           case default => STR(registers.head, RegisterAddress(registers(1)))
         }
 
-        instruction.extend(store)
+        instruction.extend(store).instructions
+
       }
     }
   }
@@ -56,19 +55,20 @@ object Macros {
   }
 
   //Assume start of array in reg1 and index in reg2
-  def checkAndGetArrayElemAddress(registers: Seq[Register], elemSize: Int): CodeSegment = {
+  private def checkAndGetArrayElemAddress(registers: Seq[Register], elemSize: Int): CodeSegment = {
     val reg1 +: reg2 +: regs = registers
 
-    CodeSegment(
+    CodeSegment()
+      .extend(Seq(
         LDR(reg1, RegisterAddress(reg1, 0)), // Load in reg1 startOfArray
         MOV(R1, reg1),                       // Load startOfArray in R1
         MOV(R0, reg2),                       // Load index in R0
-        BL(StaticCode.getStaticFunction(StandardLibrary.checkArrayBounds)),
+        BL(StaticCode.checkArrayBoundsLabel),
         ADD(reg1, reg1, ImmOperand(4)),      // Store in reg1 the value startOfArray + 4 (4 indicates the space used to store the size of the array)
         LDR(regs.head, Const(elemSize)),     // Store in regs.head the value elemSize
         MUL(reg2, reg2, regs.head),          // Store in reg2 the value index * elemSize
         ADD(reg1, reg1, reg2)                // Store in reg1 the value startOfArray + 4 + index * elemSize TODO: this will work when all types ar 4 bytes
-      )
+      ))
   }
 
   def load(reg1: Register, offset: Int, vartype: Type): Instruction = vartype match {
@@ -88,36 +88,27 @@ object Macros {
     * Returns the code for opening and closing a semantic scope
     * based on the size of the given scope (not including child scope sizes)
     * */
-  def frame(size: Int, isBranch: Boolean = false): (CodeSegment, CodeSegment) = {
+  def semanticFrame(size: Int): (CodeSegment, CodeSegment) = {
     val MAX_SIZE = 1024
-
-    var start = CodeSegment()
-
-    if (isBranch) start = start.extend(PUSH(Seq(LR)))
-    start = start.extend(PUSH(Seq(FP)), MOV(FP, SP))
-
-    var end = CodeSegment()
 
     // Handle large scopes by adding / subtracting several times
     val blocks = size / MAX_SIZE
     val remainder = size % MAX_SIZE
 
-    for (i <- 1 to blocks) {
-      //start = start.append(SUB(SP, SP, ImmOperand(MAX_SIZE)))
-      end = end.extend(ADD(SP, SP, ImmOperand(MAX_SIZE)))
-    }
+    val start = (1 to blocks).foldLeft (
+      CodeSegment(SUB(SP, SP, ImmOperand(remainder))))(
+      (acc, _) => acc.extend(SUB(SP, SP, ImmOperand(MAX_SIZE))))
 
-    //start = start.append(SUB(SP, SP, ImmOperand(remainder)))
-    end = end.extend(ADD(SP, SP, ImmOperand(remainder)))
-      .extend(POP(Seq(FP)))
+    val end = (1 to blocks).foldLeft (
+      CodeSegment(ADD(SP, SP, ImmOperand(remainder))))(
+      (acc, _) => acc.extend(ADD(SP, SP, ImmOperand(MAX_SIZE))))
 
-    if (isBranch) end = end.extend(POP(Seq(PC)))
     (start, end)
   }
 
   def functionCallFrameStart(size: Int): CodeSegment = {
     val start = CodeSegment(PUSH(Seq(LR)), PUSH(Seq(FP)), MOV(FP, SP))
-      .extend(frame(size)._1)
+      .extend(semanticFrame(size)._1)
 
     start
     // this does not attempt to generate the function frame end because it is contained in return statements

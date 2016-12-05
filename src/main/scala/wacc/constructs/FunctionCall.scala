@@ -19,7 +19,7 @@ case class FunctionCall(identifier: String, args: Seq[Expression], returnType: T
           case Character | Boolean => STRB(registers.head, RegisterAddress(SP, -e.vartype.size, writeback = true))
           case _                   => STR(registers.head, RegisterAddress(SP, -e.vartype.size, writeback = true))
         })
-      }) : _*)
+      }))
       .extend(BL(Label(getTypedName)))
       .extend(ADD(SP, SP, argumentsSize))
       .extend(MOV(registers.head, R0))
