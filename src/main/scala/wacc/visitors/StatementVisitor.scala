@@ -91,14 +91,9 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
 
   override def visitFor(ctx: ForContext): Either[CompilationError, Statement] = {
 
-    def syntaxErrorIfNotDeclaration(statement: Statement) : Either[SyntaxError, DeclareStatement] = statement match {
-      case init : DeclareStatement => Right(init)
-      case _ => Left(SyntaxError("First statement of for loop must be a declaration", ctx.start))
-    }
-
     SymbolTable.openScope()
     for {
-      init <- ctx.init.accept(StatementVisitor).right.flatMap(syntaxErrorIfNotDeclaration).right
+      init <- ctx.init.accept(StatementVisitor).right
       cond <- ctx.cond.accept(ExpressionVisitor).right
       step <- ctx.step.accept(StatementVisitor).right
       body <- ctx.body.accept(SequenceVisitor).right
