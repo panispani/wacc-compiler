@@ -15,21 +15,22 @@ object ICompiler extends App {
     val parser = new WACCParser(tokens)
     parser.addErrorListener(new ISyntaxErrorListener())
     val tree = parser.statement()
-    if (tree.isEmpty)  // this doesnt work
+    try {
       StatementVisitor.visit(tree)
-    else
-      Left(SyntaxError("It's not a statement", tree.start))
+    } catch {
+      case _: Any => Left(SyntaxError("It's not a statement", tree.start))
+    }
   }
 
   private def execFunction(tokens: CommonTokenStream): Either[CompilationError, Function] = {
     val parser = new WACCParser(tokens)
     parser.addErrorListener(new ISyntaxErrorListener())
     val tree = parser.function()
-    if (!tree.isEmpty) {
+    try {
       FunctionVisitor.visit(tree)
+    } catch {
+      case _: Any => Left(SyntaxError("It's not a function", tree.start))
     }
-    else
-      Left(SyntaxError("It's not a function", tree.start))
   }
 
   // make it loop for statements and functions
