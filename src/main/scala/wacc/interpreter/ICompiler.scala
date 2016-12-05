@@ -1,13 +1,13 @@
-package wacc
+package wacc.interpreter
 
 import java.io.ByteArrayInputStream
 
 import antlr.{WACCLexer, WACCParser}
 import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream}
-import arm.Registers
-import codegeneration.{CodeSegment, TransFunctions, TransProgram, TransStatements}
-import constructs._
-import visitors.{FunctionVisitor, ProgramVisitor, StatementVisitor}
+import wacc.arm.Registers
+import wacc.codegeneration.{CodeSegment, TransFunctions, TransStatements}
+import wacc.constructs.{CompilationError, Function, Statement, SyntaxError}
+import wacc.visitors.{FunctionVisitor, StatementVisitor}
 
 object ICompiler extends App {
 
@@ -18,7 +18,7 @@ object ICompiler extends App {
     try {
       StatementVisitor.visit(tree)
     } catch {
-      case _: Any => Left(SyntaxError("It's not a statement", null))
+      case _: NullPointerException => Left(SyntaxError("It's not a statement", null))
     }
   }
 
@@ -29,7 +29,7 @@ object ICompiler extends App {
     try {
       FunctionVisitor.visit(tree)
     } catch {
-      case _: Any => Left(SyntaxError("It's not a function", null))
+      case _: NullPointerException => Left(SyntaxError("It's not a function", null))
     }
   }
 
@@ -47,7 +47,7 @@ object ICompiler extends App {
           case Right(f) =>
             CodeSegment().extend(TransFunctions.transFunction(f, Registers.expressionRegs)).release()
           case Left(SyntaxError("It's not a function", null)) =>
-            SyntaxError("Syntax error", tokens.get(0)).raise()
+            ;
           case Left(fError) =>
             fError.raise()
         }
