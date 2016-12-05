@@ -28,7 +28,7 @@ object ICompiler extends App {
   private def execFunction(tokens: CommonTokenStream): Either[CompilationError, Function] = {
     val parser = new WACCParser(tokens)
     //parser.addErrorListener(new ISyntaxErrorListener())
-    parser.removeErrorListeners()
+    //parser.removeErrorListeners() We want error messages by at least one
     val tree = parser.function()
     try {
       ProgramVisitor.defineFunction(tree) match {
@@ -72,12 +72,11 @@ object ICompiler extends App {
 
 
   while (true) {
-    val ss = new Scanner(System.in).useDelimiter("\n")
-    printf("\nwacc> ")
-    val input = ss.next()
+    val input = scala.io.StdIn.readLine("\nwacc> ")
 
     exec(input) match {
       case Some(codesegment) =>
+        codesegment.release()
       case None =>
     }
 
