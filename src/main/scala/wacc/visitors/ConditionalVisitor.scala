@@ -3,7 +3,7 @@ package wacc.visitors
 import antlr.WACCParser.{IfElseContext, IfRecursiveContext, IfSimpleContext}
 import antlr.WACCParserBaseVisitor
 import wacc.SymbolTable
-import wacc.constructs.{Boolean, CompilationError, ConditionalElseStatement, ConditionalRecursiveStatement, ConditionalSimpleStatement, ConditionalStatement, ScopeStatement, SemanticError, Statement}
+import wacc.constructs.{Boolean, CompilationError, ConditionalElseStatement, ConditionalRecursiveStatement, ConditionalSimpleStatement, ConditionalStatement, ScopeStatement, SemanticError}
 import wacc.util.SemanticErrors
 
 import scala.collection.JavaConversions._

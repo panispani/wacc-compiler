@@ -7,23 +7,26 @@ object StandardLibrary {
 
   var requestedPredefinedFunctions: Set[(Label, CodeSegment)] = Set()
 
-  val intFormat                  = AsciiData("\"%d\\0\"")
-  val charReadFormat             = AsciiData("\" %c\\0\"")
-  val printStringFormat          = AsciiData("\"%.*s\\0\"")
-  val printReferenceFormat       = AsciiData("\"%p\\0\"")
-  val emptyString                = AsciiData("\"\\0\"")
-  val trueString                 = AsciiData("\"true\\0\"")
-  val falseString                = AsciiData("\"false\\0\"")
-  val divideOrModuleByZeroString = AsciiData("\"DivideByZeroError: divide or modulo by zero\"")
-  val arrayNegativeIndex         = AsciiData("\"ArrayIndexOutOfBoundsError: negative index\"")
-  val arrayIndexTooLarge         = AsciiData("\"ArrayIndexOutOfBoundsError: index too large\"")
-  val overflowError              = AsciiData("\"OverflowError: the result is too small/large to store in a 4-byte signed-integer.\"")
-  val nullReferenceError         = AsciiData("\"NullReferenceError: dereference a null reference\"")
+  def intFormat                  = AsciiData("\"%d\\0\"")
+  def charReadFormat             = AsciiData("\" %c\\0\"")
+  def printStringFormat          = AsciiData("\"%.*s\\0\"")
+  def printReferenceFormat       = AsciiData("\"%p\\0\"")
 
-  val staticDataMap: collection.immutable.Map[AsciiData, Label] = collection.immutable.Map(
+  def emptyString                = AsciiData("\"\\0\"")
+  def trueString                 = AsciiData("\"true\\0\"")
+  def falseString                = AsciiData("\"false\\0\"")
+
+  def divideOrModuleByZeroString = AsciiData("\"DivideByZeroError: divide or modulo by zero\"")
+  def arrayNegativeIndex         = AsciiData("\"ArrayIndexOutOfBoundsError: negative index\"")
+  def arrayIndexTooLarge         = AsciiData("\"ArrayIndexOutOfBoundsError: index too large\"")
+  def overflowError              = AsciiData("\"OverflowError: the result is too small/large to store in a 4-byte signed-integer.\"")
+  def nullReferenceError         = AsciiData("\"NullReferenceError: dereference a null reference\"")
+
+  def staticDataMap: collection.immutable.Map[AsciiData, Label] = collection.immutable.Map(
     printStringFormat          -> Label("print_string_format"),
     intFormat                  -> Label("int_format"),
     charReadFormat             -> Label("char_read_format"),
+    printReferenceFormat       -> Label("print_reference"),
 
     emptyString                -> Label("empty_string"),
     trueString                 -> Label("true_string"),
@@ -32,23 +35,23 @@ object StandardLibrary {
     divideOrModuleByZeroString -> Label("divide_by_zero"),
     arrayNegativeIndex         -> Label("array_negative_index"),
     arrayIndexTooLarge         -> Label("array_index_too_large"),
-    printReferenceFormat       -> Label("print_reference"),
+    overflowError              -> Label("overflow_error"),
     nullReferenceError         -> Label("null_reference_error")
   )
 
-  val readInt = CodeSegment()
+  def readInt = CodeSegment()
     .extend(MOV(R1, R0)) // Move address of variable into r1 as expected by scanf
     .extend(LDR(R0, LabelAddress(staticDataMap(intFormat)))) // Load the constant address of the format string into r1
     .extend(ADD(R0, R0, ImmOperand(4)))
     .extend(BL(Label("scanf"))) // Call scanf with two arguments, r0 and r1
 
-  val readChar = CodeSegment()
+  def readChar = CodeSegment()
     .extend(MOV(R1, R0)) // Move address of variable into r1 as expected by scanf
     .extend(LDR(R0, LabelAddress(staticDataMap(charReadFormat)))) // Load the constant address of the format string into r1
     .extend(ADD(R0, R0, ImmOperand(4)))
     .extend(BL(Label("scanf"))) // Call scanf with two arguments, r0 and r1
 
-  val printString = CodeSegment()
+  def printString = CodeSegment()
     .extend(LDR(R1, RegisterAddress(R0, 0))) // Move the address of the string to print into r1 as expected by printf
     .extend(ADD(R2, R0, ImmOperand(4)))
     .extend(LDR(R0, LabelAddress(staticDataMap(printStringFormat)))) // Load the constant address of the format string into r0
@@ -57,7 +60,7 @@ object StandardLibrary {
     .extend(MOV(R0, ImmOperand(0)))
     .extend(BL(Label("fflush")))
 
-  val printInt = CodeSegment()
+  def printInt = CodeSegment()
     .extend(MOV(R1, R0))
     .extend(LDR(R0, LabelAddress(staticDataMap(intFormat))))
     .extend(ADD(R0, R0, ImmOperand(4)))
@@ -65,10 +68,10 @@ object StandardLibrary {
     .extend(MOV(R0, ImmOperand(0)))
     .extend(BL(Label("fflush")))
 
-  val printChar = CodeSegment()
+  def printChar = CodeSegment()
     .extend(BL(Label("putchar")))
 
-  val printBool = CodeSegment()
+  def printBool = CodeSegment()
     .extend(CMP(R0, ImmOperand(0)))
     .extend(LDR(R0, LabelAddress(staticDataMap(trueString)), NE))
     .extend(LDR(R0, LabelAddress(staticDataMap(falseString)), EQ))
@@ -77,50 +80,45 @@ object StandardLibrary {
     .extend(MOV(R0, ImmOperand(0)))
     .extend(BL(Label("fflush")))
 
-  val printLn = CodeSegment()
+  def printLn = CodeSegment()
     .extend(LDR(R0, LabelAddress(staticDataMap(emptyString)))) // Load the constant address of the empty string into r0
     .extend(ADD(R0, R0, ImmOperand(4)))
     .extend(BL(Label("puts"))) // Print empty string, appended with newline
     .extend(MOV(R0, ImmOperand(0)))
     .extend(BL(Label("fflush")))
 
-  val printReference = CodeSegment()
-      .extend(MOV(R1, R0))
-      .extend(LDR(R0, LabelAddress(staticDataMap(printReferenceFormat))))  // Load the constant address of the empty string into r0
-      .extend(ADD(R0, R0, ImmOperand(4)))
-      .extend(BL(Label("printf")))                  // Print empty string, appended with newline
-      .extend(MOV(R0, ImmOperand(0)))
-      .extend(BL(Label("fflush")))
+  def printReference = CodeSegment()
+    .extend(MOV(R1, R0))
+    .extend(LDR(R0, LabelAddress(staticDataMap(printReferenceFormat))))  // Load the constant address of the empty string into r0
+    .extend(ADD(R0, R0, ImmOperand(4)))
+    .extend(BL(Label("printf")))                  // Print empty string, appended with newline
+    .extend(MOV(R0, ImmOperand(0)))
+    .extend(BL(Label("fflush")))
 
-  val throwRuntimeError: CodeSegment = {
-    CodeSegment()
-      .extend(MOV(R0, ImmOperand(-1)))
-      .extend(BL(Label("exit")))
-  }
+  def throwRuntimeError = CodeSegment()
+    .extend(MOV(R0, ImmOperand(-1)))
+    .extend(BL(Label("exit")))
 
-  val checkDivideByZero: CodeSegment = {
-    CodeSegment()
-      .extend(CMP(R1, ImmOperand(0))) // Check if the dividend is 0
-      .extend(LDR(R0, LabelAddress(staticDataMap(divideOrModuleByZeroString)), EQ)) //If it is 0, load in R0 the error string
-      .extend(BL(getStaticFunction(throwRuntimeError), EQ)) //Branch to the function to throw a runtime error
-  }
+  def checkDivideByZero = CodeSegment()
+    .extend(CMP(R1, ImmOperand(0))) // Check if the dividend is 0
+    .extend(LDR(R0, LabelAddress(staticDataMap(divideOrModuleByZeroString)), EQ)) //If it is 0, load in R0 the error string
+    .extend(BL(getStaticFunction(throwRuntimeError), EQ)) //Branch to the function to throw a runtime error
 
-  val checkArrayBounds: CodeSegment = {
-    CodeSegment()
-      .extend(CMP(R0, ImmOperand(0)))
-      .extend(LDR(R0, LabelAddress(staticDataMap(arrayNegativeIndex)), LT))
-      .extend(BL(getStaticFunction(throwRuntimeError), LT))
-      .extend(LDR(R1, RegisterAddress(R1, 0)))
-      .extend(CMP(R0, R1))
-      .extend(LDR(R0, LabelAddress(staticDataMap(arrayIndexTooLarge)), CS))
-      .extend(BL(getStaticFunction(throwRuntimeError), CS))
-  }
-  val checkNullPointer = CodeSegment()
+  def checkArrayBounds = CodeSegment()
+    .extend(CMP(R0, ImmOperand(0)))
+    .extend(LDR(R0, LabelAddress(staticDataMap(arrayNegativeIndex)), LT))
+    .extend(BL(getStaticFunction(throwRuntimeError), LT))
+    .extend(LDR(R1, RegisterAddress(R1, 0)))
+    .extend(CMP(R0, R1))
+    .extend(LDR(R0, LabelAddress(staticDataMap(arrayIndexTooLarge)), CS))
+    .extend(BL(getStaticFunction(throwRuntimeError), CS))
+
+  def checkNullPointer = CodeSegment()
     .extend(CMP(R0, ImmOperand(0)))
     .extend(LDR(R0, LabelAddress(staticDataMap(nullReferenceError)), EQ))
     .extend(B(getStaticFunction(throwRuntimeError), EQ))
 
-  val freePair = CodeSegment()
+  def freePair = CodeSegment()
     .extend(BL(getStaticFunction(checkNullPointer)))
     .extend(PUSH(Seq(R0)))
     .extend(LDR(R0, RegisterAddress(R0, 0)))
@@ -131,11 +129,11 @@ object StandardLibrary {
     .extend(POP(Seq(R0)))
     .extend(BL(Label("free")))
 
-  val throwOverflowError = CodeSegment()
+  def throwOverflowError = CodeSegment()
     .extend(LDR(R0, LabelAddress(staticDataMap(overflowError))))
     .extend(BL(getStaticFunction(throwRuntimeError)))
 
-  val concatinateStrings = CodeSegment(
+  def concatinateStrings = CodeSegment(
       PUSH(Seq(R1)),                  // Save stringB
       PUSH(Seq(R0)),                  // Save stringA
       LDR(R2, RegisterAddress(R0)),   // R2 = len(stringA)
@@ -162,36 +160,40 @@ object StandardLibrary {
       SUB(R0, R0, ImmOperand(4))
     )
 
-  val div = CodeSegment(
+  def div = CodeSegment(
     BL(getStaticFunction(checkDivideByZero)),
     BL(Label("__aeabi_idiv")))
 
-  val mod = CodeSegment(
+  def mod = CodeSegment(
     BL(getStaticFunction(checkDivideByZero)),
     BL(Label("__aeabi_idivmod")))
 
-  val staticFunctionMap: Map[CodeSegment, Label] = Map(
+  def staticFunctionMap: Map[CodeSegment, Label] = Map(
     readInt            -> Label("read_int"),
     readChar           -> Label("read_char"),
+
     printInt           -> Label("print_int"),
     printChar          -> Label("print_char"),
     printBool          -> Label("print_bool_label"),
     printString        -> Label("print"),
     printLn            -> Label("print_ln"),
     printReference     -> Label("print_reference_function"),
-    checkNullPointer   -> Label("check_null_pointer"),
-    freePair           -> Label("free_pair"),
-    checkArrayBounds   -> Label("check_array_bounds"),
-    checkDivideByZero  -> Label("check_divide_by_zero"),
+
     throwRuntimeError  -> Label("throw_runtime_error"),
     throwOverflowError -> Label("throw_overflow_error"),
+
+    checkNullPointer   -> Label("check_null_pointer"),
+    checkArrayBounds   -> Label("check_array_bounds"),
+    checkDivideByZero  -> Label("check_divide_by_zero"),
+
     concatinateStrings -> Label("concatinate_strings"),
+    freePair           -> Label("free_pair"),
     div                -> Label("div"),
     mod                -> Label("mod")
   )
 
   def getStaticFunction(function: CodeSegment): Label = {
-    val label = staticFunctionMap(function)
+    val label = staticFunctionMap.apply(function)
     requestedPredefinedFunctions += (label -> function)
     label
   }
