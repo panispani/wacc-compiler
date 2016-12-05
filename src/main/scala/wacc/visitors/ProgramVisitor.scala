@@ -10,35 +10,31 @@ import scala.collection.JavaConversions._
 object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError], Program]] {
 
   private def defineFunction(ctx: FunctionContext): Option[SemanticError] = {
-
     val name = ctx.IDENT().getText
+    val returnType = ctx.`type`().accept(TypeVisitor)
+    val (parameterNames, parameterTypes) = FunctionVisitor.getParameters(ctx)
+    val typed_name = Function.appendFunctionTypes(name, parameterTypes)
 
     // Check for duplicate function name
-    if (SymbolTable.functionsTable contains name)
-      return Some(SemanticError("Attempted redefinition of function " + name, ctx.start))
-
-    val returnType = ctx.`type`().accept(TypeVisitor)
-
-    // Parameters could be null so convert to empty sequence in that case
-    val params = Option(ctx.parameterList()) match {
-      case None => Seq()
-      case Some(ls) => ls.parameter().toList
-    }
+    if (SymbolTable.functionsTable contains typed_name)
+      return Some(SemanticError("Attempted redefinition of function " + functionSignatureToString(name, parameterNames, parameterTypes), ctx.start))
 
     // Validate parameters
-    val parameterNames = params.map(_.IDENT().getText)
     if (parameterNames.distinct.size != parameterNames.size)
       return Some(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
 
-    val argumentTypes = params.map(_.`type`().accept(TypeVisitor))
-
     // The function signature is as follows
-    SymbolTable.declareFunction(FunctionReference(name, returnType, argumentTypes))
-    (parameterNames, argumentTypes).zipped map SymbolTable().addFunctionArgument
+    SymbolTable.declareFunction(FunctionReference(typed_name, returnType, parameterTypes))
+    (parameterNames, parameterTypes).zipped map SymbolTable().addFunctionArgument
     SymbolTable.completeFunctionDeclaration()
 
     None
   }
+
+  private def functionSignatureToString(name: String, parameterNames: Seq[String], parameterTypes: Seq[Type]): String = {
+    s"$name(${parameterTypes.mkString(", ")})"
+  }
+
 
   override def visitProgram(ctx: ProgramContext): Either[Seq[CompilationError], Program] = {
 

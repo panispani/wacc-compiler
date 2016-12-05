@@ -18,7 +18,7 @@ class ScopeStatementTest extends VisitorTest {
 
     scope.statements(1) should be (DeclareStatement(
               Integer,
-              VariableReference("a", Integer, -5),
+              VariableReference("a", Integer, -9),
               IntegerLiteral(2))
           )
 

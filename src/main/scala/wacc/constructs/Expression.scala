@@ -30,15 +30,15 @@ trait Expression extends AssignValue with AssignTarget {
     }
 
     this match {
-      case BinaryOperatorExpr(e1, binOp, e2) =>
+      case e @ BinaryOperatorExpr(e1, binOp, e2) =>
         if (weight(e1) > weight(e2)) {
           e1.transAssignRhs(reg1 +: reg2 +: regs)    // e1 first
             .extend(e2.transAssignRhs(reg2 +: regs))
-            .extend(binOp.translate(reg1, reg2))
+            .extend(binOp.translate(e.vartype, reg1, reg2))
         } else {
           e2.transAssignRhs(reg2 +: reg1 +: regs)    // e2 first
             .extend(e1.transAssignRhs(reg1 +: regs))
-            .extend(binOp.translate(reg1, reg2))
+            .extend(binOp.translate(e.vartype, reg1, reg2))
         }
 
       case UnaryOperatorExpr(op, e) =>

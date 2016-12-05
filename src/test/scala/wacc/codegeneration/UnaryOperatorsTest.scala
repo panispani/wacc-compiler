@@ -1,8 +1,8 @@
 package wacc.codegeneration
 
+import wacc.TestUtilities
 import wacc.arm._
 import wacc.visitors.StatementVisitor
-import wacc.{SymbolTable, TestUtilities}
 
 class UnaryOperatorsTest extends CodeGenTest {
 
@@ -17,8 +17,8 @@ class UnaryOperatorsTest extends CodeGenTest {
     val instructions = TransStatements.transStatementSequence(Seq(program.right.get, program2.right.get), registers)
 
     //instructions(0) up to instructions(7) are not up to unary operator
-    instructions(9) shouldBe LDR(registers.head, RegisterAddress(FP, -4))
-    instructions(10) shouldBe LDR(registers.head, RegisterAddress(registers.head, 0))
+    instructions(8) shouldBe LDR(registers.head, RegisterAddress(FP, -4))
+    instructions(9) shouldBe LDR(registers.head, RegisterAddress(registers.head, 0))
 
     //    LDR r4, [sp]
     //    24		LDR r4, [r4]

@@ -1,19 +1,31 @@
 package wacc.visitors
 
-import antlr.WACCParser.FunctionContext
+import antlr.WACCParser.{FunctionContext, ParameterContext}
 import antlr.WACCParserBaseVisitor
-import wacc.constructs.{CompilationError, ConditionalStatement, ExitStatement, Function, LoopStatement, ReturnStatement, SemanticError, Statement, SyntaxError}
+import wacc.constructs._
 import wacc.{FunctionReference, SymbolTable, VariableReference}
 
 import scala.collection.JavaConversions._
 
 object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Function]] {
 
-  override def visitFunction(ctx: FunctionContext): Either[CompilationError, Function] = {
+  def getParameters(ctx: FunctionContext): (Seq[String], Seq[Type]) = {
+    // Parameters could be null so convert to empty sequence in that case
+    val params = Option(ctx.parameterList()) match {
+      case None => Seq()
+      case Some(ls) => ls.parameter().toList
+    }
+    val parameterNames = params.map(_.IDENT().getText)
+    val argumentTypes = params.map(_.`type`().accept(TypeVisitor))
 
+    (parameterNames, argumentTypes)
+  }
+
+  override def visitFunction(ctx: FunctionContext): Either[CompilationError, Function] = {
     val name = ctx.IDENT().getText
     val returnType = ctx.`type`().accept(TypeVisitor)
-    val arguments = SymbolTable.defineFunction(name)
+    val typed_name = Function.appendFunctionTypes(name, getParameters(ctx)._2)
+    val arguments = SymbolTable.defineFunction(typed_name)
 
     val matchReturnType: PartialFunction[Statement, Either[SemanticError, Statement]] = {
       case s @ ReturnStatement(expression) =>
@@ -32,20 +44,26 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
 
     for {
       statements <- sequenceOrLast(ctx.sequence.statement.toList map (_.accept(StatementVisitor))).right
-
       lastStatement <- validateFunctionReturn(statements.last).right
-
-      //body <- Right(statements.dropRight(1) :+ lastStatement).right
-    } yield Function(name, arguments, returnType, statements, SymbolTable.completeFunctionDefinition())
+    } yield Function(name, typed_name, arguments, returnType, statements, SymbolTable.completeFunctionDefinition())
 
   }
 
   private def mapLastStatements(lastStatement: Statement, f: Statement => Either[CompilationError, Statement])
   : Either[CompilationError, Statement] = lastStatement match {
-    case ConditionalStatement(expr, trueStats, falseStats) =>
-      val trueRes = mapLastStatements(trueStats.statements.last, f)
-      val falseRes = mapLastStatements(falseStats.statements.last, f)
+    case ConditionalSimpleStatement(expression, trueStatements) => {
+      mapLastStatements(trueStatements.statements.last, f)
+    }
+    case ConditionalElseStatement(expression, trueStatements, falseStatements) => {
+      val trueRes = mapLastStatements(trueStatements.statements.last, f)
+      val falseRes = mapLastStatements(falseStatements.statements.last, f)
       trueRes.right flatMap (_ => falseRes)
+    }
+    case ConditionalRecursiveStatement(expression, trueStatements, conditionalStatement) => {
+      val trueRes = mapLastStatements(trueStatements.statements.last, f)
+      val falseRes = mapLastStatements(conditionalStatement, f)
+      trueRes.right flatMap (_ => falseRes)
+    }
     case LoopStatement(expr, stats, _, _) => mapLastStatements(stats.last, f)
     case statement => f(statement)
   }
