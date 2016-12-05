@@ -5,7 +5,7 @@ import wacc.codegeneration._
 
 case class FunctionCall(identifier: String, args: Seq[Expression], returnType: Type) extends AssignValue {
   override val vartype = returnType
-  def getTypedName: String = Function.appendFunctionTypes(identifier, args map (_.vartype))
+  def getTypedName: String = Function.getFullyQualifiedName(identifier, args map (_.vartype))
 
   override def transAssignRhs(registers: Seq[Register]): CodeSegment = {
     val argumentsSize = ImmOperand(args.map(_.vartype.size).sum)
