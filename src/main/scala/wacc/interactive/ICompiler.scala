@@ -1,7 +1,8 @@
 package wacc.interactive
 
 import java.io.ByteArrayInputStream
-import java.util.Scanner
+import sys.process._
+import java.io._
 
 import antlr.{WACCLexer, WACCParser}
 import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream, ConsoleErrorListener}
@@ -42,43 +43,45 @@ object ICompiler extends App {
     }
   }
 
-  private def exec(input: String): Option[CodeSegment] = {
-    val inputStmt = new ANTLRInputStream(new ByteArrayInputStream(input.getBytes()))
-    val inputFun = new ANTLRInputStream(new ByteArrayInputStream(input.getBytes()))
-    val lexerStmt = new WACCLexer(inputStmt)
-    val lexerFun = new WACCLexer(inputFun)
-    val tokensStmt = new CommonTokenStream(lexerStmt)
-    val tokensFun = new CommonTokenStream(lexerFun)
 
-    execStatement(tokensStmt) match {
-      case Right(stmt) =>
-        Some(CodeSegment().extend(TransStatements.transStatement(stmt, Registers.expressionRegs)))
-      case Left(SyntaxError("It's not a statement", null)) =>
-        execFunction(tokensFun) match {
-          case Right(f) =>
-            Some(CodeSegment().extend(TransFunctions.transFunction(f, Registers.expressionRegs)))
-          case Left(SyntaxError("It's not a function", null)) =>
-            println()
-            None
-          case Left(fError) =>
-            fError.raise()
-            None
-        }
-      case Left(error) =>
-        error.raise()
-        None
-    }
-  }
-
-
+  var code = ""
   while (true) {
     val input = scala.io.StdIn.readLine("\nwacc> ")
 
-    exec(input) match {
-      case Some(codesegment) =>
-        codesegment.release()
-      case None =>
-    }
+        val ASM = new PrintWriter(new File("asm.s" ))
+        val inputStmt = new ANTLRInputStream(new ByteArrayInputStream(input.getBytes()))
+        val inputFun = new ANTLRInputStream(new ByteArrayInputStream(input.getBytes()))
+        val lexerStmt = new WACCLexer(inputStmt)
+        val lexerFun = new WACCLexer(inputFun)
+        val tokensStmt = new CommonTokenStream(lexerStmt)
+        val tokensFun = new CommonTokenStream(lexerFun)
+
+        execStatement(tokensStmt) match {
+          case Right(stmt) =>
+            var newcode = ""
+            CodeSegment().extend(TransStatements.transStatement(stmt, Registers.expressionRegs)).instructions foreach(x => newcode.concat(x.toString))
+            code = code + newcode
+          case Left(SyntaxError("It's not a statement", null)) =>
+            execFunction(tokensFun) match {
+              case Right(f) =>
+                val newcode = ""
+                CodeSegment().extend(TransFunctions.transFunction(f, Registers.expressionRegs)).instructions foreach(x => newcode.concat(x.toString))
+                code = newcode + code
+              case Left(SyntaxError("It's not a function", null)) =>
+                println()
+              case Left(fError) =>
+                fError.raise()
+            }
+          case Left(error) =>
+            error.raise()
+        }
+
+        ASM.write(code)
+        ASM.close()
+
+        val assemble = "arm-linux-gnueabi-gcc -o exe -mcpu=arm1176jzf-s -mtune=arm1176jzf-s asm.s" !
+        val execute = "qemu-arm -L /usr/arm-linux-gnueabi/ exe" !
 
   }
 }
+
