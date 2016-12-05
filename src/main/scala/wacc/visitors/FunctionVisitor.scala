@@ -14,7 +14,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
     val name = ctx.IDENT().getText
     val returnType = ctx.`type`().accept(TypeVisitor)
     val (parameterNames, parameterTypes) = FunctionVisitor.getParameters(ctx)
-    val typed_name = Function.appendFunctionTypes(name, parameterTypes)
+    val typed_name = Function.getFullyQualifiedName(name, parameterTypes)
 
     // Check for duplicate function name
     if (SymbolTable.functionsTable contains typed_name)
@@ -37,7 +37,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
   override def visitFunction(ctx: FunctionContext): Either[CompilationError, Function] = {
     val name = ctx.IDENT().getText
     val returnType = ctx.`type`().accept(TypeVisitor)
-    val typed_name = Function.appendFunctionTypes(name, getParameters(ctx)._2)
+    val typed_name = Function.getFullyQualifiedName(name, getParameters(ctx)._2)
     val arguments = SymbolTable.defineFunction(typed_name)
 
     val matchReturnType: PartialFunction[Statement, Either[SemanticError, Statement]] = {
