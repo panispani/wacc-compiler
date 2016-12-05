@@ -1,9 +1,10 @@
 package wacc.interactive
 
 import java.io.ByteArrayInputStream
+import java.util.Scanner
 
 import antlr.{WACCLexer, WACCParser}
-import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream}
+import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream, ConsoleErrorListener}
 import wacc.arm.Registers
 import wacc.codegeneration.{CodeSegment, TransFunctions, TransStatements}
 import wacc.constructs.{CompilationError, Function, SemanticError, Statement, SyntaxError}
@@ -13,7 +14,8 @@ object ICompiler extends App {
 
   private def execStatement(tokens: CommonTokenStream): Either[CompilationError, Statement] = {
     val parser = new WACCParser(tokens)
-    parser.addErrorListener(new ISyntaxErrorListener())
+    //parser.addErrorListener(new ISyntaxErrorListener())
+    parser.removeErrorListeners()
     val tree = parser.statement()
     try {
       StatementVisitor.visit(tree)
@@ -25,7 +27,8 @@ object ICompiler extends App {
 
   private def execFunction(tokens: CommonTokenStream): Either[CompilationError, Function] = {
     val parser = new WACCParser(tokens)
-    parser.addErrorListener(new ISyntaxErrorListener())
+    //parser.addErrorListener(new ISyntaxErrorListener())
+    parser.removeErrorListeners()
     val tree = parser.function()
     try {
       ProgramVisitor.defineFunction(tree) match {
@@ -39,31 +42,37 @@ object ICompiler extends App {
     }
   }
 
-  while (true) {
-    val inputStatement = scala.io.StdIn.readLine("wacc> ")
-    val input = new ANTLRInputStream(new ByteArrayInputStream(inputStatement.getBytes()))
-    val input2 = new ANTLRInputStream(new ByteArrayInputStream(inputStatement.getBytes()))
-    val lexer = new WACCLexer(input)
-    val lexer2 = new WACCLexer(input2)
-    val tokens = new CommonTokenStream(lexer)
-    val tokens2 = new CommonTokenStream(lexer2)
+  private def exec(): Either[CompilationError, Function] = {
+    null
+  }
 
-    execStatement(tokens) match {
+
+  while (true) {
+    val ss = new Scanner(System.in).useDelimiter("\n")
+    printf("\nwacc> ")
+    //val input = scala.io.StdIn.readLine()
+    val input = ss.next()
+    val inputStmt = new ANTLRInputStream(new ByteArrayInputStream(input.getBytes()))
+    val inputFun = new ANTLRInputStream(new ByteArrayInputStream(input.getBytes()))
+    val lexerStmt = new WACCLexer(inputStmt)
+    val lexerFun = new WACCLexer(inputFun)
+    val tokensStmt = new CommonTokenStream(lexerStmt)
+    val tokensFun = new CommonTokenStream(lexerFun)
+
+    execStatement(tokensStmt) match {
       case Right(stmt) =>
         CodeSegment().extend(TransStatements.transStatement(stmt, Registers.expressionRegs)).release()
       case Left(SyntaxError("It's not a statement", null)) =>
-        execFunction(tokens2) match {
+        execFunction(tokensFun) match {
           case Right(f) =>
             CodeSegment().extend(TransFunctions.transFunction(f, Registers.expressionRegs)).release()
           case Left(SyntaxError("It's not a function", null)) =>
-            ;
+            println()
           case Left(fError) =>
             fError.raise()
         }
       case Left(error) =>
         error.raise()
     }
-
   }
-
 }
