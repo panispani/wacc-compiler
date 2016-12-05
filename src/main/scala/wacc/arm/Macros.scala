@@ -1,9 +1,10 @@
 package wacc.arm
 
 import wacc.VariableReference
-import wacc.codegeneration.CodeSegment
 import wacc.codegeneration.predefined.StaticCode
 import wacc.codegeneration.predefined.std.StandardLibrary
+import wacc.{SymbolTable, VariableReference}
+import wacc.codegeneration.{CodeSegment, TransAssignRhs}
 import wacc.constructs._
 
 import scala.collection.+:

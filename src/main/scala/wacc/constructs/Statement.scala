@@ -1,7 +1,8 @@
 package wacc.constructs
 
-import wacc.arm.{Label, R0, _}
+import wacc.arm.{Label, R0}
 import wacc.codegeneration._
+import wacc.arm._
 import wacc.codegeneration.predefined.StaticCode
 import wacc.codegeneration.predefined.std.StandardLibrary
 import wacc.{SymbolTable, VariableReference}
