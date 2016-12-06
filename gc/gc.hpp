@@ -94,9 +94,9 @@ typedef struct {
 void gc_begin();
 void gc_end();
 /*** Should declare methods of creating objects when they are finished ***/
-Object* new_pair_constructor(int id, int val1_id, int val2_id);
-Object* new_array_literal(int id, int size);
-Object* new_string_literal(int id, int size);
-Object* _copy(int id1, int id2);
+Object* new_pair_constructor();
+Object* new_array_literal();
+Object* new_string_literal();
+void pushVM(size_t stackaddress, Object* object);
 
 #endif
