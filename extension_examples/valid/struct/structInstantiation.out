@@ -1,8 +1,1 @@
-begin
-    struct car
-        int a;
-        char b;
-    struct car c = {1, 'a'}
-    println c.a
-    println c.b
-end
+a

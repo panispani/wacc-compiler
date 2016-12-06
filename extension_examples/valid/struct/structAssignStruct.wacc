@@ -4,5 +4,6 @@ begin
         char b;
     struct car c = {1, 'a'};
     struct car d = {2, 'b'};
-    c = d
+    c = d;
+    println c.a
 end

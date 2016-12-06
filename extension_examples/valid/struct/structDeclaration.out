@@ -1,6 +1,0 @@
-begin
-    struct car
-        int a;
-        char b;
-    skip
-end
