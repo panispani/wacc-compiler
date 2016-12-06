@@ -83,6 +83,7 @@ erasedPair      : PAIR ;
 expression : literal                                   # LiteralExp
            | variableReference                         # VariableRefExp
            | arrayElement                              # ArrayElemExp
+           | structMember                              # StructMemberExp
            | unaryOperator expression                  # UnaryOperatorExp
            | LP expression RP                          # BracketedExp
            | expression op=MUL expression              # BinaryOperatorExp
