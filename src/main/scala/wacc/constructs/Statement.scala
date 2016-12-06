@@ -192,6 +192,10 @@ case class DeclareStatement(vartype: Type, newReference: VariableReference, valu
       .extend(TransAssignRhs.transAssignRhs(value, registers))
       .extend(Macros.store(newReference, registers))
       .extend(SUB(SP, SP, ImmOperand(vartype.size)))
+      .extend(vartype match {
+        case pt: PairType => BL(Label("pushVM"))
+        //TODO Extend for arrays and other things which matter
+      })
   }
 }
 
