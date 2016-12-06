@@ -69,6 +69,16 @@ case class AssignStatement(lhs: AssignTarget, rhs: AssignValue) extends Statemen
     CodeSegment()
       .extend(TransAssignRhs.transAssignRhs(rhs, registers))
       .extend(Macros.store(lhs, registers))
+      .extend(lhs match {
+        case vt: VariableReference => lhs.vartype match {
+          case pt: PairType => CodeSegment(
+            ADD(R0, FP, ImmOperand(vt.offset)),
+            MOV(R1, registers.head),
+            BL(Label("pushVM"))
+          )
+          //TODO Extend for arrays and other things which matter
+        }
+      })
   }
 }
 
@@ -193,7 +203,11 @@ case class DeclareStatement(vartype: Type, newReference: VariableReference, valu
       .extend(Macros.store(newReference, registers))
       .extend(SUB(SP, SP, ImmOperand(vartype.size)))
       .extend(vartype match {
-        case pt: PairType => BL(Label("pushVM"))
+        case pt: PairType => CodeSegment(
+          ADD(R0, FP, ImmOperand(newReference.offset)),
+          MOV(R1, registers.head),
+          BL(Label("pushVM"))
+        )
         //TODO Extend for arrays and other things which matter
       })
   }
