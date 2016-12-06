@@ -16,7 +16,7 @@ object SemanticErrors {
   def typeError(what: String, got: Type, expected: Type): String =
     typeError(what, got, Seq(expected))
 
-  def functionSignatureToString(name: String, parameterNames: Seq[String], parameterTypes: Seq[Type]): String = {
+  def functionSignatureToString(name: String, parameterTypes: Seq[Type]): String = {
     s"$name(${parameterTypes.mkString(", ")})"
   }
 }

@@ -3,6 +3,7 @@ package wacc.visitors
 import antlr.WACCParser.FunctionCallContext
 import antlr.WACCParserBaseVisitor
 import wacc.constructs._
+import wacc.util.SemanticErrors
 import wacc.{FunctionReference, SymbolTable}
 
 import scala.collection.JavaConversions._
@@ -12,35 +13,31 @@ object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError
 
   override def visitFunctionCall(ctx: FunctionCallContext): Either[CompilationError, FunctionCall] = {
     val name = ctx.IDENT().getText
-    val ctxArgList = Option(ctx.argumentList())
-    val untypedArgList = ctxArgList match {
+
+    val argumentList = Option(ctx.argumentList()) match {
       case None => Seq()
       case Some(ls) => ls.expression().toList
     }
 
-    val typedArgList = sequenceOrLast(untypedArgList map (_.accept(ExpressionVisitor)))
+    val argumentExpressions = sequenceOrLast(argumentList map (_.accept(ExpressionVisitor)))
 
-    val functionSignature: Either[CompilationError, (String, Type, Seq[Type])] = {
-      typedArgList match {
-        case Right(argList) => {
-          val argTypes = argList map (e => e.vartype)
-          val identifier = Function.fullName(name, argTypes)
+    val functionSignature = argumentExpressions.right.flatMap(argList => {
+      val argTypes = argList map (e => e.vartype)
+      val identifier = Function.fullName(name, argTypes)
 
-          SymbolTable.functionsTable.get(identifier) match {
-            case Some(function) => {
-              function.reference match {
-                case FunctionReference(f, returnType, argumentTypes) => Right((name, returnType, argumentTypes))
-                case default => Left(SemanticError(ctx.IDENT().getText + " is not a function", ctx.start))
-              }
-            }
-            case None => Left(SemanticError("Function " + ctx.IDENT().getText + "(" + argTypes.mkString(", ") + ") is undefined", ctx.start))
+      SymbolTable.functionsTable.get(identifier) match {
+        case Some(function) => {
+          function.reference match {
+            case FunctionReference(f, returnType, argumentTypes) => Right((name, returnType, argumentTypes))
+            case default => Left(SemanticError(name + " is not a function", ctx.start))
           }
         }
-        case Left(error) => Left(error)
+        case None => Left(SemanticError(
+          "Function " + SemanticErrors.functionSignatureToString(name, argTypes) + ") is undefined", ctx.start))
       }
-    }
+    })
 
-    typedArgList match {
+    argumentExpressions match {
       case Right(argList) =>
         functionSignature match {
           case Right((name, returnType, argTypes)) =>

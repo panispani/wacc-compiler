@@ -20,7 +20,7 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
     if (SymbolTable.functionsTable contains identifier)
       return Left(SemanticError(
         "Attempted redefinition of function " +
-          SemanticErrors.functionSignatureToString(name, parameterNames, parameterTypes), ctx.start))
+          SemanticErrors.functionSignatureToString(name, parameterTypes), ctx.start))
 
     // Validate parameters
     if (parameterNames.distinct.size != parameterNames.size)
