@@ -11,7 +11,6 @@ case class BinaryOperatorExpr(expression1: Expression, binaryOperator: BinaryOpe
     case TimesBinOp
        | DivBinOp
        | ModBinOp
-       | PlusBinOp
        | MinusBinOp
       => Integer
 
@@ -24,11 +23,14 @@ case class BinaryOperatorExpr(expression1: Expression, binaryOperator: BinaryOpe
        | AndBinOp
        | OrBinOp
       => Boolean
+
+    case PlusBinOp
+      => expression1.vartype
   }
 }
 
 abstract class BinaryOperator(val binaryOperator: String) {
-  def translate(dest: Register, operand: Register): CodeSegment
+  def translate(vartype: Type, dest: Register, operand: Register): CodeSegment
 }
 
 object BinaryOperator {
@@ -51,75 +53,90 @@ object BinaryOperator {
 
 /* Integers */
 object TimesBinOp extends BinaryOperator("*") {
-  override def translate(dest: Register, operand: Register): CodeSegment
-  = CodeSegment(
-      SMULL(dest, operand, dest, operand),
-      CMPSHIFT(operand, dest, ASR(31)),
-      BL(StaticCode.throwOverflowErrorFunctionLabel, NE))
+  override def translate(vartype: Type, dest: Register, operand: Register): CodeSegment
+    = CodeSegment(
+        SMULL(dest, operand, dest, operand),
+        CMPSHIFT(operand, dest, ASR(31)),
+        BL(StaticCode.throwOverflowErrorFunctionLabel, NE))
 }
+
 object DivBinOp extends BinaryOperator("/") {
-  override def translate(dest: Register, operand: Register): CodeSegment
-  = CodeSegment(
-    MOV(R0, dest),
-    MOV(R1, operand),
-    BL(StaticCode.checkDivideByZeroLabel),
-    BL(StaticCode.divisionLabel),
-    MOV(dest, R0)
-  )
+  override def translate(vartype: Type, dest: Register, operand: Register): CodeSegment
+    = CodeSegment(
+        MOV(R0, dest),
+        MOV(R1, operand),
+        BL(StaticCode.checkDivideByZeroLabel),
+        BL(StaticCode.divisionLabel),
+        MOV(dest, R0))
 }
+
 object ModBinOp extends BinaryOperator("%") {
-  override def translate(dest: Register, operand: Register): CodeSegment
-  = CodeSegment(
-    MOV(R0, dest),
-    MOV(R1, operand),
-    BL(StaticCode.checkDivideByZeroLabel),
-    BL(StaticCode.moduleLabel),
-    MOV(dest, R1)
-  )
+  override def translate(vartype: Type, dest: Register, operand: Register): CodeSegment
+    = CodeSegment(
+        MOV(R0, dest),
+        MOV(R1, operand),
+        BL(StaticCode.checkDivideByZeroLabel),
+        BL(StaticCode.moduleLabel),
+        MOV(dest, R1))
 }
 object PlusBinOp extends BinaryOperator("+") {
-  override def translate(dest: Register, operand: Register): CodeSegment
-  = CodeSegment(
-    ADDS(dest, dest, operand),
-    BL(StaticCode.throwOverflowErrorFunctionLabel, VS))
+  override def translate(vartype: Type, dest: Register, operand: Register): CodeSegment
+    = if (vartype == Integer)
+        CodeSegment(
+          ADDS(dest, dest, operand),
+          BL(StaticCode.throwOverflowErrorFunctionLabel, VS))
+      else
+        CodeSegment(
+          MOV(R0, dest),
+          MOV(R1, operand),
+          BL(StaticCode.concatinateStringsLabel),
+          MOV(dest, R0))
 }
+
 object MinusBinOp extends BinaryOperator("-") {
-  override def translate(dest: Register, operand: Register): CodeSegment
-  = CodeSegment(
-    SUBS(dest, dest, operand),
-    BL(StaticCode.throwOverflowErrorFunctionLabel, VS))
+  override def translate(vartype: Type, dest: Register, operand: Register): CodeSegment
+    = CodeSegment(
+        SUBS(dest, dest, operand),
+        BL(StaticCode.throwOverflowErrorFunctionLabel, VS))
 }
 
 /* Booleans */
 object GtBinOp extends BinaryOperator(">") {
-  override def translate(dest: Register, operand: Register): CodeSegment
-  = Macros.conditionalExpression(dest, operand)(GT, LE)
+  override def translate(vartype: Type, dest: Register, operand: Register): CodeSegment
+    = Macros.conditionalExpression(dest, operand)(GT, LE)
 }
+
 object GteBinOp extends BinaryOperator(">=") {
-  override def translate(dest: Register, operand: Register): CodeSegment
-  = Macros.conditionalExpression(dest, operand)(GE, LT)
+  override def translate(vartype: Type, dest: Register, operand: Register): CodeSegment
+    = Macros.conditionalExpression(dest, operand)(GE, LT)
 }
+
 object LtBinOp extends BinaryOperator("<") {
-  override def translate(dest: Register, operand: Register): CodeSegment
-  = Macros.conditionalExpression(dest, operand)(LT, GE)
+  override def translate(vartype: Type, dest: Register, operand: Register): CodeSegment
+    = Macros.conditionalExpression(dest, operand)(LT, GE)
 }
+
 object LteBinOp extends BinaryOperator("<=") {
-  override def translate(dest: Register, operand: Register): CodeSegment
-  = Macros.conditionalExpression(dest, operand)(LE, GT)
+  override def translate(vartype: Type, dest: Register, operand: Register): CodeSegment
+    = Macros.conditionalExpression(dest, operand)(LE, GT)
 }
+
 object EqualsBinOp extends BinaryOperator("==") {
-  override def translate(dest: Register, operand: Register): CodeSegment
-  = Macros.conditionalExpression(dest, operand)(EQ, NE)
+  override def translate(vartype: Type, dest: Register, operand: Register): CodeSegment
+    = Macros.conditionalExpression(dest, operand)(EQ, NE)
 }
+
 object NequalsBinOp extends BinaryOperator("!=") {
-  override def translate(dest: Register, operand: Register): CodeSegment
-  = Macros.conditionalExpression(dest, operand)(NE, EQ)
+  override def translate(vartype: Type, dest: Register, operand: Register): CodeSegment
+    = Macros.conditionalExpression(dest, operand)(NE, EQ)
 }
+
 object AndBinOp extends BinaryOperator("&&") {
-  override def translate(dest: Register, operand: Register): CodeSegment
-  = CodeSegment(AND(dest, dest, operand))
+  override def translate(vartype: Type, dest: Register, operand: Register): CodeSegment
+    = CodeSegment(AND(dest, dest, operand))
 }
+
 object OrBinOp extends BinaryOperator("||") {
-  override def translate(dest: Register, operand: Register): CodeSegment
-  = CodeSegment(ORR(dest, dest, operand))
+  override def translate(vartype: Type, dest: Register, operand: Register): CodeSegment
+    = CodeSegment(ORR(dest, dest, operand))
 }

@@ -11,10 +11,10 @@ trait Reference extends Typed {
 case class VariableReference(name: String, vartype: Type, offset: Int) extends Reference with Expression
 case class FunctionReference(name: String, returnType: Type, argumentTypes : Seq[Type])
 
-case class SymbolTable(parent: Option[SymbolTable]) {
+case class SymbolTable(parent: Option[SymbolTable], var currentOffset: Int = 0) {
 
-  private var currentOffset: Int = 0
-  def sizeInBytes = currentOffset
+  private val initialOffset = currentOffset
+  def sizeInBytes = currentOffset - initialOffset
 
   private var map: mutable.Map[String, VariableReference] = mutable.Map()
 
@@ -54,10 +54,7 @@ case class SymbolTable(parent: Option[SymbolTable]) {
   }
 
   def lookupDeep(identifier: String): Option[VariableReference]
-  = lookup(identifier) match {
-    case Some(ident) => Some(ident)
-    case None => parent.flatMap(_.lookupWithOffsetAccumulator(identifier, 0))
-  }
+  = lookup(identifier).orElse(parent.flatMap(_.lookupDeep(identifier)))
 
   /**
     * Compute the offset of a variable relative to the FP of the scope which initiates the lookup
@@ -110,7 +107,7 @@ object SymbolTable {
   }
 
   def openScope() = {
-    currentTable = SymbolTable(Some(currentTable))
+    currentTable = SymbolTable(Some(currentTable), currentTable.currentOffset)
   }
 
   def closeScope() = {
@@ -131,7 +128,7 @@ object SymbolTable {
       * */
     currentTable = SymbolTable(None)
     functionsTable += function.name -> FunctionTable(function, currentTable)
-    currentTable.currentOffset = 12 // over PC and FP, FSP for computing offsets to arguments
+    currentTable.currentOffset = 8 // over LR and FP for computing offsets to arguments
   }
 
   // A helper that must be called in order to close the scope for a function table

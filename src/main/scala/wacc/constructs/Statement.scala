@@ -26,8 +26,7 @@ case class ReturnStatement(returnValue: Expression) extends Statement {
     CodeSegment()
       .extend(returnValue.transAssignRhs(registers))
       .extend(MOV(R0, registers.head))
-      .extend(MOV(SP, FSP))
-      .extend(POP(Seq(FSP)))
+      .extend(MOV(SP, FP))
       .extend(POP(Seq(FP)))
       .extend(POP(Seq(PC)))
   }
@@ -67,7 +66,7 @@ case class AssignStatement(lhs: AssignTarget, rhs: AssignValue) extends Statemen
 
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     CodeSegment()
-      .extend(TransAssignRhs.transAssignRhs(rhs, registers))
+      .extend(rhs.transAssignRhs(registers))
       .extend(Macros.store(lhs, registers))
       .extend(lhs match {
         case vt: VariableReference => lhs.vartype match {
@@ -100,12 +99,11 @@ case class ScopeStatement(statements: Seq[Statement], symbolTable: SymbolTable) 
 
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     // Make sure the same registers are available after each statement is translated! TODO
-    val instructions = statements map (TransStatements.transStatement(_, registers))
-    val (beginFrame, endFrame) = Macros.frame(this.symbolTable.sizeInBytes)
+    val instructions = statements map (_.transStatement(registers))
+    val (beginFrame, endFrame) = Macros.semanticFrame(this.symbolTable.sizeInBytes)
 
-    CodeSegment()
-      .extend(beginFrame)
-      .extend(instructions.flatten)
+    beginFrame
+      .extend(instructions.foldLeft(CodeSegment())((acc, x) => acc.extend(x)))
       .extend(endFrame)
   }
 }
@@ -149,15 +147,18 @@ case class ConditionalElseStatement(expression: Expression, trueStatements: Scop
     val L0 = Label()
     val L1 = Label()
 
-    //stack allocation is not done TODO- experimental
+    // The correct semantic scopes will be created by these two calls
+    val trueBranch = trueStatements.transStatement(registers)
+    val falseBranch = falseStatements.transStatement(registers)
+
     CodeSegment()
       .extend(expression.transAssignRhs(registers))
       .extend(CMP(registers.head, ImmOperand(1)))
       .extend(B(L0, EQ))
-      .extend(falseStatements.transStatement(registers))
+      .extend(falseBranch)
       .extend(B(L1))
       .extend(DefineLabel(L0))
-      .extend(trueStatements.transStatement(registers))
+      .extend(trueBranch)
       .extend(DefineLabel(L1))
   }
 }
@@ -165,7 +166,6 @@ case class ConditionalElseStatement(expression: Expression, trueStatements: Scop
 case class ConditionalSimpleStatement(expression: Expression, trueStatements: ScopeStatement) extends ConditionalStatement {
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     val L0 = Label()
-    val L1 = Label()
 
     CodeSegment()
       .extend(expression.transAssignRhs(registers))
@@ -181,14 +181,17 @@ case class ConditionalRecursiveStatement(expression: Expression, trueStatements:
     val L0 = Label()
     val L1 = Label()
 
+    val trueBranch = trueStatements.transStatement(registers)
+    val otherBranches = conditionalStatement.transStatement(registers)
+
     CodeSegment()
       .extend(expression.transAssignRhs(registers))
       .extend(CMP(registers.head, ImmOperand(1)))
       .extend(B(L0, EQ))
-      .extend(conditionalStatement.transStatement(registers))
+      .extend(otherBranches)
       .extend(B(L1))
       .extend(DefineLabel(L0))
-      .extend(trueStatements.transStatement(registers))
+      .extend(trueBranch)
       .extend(DefineLabel(L1))
   }
 }
@@ -199,7 +202,7 @@ case class DeclareStatement(vartype: Type, newReference: VariableReference, valu
 
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     CodeSegment()
-      .extend(TransAssignRhs.transAssignRhs(value, registers))
+      .extend(value.transAssignRhs(registers))
       .extend(Macros.store(newReference, registers))
       .extend(SUB(SP, SP, ImmOperand(vartype.size)))
       .extend(vartype match {
@@ -213,43 +216,52 @@ case class DeclareStatement(vartype: Type, newReference: VariableReference, valu
   }
 }
 
-case class LoopStatement(condition: Expression, statements: Seq[Statement], symbolTable: SymbolTable, doWhile: Boolean = false) extends Statement {
+case class LoopStatement(condition: Expression, body: Seq[Statement], symbolTable: SymbolTable,
+                         doWhile: Boolean = false) extends Statement {
 
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     val L0 = Label()
     val L1 = Label()
 
-    val (beginFrame, endFrame) = Macros.frame(this.symbolTable.sizeInBytes)
+    val (begin, end) = Macros.semanticFrame(symbolTable.sizeInBytes)
 
-    beginFrame
-      .extend(if (doWhile) Seq() else Seq(B(L0)))
+    (if (doWhile) begin else begin.extend(B(L0)))
       .extend(DefineLabel(L1))
-      .extend(TransStatements.transStatementSequence(statements, registers))
+      .extend(body.map(_.transStatement(registers)).foldLeft(CodeSegment())((acc, x) => acc.extend(x)))
       .extend(DefineLabel(L0))
       .extend(condition.transAssignRhs(registers)) // Norbert are you sure?
       .extend(CMP(registers.head, ImmOperand(1)))
       .extend(B(L1, EQ))
-      .extend(endFrame)
+      .extend(end)
   }
 }
 
-case class ForLoopStatement(init: DeclareStatement, cond: Expression, step: Statement, body: Seq[Statement], symbolTable: SymbolTable) extends Statement {
+case class ForLoopStatement(init: DeclareStatement, cond: Expression, step: Statement,
+                            body: Seq[Statement], symbolTable: SymbolTable) extends Statement {
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     val L0 = Label()
     val L1 = Label()
 
-    val (beginFrame, endFrame) = Macros.frame(this.symbolTable.sizeInBytes)
+    val (begin, end) = Macros.semanticFrame(symbolTable.sizeInBytes)
 
-    beginFrame
+    implicit val regs = registers
+
+    begin
       .extend(init.transStatement(registers))
       .extend(B(L0))
       .extend(DefineLabel(L1))
-      .extend(TransStatements.transStatementSequence(body, registers))
+      .extend(body)
       .extend(step.transStatement(registers))
       .extend(DefineLabel(L0))
       .extend(cond.transAssignRhs(registers)) // Norb idea
       .extend(CMP(registers.head, ImmOperand(1)))
       .extend(B(L1, EQ))
-      .extend(endFrame)
+      .extend(end)
   }
+}
+
+object Statement {
+
+  implicit def statementSequenceToCodeSegment(statements: Seq[Statement])(implicit registers: Seq[Register]): CodeSegment
+  = statements.map(_.transStatement(registers)).foldLeft(CodeSegment())((acc, x) => acc.extend(x))
 }

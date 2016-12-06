@@ -61,7 +61,7 @@ class LoopStatementTest extends VisitorTest {
     val result = TestUtilities.buildSubProgram(parser.sequence, SequenceVisitor)
     val loop = result.right.value(2).asInstanceOf[ForLoopStatement]
 
-    val loopVariable = VariableReference("i", Integer, -4)
+    val loopVariable = VariableReference("i", Integer, -9)
 
     // i from loop scope
     loop.init.newReference should be (loopVariable)

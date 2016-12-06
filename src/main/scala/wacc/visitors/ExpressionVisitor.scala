@@ -80,7 +80,12 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
       case Left(error)                                    => Left(error)
       case Right((expr1: Expression, expr2: Expression))  => operator match {
 
-        case TimesBinOp | DivBinOp | ModBinOp | PlusBinOp | MinusBinOp
+        case PlusBinOp
+        if (expr1.vartype != Integer || expr2.vartype != Integer)
+        && (expr1.vartype != String  || expr2.vartype != String) =>
+          Left(SemanticError(operator.binaryOperator + " operator needs 2 integers/strings as its arguments", ctx.start))
+
+        case TimesBinOp | DivBinOp | ModBinOp | MinusBinOp
         if expr1.vartype != Integer || expr2.vartype != Integer =>
           Left(SemanticError(operator.binaryOperator + " operator needs 2 integers as its arguments", ctx.start))
 

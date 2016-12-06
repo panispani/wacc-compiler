@@ -39,7 +39,7 @@ loopStatement : WHILE expression DO sequence DONE                               
               | DO sequence WHILE expression                                                   # DoWhile
               | FOR (init=statement)? SEMICOLON
                     cond=expression SEMICOLON
-                    (step=statement)? DO body=sequence DONE                                    # For
+                    (step=statement)? DO body=sequence DONE                               # For
               ;
 
 assignLhs : variableReference # AssignLhsIdent
