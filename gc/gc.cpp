@@ -222,7 +222,7 @@ void gc_end() {
 }
 
 /********************* TESTS *************************/
-static void run_gc() {
+void run_gc() {
 
     // subject to change
     printf("INTTYPE 1\nPAIRTYPE 2\nCHARTYPE 3\nARRAYTYPE 4\nSTRUCTTYPE 5\n");

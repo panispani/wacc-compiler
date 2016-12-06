@@ -99,6 +99,7 @@ extern "C" {
     Object* new_array_literal();
     Object* new_string_literal();
     void pushVM(void* stackaddress, Object* object);
+    void run_gc();
 }
 
 #endif

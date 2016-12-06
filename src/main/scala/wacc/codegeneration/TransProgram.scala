@@ -29,6 +29,7 @@ object TransProgram {
                   .extend(mainInstructions.flatten)
                   .extend(COMMENT("----------- /MAIN ------------"))
                   .extend(COMMENT("Destroy Garbage Collector"))
+                  .extend(BL(Label("run_gc")))
                   .extend(BL(Label("gc_end")))
                   .extend(MOV(R0, ImmOperand(0)))
                   .extend(endFrame)
