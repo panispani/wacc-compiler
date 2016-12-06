@@ -1,0 +1,5 @@
+begin
+   while (true) do
+        pair(int, int) p = newpair(1, 1)
+   done
+end
