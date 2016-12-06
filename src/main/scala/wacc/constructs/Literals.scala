@@ -58,7 +58,7 @@ case class StructLiteral(members: Seq[Expression]) extends AssignValue {
   override val varType: Type = StructType("$$$", members map (member => ("", member.varType)))
 
   override def transAssignRhs(registers: Seq[Register]): CodeSegment = {
-    val structSize = 4 + members.map(m => m.varType.size).sum
+    val structSize = members.map(m => m.varType.size).sum
     var offset = 0
     var instructions = CodeSegment(
       LDR(R0, Const(structSize)),

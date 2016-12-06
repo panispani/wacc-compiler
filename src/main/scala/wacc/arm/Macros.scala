@@ -67,7 +67,7 @@ object Macros {
         ADD(reg1, reg1, ImmOperand(4)),      // Store in reg1 the value startOfArray + 4 (4 indicates the space used to store the size of the array)
         LDR(regs.head, Const(elemSize)),     // Store in regs.head the value elemSize
         MUL(reg2, reg2, regs.head),          // Store in reg2 the value index * elemSize
-        ADD(reg1, reg1, reg2)                // Store in reg1 the value startOfArray + 4 + index * elemSize TODO: this will work when all types ar 4 bytes
+        ADD(reg1, reg1, reg2)                // Store in reg1 the value startOfArray + 4 + index * elemSize
       ))
   }
 

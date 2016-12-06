@@ -58,12 +58,6 @@ trait Expression extends AssignValue with AssignTarget {
       }
 
       case StructMember(struct, memberName, memberType) => {
-
-        val load = memberType match {
-          case Character | Boolean => LDRB(reg1, RegisterAddress(reg1, 0))
-          case default             => LDR(reg1, RegisterAddress(reg1, 0))
-        }
-
         struct.varType match {
           case StructType(structId, _) => {
             val members = SymbolTable.structsTable(structId).members
@@ -74,10 +68,15 @@ trait Expression extends AssignValue with AssignTarget {
               .map(m => m.varType.size)
               .sum
 
+            val load = memberType match {
+              case Character | Boolean => LDRB(reg1, RegisterAddress(reg1, memberOffset))
+              case default             => LDR(reg1, RegisterAddress(reg1, memberOffset))
+            }
+
             //TODO: handle memberName not existing
 
             CodeSegment(ADD(reg1, FP, ImmOperand(struct.offset)))
-              .extend(LDR(reg1, RegisterAddress(reg1, memberOffset))) // Load in reg1 the member
+              .extend(LDR(reg1, RegisterAddress(reg1, 0))) // Load in reg1 the start of struct (TODO:don't know how that is the case (Ema))
               .extend(load)
           }
         }
