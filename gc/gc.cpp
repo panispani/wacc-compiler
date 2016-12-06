@@ -286,9 +286,9 @@ static void test_complex2_gc() {
 */
 
 /************ MAIN *****************/
-int main() {
+/*int main() {
     gc_begin();
     test_pair_copy_gc();
     gc_end();
     return 0;
-}
+}*/

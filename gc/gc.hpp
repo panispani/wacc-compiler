@@ -92,11 +92,13 @@ typedef struct {
         vector<Object*> heap;
 } VM;
 
+extern "C" {
 void gc_begin();
 void gc_end();
 Object* new_pair_constructor();
 Object* new_array_literal();
 Object* new_string_literal();
-void pushVM(size_t stackaddress, Object* object);
+void pushVM(void* stackaddress, Object* object);
+}
 
 #endif
