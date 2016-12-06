@@ -54,6 +54,23 @@ case class PairLiteral() extends Literal {
   override val varType: Type = PairType(AnyType, AnyType)
 }
 
-case class StructLiteral(members: Seq[Expression]) extends Literal {
+case class StructLiteral(members: Seq[Expression]) extends AssignValue {
   override val varType: Type = StructType("$$$", members map (member => ("", member.varType)))
+
+  override def transAssignRhs(registers: Seq[Register]): CodeSegment = {
+    val structSize = 4 + members.map(m => m.varType.size).sum
+    var offset = 0
+    var instructions = CodeSegment(
+      LDR(R0, Const(structSize)),
+      BL(Label("malloc")),
+      MOV(registers.head, R0)
+    )
+
+    for (member <- members) {
+      instructions = instructions.extend(member.transAssignRhs(registers.tail).instructions :+ STR(registers(1), RegisterAddress(registers.head, offset)))
+      offset += member.varType.size
+    }
+
+    instructions
+  }
 }
