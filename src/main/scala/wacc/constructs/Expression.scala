@@ -1,6 +1,6 @@
 package wacc.constructs
 
-import wacc.VariableReference
+import wacc.{SymbolTable, VariableReference}
 import wacc.arm._
 import wacc.codegeneration._
 
@@ -55,6 +55,32 @@ trait Expression extends AssignValue with AssignTarget {
         CodeSegment(ADD(reg1, FP, ImmOperand(variableReference.offset)))
           .extend(Macros.getNestedElementAddress(index, reg1 +: reg2 +: regs, elemType.size))
           .extend(load)
+      }
+
+      case StructMember(struct, memberName, memberType) => {
+
+        val load = memberType match {
+          case Character | Boolean => LDRB(reg1, RegisterAddress(reg1, 0))
+          case default             => LDR(reg1, RegisterAddress(reg1, 0))
+        }
+
+        struct.varType match {
+          case StructType(structId, _) => {
+            val members = SymbolTable.structsTable(structId).members
+
+            //Todo:Use built in offset in members?
+            val memberOffset = members
+              .takeWhile(m => m.name != memberName)
+              .map(m => m.varType.size)
+              .sum
+
+            //TODO: handle memberName not existing
+
+            CodeSegment(ADD(reg1, FP, ImmOperand(struct.offset)))
+              .extend(LDR(reg1, RegisterAddress(reg1, memberOffset))) // Load in reg1 the member
+              .extend(load)
+          }
+        }
       }
 
       case VariableReference(name, varType, offset) => CodeSegment(Macros.load(reg1, offset, varType))
