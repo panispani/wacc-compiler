@@ -8,6 +8,8 @@
 #include <unordered_set>
 #include <list>
 #include <vector>
+#include <iostream>
+#include <stdint.h>
 #include <queue>
 #include <algorithm>
 #include <stack>
@@ -16,6 +18,7 @@
 #include <map>
 
 using namespace std;
+
 //maybe not all of them are needed (primitives)
 // do integers even need to be in the VM stack? NO, they
 // actually populate it even when we exit scope, TODO
@@ -75,25 +78,22 @@ typedef struct _object {
 } Object;
 
 // may keep also a field of when to trigger a GC
-// dynamically resizable aaray with realloc - do later
 //TODO how do i remove variables with scope? I rewrite old ones :)
 #define MAX_STACK_SIZE 4096
 typedef struct {
-        // array of object pointers
         //Object* stack[MAX_STACK_SIZE];
         //int stack_size;
-        unordered_map<size_t, Object*> stack;
+        //list<Object*> stack;
+        map<unsigned long long int, Object*> stack;
         // head of object list
         //Object* head;
         // current number of objects
         //int num_objects;
-        //unordered_map<Object*, Object> heap;
         vector<Object*> heap;
 } VM;
 
 void gc_begin();
 void gc_end();
-/*** Should declare methods of creating objects when they are finished ***/
 Object* new_pair_constructor();
 Object* new_array_literal();
 Object* new_string_literal();
