@@ -119,18 +119,6 @@ static Object* new_object() {
         return object;
 }
 
-// put on stack of VM
-static void pushVM(Object* object) {
-    // can it be repushed? should it be a set
-    vm->stack.insert(object);
-    /*
-        if (vm->stack[id] == NULL) {
-            vm->stack_size++;
-        }
-        vm->stack[id] = object;
-    */
-}
-
 // look on stack for object with corresponing id
 static Object* get_object_with_id(int id) {
         if (id == -1) {
@@ -148,8 +136,14 @@ Object* new_pair_constructor() {
     object->type = PAIR;
     object->fields.first = new_object();
     object->fields.second = new_object();
-    pushVM(object);
+    //pushVM(object);
     return object;
+}
+
+// call on declaration and assignment
+void pushVM(size_t stackaddress, Object* object) {
+    // can it be repushed? should it be a set
+    vm->stack[stackaddress] = object;
 }
 
 
@@ -189,7 +183,7 @@ Object* new_string_literal(int id, int size) {
 // this is ugly and will change in the process of refactoring
 Object* _copy(int id1, int id2) {
     Object* object = get_object_with_id(id2);
-    pushVM(object, id1);
+    pushVM(object);
     return object;
 }
 

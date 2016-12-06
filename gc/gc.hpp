@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <stack>
 #include <set>
+#include <string>
 #include <map>
 
 using namespace std;
@@ -29,46 +30,48 @@ typedef enum {
 } Object_type;
 
 typedef struct _object {
+    union {
+        // INT
+        int value;
+
+        // CHAR
+        char chr;
+
+        // PAIR
+        struct {
+            struct _object *first;
+            struct _object *second;
+        };
+
+        // STRING - maybe merge with ARRAY
+        struct {
+            struct _object **string;
+            int string_size;
+        };
+
+        // ARRAY
+        struct {
+            struct _object **array;
+            int array_size;
+        };
+
+        // STRUCT
+        struct {
+            struct _object **structlist; // list of pairs, each pair having an element and next pair
+        };
+
+        // CLASS
+        struct {
+            struct _object **classlist; // list of pairs, each pair having an element and next pair
+        };
+
+        } fields;
+
         Object_type type;
         //struct _object *next; // next object in VM stack
         unsigned char marked; // 1 byte, bool is 4 bytes
 
-        union {
-                // INT
-                int value;
 
-                // CHAR
-                char chr;
-
-                // PAIR
-                struct {
-                    struct _object *first;
-                    struct _object *second;
-                };
-
-                // STRING - maybe merge with ARRAY
-                struct {
-                    struct _object **string;
-                    int string_size;
-                };
-
-                // ARRAY
-                struct {
-                    struct _object **array;
-                    int array_size;
-                };
-
-                // STRUCT
-                struct {
-                    struct _object **structlist; // list of pairs, each pair having an element and next pair
-                };
-
-                // CLASS
-                struct {
-                    struct _object **classlist; // list of pairs, each pair having an element and next pair
-                };
-
-        } fields;
 } Object;
 
 // may keep also a field of when to trigger a GC
@@ -79,7 +82,7 @@ typedef struct {
         // array of object pointers
         //Object* stack[MAX_STACK_SIZE];
         //int stack_size;
-        unordered_set<Object*> stack;
+        unordered_map<size_t, Object*> stack;
         // head of object list
         //Object* head;
         // current number of objects
