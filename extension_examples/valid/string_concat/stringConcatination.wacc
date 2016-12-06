@@ -1,0 +1,21 @@
+begin
+  string x = "Hello " + "World, " + "My name is Norb" + "ert";
+  println x;
+  free x;
+
+  int i = 65;
+  string s = "" + "";
+
+  while i != 75 do
+    string c = " ";
+    c[0] = chr i;
+    string temp = s;
+    s = s + c;
+    free temp;
+    i = i + 1
+  done;
+
+  free s;
+
+  println s
+end
