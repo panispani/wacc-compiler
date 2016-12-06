@@ -1,0 +1,11 @@
+begin
+    struct engine
+            int b;
+    struct car
+        int a;
+        engine e;
+
+    engine e = {5}
+    struct car c = {1, e};
+    println c.e.b
+end
