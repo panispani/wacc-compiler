@@ -257,6 +257,15 @@ static void run_gc() {
 }
 
 
+static void test_pair_copy_gc() {
+    Object* o1 = new_pair_constructor();
+    Object* o2 = new_pair_constructor();
+    pushVM(&o1, o1);
+    pushVM(&o2, o2);
+    auto addr = reinterpret_cast<std::uintptr_t>(&o1);
+    vm->stack[addr] = o2; //o1 should be collected
+    run_gc();
+}
 /*
 static void test_array_copy_gc() {
     new_array_literal(0, 15);
