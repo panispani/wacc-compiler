@@ -8,7 +8,7 @@ struct : STRUCT IDENT (structMemberDeclaration SEMICOLON)+ ;
 structMemberDeclaration: type IDENT ;
 structType : STRUCT IDENT ;
 structLiteral : LC (expression (COMMA expression)*)? RC ;
-structMember : IDENT DOT IDENT ;
+structMember : IDENT (DOT IDENT)+ ;
 
 function : type IDENT LP parameterList? RP IS sequence END ;
 parameterList : parameter (COMMA parameter)* ;
