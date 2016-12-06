@@ -8,9 +8,9 @@ import wacc.constructs._
   */
 object TransAssignRhs {
 
-  //Todo: probably needs ArrayElement as well
   def transAssignRhs(value: AssignValue, registers: Seq[Register]): Seq[Instruction] = {
     value match {
+      case sl: StructLiteral   => transRhsStructLiteral(sl, registers)
       case e: Expression       => e.transAssignRhs(registers).instructions
       case al: ArrayLiteral    => transDeclareRhsArrayLiteral(al, registers)
       case pc: PairConstructor => transPairConstructor(pc, registers)
@@ -57,6 +57,24 @@ object TransAssignRhs {
       STR(registers(1), RegisterAddress(registers.head, 0))
     ) ++ instructions
   }
+
+  def transRhsStructLiteral(sl: StructLiteral, registers: Seq[Register]): Seq[Instruction] = {
+    val structSize = 4 + sl.members.reduce((m1, m2) => m1.varType.size + m2.varType.size)
+    var offset = 0
+    var instructions: Seq[Instruction] = Seq()
+
+    for (member <- sl.members) {
+      instructions ++= member.transAssignRhs(registers.tail).instructions :+ STR(registers(1), RegisterAddress(registers.head, offset))
+      offset += member.varType.size
+    }
+
+    Seq(
+      LDR(R0, Const(structSize)),
+      BL(Label("malloc")),
+      MOV(registers.head, R0)
+    ) ++ instructions
+  }
+
 
   def transFunctionCall(fc: FunctionCall, registers: Seq[Register]): Seq[Instruction] = {
     val argumentsSize = ImmOperand(fc.args.map(_.varType.size).sum)
