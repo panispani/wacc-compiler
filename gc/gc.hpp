@@ -4,7 +4,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <unordered_map>
+#include <unordered_set>
+#include <list>
+#include <vector>
+#include <queue>
+#include <algorithm>
+#include <stack>
+#include <set>
+#include <map>
 
+using namespace std;
 //maybe not all of them are needed (primitives)
 // do integers even need to be in the VM stack? NO, they
 // actually populate it even when we exit scope, TODO
@@ -20,7 +30,7 @@ typedef enum {
 
 typedef struct _object {
         Object_type type;
-        struct _object *next; // next object in VM stack
+        //struct _object *next; // next object in VM stack
         unsigned char marked; // 1 byte, bool is 4 bytes
 
         union {
@@ -67,12 +77,15 @@ typedef struct _object {
 #define MAX_STACK_SIZE 4096
 typedef struct {
         // array of object pointers
-        Object* stack[MAX_STACK_SIZE];
-        int stack_size;
+        //Object* stack[MAX_STACK_SIZE];
+        //int stack_size;
+        unordered_set<Object*> stack;
         // head of object list
-        Object* head;
+        //Object* head;
         // current number of objects
-        int num_objects;
+        //int num_objects;
+        //unordered_map<Object*, Object> heap;
+        vector<Object*> heap;
 } VM;
 
 void gc_begin();
