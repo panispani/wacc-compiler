@@ -42,13 +42,13 @@ loopStatement : WHILE expression DO sequence DONE                               
               | DO sequence WHILE expression                                                   # DoWhile
               | FOR (init=statement)? SEMICOLON
                     cond=expression SEMICOLON
-                    (step=statement)? DO body=sequence DONE                               # For
+                    (step=statement)? DO body=sequence DONE                                    # For
               ;
 
 assignLhs : variableReference # AssignLhsIdent
           | arrayElement      # AssignLhsArrayElement
           | pairElement       # AssignLhsPairElement
-          | structMember     # AssignLhsStructMember
+          | structMember      # AssignLhsStructMember
           ;
 
 assignRhs : expression      # AssignRhsExpression
@@ -57,7 +57,7 @@ assignRhs : expression      # AssignRhsExpression
           | pairElement     # AssignRhsPairElement
           | functionCall    # AssignRhsFunctionCall
           | structLiteral   # AssignRhsStructLiteral
-          | structMember   # AssignRhsStructMember
+          | structMember    # AssignRhsStructMember
           ;
 
 type : primitiveType

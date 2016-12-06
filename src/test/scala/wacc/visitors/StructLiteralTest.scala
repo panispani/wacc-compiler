@@ -5,7 +5,7 @@ import wacc.{TestUtilities, VariableReference}
 
 class StructLiteralTest extends VisitorTest {
 
-  "Assigning a struct literal" should "be possible" in {
+  "Struct literal" should "be parsed correctly" in {
     val parser = TestUtilities.setupParser("{1, 2}")
     val result = TestUtilities.buildSubProgram(parser.structLiteral, StructLiteralVisitor)
 
