@@ -133,41 +133,26 @@ static Object* new_object() {
             object->next = vm->head;
         }
         vm->head = object;
-        vm->num_objects = vm->num_objects + 1;
         */
         vm->heap.push_back(object);
         return object;
 }
 
- /*
-// look on stack for object with corresponing id
-static Object* get_object_with_id(int id) {
-        if (id == -1) {
-            // not a reference type, shouldn't care
-            return NULL; // or int-singleton
-        }
-        return vm->stack[id];
-}
-*/
-
 /************ PUBLIC FUNCTIONS *****************/
+
 /*** PAIR ***/
 Object* new_pair_constructor() {
     Object* object = new_object();
     object->type = PAIR;
     object->fields.first = new_object();
     object->fields.second = new_object();
-    //pushVM(object);
     return object;
 }
 
 // call on declaration and assignment
 void pushVM(void* stackaddress, Object* object) {
-    // can it be repushed? should it be a set
-    cout << stackaddress << " " << object << endl;
     auto addr = reinterpret_cast<std::uintptr_t>(stackaddress);
     vm->stack[addr] = object;
-    cout << "broken" << endl;
 }
 
 
@@ -230,9 +215,10 @@ void gc_begin() {
 
 // free heap
 void gc_end() {
-    //vm->stack_size = 0;
-    //gc();
-    //free(vm);
+    for (auto object: vm->heap) {
+        free(object);
+    }
+    free(vm);
 }
 
 /********************* TESTS *************************/
@@ -303,6 +289,6 @@ static void test_complex2_gc() {
 int main() {
     gc_begin();
     test_pair_copy_gc();
-    //gc_end();
+    gc_end();
     return 0;
 }
