@@ -93,12 +93,12 @@ typedef struct {
 } VM;
 
 extern "C" {
-void gc_begin();
-void gc_end();
-Object* new_pair_constructor();
-Object* new_array_literal();
-Object* new_string_literal();
-void pushVM(void* stackaddress, Object* object);
+    void gc_begin();
+    void gc_end();
+    Object* new_pair_constructor();
+    Object* new_array_literal();
+    Object* new_string_literal();
+    void pushVM(void* stackaddress, Object* object);
 }
 
 #endif
