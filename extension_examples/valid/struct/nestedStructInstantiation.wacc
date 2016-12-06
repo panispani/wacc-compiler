@@ -1,8 +1,8 @@
 begin
+    struct engine
+            int b;
     struct car
         int a;
-        char b;
-    struct car c = {1, 'a'};
-    c = {2, 'b'};
-    println c.a
+        struct engine e;
+    skip
 end
