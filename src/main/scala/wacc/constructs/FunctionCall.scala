@@ -5,6 +5,7 @@ import wacc.codegeneration._
 
 case class FunctionCall(identifier: String, args: Seq[Expression], returnType: Type) extends AssignValue {
   override val vartype = returnType
+  def getTypedName: String = Function.appendFunctionTypes(identifier, args map (_.vartype))
 
   override def transAssignRhs(registers: Seq[Register]): CodeSegment = {
     val argumentsSize = ImmOperand(args.map(_.vartype.size).sum)
@@ -19,7 +20,7 @@ case class FunctionCall(identifier: String, args: Seq[Expression], returnType: T
           case _                   => STR(registers.head, RegisterAddress(SP, -e.vartype.size, writeback = true))
         })
       }))
-      .extend(BL(Label(identifier)))
+      .extend(BL(Label(getTypedName)))
       .extend(ADD(SP, SP, argumentsSize))
       .extend(MOV(registers.head, R0))
   }

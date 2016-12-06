@@ -86,10 +86,14 @@ case class FreeStatement(expression: Expression) extends Statement {
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     expression match {
       case VariableReference(name, vartype, offset) => {
-        CodeSegment()
-          .extend(LDR(registers.head, RegisterAddress(FP, offset)))
-          .extend(MOV(R0, registers.head))
-          .extend(BL(StaticCode.freePairLabel))
+        CodeSegment(
+          LDR(registers.head, RegisterAddress(FP, offset)),
+          MOV(R0, registers.head),
+          BL(vartype match {
+            case pt: PairType => StaticCode.freePairLabel
+            case at: ArrayType => StaticCode.freeArrayLabel
+        }))
+
       }
     }
   }

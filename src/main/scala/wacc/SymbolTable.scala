@@ -95,7 +95,6 @@ case class SymbolTable(parent: Option[SymbolTable], var currentOffset: Int = 0) 
 case class FunctionTable(reference: FunctionReference, symbolTable: SymbolTable)
 
 object SymbolTable {
-
   val globalTable: SymbolTable = SymbolTable(None)
   private var currentTable: SymbolTable = globalTable
   val functionsTable: mutable.Map[String, FunctionTable] = mutable.Map()
