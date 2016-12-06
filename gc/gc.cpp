@@ -19,6 +19,8 @@ static VM* vm;
 static VM* newVM() {
           VM* vm = (VM*)malloc(sizeof(VM));
           vm->heap.clear();
+          vm->garbage_collect = false;
+          vm->heap_max = DEFAULT_HEAP_SIZE;
 // declare and assign
           vm->stack.clear();
           return vm;
@@ -108,14 +110,17 @@ static void gc() {
 }
 
 // heuristics of when to call GC
-static int should_gc() {
-    // casted to false
-    return 0;
+static bool should_gc() {
+    cout << "vm heap " << vm->heap.size() << endl;
+    cout << "vm max heap " << vm->heap_max / 2 << endl;
+    return vm->heap.size() >= vm->heap_max / 2;
 }
 
 static Object* new_object() {
         if (should_gc()) {
-            gc();
+            vm->garbage_collect = true;
+            //cout << "I garbage collected" << endl;
+            // gc();
         }
         Object* object = (Object*)malloc(sizeof(Object));
         if (object == NULL) {
@@ -153,6 +158,10 @@ Object* new_pair_constructor() {
 void pushVM(void* stackaddress, Object* object) {
     auto addr = reinterpret_cast<std::uintptr_t>(stackaddress);
     vm->stack[addr] = object;
+    if (vm->garbage_collect) {
+        vm->garbage_collect = false;
+        run_gc();
+    }
 }
 
 
@@ -203,7 +212,6 @@ Object* declare_copy(int id1, int id2) {
         Object* copyfrom = get_object_with_id(id2);
         object->type = copyfrom->type;
         object->fields = copyfrom->fields;
-        pushVM(object, id1);
         return object;
 }
 */
@@ -224,8 +232,7 @@ void gc_end() {
 /********************* TESTS *************************/
 void run_gc() {
 
-    // subject to change
-    printf("INTTYPE 1\nPAIRTYPE 2\nCHARTYPE 3\nARRAYTYPE 4\nSTRUCTTYPE 5\n");
+    //printf("INTTYPE 1\nPAIRTYPE 2\nCHARTYPE 3\nARRAYTYPE 4\nSTRUCTTYPE 5\n");
 
     printf("\nBefore VM heap\n");
     for(auto object: vm->heap) {

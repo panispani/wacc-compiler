@@ -80,6 +80,7 @@ typedef struct _object {
 // may keep also a field of when to trigger a GC
 //TODO how do i remove variables with scope? I rewrite old ones :)
 #define MAX_STACK_SIZE 4096
+#define DEFAULT_HEAP_SIZE 10
 typedef struct {
         //Object* stack[MAX_STACK_SIZE];
         //int stack_size;
@@ -89,6 +90,8 @@ typedef struct {
         //Object* head;
         // current number of objects
         //int num_objects;
+        bool garbage_collect;
+        int heap_max;
         vector<Object*> heap;
 } VM;
 
