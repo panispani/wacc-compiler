@@ -20,13 +20,14 @@
 using namespace std;
 
 typedef enum {
+        ANY,
         INT,
         CHAR,
+        BOOL,
         PAIR,
         ARRAY,
-        STRING,
         STRUCT,
-        CLASS
+        CLASS,
 } object_type;
 
 
@@ -38,7 +39,33 @@ public:
     virtual bool isMarked() = 0;
     virtual void setMarked(char m) = 0;
     static object* new_obj(int type) {
-        // todo - factory
+        switch (type) {
+            case ANY:
+                cout << "not implemented" << endl;
+                return nullptr; // not done for now
+                break;
+            case INT:
+                return new int_object();
+                break;
+            case CHAR:
+                return new char_object();
+                break;
+            case BOOL:
+                return new bool_object();
+                break;
+            case PAIR:
+                return new pair_object();
+                break;
+            case ARRAY:
+                return new array_object();
+                break;
+            case STRUCT:
+                return new struct_object();
+                break;
+            case CLASS:
+                return new class_object();
+                break;
+        }
         return nullptr;
     }
 };
@@ -82,6 +109,22 @@ public:
     virtual void mark() {}
 };
 
+class bool_object: public object {
+public:
+    bool value;
+    unsigned char marked;
+
+    virtual bool isMarked() {
+        return marked;
+    }
+
+    virtual void setMarked(char m) {
+        marked = 1;
+    };
+
+    virtual void mark() {}
+};
+
 class pair_object: public object {
 public:
     object* first;
@@ -112,23 +155,6 @@ public:
     virtual void setMarked(char m) {
         marked = 1;
     }
-
-    virtual void mark() {}
-};
-
-class string_object: public object {
-public:
-    object **string;
-    int string_size;
-    unsigned char marked;
-
-    virtual bool isMarked() {
-        return marked;
-    }
-
-    virtual void setMarked(char m) {
-        marked = 1;
-    };
 
     virtual void mark() {}
 };
