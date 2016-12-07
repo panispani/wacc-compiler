@@ -1,0 +1,8 @@
+begin
+    struct engine
+            int b;
+    struct car
+        int a;
+        struct engine e;
+    skip
+end

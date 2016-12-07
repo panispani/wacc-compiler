@@ -131,12 +131,11 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
 
   override def visitStructMember(ctx: StructMemberContext): Either[CompilationError, StructMember] = {
     val structIdentifier = ctx.IDENT(0).getText
-    val memberIdentifier = ctx.IDENT(1).getText
+    val membersIdentifier = ctx.IDENT().tail.toList.map(x => x.getText)
 
     SymbolTable().lookupDeep(structIdentifier) match {
       case Some(ref @ VariableReference(x, varType: StructType, offset)) => {
-        val memberType = varType.members.find(s => s._1 == memberIdentifier).orNull._2
-        Right(StructMember(ref, memberIdentifier, memberType))
+        Right(StructMember(ref, membersIdentifier))
       }
       case None    => Left(SemanticError("Variable not declared", ctx.start))
       case _ => Left(SemanticError("Identifier is not a struct reference", ctx.start))

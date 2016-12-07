@@ -57,26 +57,21 @@ trait Expression extends AssignValue with AssignTarget {
           .extend(load)
       }
 
-      case StructMember(struct, memberName, memberType) => {
+      case sm @ StructMember(struct, membersName) => {
         struct.varType match {
           case StructType(structId, _) => {
-            val members = SymbolTable.structsTable(structId).members
 
-            //Todo:Use built in offset in members?
-            val memberOffset = members
-              .takeWhile(m => m.name != memberName)
-              .map(m => m.varType.size)
-              .sum
-
-            val load = memberType match {
-              case Character | Boolean => LDRB(reg1, RegisterAddress(reg1, memberOffset))
-              case default             => LDR(reg1, RegisterAddress(reg1, memberOffset))
+            val load = sm.varType match {
+              case Character | Boolean => LDRB(reg1, RegisterAddress(reg1, 0))
+              case default             => LDR(reg1, RegisterAddress(reg1, 0))
             }
 
-            //TODO: handle memberName not existing
+            //TODO: handle memberName not existing in frontend
+
+            val membersOffset =
 
             CodeSegment(ADD(reg1, FP, ImmOperand(struct.offset)))
-              .extend(LDR(reg1, RegisterAddress(reg1, 0))) // Load in reg1 the start of struct (TODO:don't know how that is the case (Ema))
+              .extend(Macros.getNestedStructMemberAddress())
               .extend(load)
           }
         }

@@ -43,7 +43,7 @@ object Macros {
     }
   }
 
-  //Assume start of array in reg1
+  //Assume start of array in reg1 and return nested element memory location in reg1
   def getNestedElementAddress(indexes: Seq[Expression], registers: Seq[Register], elemSize: Int): CodeSegment = {
     val reg1 +: reg2 +: regs = registers
 
@@ -54,7 +54,7 @@ object Macros {
     })
   }
 
-  //Assume start of array in reg1 and index in reg2
+  //Assume stack location of array address in reg1 and index in reg2 and store memory address of the element in reg1
   private def checkAndGetArrayElemAddress(registers: Seq[Register], elemSize: Int): CodeSegment = {
     val reg1 +: reg2 +: regs = registers
 
@@ -69,6 +69,19 @@ object Macros {
         MUL(reg2, reg2, regs.head),          // Store in reg2 the value index * elemSize
         ADD(reg1, reg1, reg2)                // Store in reg1 the value startOfArray + 4 + index * elemSize
       ))
+  }
+
+  //Assume stack location of struct address in reg1 and return nested member memory location in reg1
+  def getNestedStructMemberAddress(membersOffset: Seq[Int], registers: Seq[Register]): CodeSegment = {
+    val reg1 = registers.head
+
+    membersOffset.foldLeft(CodeSegment()) ((accumulator, memberOffset) => {
+      accumulator
+        .extend(Seq(
+          LDR(reg1, RegisterAddress(reg1, 0)),                // Load in reg1 startOfStruct
+          ADD(reg1, reg1, ImmOperand(memberOffset))                // Store in reg1 the value startOfStruct + memberOffset
+        ))
+    })
   }
 
   def load(reg1: Register, offset: Int, varType: Type): Instruction = varType match {
