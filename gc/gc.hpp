@@ -19,6 +19,16 @@
 
 using namespace std;
 
+typedef enum {
+        INT,
+        CHAR,
+        PAIR,
+        STRING,
+        ARRAY,
+        STRUCT,
+        CLASS
+} object_type;
+
 class object {
 public:
 };
@@ -27,7 +37,7 @@ class int_object: public object {
 public:
     int value;
     unsigned char marked;
-    };
+};
 
 class char_object: public object {
 public:
@@ -37,36 +47,35 @@ public:
 
 class pair_object: public object {
 public:
-    struct _object *first;
-    struct _object *second;
+    object* first;
+    object *second;
     unsigned char marked;
 
- 
 };
 
 class array_object: public object {
 public:
-    struct _object **array;
+    object **array;
     int array_size;
     unsigned char marked;
 };
 
 class string_object: public object {
 public:
-    struct _object **string;
+    object **string;
     int string_size;
     unsigned char marked;
 };
 
 class struct_object: public object {
 public:
-    struct _object **structlist;
+    object **structlist;
     unsigned char marked;
 };
 
 class class_object: public object {
 public:
-    struct _object **classlist;
+    object **classlist;
     unsigned char marked;
 };
 
