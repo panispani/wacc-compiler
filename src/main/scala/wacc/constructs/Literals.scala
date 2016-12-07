@@ -42,11 +42,22 @@ case class ArrayLiteral(elements: Seq[Expression]) extends AssignValue {
 
     CodeSegment()
       .extend(LDR(R0, Const(arraySize)))
+      .extend(MOV(R1, ImmOperand(vartype.elemtype.enumId)))
+      .extend(BL(Label("new_array_literal")))
+      .extend(MOV(registers.head, R0))
+      .extend(LDR(registers(1), Const(elements.size)))
+      .extend(STR(registers(1), RegisterAddress(registers.head)))
+      .extend(instructions)
+
+    /* TODO Commented out for GC, add if check for -gc flag
+    CodeSegment()
+      .extend(LDR(R0, Const(arraySize)))
       .extend(BL(Label("malloc")))
       .extend(MOV(registers.head, R0))
       .extend(LDR(registers(1), Const(elements.size)))
-      .extend(STR(registers(1), RegisterAddress(registers.head, 0)))
+      .extend(STR(registers(1), RegisterAddress(registers.head)))
       .extend(instructions)
+      */
   }
 }
 
