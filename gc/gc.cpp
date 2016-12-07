@@ -22,9 +22,9 @@ VM::VM() {
 }
 
 VM::~VM() {
-    for (auto object: heap) {
+    /*for (auto pair : heap) {
         free(object);
-    }
+    }*/
 }
 
 /************ STATIC FUNCTIONS *****************/
@@ -32,84 +32,47 @@ VM::~VM() {
 
 static VM* vm;
 
-static void mark(object* obj) {
-    // printf("marking: %p\n", obj);
+static void mark(unsigned long long int heapaddress) {
+    object* obj = vm->heap[heapaddress];
     if (obj == NULL) {
         return;
     }
     obj->mark();
 }
-    /*
-    obj->marked = 1;
-    switch(obj->type) {
-    case PAIR:
-        mark(obj->fields.first);
-        mark(obj->fields.second);
-        break;
-    }
-    case ARRAY:
-        ;int i = 0;
-        for (; i < obj->fields.array_size; i++) {
-            mark(obj->fields.array[i]);
-        }
-        break;
-    }*/
-    // TODO REST
 
 static void markAll() {
-    // start marking from the stack allocated variables
-    for (auto pair: vm->stack) {
+    // Start marking from the stack allocated variables
+    for (auto pair : vm->stack) {
         mark(pair.second);
     }
-    /*
-    for (int i = 0; i < vm->stack_size; i++) {
-        //printf("in %p %d\n", vm->stack[i], vm->stack[i]->type);
-        mark(vm->stack[i]);
-        //printf("out %p\n", vm->stack[i]);
-    }
-    */
 }
 
-
-// we use pointer to pointer so we can change
-// the list(remove element) and it retains its structure!
 static void sweep() {
-    vector<object*> to_delete;
+    vector<unsigned long long int> to_delete;
     to_delete.clear();
-    for (auto obj: vm->heap) {
-        if (!obj->isMarked()) {
-            to_delete.push_back(obj);
+    for (auto pair : vm->heap) {
+        auto obj = pair.second;
+        if (!obj->marked) {
+            to_delete.push_back(pair.first);
         } else {
-            obj->setMarked(0);
+            obj->marked = 0;
         }
     }
-    // we should update heap and free to_delete elements
-    vector<object*> newheap;
-    set_difference(vm->heap.begin(), vm->heap.end(),
-            to_delete.begin(), to_delete.end(),
-            inserter(newheap, newheap.end()));
-    swap(vm->heap, newheap);
-    for (auto obj: to_delete) {
-        free(obj);
+
+    // Free all elements
+    for (auto key : to_delete) {
+        // Delete both the actual memory and the meta-object
+        void *addr = reinterpret_cast<void*>(key);
+        free(addr);
+        free(vm->heap[key]);
+    }
+
+    // Update the heap
+    for (auto key : to_delete) {
+        cout << "Erasing " << key << endl;
+        vm->heap.erase(key);
     }
 }
-
-/*
-  unsigned int current = 0;
-  object** obj = &vm->heap[current];
-  while (current != vm->heap.size()) {
-    if (!(*obj)->marked) {
-      object* unreached = *obj;
-      *obj = unreached->next;
-      free(unreached);
-    } else {
-      // obj was reached by marking, reset it for next GC
-      (*obj)->marked = 0;
-      obj = &(*obj)->next;
-    }
-  }
-  */
-
 
 static void gc() {
     markAll();
@@ -118,104 +81,79 @@ static void gc() {
 
 // heuristics of when to call GC
 static bool should_gc() {
-    cout << "vm heap " << vm->heap.size() << endl;
-    cout << "vm max heap " << vm->heap_max / 2 << endl;
     return vm->heap.size() >= vm->heap_max / 2;
 }
 
-static object* new_obj() {
-        if (should_gc()) {
-            vm->garbage_collect = true;
-            //cout << "I garbage collected" << endl;
-            // gc();
-        }
-        object* obj = (object*)malloc(sizeof(object));
-        if (obj == NULL) {
-            printf("%s\n", "Stack overflow");
-            return obj;
-        }
 
-        obj->setMarked(0);
-
-        vm->heap.push_back(obj);
-        return obj;
+size_t type_size(int type) {
+    switch (type) {
+      case ANY:
+      case INT:
+      case PAIR:
+      case STRUCT:
+      case CLASS:
+      case ARRAY: return 4;
+      case CHAR:
+      case BOOL: return 1;
+      default: return 0;
+    }
 }
 
 /************ PUBLIC FUNCTIONS *****************/
 
+static void pushHeap(void* heapaddress, object* obj) {
+    cout << "Pushing " << heapaddress << " -> " << obj << " to heap " << endl;
+    if (should_gc()) {
+        vm->garbage_collect = true;
+    }
+
+    obj->marked = 0;
+    auto addr = reinterpret_cast<std::uintptr_t>(heapaddress);
+    vm->heap[addr] = obj;
+}
+
 // call on declaration and assignment
-void pushVM(void* stackaddress, object* obj) {
-    auto addr = reinterpret_cast<std::uintptr_t>(stackaddress);
-    vm->stack[addr] = obj;
+void pushVM(void* stackaddress, void* heapaddress) {
+    auto addr1 = reinterpret_cast<std::uintptr_t>(stackaddress);
+    auto addr2 = reinterpret_cast<std::uintptr_t>(heapaddress);
+    vm->stack[addr1] = addr2;
+
     if (vm->garbage_collect) {
         vm->garbage_collect = false;
         run_gc();
     }
 }
 
-/*** PAIR ***/
-object* new_pair_constructor(int type1, int type2) {
-    pair_object* obj = (pair_object*)object::new_obj(PAIR);
-    obj->first = (pair_object*)object::new_obj(type1);
-    obj->second = (pair_object*)object::new_obj(type2);
-    return obj;
+uint8_t** new_pair_constructor(object_type type1, object_type type2) {
+    // Create meta-objects for the pair and its elements
+    pair_object* obj = (pair_object*) object::new_obj(PAIR);
+    obj->first = (pair_object*) object::new_obj(type1);
+    obj->second = (pair_object*) object::new_obj(type2);
+
+    // Allocate actual space for the pair and its elements
+    uint8_t **bytes = (uint8_t**) malloc(8);
+    bytes[0] = (uint8_t*) malloc(type_size(type1));
+    bytes[4] = (uint8_t*) malloc(type_size(type1));
+
+    // Map addresses on actual heap to addresses of created meta-objects for the pair
+    pushHeap(bytes, obj);
+    pushHeap(bytes[0], obj->first);
+    pushHeap(bytes[4], obj->second);
+    return bytes;
 }
 
+uint8_t* new_array_literal(int array_size, object_type type) {
+    // Create meta-object for the array
+    array_object* obj = (array_object*) array_object::new_obj(ARRAY);
 
-/*** ARRAY ***/
-// NOTE: dont refactor with string yet
-object* new_array_literal(int array_size, int type) {
-        array_object* obj = (array_object*)object::new_obj(ARRAY);
-        // think of using calloc
-        obj->array_size = array_size;
-        // re think this
-        //obj->array = (object**)malloc(array_size * sizeof(object*));
-        //memset(obj->fields.array, 0, size);
-        obj->array_size = array_size;
-        //pushVM(obj, id);
-        return obj;
+    // Allocate actual space for the array
+    uint8_t *bytes = (uint8_t*) malloc(4 + array_size * type_size(type));
+
+    // Map address on actual heap to address of created meta-object for the array
+    pushHeap(bytes, obj);
+    return bytes;
 }
 
-
-/*** STRING ***/
-/*
-object* new_string_literal(int id, int size) {
-        object* obj = new_obj();
-        obj->type = STRING;
-        // think of using calloc
-        obj->fields.string = (object**)malloc(size * sizeof(object*));
-        memset(obj->fields.string, 0, size);
-        obj->fields.string_size = size;
-        //pushVM(obj, id);
-        return obj;
-}*/
-
-/*** STRUCT ***/
-
-/*** CLASS ***/
-
-/*** COMMON METHODS ***/
-// form: foo(dst, src)
-// this is ugly and will change in the process of refactoring
-/*object* _copy(int id1, int id2) {
-    object* obj = get_obj_with_id(id2);
-    //pushVM(obj);
-    return obj;
-}*/
-
-/* Dont delete yet, creating a new obj is wrong
- * delcaring in on the stack, there is no new
- * variable on the heap
-object* declare_copy(int id1, int id2) {
-        object* obj = new_obj();
-        object* copyfrom = get_obj_with_id(id2);
-        obj->type = copyfrom->type;
-        obj->fields = copyfrom->fields;
-        return obj;
-}
-*/
-
-//might not be used if global - to try TODO
 //called once on startup
 void gc_begin() {
     vm = new VM();
@@ -247,12 +185,13 @@ void run_gc() {
 
 
 static void test_pair_copy_gc() {
-    object* o1 = new_pair_constructor();
-    object* o2 = new_pair_constructor();
-    pushVM(&o1, o1);
-    pushVM(&o2, o2);
-    auto addr = reinterpret_cast<std::uintptr_t>(&o1);
-    vm->stack[addr] = o2; //o1 should be collected
+    uint8_t** o1 = new_pair_constructor(INT, INT);
+    uint8_t** o2 = new_pair_constructor(INT, INT);
+    pushVM(&o1, o1); // o1 = newpair
+    pushVM(&o2, o2); // o2 = newpair
+    pushVM(&o2, o1); // o2 = o1
+
+    // Should collect o1
     run_gc();
 }
 /*
@@ -289,9 +228,9 @@ static void test_complex2_gc() {
 */
 
 /************ MAIN *****************/
-/*int main() {
+int main() {
     gc_begin();
     test_pair_copy_gc();
     gc_end();
     return 0;
-}*/
+}

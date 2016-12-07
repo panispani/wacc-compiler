@@ -7,10 +7,10 @@
 #define DEFAULT_HEAP_SIZE 10
 class VM {
 public:
-        map<unsigned long long int, object*> stack;
+        map<unsigned long long int, unsigned long long int> stack;
+        map<unsigned long long int, object*> heap;
         bool garbage_collect;
         unsigned int heap_max;
-        vector<object*> heap;
         VM();
         ~VM();
 };
@@ -18,10 +18,10 @@ public:
 extern "C" {
     void gc_begin();
     void gc_end();
-    object* new_pair_constructor();
-    object* new_array_literal();
+    uint8_t** new_pair_constructor(object_type type1, object_type type2);
+    uint8_t* new_array_literal(int array_size, object_type type);
     object* new_string_literal();
-    void pushVM(void* stackaddress, object* object);
+    void pushVM(void* stackaddress, void* heapaddress);
     void run_gc();
 }
 
