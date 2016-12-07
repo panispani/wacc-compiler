@@ -23,33 +23,41 @@ typedef enum {
         INT,
         CHAR,
         PAIR,
-        STRING,
         ARRAY,
+        STRING,
         STRUCT,
         CLASS
 } object_type;
 
+
+// abstract
 class object {
 public:
+    virtual object() = 0; // pure
+    virtual unsigned char marked;
+    static object* new_object() {
+        // todo - factory
+        return nullptr;
+    }
 };
 
 class int_object: public object {
 public:
     int value;
-    unsigned char marked;
+    virtual unsigned char marked;
 };
 
 class char_object: public object {
 public:
     char value;
-    unsigned char marked;
+    virtual unsigned char marked;
 };
 
 class pair_object: public object {
 public:
     object* first;
     object *second;
-    unsigned char marked;
+    virtual unsigned char marked;
 
 };
 
@@ -57,26 +65,26 @@ class array_object: public object {
 public:
     object **array;
     int array_size;
-    unsigned char marked;
+    virtual unsigned char marked;
 };
 
 class string_object: public object {
 public:
     object **string;
     int string_size;
-    unsigned char marked;
+    virtual unsigned char marked;
 };
 
 class struct_object: public object {
 public:
     object **structlist;
-    unsigned char marked;
+    virtual unsigned char marked;
 };
 
 class class_object: public object {
 public:
     object **classlist;
-    unsigned char marked;
+    virtual unsigned char marked;
 };
 
 // may keep also a field of when to trigger a GC
