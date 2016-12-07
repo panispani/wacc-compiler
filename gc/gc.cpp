@@ -13,7 +13,22 @@ using namespace std;
  *  traverse heap and delete objs that are unreachable
  */
 
+
+VM::VM() {
+    heap.clear();
+    garbage_collect = false;
+    heap_max = DEFAULT_HEAP_SIZE;
+    stack.clear();
+}
+
+VM::~VM() {
+    for (auto object: heap) {
+        free(object);
+    }
+}
+
 /************ STATIC FUNCTIONS *****************/
+
 
 static VM* vm;
 
@@ -32,7 +47,7 @@ static void mark(object* obj) {
         mark(obj->fields.second);
         break;
     }
-    /*case ARRAY:
+    case ARRAY:
         ;int i = 0;
         for (; i < obj->fields.array_size; i++) {
             mark(obj->fields.array[i]);
@@ -62,10 +77,10 @@ static void sweep() {
     vector<object*> to_delete;
     to_delete.clear();
     for (auto obj: vm->heap) {
-        if (!obj->marked) {
+        if (!obj->isMarked()) {
             to_delete.push_back(obj);
         } else {
-            obj->marked = 0;
+            obj->setMarked(0);
         }
     }
     // we should update heap and free to_delete elements
@@ -78,7 +93,6 @@ static void sweep() {
         free(obj);
     }
 }
-
 
 /*
   unsigned int current = 0;
@@ -121,7 +135,7 @@ static object* new_obj() {
             return obj;
         }
 
-        obj->marked = 0;
+        obj->setMarked(0);
 
         vm->heap.push_back(obj);
         return obj;
@@ -140,30 +154,31 @@ void pushVM(void* stackaddress, object* obj) {
 }
 
 /*** PAIR ***/
-object* new_pair_constructor() {
-    object* obj = new_obj();
-    obj->type = PAIR;
-    obj->fields.first = new_obj();
-    obj->fields.second = new_obj();
+object* new_pair_constructor(int type1, int type2) {
+    pair_object* obj = (pair_object*)object::new_obj(PAIR);
+    obj->first = (pair_object*)object::new_obj(type1);
+    obj->second = (pair_object*)object::new_obj(type2);
     return obj;
 }
 
 
 /*** ARRAY ***/
 // NOTE: dont refactor with string yet
-object* new_array_literal(int array_size) {
-        object* obj = new_obj();
-        obj->type = ARRAY;
+object* new_array_literal(int array_size, int type) {
+        array_object* obj = (array_object*)object::new_obj(ARRAY);
         // think of using calloc
-        obj->fields.array = (object**)malloc(array_size * sizeof(object*));
+        obj->array_size = array_size;
+        // re think this
+        //obj->array = (object**)malloc(array_size * sizeof(object*));
         //memset(obj->fields.array, 0, size);
-        obj->fields.array_size = array_size;
+        obj->array_size = array_size;
         //pushVM(obj, id);
         return obj;
 }
 
 
 /*** STRING ***/
+/*
 object* new_string_literal(int id, int size) {
         object* obj = new_obj();
         obj->type = STRING;
@@ -173,7 +188,7 @@ object* new_string_literal(int id, int size) {
         obj->fields.string_size = size;
         //pushVM(obj, id);
         return obj;
-}
+}*/
 
 /*** STRUCT ***/
 
@@ -218,14 +233,14 @@ void run_gc() {
 
     printf("\nBefore VM heap\n");
     for(auto obj: vm->heap) {
-        printf("%p of type: %d\n", obj, obj->type);
+        printf("%p of type: not for now\n", obj);
     }
 
     gc();
 
     printf("\nAfter VM heap\n");
     for(auto obj: vm->heap) {
-        printf("%p of type: %d\n", obj, obj->type);
+        printf("%p of type: not for now\n", obj);
     }
 
 }
