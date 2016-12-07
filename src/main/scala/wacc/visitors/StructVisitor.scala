@@ -13,8 +13,9 @@ object StructVisitor extends WACCParserBaseVisitor[Either[CompilationError, Stru
     val name = ctx.IDENT().getText
 
     // Check for duplicate struct name
-    if (SymbolTable.structsTable contains name)
-      return Left (SemanticError("Attempted redefinition of struct " + name, ctx.start))
+    if (SymbolTable.structsTable contains name) {
+      return Left(SemanticError("Attempted redefinition of struct " + name, ctx.start))
+    }
 
     var offset = 0
 
@@ -24,6 +25,13 @@ object StructVisitor extends WACCParserBaseVisitor[Either[CompilationError, Stru
       offset += varType.size
       vr
     })
+
+    val membersName = members.map(m => m.name)
+
+    //Semantic error if two members have the same name
+    if (membersName.distinct.size != membersName.size) {
+      return Left (SemanticError("Duplicate members name in struct " + name, ctx.start))
+    }
 
     val struct = Struct(ctx.IDENT().getText, members)
     SymbolTable.declareStruct(struct)
