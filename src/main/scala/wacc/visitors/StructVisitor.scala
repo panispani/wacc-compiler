@@ -26,12 +26,14 @@ object StructVisitor extends WACCParserBaseVisitor[Either[CompilationError, Stru
       vr
     })
 
-    val membersName = members.map(m => m.name)
+    val membersName = members.map(_.name)
 
     //Semantic error if two members have the same name
     if (membersName.distinct.size != membersName.size) {
       return Left (SemanticError("Duplicate members name in struct " + name, ctx.start))
     }
+
+    ctx.function().toList map (_.accept(FunctionVisitor))
 
     val struct = Struct(ctx.IDENT().getText, members)
     SymbolTable.declareStruct(struct)
