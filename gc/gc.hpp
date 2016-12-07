@@ -36,8 +36,8 @@ public:
     //virtual object() = 0; // pure
     virtual void mark() = 0; // should override
     virtual bool isMarked() = 0;
-    virtual void setMarked() = 0;
-    static object* new_object() {
+    virtual void setMarked(char m) = 0;
+    static object* new_obj(int type) {
         // todo - factory
         return nullptr;
     }
@@ -59,7 +59,7 @@ public:
         return marked;
     }
 
-    virtual void setMarked() {
+    virtual void setMarked(char m) {
         marked = 1;
     };
 
@@ -75,7 +75,7 @@ public:
         return marked;
     }
 
-    virtual void setMarked() {
+    virtual void setMarked(char m) {
         marked = 1;
     };
 
@@ -92,7 +92,7 @@ public:
         return marked;
     }
 
-    virtual void setMarked() {
+    virtual void setMarked(char m) {
         marked = 1;
     };
 
@@ -109,7 +109,7 @@ public:
         return marked;
     }
 
-    virtual void setMarked() {
+    virtual void setMarked(char m) {
         marked = 1;
     }
 
@@ -120,13 +120,13 @@ class string_object: public object {
 public:
     object **string;
     int string_size;
-    virtual unsigned char marked;
+    unsigned char marked;
 
     virtual bool isMarked() {
         return marked;
     }
 
-    virtual void setMarked() {
+    virtual void setMarked(char m) {
         marked = 1;
     };
 
@@ -142,8 +142,8 @@ public:
         return marked;
     }
 
-    virtual void setMarked() {
-        marked = 1;
+    virtual void setMarked(char m) {
+        marked = m;
     };
 
     virtual void mark() {}
@@ -158,7 +158,7 @@ public:
         return marked;
     }
 
-    virtual void setMarked() {
+    virtual void setMarked(char m) {
         marked = 1;
     };
 
