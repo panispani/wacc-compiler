@@ -21,6 +21,8 @@ case class PairConstructor(firstExp: Expression, secondExp: Expression) extends 
     }
 
     CodeSegment()
+        .extend(MOV(R0, ImmOperand(firstType.enumId)))
+        .extend(MOV(R1, ImmOperand(secondType.enumId)))
         .extend(BL(Label("new_pair_constructor")))           // R0: pair *newpair = new_pair_constructor
         .extend(MOV(registers.head, R0))                     // return register = newpair
         .extend(LDR(R0, RegisterAddress(R0)))                // R0 = *newpair (first elem address)
