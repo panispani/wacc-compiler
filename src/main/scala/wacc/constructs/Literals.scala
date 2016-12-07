@@ -66,8 +66,15 @@ case class StructLiteral(members: Seq[Expression]) extends AssignValue {
       MOV(registers.head, R0)
     )
 
+    val store =
+
     for (member <- members) {
-      instructions = instructions.extend(member.transAssignRhs(registers.tail).instructions :+ STR(registers(1), RegisterAddress(registers.head, offset)))
+      val store = member.varType match {
+        case Character | Boolean => STRB(registers(1), RegisterAddress(registers.head, offset))
+        case default => STR(registers(1), RegisterAddress(registers.head, offset))
+      }
+
+      instructions = instructions.extend(member.transAssignRhs(registers.tail).instructions :+ store)
       offset += member.varType.size
     }
 

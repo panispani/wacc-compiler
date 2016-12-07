@@ -52,7 +52,7 @@ trait Expression extends AssignValue with AssignTarget {
           case default             => LDR(reg1, RegisterAddress(reg1, 0))
         }
 
-        CodeSegment(ADD(reg1, FP, ImmOperand(variableReference.offset)))
+        CodeSegment(ADD(reg1, FP, ImmOperand(variableReference.offset)))  //Load in reg1 stack location of the array address
           .extend(Macros.getNestedElementAddress(index, reg1 +: reg2 +: regs, elemType.size))
           .extend(load)
       }
@@ -61,17 +61,19 @@ trait Expression extends AssignValue with AssignTarget {
         struct.varType match {
           case StructType(structId, _) => {
 
+            val membersOffset = sm.membersOffset
+
             val load = sm.varType match {
-              case Character | Boolean => LDRB(reg1, RegisterAddress(reg1, 0))
-              case default             => LDR(reg1, RegisterAddress(reg1, 0))
+              case Character | Boolean => LDRB(reg1, RegisterAddress(reg1))
+              case default             => LDR(reg1, RegisterAddress(reg1))
             }
 
-            //TODO: handle memberName not existing in frontend
+            //TODO: handle memberName not existing
 
-            val membersOffset =
+            //TODO: Use Macro to make it work for nested structs
 
-            CodeSegment(ADD(reg1, FP, ImmOperand(struct.offset)))
-              .extend(Macros.getNestedStructMemberAddress())
+            CodeSegment(ADD(reg1, FP, ImmOperand(struct.offset))) //Load in reg1 stack location of the struct address
+              .extend(Macros.getNestedStructMemberAddress(membersOffset, reg1 +: reg2 +: regs)) // Load in reg1 struct address (pointing to the heap)
               .extend(load)
           }
         }
