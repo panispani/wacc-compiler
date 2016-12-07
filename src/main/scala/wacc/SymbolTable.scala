@@ -8,7 +8,7 @@ trait Reference extends Typed {
   val name: String
   val offset: Int
 }
-case class VariableReference(name: String, vartype: Type, offset: Int) extends Reference with Expression
+case class VariableReference(name: String, varType: Type, offset: Int) extends Reference with Expression
 case class FunctionReference(name: String, returnType: Type, argumentTypes : Seq[Type])
 
 case class SymbolTable(parent: Option[SymbolTable], var currentOffset: Int = 0) {
@@ -22,15 +22,15 @@ case class SymbolTable(parent: Option[SymbolTable], var currentOffset: Int = 0) 
   // The offset to argument 0 is 8 and the rest depend on the argument sizes
   // We could treat all types as 4 bytes and simplify this (it will also let us do PUSH of multiple
   // registers which simplifies the code even more)
-  def addFunctionArgument(name: String, vartype: Type): Unit = {
-    map += name -> VariableReference(name, vartype, currentOffset)
-    currentOffset += vartype.size
+  def addFunctionArgument(name: String, varType: Type): Unit = {
+    map += name -> VariableReference(name, varType, currentOffset)
+    currentOffset += varType.size
   }
 
   // The offset here is relative to the frame pointer and is negative
-  def addLocalVariable(identifier: String, vartype: Type): VariableReference = {
-    currentOffset += vartype.size
-    val variableReference = VariableReference(identifier, vartype, -currentOffset)
+  def addLocalVariable(identifier: String, varType: Type): VariableReference = {
+    currentOffset += varType.size
+    val variableReference = VariableReference(identifier, varType, -currentOffset)
     map += identifier -> variableReference
     variableReference
   }
@@ -80,7 +80,7 @@ case class SymbolTable(parent: Option[SymbolTable], var currentOffset: Int = 0) 
   private def lookupWithOffsetAccumulator(identifier: String, offset: Int): Option[VariableReference]
   = lookup(identifier) match {
     // Base case does the offset computation
-    case Some(ref) => Some(VariableReference(identifier, ref.vartype,  ref.offset + currentOffset + 4 + offset))
+    case Some(ref) => Some(VariableReference(identifier, ref.varType,  ref.offset + currentOffset + 4 + offset))
     // Recursive case just accumulates the offset (parent frame pointer and parent size)
     case None => parent flatMap (
       parent => parent.lookupWithOffsetAccumulator(identifier, currentOffset + 4 + offset))
@@ -98,10 +98,13 @@ object SymbolTable {
   val globalTable: SymbolTable = SymbolTable(None)
   private var currentTable: SymbolTable = globalTable
   val functionsTable: mutable.Map[String, FunctionTable] = mutable.Map()
+  //Todo: Not sure mapping to Struct is the correct thing
+  val structsTable: mutable.Map[String, Struct] = mutable.Map()
 
   def clearAll() = {
     globalTable.clear()
     functionsTable.clear()
+    structsTable.clear()
     currentTable = globalTable
   }
 
@@ -142,6 +145,10 @@ object SymbolTable {
     val function = functionsTable(identifier)
     currentTable = function.symbolTable
     function.symbolTable.map.values.toList
+  }
+
+  def declareStruct(struct: Struct): Unit = {
+    structsTable += struct.identifier -> struct
   }
 
   def completeFunctionDefinition(): SymbolTable = {

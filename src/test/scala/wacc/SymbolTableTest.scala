@@ -20,22 +20,22 @@ class SymbolTableTest extends FlatSpec
   }
 
   "Injecting a reference" should "return the reference with the same name if it existed" in {
-    SymbolTable().lookup("a").get.vartype should be (Integer)
+    SymbolTable().lookup("a").get.varType should be (Integer)
     SymbolTable().lookup("a").get.offset should be (-13)
 
     val oldRef = SymbolTable().injectReference(VariableReference("a", Boolean, 10))
 
-    SymbolTable().lookup("a").get.vartype should be (Boolean)
+    SymbolTable().lookup("a").get.varType should be (Boolean)
     SymbolTable().lookup("a").get.offset should be (10)
 
-    oldRef.get.vartype should be (Integer)
+    oldRef.get.varType should be (Integer)
     oldRef.get.offset should be (-13)
   }
 
   it should "return None if it is a new reference" in {
     val oldRef = SymbolTable().injectReference(VariableReference("b", Boolean, 10))
 
-    SymbolTable().lookup("b").get.vartype should be (Boolean)
+    SymbolTable().lookup("b").get.varType should be (Boolean)
     SymbolTable().lookup("b").get.offset should be (10)
 
     oldRef should be (None)
@@ -66,10 +66,10 @@ class SymbolTableTest extends FlatSpec
 
   it should "preserve the type and identifier of the looked up variable" in {
     SymbolTable().lookupDeep("x").get.name should be ("x")
-    SymbolTable().lookupDeep("x").get.vartype should be (Integer)
+    SymbolTable().lookupDeep("x").get.varType should be (Integer)
 
     SymbolTable().lookupDeep("y").get.name should be ("y")
-    SymbolTable().lookupDeep("y").get.vartype should be (Boolean)
+    SymbolTable().lookupDeep("y").get.varType should be (Boolean)
   }
 
   "A deeper lookup" should "have the correct offset" in {

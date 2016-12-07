@@ -26,6 +26,9 @@ case class ArrayType(elemtype: Type) extends Type {
 case class PairType(firstType: Type, secondType: Type) extends Type {
   override val size: Int = 4
 }
+case class StructType(identifier: String, members: Seq[(String, Type)]) extends Type {
+  override val size: Int = 4
+}
 
 object String extends ArrayType(Character)
 object Integer extends PrimitiveType("int", 4)

@@ -3,7 +3,7 @@ package wacc.visitors
 import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
 import wacc.constructs._
-import wacc.{FunctionReference, SymbolTable, VariableReference}
+import wacc.{SymbolTable, VariableReference}
 
 import scala.collection.JavaConversions._
 import scala.util.Either
@@ -48,18 +48,18 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
 
     expr.flatMap(
       expr => operator match {
-        case MinusOp | ChrOp if expr.vartype != Integer =>
+        case MinusOp | ChrOp if expr.varType != Integer =>
           Left(SemanticError(ctx.unaryOperator.getText + " operator needs integers", ctx.start))
 
-        case LenOp => expr.vartype match {
+        case LenOp => expr.varType match {
           case ArrayType(_) => Right(UnaryOperatorExpr(operator, expr))
           case _            => Left(SemanticError("'len' operator needs an array", ctx.start))
         }
 
-        case OrdOp if expr.vartype != Character =>
+        case OrdOp if expr.varType != Character =>
           Left(SemanticError("'ord' operator needs character", ctx.start))
 
-        case NotOp if expr.vartype != Boolean =>
+        case NotOp if expr.varType != Boolean =>
           Left(SemanticError("'!' operator needs Boolean", ctx.start))
 
         case default =>
@@ -80,25 +80,26 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
       case Left(error)                                    => Left(error)
       case Right((expr1: Expression, expr2: Expression))  => operator match {
 
+
         case PlusBinOp
-        if (expr1.vartype != Integer || expr2.vartype != Integer)
-        && (expr1.vartype != String  || expr2.vartype != String) =>
+        if (expr1.varType != Integer || expr2.varType != Integer)
+        && (expr1.varType != String  || expr2.varType != String) =>
           Left(SemanticError(operator.binaryOperator + " operator needs 2 integers/strings as its arguments", ctx.start))
 
         case TimesBinOp | DivBinOp | ModBinOp | MinusBinOp
-        if expr1.vartype != Integer || expr2.vartype != Integer =>
+        if expr1.varType != Integer || expr2.varType != Integer =>
           Left(SemanticError(operator.binaryOperator + " operator needs 2 integers as its arguments", ctx.start))
 
         case GtBinOp | GteBinOp | LtBinOp | LteBinOp
-        if expr1.vartype != expr2.vartype || (expr1.vartype != Integer && expr1.vartype != Character) =>
+        if expr1.varType != expr2.varType || (expr1.varType != Integer && expr1.varType != Character) =>
           Left(SemanticError(operator.binaryOperator + " operator needs 2 integers/characters as its arguments", ctx.start))
 
         case EqualsBinOp | NequalsBinOp
-        if !compatibleTypes(expr1.vartype, expr2.vartype) =>
+        if !compatibleTypes(expr1.varType, expr2.varType) =>
           Left(SemanticError(operator.binaryOperator + " operator needs 2 arguments of a compatible type", ctx.start))
 
         case AndBinOp | OrBinOp
-        if expr1.vartype != Boolean || expr2.vartype != Boolean =>
+        if expr1.varType != Boolean || expr2.varType != Boolean =>
           Left(SemanticError(operator.binaryOperator + " operator needs 2 booleans as its arguments", ctx.start))
 
         case default =>
@@ -127,6 +128,20 @@ object ExpressionVisitor extends WACCParserBaseVisitor[Either[CompilationError, 
       case _ => Left(SemanticError("Identifier is not an array reference", ctx.start))
     }
   }
+
+  override def visitStructMember(ctx: StructMemberContext): Either[CompilationError, StructMember] = {
+    val structIdentifier = ctx.IDENT(0).getText
+    val membersIdentifier = ctx.IDENT().tail.toList.map(x => x.getText)
+
+    SymbolTable().lookupDeep(structIdentifier) match {
+      case Some(ref @ VariableReference(x, varType: StructType, offset)) => {
+        Right(StructMember(ref, membersIdentifier))
+      }
+      case None    => Left(SemanticError("Variable not declared", ctx.start))
+      case _ => Left(SemanticError("Identifier is not a struct reference", ctx.start))
+    }
+  }
+
 }
 
 

@@ -3,7 +3,7 @@ package wacc.constructs
 import wacc.{SymbolTable, VariableReference}
 
 case class Function(identifier: String, typed_name: String, params: Seq[VariableReference],
-                    vartype: Type, statements: Seq[Statement],
+                    varType: Type, statements: Seq[Statement],
                     symbolTable: SymbolTable) {
 }
 

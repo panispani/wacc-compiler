@@ -1,14 +1,15 @@
 package wacc.visitors
 
-import antlr.WACCParser.{FunctionContext, ProgramContext}
+import antlr.WACCParser.{FunctionContext, ProgramContext, StructContext}
 import antlr.WACCParserBaseVisitor
 import wacc.constructs._
-import wacc.{FunctionReference, SymbolTable, VariableReference}
+import wacc.{FunctionReference, SymbolTable}
 
 import scala.collection.JavaConversions._
 
 object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError], Program]] {
 
+  //Todo: Join (or at least separate better and remove duplication) with FunctionVisitor
   private def defineFunction(ctx: FunctionContext): Option[SemanticError] = {
     val name = ctx.IDENT().getText
     val returnType = ctx.`type`().accept(TypeVisitor)
@@ -53,9 +54,10 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
     })
 
     for {
+      structs <- sequenceOrAll(ctx.struct().toList map (e => e.accept(StructVisitor))).right
       functions <- sequenceOrAll(ctx.function().toList map (e => e.accept(FunctionVisitor))).right
       statements <- sequenceOrAll(ctx.sequence().statement().toList map (
         _.accept(StatementVisitor).right.flatMap(semanticErrorIfReturn))).right
-    } yield Program(functions, ScopeStatement(statements, SymbolTable.globalTable))
+    } yield Program(structs, functions, ScopeStatement(statements, SymbolTable.globalTable))
   }
 }
