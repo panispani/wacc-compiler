@@ -1,6 +1,5 @@
 package wacc.codegeneration
 
-import wacc.SymbolTable
 import wacc.arm.{R4, R5, R6}
 import wacc.constructs.SkipStatement
 

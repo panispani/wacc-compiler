@@ -85,60 +85,44 @@ object StatementVisitor extends WACCParserBaseVisitor[Either[CompilationError, S
     constructLoopStatement(ctx.expression(), ctx.sequence())
   }
 
-  override def visitDoWhile(ctx: DoWhileContext): Either[CompilationError, Statement] = {
+  override def visitDoWhile(ctx: DoWhileContext): Either[CompilationError, LoopStatement] = {
     constructLoopStatement(ctx.expression(), ctx.sequence(), doWhile = true)
   }
 
   override def visitFor(ctx: ForContext): Either[CompilationError, Statement] = {
-    val sequence = ctx.init +: ctx.body.statement().toList
-    SymbolTable.openScope()
-    val statements = sequenceOrLast(sequence.map(_.accept(StatementVisitor)))
-    val loopScope = statements.right.map(ScopeStatement(_, SymbolTable()))
-    val loopTable = SymbolTable()
-    SymbolTable.closeScope()
 
-    /** cond and step are translated out of the loop scope but should have
-      * access to the variable reference from init which is declared in the
-      * child scope
-      * */
-    loopScope.right.flatMap(loop => loop.statements.head match {
-      case init @ DeclareStatement(_, ref, _) =>
-        // inject init in parent scope temporarily
-        val oldRef = SymbolTable().injectReference(ref)
-        for {
-          cond <- ctx.cond.accept(ExpressionVisitor).right
-          step <- ctx.step.accept(StatementVisitor).right
-          // restore original reference or remove injected
-          _    <- Right(oldRef match {
-            case Some(old) => SymbolTable().injectReference(old)
-            case None => SymbolTable().removeReference(ref.name)
-          }).right
-        } yield ForLoopStatement(init, cond, step, loop.statements.tail, loopTable)
+    def syntaxErrorIfNotDeclaration(statement: Statement) : Either[SyntaxError, DeclareStatement] = statement match {
+      case init : DeclareStatement => Right(init)
       case _ => Left(SyntaxError("First statement of for loop must be a declaration", ctx.start))
-    })
-  }
-
-  private def constructLoopStatement(expressionContext: ExpressionContext, sequenceContext: SequenceContext, doWhile: Boolean = false): Either[CompilationError, LoopStatement] with Product with Serializable = {
-    SymbolTable.openScope()
-    val pair = for {
-      expression <- expressionContext.accept(ExpressionVisitor).right
-      statements <- sequenceOrLast(sequenceContext.statement().toList map (s => s.accept(StatementVisitor))).right
-    } yield (expression, statements)
-
-    val loop = pair match {
-      case Left(error) => Left(error)
-      case Right((expression, statements)) => expression.vartype match {
-        case Boolean => Right(LoopStatement(expression, statements, SymbolTable(), doWhile))
-        case default => Left(SemanticError(
-          "Loop statement " + SemanticErrors.typeError("expression", expression.vartype, Boolean),
-          expressionContext.start))
-      }
     }
 
-    SymbolTable.closeScope()
-    loop
+    SymbolTable.openScope()
+    for {
+      init <- ctx.init.accept(StatementVisitor).right.flatMap(syntaxErrorIfNotDeclaration).right
+      cond <- ctx.cond.accept(ExpressionVisitor).right
+      step <- ctx.step.accept(StatementVisitor).right
+      body <- ctx.body.accept(SequenceVisitor).right
+    } yield ForLoopStatement(init, cond, step, body, SymbolTable.closeScope())
+    // The symbol table is for the whole statement, not just the body
   }
 
+  private def constructLoopStatement(expressionContext: ExpressionContext,
+                                     sequenceContext: SequenceContext,
+                                     doWhile: Boolean = false): Either[CompilationError, LoopStatement] = {
+
+    def semanticErrorIfNotBoolean(expression: Expression): Either[SemanticError, Expression] = expression.vartype match {
+      case Boolean => Right(expression)
+      case _ => Left(SemanticError(
+        "Loop statement " + SemanticErrors.typeError("expression", expression.vartype, Boolean),
+        expressionContext.start))
+    }
+
+    SymbolTable.openScope()
+    for {
+      expression <- expressionContext.accept(ExpressionVisitor).right.flatMap(semanticErrorIfNotBoolean).right
+      statements <- sequenceOrLast(sequenceContext.statement().toList map (s => s.accept(StatementVisitor))).right
+    } yield LoopStatement(expression, statements, SymbolTable.closeScope(), doWhile = doWhile)
+  }
 
   override def visitConditional(ctx: ConditionalContext): Either[CompilationError, Statement] = {
     ctx.conditionalStatement.accept(ConditionalVisitor)
