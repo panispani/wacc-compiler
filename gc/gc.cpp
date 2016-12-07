@@ -13,18 +13,9 @@ using namespace std;
  *  traverse heap and delete objects that are unreachable
  */
 
-static VM* vm;
 /************ STATIC FUNCTIONS *****************/
 
-static VM* newVM() {
-          VM* vm = (VM*)malloc(sizeof(VM));
-          vm->heap.clear();
-          vm->garbage_collect = false;
-          vm->heap_max = DEFAULT_HEAP_SIZE;
-// declare and assign
-          vm->stack.clear();
-          return vm;
-}
+static VM* vm;
 
 static void mark(Object* object) {
     // printf("marking: %p\n", object);
@@ -130,15 +121,6 @@ static Object* new_object() {
 
         object->marked = 0;
 
-        /*
-        // append to front of VM object list
-        if (vm->head == NULL) {
-            object->next = NULL;
-        } else {
-            object->next = vm->head;
-        }
-        vm->head = object;
-        */
         vm->heap.push_back(object);
         return object;
 }
@@ -216,17 +198,15 @@ Object* declare_copy(int id1, int id2) {
 }
 */
 
+//might not be used if global - to try TODO
 //called once on startup
 void gc_begin() {
-    vm = newVM();
+    vm = new VM();
 }
 
 // free heap
 void gc_end() {
-    for (auto object: vm->heap) {
-        free(object);
-    }
-    free(vm);
+    delete vm;
 }
 
 /********************* TESTS *************************/
