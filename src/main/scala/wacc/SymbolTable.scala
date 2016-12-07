@@ -147,7 +147,6 @@ object SymbolTable {
     function.symbolTable.map.values.toList
   }
 
-  //TODO: ok?
   def declareStruct(struct: Struct): Unit = {
     structsTable += struct.identifier -> struct
   }
