@@ -25,8 +25,8 @@ class StructVisitorTest extends VisitorTest {
   }
 
   it should "add the struct reference to the symbol table" in {
-    val parser = TestUtilities.setupParser("begin struct car int a; char b; skip end")
-    TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
+    val parser = TestUtilities.setupParser("struct car int a; char b;")
+    val result = TestUtilities.buildSubProgram(parser.struct, StructVisitor)
 
     SymbolTable.structsTable.get("car") should be (defined)
   }
