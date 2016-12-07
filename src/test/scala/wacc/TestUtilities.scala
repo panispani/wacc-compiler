@@ -48,7 +48,7 @@ object TestUtilities {
   }
 
   def functionlessProgram(statements: Seq[Statement]): Program = {
-    Program(Seq(), ScopeStatement(statements, SymbolTable.globalTable))
+    Program(Seq(), Seq(), ScopeStatement(statements, SymbolTable.globalTable))
   }
 
   trait SymbolTableState extends BeforeAndAfterEach { this: Suite =>

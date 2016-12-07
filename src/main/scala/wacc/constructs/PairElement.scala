@@ -3,7 +3,7 @@ package wacc.constructs
 import wacc.arm._
 import wacc.codegeneration._
 
-case class PairElement(selector: Selector, expression: Expression, vartype: Type) extends AssignValue with AssignTarget {
+case class PairElement(selector: Selector, expression: Expression, varType: Type) extends AssignValue with AssignTarget {
 
   def getPairElementPointer(registers: Seq[Register]): CodeSegment = {
     CodeSegment()

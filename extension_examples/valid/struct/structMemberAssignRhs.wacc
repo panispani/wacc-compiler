@@ -1,0 +1,8 @@
+begin
+    struct car
+        int miles;
+        int km;
+    struct car c = {1, 2};
+    int a = c.miles;
+    println a
+end

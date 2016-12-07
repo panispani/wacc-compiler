@@ -4,7 +4,7 @@ import wacc.arm.Register
 import wacc.codegeneration.CodeSegment
 
 trait Typed {
-  val vartype: Type
+  val varType: Type
 }
 
 trait AssignValue extends Typed {

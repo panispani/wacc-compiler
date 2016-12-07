@@ -1,6 +1,6 @@
 package wacc.constructs
 
-import wacc.VariableReference
+import wacc.{SymbolTable, VariableReference}
 import wacc.arm._
 import wacc.codegeneration._
 
@@ -34,11 +34,11 @@ trait Expression extends AssignValue with AssignTarget {
         if (weight(e1) > weight(e2)) {
           e1.transAssignRhs(reg1 +: reg2 +: regs)    // e1 first
             .extend(e2.transAssignRhs(reg2 +: regs))
-            .extend(binOp.translate(e.vartype, reg1, reg2))
+            .extend(binOp.translate(e.varType, reg1, reg2))
         } else {
           e2.transAssignRhs(reg2 +: reg1 +: regs)    // e2 first
             .extend(e1.transAssignRhs(reg1 +: regs))
-            .extend(binOp.translate(e.vartype, reg1, reg2))
+            .extend(binOp.translate(e.varType, reg1, reg2))
         }
 
       case UnaryOperatorExpr(op, e) =>
@@ -52,12 +52,34 @@ trait Expression extends AssignValue with AssignTarget {
           case default             => LDR(reg1, RegisterAddress(reg1, 0))
         }
 
-        CodeSegment(ADD(reg1, FP, ImmOperand(variableReference.offset)))
+        CodeSegment(ADD(reg1, FP, ImmOperand(variableReference.offset)))  //Load in reg1 stack location of the array address
           .extend(Macros.getNestedElementAddress(index, reg1 +: reg2 +: regs, elemType.size))
           .extend(load)
       }
 
-      case VariableReference(name, vartype, offset) => CodeSegment(Macros.load(reg1, offset, vartype))
+      case sm @ StructMember(struct, membersName) => {
+        struct.varType match {
+          case StructType(structId, _) => {
+
+            val membersOffset = sm.membersOffset
+
+            val load = sm.varType match {
+              case Character | Boolean => LDRB(reg1, RegisterAddress(reg1))
+              case default             => LDR(reg1, RegisterAddress(reg1))
+            }
+
+            //TODO: handle memberName not existing
+
+            //TODO: Use Macro to make it work for nested structs
+
+            CodeSegment(ADD(reg1, FP, ImmOperand(struct.offset))) //Load in reg1 stack location of the struct address
+              .extend(Macros.getNestedStructMemberAddress(membersOffset, reg1 +: reg2 +: regs)) // Load in reg1 struct address (pointing to the heap)
+              .extend(load)
+          }
+        }
+      }
+
+      case VariableReference(name, varType, offset) => CodeSegment(Macros.load(reg1, offset, varType))
       case IntegerLiteral(value) => CodeSegment(LDR(reg1, Const(value)))
       case BoolLiteral(value)    => CodeSegment(LDR(reg1, Const(if (value) 1 else 0)))
       case CharLiteral(value)    => CodeSegment(MOV(reg1, CharOperand(value)))
