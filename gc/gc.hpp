@@ -33,39 +33,87 @@ typedef enum {
 // abstract
 class object {
 public:
-    virtual object() = 0; // pure
-    virtual unsigned char marked;
+    //virtual object() = 0; // pure
+    virtual void mark() = 0; // should override
+    virtual bool isMarked() = 0;
+    virtual void setMarked() = 0;
     static object* new_object() {
         // todo - factory
         return nullptr;
     }
 };
 
+/*
+ * WARNING:
+ * duplication is introduced on purpose
+ * This is because of the way we implemented the ARM backend
+ * and the assumptions did there about memory
+ */
+
 class int_object: public object {
 public:
     int value;
-    virtual unsigned char marked;
+    unsigned char marked;
+
+    virtual bool isMarked() {
+        return marked;
+    }
+
+    virtual void setMarked() {
+        marked = 1;
+    };
+
+    virtual void mark() {}
 };
 
 class char_object: public object {
 public:
     char value;
-    virtual unsigned char marked;
+    unsigned char marked;
+
+    virtual bool isMarked() {
+        return marked;
+    }
+
+    virtual void setMarked() {
+        marked = 1;
+    };
+
+    virtual void mark() {}
 };
 
 class pair_object: public object {
 public:
     object* first;
     object *second;
-    virtual unsigned char marked;
+    unsigned char marked;
 
+    virtual bool isMarked() {
+        return marked;
+    }
+
+    virtual void setMarked() {
+        marked = 1;
+    };
+
+    virtual void mark() {}
 };
 
 class array_object: public object {
 public:
     object **array;
     int array_size;
-    virtual unsigned char marked;
+    unsigned char marked;
+
+    virtual bool isMarked() {
+        return marked;
+    }
+
+    virtual void setMarked() {
+        marked = 1;
+    }
+
+    virtual void mark() {}
 };
 
 class string_object: public object {
@@ -73,18 +121,48 @@ public:
     object **string;
     int string_size;
     virtual unsigned char marked;
+
+    virtual bool isMarked() {
+        return marked;
+    }
+
+    virtual void setMarked() {
+        marked = 1;
+    };
+
+    virtual void mark() {}
 };
 
 class struct_object: public object {
 public:
     object **structlist;
-    virtual unsigned char marked;
+    unsigned char marked;
+
+    virtual bool isMarked() {
+        return marked;
+    }
+
+    virtual void setMarked() {
+        marked = 1;
+    };
+
+    virtual void mark() {}
 };
 
 class class_object: public object {
 public:
     object **classlist;
-    virtual unsigned char marked;
+    unsigned char marked;
+
+    virtual bool isMarked() {
+        return marked;
+    }
+
+    virtual void setMarked() {
+        marked = 1;
+    };
+
+    virtual void mark() {}
 };
 
 // may keep also a field of when to trigger a GC

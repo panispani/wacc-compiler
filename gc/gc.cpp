@@ -22,7 +22,7 @@ static void mark(object* obj) {
     if (obj == NULL) {
         return;
     }
-    obj.mark();
+    obj->mark();
 }
     /*
     obj->marked = 1;
