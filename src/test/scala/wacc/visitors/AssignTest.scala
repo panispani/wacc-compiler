@@ -37,23 +37,10 @@ class AssignTest extends VisitorTest {
     val parser = TestUtilities.setupParser("int [] x = [1, 2, 3] ; x [0] = 10")
     val result = TestUtilities.buildSubProgram(parser.sequence, SequenceVisitor)
 
-    result.right.value should be (
-      List(
-        DeclareStatement(
-          ArrayType(Integer),
-          VariableReference("x", ArrayType(Integer), -4),
-          ArrayLiteral(
-            List(
-              IntegerLiteral(1),
-              IntegerLiteral(2),
-              IntegerLiteral(3)
-            )
-          )
-        ),
-        AssignStatement(
-          ArrayElement(VariableReference("x", ArrayType(Integer), -4), List(IntegerLiteral(0)), Integer),
-          IntegerLiteral(10)
-        )
+    result.right.value(1) should be (
+      AssignStatement(
+        ArrayElement(VariableReference("x", ArrayType(Integer), -4), List(IntegerLiteral(0)), Integer),
+        IntegerLiteral(10)
       )
     )
 
@@ -64,25 +51,13 @@ class AssignTest extends VisitorTest {
     val parser = TestUtilities.setupParser("struct car c = {1, 'a'} ; c = {2, 'b'}")
     val result = TestUtilities.buildSubProgram(parser.sequence, SequenceVisitor)
 
-    result.right.value should be (
-      List(
-        DeclareStatement(
-          StructType("car",List(("a", Integer), ("b", Character))),
-          VariableReference("c", StructType("car",List(("a", Integer), ("b", Character))), -4),
-          StructLiteral(
-            List(
-              IntegerLiteral(1),
-              CharLiteral("a")
-            )
-          )
-        ),
-        AssignStatement(
-          VariableReference("c",StructType("car",List(("a", Integer), ("b", Character))),-4),
-          StructLiteral(
-            List(
-              IntegerLiteral(2),
-              CharLiteral("b")
-            )
+    result.right.value(1) should be (
+      AssignStatement(
+        VariableReference("c",StructType("car",List(("a", Integer), ("b", Character))),-4),
+        StructLiteral(
+          List(
+            IntegerLiteral(2),
+            CharLiteral("b")
           )
         )
       )
