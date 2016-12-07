@@ -26,7 +26,7 @@ case class StructMember(vr: VariableReference, membersName: Seq[String]) extends
         case StructType(structId, _) => {
              val s = SymbolTable.structsTable(structId)
               val memberOffset = s.members
-                .takeWhile(m => m.name != membersName.last)
+                .takeWhile(m => m.name != memberName)
                 .map(m => m.varType.size)
                 .sum
               result = result :+ memberOffset
