@@ -9,19 +9,6 @@ import scala.collection.JavaConversions._
 
 object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError], Program]] {
 
-  private def defineStruct(ctx: StructContext): Option[SemanticError] = {
-
-    val name = ctx.IDENT().getText
-
-    // Check for duplicate struct name
-    if (SymbolTable.structsTable contains name)
-      return Some(SemanticError("Attempted redefinition of struct " + name, ctx.start))
-
-    SymbolTable.declareStruct(Struct(name, ctx.structMemberDeclaration().toList map (_.accept(StructMemberDeclarationVisitor))))
-
-    None
-  }
-
   //Todo: Join (or at least separate better and remove duplication) with FunctionVisitor
   private def defineFunction(ctx: FunctionContext): Option[SemanticError] = {
     val name = ctx.IDENT().getText
@@ -56,15 +43,6 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
       case ReturnStatement(_) => Left(SemanticError("Return statement in main program", ctx.start))
       case statement: Statement => Right(statement)
     }
-
-    //define structs
-    ctx.struct() foreach (s => {
-      defineStruct(s) match {
-        case Some(SemanticError(error, symbol)) =>
-          return Left(Seq(SemanticError(error, symbol)))
-        case None =>
-      }
-    })
 
     //define functions
     ctx.function() foreach (f => {
