@@ -190,19 +190,21 @@ static void test_pair_copy_gc() {
     pushVM(&o1, o1); // o1 = newpair
     pushVM(&o2, o2); // o2 = newpair
     pushVM(&o2, o1); // o2 = o1
-
-    // Should collect o1
-    run_gc();
+    // o1 should be garbage collected
 }
-/*
+
+
 static void test_array_copy_gc() {
-    new_array_literal(0, 15);
-    new_array_literal(1, 129);
-    _copy(0, 1);
+    uint8_t* o1 = new_array_literal(3, INT);
+    uint8_t* o2 = new_array_literal(3, INT);
+    pushVM(&o1, o1); // o1 = [1, 2, 3]
+    pushVM(&o2, o2); // o2 = [4, 5, 6]
+    pushVM(&o2, o1); // o2 = o1
     run_gc();
+    // o1 should be garbage collected
 }
 
-
+/*
 static void test_complex1_gc() {
     new_pair_constructor(0, -1, -1);
     new_pair_constructor(1, -1, -1);
@@ -230,7 +232,7 @@ static void test_complex2_gc() {
 /************ MAIN *****************/
 int main() {
     gc_begin();
-    test_pair_copy_gc();
+    test_array_copy_gc();
     gc_end();
     return 0;
 }
