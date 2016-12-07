@@ -145,15 +145,6 @@ static Object* new_object() {
 
 /************ PUBLIC FUNCTIONS *****************/
 
-/*** PAIR ***/
-Object* new_pair_constructor() {
-    Object* object = new_object();
-    object->type = PAIR;
-    object->fields.first = new_object();
-    object->fields.second = new_object();
-    return object;
-}
-
 // call on declaration and assignment
 void pushVM(void* stackaddress, Object* object) {
     auto addr = reinterpret_cast<std::uintptr_t>(stackaddress);
@@ -164,16 +155,25 @@ void pushVM(void* stackaddress, Object* object) {
     }
 }
 
+/*** PAIR ***/
+Object* new_pair_constructor() {
+    Object* object = new_object();
+    object->type = PAIR;
+    object->fields.first = new_object();
+    object->fields.second = new_object();
+    return object;
+}
+
 
 /*** ARRAY ***/
 // NOTE: dont refactor with string yet
-Object* new_array_literal(int id, int size) {
+Object* new_array_literal(int array_size) {
         Object* object = new_object();
         object->type = ARRAY;
         // think of using calloc
-        object->fields.array = (Object**)malloc(size * sizeof(Object*));
-        memset(object->fields.array, 0, size);
-        object->fields.array_size = size;
+        object->fields.array = (Object**)malloc(array_size * sizeof(Object*));
+        //memset(object->fields.array, 0, size);
+        object->fields.array_size = array_size;
         //pushVM(object, id);
         return object;
 }
