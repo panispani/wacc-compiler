@@ -4,5 +4,7 @@ begin
     struct car
         int a;
         struct engine e;
-    skip
+    struct engine e = {5};
+    struct car c = {1, e};
+    println c.e.b
 end
