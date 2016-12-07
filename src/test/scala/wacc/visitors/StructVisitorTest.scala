@@ -15,13 +15,13 @@ class StructVisitorTest extends VisitorTest {
 
   "Visiting a struct" should "create struct construct with the correct symbol table" in {
     // Needs to be parsed with program because we declare all functions before parsing the bodies
-    val parser = TestUtilities.setupParser("begin struct car int a; char b; skip end")
-    val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
+    val parser = TestUtilities.setupParser("struct car int a; char b;")
+    val result = TestUtilities.buildSubProgram(parser.struct, StructVisitor)
 
-    val struct = result.right.value.structs.head
+    val struct = result.right.get
     struct.identifier shouldBe "car"
     struct.members.head shouldBe VariableReference("a", Integer, 0)
-    struct.members(1) shouldBe VariableReference("b", Character, 0)
+    struct.members(1) shouldBe VariableReference("b", Character, 4)
   }
 
   it should "add the struct reference to the symbol table" in {
