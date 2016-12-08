@@ -1,0 +1,15 @@
+begin
+    struct rect
+        int width;
+        int height;
+
+        int area(struct rect self) is
+            return self.width * self.height
+        end
+
+        struct rect flip(struct rect self) is
+            struct rect flipped = { height, width };
+            return flipped
+        end
+    skip
+end

@@ -1,15 +1,15 @@
 package wacc.visitors
 
-import antlr.WACCParser.StructContext
+import antlr.WACCParser.{FunctionContext, StructContext}
 import antlr.WACCParserBaseVisitor
 import wacc.{SymbolTable, VariableReference}
 import wacc.constructs.{CompilationError, SemanticError, Struct}
 
 import scala.collection.JavaConversions._
 
-object StructVisitor extends WACCParserBaseVisitor[Either[CompilationError, Struct]] {
+object StructVisitor extends WACCParserBaseVisitor[Either[CompilationError, (Struct, Seq[FunctionContext])]] {
 
-  override def visitStruct(ctx: StructContext): Either[CompilationError, Struct] = {
+  override def visitStruct(ctx: StructContext): Either[CompilationError, (Struct, Seq[FunctionContext])] = {
     val name = ctx.IDENT().getText
 
     // Check for duplicate struct name
@@ -33,11 +33,18 @@ object StructVisitor extends WACCParserBaseVisitor[Either[CompilationError, Stru
       return Left (SemanticError("Duplicate members name in struct " + name, ctx.start))
     }
 
-    ctx.function().toList map (_.accept(FunctionVisitor))
+    /** TODO: add checks for first argument being of the instance type if needed
+      * otherwise any method will be allowed (could be treated as a static method)
+      */
+
+    /** Note that it is ok for methods to be declared in the main function table because
+      * because the full function identifier will contain the class type when it is the
+      * first argument. For static methods there could be a clash when two classes define
+      * a static method of the same name and same arguments. IMO this should be handled by
+      * the package/imports system and not by class definition rules.*/
 
     val struct = Struct(ctx.IDENT().getText, members)
     SymbolTable.declareStruct(struct)
-
-    Right(struct)
+    Right((struct, ctx.function().toList))
   }
 }
