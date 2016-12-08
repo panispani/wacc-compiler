@@ -8,8 +8,8 @@ case class StructMember(vr: VariableReference, membersName: Seq[String]) extends
     var currentStruct = vr
     for (memberName <- membersName) {
       currentStruct.varType match {
-        case StructType(structId, _) => {
-          currentStruct = SymbolTable.structsTable(structId).members.find(vr => vr.name == memberName).get
+        case StructType(structId, members, _) => {
+          currentStruct = members.find(vr => vr.name == memberName).get
         }
       }
     }
@@ -23,8 +23,7 @@ case class StructMember(vr: VariableReference, membersName: Seq[String]) extends
 
     for (memberName <- membersName) {
       currentVr.varType match {
-        case StructType(structId, _) => {
-             val s = SymbolTable.structsTable(structId)
+        case s @StructType(structId, _, _) => {
               val memberOffset = s.members
                 .takeWhile(m => m.name != memberName)
                 .map(m => m.varType.size)

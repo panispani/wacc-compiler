@@ -2,14 +2,14 @@ package wacc.visitors
 
 import antlr.WACCParser.{FunctionContext, StructContext}
 import antlr.WACCParserBaseVisitor
+import wacc.constructs.{CompilationError, SemanticError, StructType}
 import wacc.{SymbolTable, VariableReference}
-import wacc.constructs.{CompilationError, SemanticError, Struct}
 
 import scala.collection.JavaConversions._
 
-object StructVisitor extends WACCParserBaseVisitor[Either[CompilationError, (Struct, Seq[FunctionContext])]] {
+object StructVisitor extends WACCParserBaseVisitor[Either[CompilationError, (StructType, Seq[FunctionContext])]] {
 
-  override def visitStruct(ctx: StructContext): Either[CompilationError, (Struct, Seq[FunctionContext])] = {
+  override def visitStruct(ctx: StructContext): Either[CompilationError, (StructType, Seq[FunctionContext])] = {
     val name = ctx.name.getText
 
     // Check for duplicate struct name
@@ -48,7 +48,7 @@ object StructVisitor extends WACCParserBaseVisitor[Either[CompilationError, (Str
       * a static method of the same name and same arguments. IMO this should be handled by
       * the package/imports system and not by class definition rules.*/
 
-    val struct = Struct(name, parentName, inheritedMembers ++ members)
+    val struct = StructType(name, inheritedMembers ++ members, parentName)
     SymbolTable.declareStruct(struct)
     Right((struct, ctx.function().toList))
   }
