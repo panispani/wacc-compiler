@@ -203,19 +203,18 @@ case class ConditionalRecursiveStatement(expression: Expression, trueStatements:
 // Identifier is a new reference here so it will always have the correct offset at parse-time
 // Otherwise we would need to have it as a String and do additional lookup during code generation
 case class DeclareStatement(vartype: Type, newReference: VariableReference, value: AssignValue) extends ConditionalStatement {
-
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     CodeSegment()
       .extend(value.transAssignRhs(registers))
       .extend(Macros.store(newReference, registers))
       .extend(SUB(SP, SP, ImmOperand(vartype.size)))
       .extend(vartype match {
-        case pt: PairType => CodeSegment(
+        case PairType(_, _) | ArrayType(_) => CodeSegment(
           ADD(R0, FP, ImmOperand(newReference.offset)),
           MOV(R1, registers.head),
           BL(Label("pushVM"))
         )
-        //TODO Extend for arrays and other things which matter
+        case default => CodeSegment()
       })
   }
 }
