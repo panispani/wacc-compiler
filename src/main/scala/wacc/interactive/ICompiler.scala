@@ -1,15 +1,15 @@
 package wacc.interactive
 
-import java.io.ByteArrayInputStream
-import sys.process._
-import java.io._
-
+import java.io.{ByteArrayInputStream, _}
+import scala.language.postfixOps
 import antlr.{WACCLexer, WACCParser}
-import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream, ConsoleErrorListener}
+import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream}
 import wacc.arm.Registers
 import wacc.codegeneration.{CodeSegment, TransFunctions, TransStatements}
 import wacc.constructs.{CompilationError, Function, SemanticError, Statement, SyntaxError}
 import wacc.visitors.{FunctionVisitor, ProgramVisitor, StatementVisitor}
+
+import scala.sys.process._
 
 object ICompiler extends App {
 

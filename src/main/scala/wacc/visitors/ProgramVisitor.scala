@@ -3,15 +3,13 @@ package wacc.visitors
 import antlr.WACCParser.{FunctionContext, ProgramContext}
 import antlr.WACCParserBaseVisitor
 import wacc.constructs._
-import wacc.{FunctionReference, SymbolTable, VariableReference}
+import wacc.{FunctionReference, SymbolTable}
 
 import scala.collection.JavaConversions._
 
 object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError], Program]] {
 
-  private def defineFunction(ctx: FunctionContext): Option[SemanticError] = {
   def defineFunction(ctx: FunctionContext): Option[SemanticError] = {
-
     val name = ctx.IDENT().getText
     val returnType = ctx.`type`().accept(TypeVisitor)
     val (parameterNames, parameterTypes) = FunctionVisitor.getParameters(ctx)
