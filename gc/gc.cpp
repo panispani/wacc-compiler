@@ -33,7 +33,7 @@ VM *vm;
 
 static void mark(unsigned long long int heapaddress) {
     object* obj = vm->heap[heapaddress];
-    if (obj == NULL) {
+    if (obj == nullptr) {
         return;
     }
     obj->mark();
@@ -327,31 +327,6 @@ static void test_pair_array_reassignment() {
     cout << "PAIR ARRAY RE-ASSIGNMENT: " << (test_passed ? "PASSED" : "FAILED") << endl;
     gc_end();
 }
-
-/*
-static void test_complex1_gc() {
-    new_pair_constructor(0, -1, -1);
-    new_pair_constructor(1, -1, -1);
-    new_array_literal(2, 15);
-    new_array_literal(3, 129);
-    _copy(4, 0);
-    _copy(1, 0);
-    run_gc();
-}
-
-*
- * 4 objs created, id(0) and id(1) point to the same obj
- * 3 objs should be collected, all but the third created
- *
-static void test_complex2_gc() {
-    new_array_literal(0, 2);
-    new_array_literal(1, 2938);
-    new_array_literal(0, 10);
-    new_array_literal(1, 20);
-    _copy(1, 0);
-    run_gc();
-}
-*/
 
 /************ MAIN *****************/
 int main() {
