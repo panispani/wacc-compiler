@@ -24,7 +24,7 @@ public:
     bool marked;
     uint8_t *bytes;
 
-public:
+    virtual ~object() {};
     virtual void mark() = 0;
     virtual string getType() = 0;
     static object* new_obj(int type);
@@ -64,7 +64,10 @@ public:
     object_type firstType;
     object_type secondType;
 
-public:
+    ~pair_object() {
+        delete first;
+        delete second;
+    }
     virtual void mark();
     string getType() { return "pair"; }
 };

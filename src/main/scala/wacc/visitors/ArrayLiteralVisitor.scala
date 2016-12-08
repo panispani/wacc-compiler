@@ -8,7 +8,7 @@ import scala.collection.JavaConversions._
 
 object ArrayLiteralVisitor extends WACCParserBaseVisitor[Either[CompilationError, ArrayLiteral]] {
   def sameType(types: Seq[Expression]): Boolean = {
-    if (types.nonEmpty) types.forall(_.vartype == types.head.vartype) else true
+    if (types.nonEmpty) types.forall(_.varType == types.head.varType) else true
   }
 
   override def visitArrayLiteral(ctx: ArrayLiteralContext): Either[CompilationError, ArrayLiteral] = {

@@ -1,35 +1,48 @@
 package wacc.visitors
 
-import antlr.WACCParser.{FunctionContext, ParameterContext}
+import antlr.WACCParser.FunctionContext
 import antlr.WACCParserBaseVisitor
 import wacc.constructs._
-import wacc.{FunctionReference, SymbolTable, VariableReference}
+import wacc.util.SemanticErrors
+import wacc.{FunctionReference, SymbolTable}
 
 import scala.collection.JavaConversions._
 
 object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Function]] {
 
-  def getParameters(ctx: FunctionContext): (Seq[String], Seq[Type]) = {
-    // Parameters could be null so convert to empty sequence in that case
-    val params = Option(ctx.parameterList()) match {
-      case None => Seq()
-      case Some(ls) => ls.parameter().toList
-    }
-    val parameterNames = params.map(_.IDENT().getText)
-    val argumentTypes = params.map(_.`type`().accept(TypeVisitor))
+  def defineFunction(ctx: FunctionContext): Either[SemanticError, FunctionContext] = {
+    val name = ctx.IDENT().getText
+    val returnType = ctx.`type`().accept(TypeVisitor)
+    val (parameterNames, parameterTypes) = FunctionVisitor.getParameters(ctx)
+    val identifier = Function.fullName(name, parameterTypes)
 
-    (parameterNames, argumentTypes)
+    // Check for duplicate function name
+    if (SymbolTable.functionsTable contains identifier)
+      return Left(SemanticError(
+        "Attempted redefinition of function " +
+          SemanticErrors.functionSignatureToString(name, parameterTypes), ctx.start))
+
+    // Validate parameters
+    if (parameterNames.distinct.size != parameterNames.size)
+      return Left(SemanticError("A function shouldn't have two or more parameters with the same name", ctx.start))
+
+    // The function signature is as follows
+    SymbolTable.declareFunction(FunctionReference(identifier, returnType, parameterTypes))
+    (parameterNames, parameterTypes).zipped map SymbolTable().addFunctionArgument
+    SymbolTable.completeFunctionDeclaration()
+
+    Right(ctx)
   }
 
   override def visitFunction(ctx: FunctionContext): Either[CompilationError, Function] = {
     val name = ctx.IDENT().getText
     val returnType = ctx.`type`().accept(TypeVisitor)
-    val typed_name = Function.appendFunctionTypes(name, getParameters(ctx)._2)
-    val arguments = SymbolTable.defineFunction(typed_name)
+    val identifier = Function.fullName(name, getParameters(ctx)._2)
+    val arguments = SymbolTable.defineFunction(identifier)
 
     val matchReturnType: PartialFunction[Statement, Either[SemanticError, Statement]] = {
       case s @ ReturnStatement(expression) =>
-        if (compatibleTypes(expression.vartype, returnType)) Right(s)
+        if (compatibleTypes(expression.varType, returnType)) Right(s)
         else Left(SemanticError("The actual return type of a function should match the declared one", ctx.start))
       case s @ ExitStatement(_) => Right(s)
     }
@@ -45,8 +58,21 @@ object FunctionVisitor extends WACCParserBaseVisitor[Either[CompilationError, Fu
     for {
       statements <- sequenceOrLast(ctx.sequence.statement.toList map (_.accept(StatementVisitor))).right
       lastStatement <- validateFunctionReturn(statements.last).right
-    } yield Function(name, typed_name, arguments, returnType, statements, SymbolTable.completeFunctionDefinition())
+    } yield Function(name, arguments, returnType, statements, SymbolTable.completeFunctionDefinition())
 
+  }
+
+  private def getParameters(ctx: FunctionContext): (Seq[String], Seq[Type]) = {
+    // Parameters could be null so convert to empty sequence in that case
+    val params = Option(ctx.parameterList()) match {
+      case None => Seq()
+      case Some(ls) => ls.parameter().toList
+    }
+
+    val names = params.map(_.IDENT().getText)
+    val types = params.map(_.`type`().accept(TypeVisitor))
+
+    (names, types)
   }
 
   private def mapLastStatements(lastStatement: Statement, f: Statement => Either[CompilationError, Statement])

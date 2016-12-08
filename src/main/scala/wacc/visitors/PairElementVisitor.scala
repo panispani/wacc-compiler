@@ -7,7 +7,7 @@ import wacc.util.SemanticErrors
 
 object PairElementVisitor extends WACCParserBaseVisitor[Either[CompilationError, PairElement]] {
   override def visitPairElement(ctx: PairElementContext): Either[CompilationError, PairElement] = {
-    ctx.expression().accept(ExpressionVisitor).right flatMap (e => e.vartype match {
+    ctx.expression().accept(ExpressionVisitor).right flatMap (e => e.varType match {
       case PairType(type1, type2)       =>
         val selector = Selector(ctx.selector.getText)
         val pairElementType = selector match {
@@ -17,7 +17,7 @@ object PairElementVisitor extends WACCParserBaseVisitor[Either[CompilationError,
         Right(PairElement(selector, e, pairElementType))
 
       case default => Left(SemanticError(
-        "Pair element " + SemanticErrors.typeError("expression", e.vartype.toString, PairType.toString()),
+        "Pair element " + SemanticErrors.typeError("expression", e.varType.toString, PairType.toString()),
         ctx.start))
     })
   }

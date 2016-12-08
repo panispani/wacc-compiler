@@ -24,8 +24,8 @@ case class PairType(firstType: Type, secondType: Type) extends Type {
   override val size: Int = 4
   override val enumId: Int = 4
 
-  override def toString(): String = s"pair($firstType, $secondType)"
-  override def toAssemblyLabel(): String = s"pair_${firstType}_${secondType}"
+  override def toString: String = s"pair($firstType, $secondType)"
+  override def toAssemblyLabel: String = s"pair_${firstType}_$secondType"
 }
 
 case class ArrayType(elemtype: Type) extends Type {
@@ -40,7 +40,11 @@ case class ArrayType(elemtype: Type) extends Type {
     }
   }
 
-  override def toString(): String = s"array($elemtype)"
-  override def toAssemblyLabel(): String = s"array_$elemtype"
+  override def toString: String = s"array($elemtype)"
+  override def toAssemblyLabel: String = s"array_$elemtype"
 }
 
+case class StructType(identifier: String, members: Seq[(String, Type)]) extends Type {
+  override val size: Int = 4
+  override val enumId: Int = 7
+}
