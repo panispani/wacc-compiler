@@ -2,10 +2,13 @@ parser grammar WACCParser;
 options { tokenVocab=WACCLexer; }
 
 // Top-level rule
-program : BEGIN function* sequence END EOF;
+program : BEGIN struct* function* sequence END EOF;
 
-struct : STRUCT IDENT (structMember SEMICOLON)* ;
-structMember : type IDENT ;
+struct : STRUCT IDENT (structMemberDeclaration SEMICOLON)+ ;
+structMemberDeclaration: type IDENT ;
+structType : STRUCT IDENT ;
+structLiteral : LC (expression (COMMA expression)*)? RC ;
+structMember : IDENT (DOT IDENT)+ ;
 
 function : type IDENT LP parameterList? RP IS sequence END ;
 parameterList : parameter (COMMA parameter)* ;
@@ -45,6 +48,7 @@ loopStatement : WHILE expression DO sequence DONE                               
 assignLhs : variableReference # AssignLhsIdent
           | arrayElement      # AssignLhsArrayElement
           | pairElement       # AssignLhsPairElement
+          | structMember      # AssignLhsStructMember
           ;
 
 assignRhs : expression      # AssignRhsExpression
@@ -52,11 +56,14 @@ assignRhs : expression      # AssignRhsExpression
           | pairConstructor # AssignRhsPairConstructor
           | pairElement     # AssignRhsPairElement
           | functionCall    # AssignRhsFunctionCall
+          | structLiteral   # AssignRhsStructLiteral
+          | structMember    # AssignRhsStructMember
           ;
 
 type : primitiveType
      | arrayType
      | pairType
+     | structType
      ;
 
 primitiveType : INT | BOOL | CHAR | STRING ;
@@ -76,6 +83,7 @@ erasedPair      : PAIR ;
 expression : literal                                   # LiteralExp
            | variableReference                         # VariableRefExp
            | arrayElement                              # ArrayElemExp
+           | structMember                              # StructMemberExp
            | unaryOperator expression                  # UnaryOperatorExp
            | LP expression RP                          # BracketedExp
            | expression op=MUL expression              # BinaryOperatorExp

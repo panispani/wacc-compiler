@@ -41,12 +41,16 @@ NULL_PAIR : 'null' ;
 
 //advanced types
 STRUCT : 'struct' ;
+DOT : '.' ;
 
 // parentheses and brackets
 LP : '(' ;
 RP : ')' ;
 LB : '[' ;
 RB : ']' ;
+LC : '{' ;
+RC : '}' ;
+
 
 // stat keywords
 NOP : 'skip' ;

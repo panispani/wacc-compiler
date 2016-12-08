@@ -11,8 +11,8 @@ abstract class UnaryOperator(unaryOperator: String) {
 }
 
 case class UnaryOperatorExpr(unaryOperator: UnaryOperator, expression: Expression) extends Expression {
-  override val vartype = unaryOperator match {
-    case NotOp | MinusOp => expression.vartype
+  override val varType = unaryOperator match {
+    case NotOp | MinusOp => expression.varType
     case LenOp | OrdOp => Integer
     case ChrOp => Character
   }
