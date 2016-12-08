@@ -22,9 +22,9 @@ VM::VM() {
 }
 
 VM::~VM() {
-    /*for (auto pair : heap) {
-        free(object);
-    }*/
+    for (auto it : heap) {
+        delete it.second;
+    }
 }
 
 VM *vm;
@@ -110,6 +110,10 @@ static void pushHeap(void* heapaddress, object* obj) {
 void pushVM(void* stackaddress, void* heapaddress) {
     auto addr1 = reinterpret_cast<std::uintptr_t>(stackaddress);
     auto addr2 = reinterpret_cast<std::uintptr_t>(heapaddress);
+    cout << "mate " << vm->stack[addr1] << endl;
+    if(vm->stack[addr1] != 0)
+    cout << " its" << vm->heap[vm->stack[addr1]]->getType() << endl;
+
     vm->stack[addr1] = addr2;
 
     if (vm->garbage_collect) {
@@ -233,7 +237,7 @@ static void test_multidimensional_array_reassignment() {
     pushVM(&o6, o6); // declare o6 array
     pushVM(&o6, o3); // o6 = o3
 
-    collect_garbage(); // collect o6
+    collect_garbage(); // collect old o6
 
     auto third_array_address = reinterpret_cast<std::uintptr_t>(o3);
     auto fourth_array_address = reinterpret_cast<std::uintptr_t>(o4);
