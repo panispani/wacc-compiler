@@ -3,8 +3,8 @@
 
 static void test_int_pair_reassignment() {
     gc_begin();
-    uint32_t* o1 = new_pair_constructor(INT, INT);
-    uint32_t* o2 = new_pair_constructor(INT, INT);
+    uint32_t* o1 = new_pair(INT, INT);
+    uint32_t* o2 = new_pair(INT, INT);
     pushVM(&o1, o1); // o1 = newpair
     pushVM(&o2, o2); // o2 = newpair
     pushVM(&o2, o1); // o2 = o1
@@ -27,12 +27,12 @@ static void test_int_pair_reassignment() {
 
 static void test_pair_pair_reassignment() {
     gc_begin();
-    uint32_t *o1 = new_pair_constructor(PAIR, PAIR);
-    uint32_t *o2 = new_pair_constructor(PAIR, PAIR);
-    uint32_t *p1 = new_pair_constructor(INT, INT);
-    uint32_t *p2 = new_pair_constructor(INT, INT);
-    uint32_t *p3 = new_pair_constructor(INT, INT);
-    uint32_t *p4 = new_pair_constructor(INT, INT);
+    uint32_t *o1 = new_pair(PAIR, PAIR);
+    uint32_t *o2 = new_pair(PAIR, PAIR);
+    uint32_t *p1 = new_pair(INT, INT);
+    uint32_t *p2 = new_pair(INT, INT);
+    uint32_t *p3 = new_pair(INT, INT);
+    uint32_t *p4 = new_pair(INT, INT);
 
     auto first_entry_pair_address = reinterpret_cast<std::uintptr_t>(o1);
     auto second_entry_pair_address = reinterpret_cast<std::uintptr_t>(o2);
@@ -142,10 +142,10 @@ static void test_pair_array_reassignment() {
     gc_begin();
     uint32_t* o1 = (uint32_t*) new_array_literal(2, PAIR);
     uint32_t* o2 = (uint32_t*) new_array_literal(2, PAIR);
-    uint32_t* p1 = new_pair_constructor(INT, INT);
-    uint32_t* p2 = new_pair_constructor(INT, INT);
-    uint32_t* p3 = new_pair_constructor(INT, INT);
-    uint32_t* p4 = new_pair_constructor(INT, INT);
+    uint32_t* p1 = new_pair(INT, INT);
+    uint32_t* p2 = new_pair(INT, INT);
+    uint32_t* p3 = new_pair(INT, INT);
+    uint32_t* p4 = new_pair(INT, INT);
 
     auto first_array_address = reinterpret_cast<std::uintptr_t>(o1);
     auto second_array_address = reinterpret_cast<std::uintptr_t>(o2);
@@ -190,8 +190,8 @@ static void test_struct_reassignment() {
     object_type types[] = { INT, INT, PAIR };
     uint32_t *o1 = (uint32_t*) new_struct_literal(12, 3, types);
     uint32_t *o2 = (uint32_t*) new_struct_literal(12, 3, types);
-    uint32_t *p1 = new_pair_constructor(INT, INT);
-    uint32_t *p2 = new_pair_constructor(INT, INT);
+    uint32_t *p1 = new_pair(INT, INT);
+    uint32_t *p2 = new_pair(INT, INT);
 
     auto first_literal_address = reinterpret_cast<std::uintptr_t>(o1);
     auto second_literal_address = reinterpret_cast<std::uintptr_t>(o2);

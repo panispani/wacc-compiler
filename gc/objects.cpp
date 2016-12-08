@@ -5,44 +5,26 @@
 object* object::new_obj(int type) {
     switch (static_cast<object_type>(type)) {
         case ANY:
-            cout << "not implemented" << endl;
-            return nullptr; // not done for now
-        case INT: return new int_object();
-        case CHAR: return new char_object();
-        case BOOL: return new bool_object();
+            cout << "Error in garbage collector - attempting to create ANY type" << endl;
+            return nullptr;
         case PAIR: return new pair_object();
         case ARRAY: return new array_object();
         case STRUCT: return new struct_object();
         case CLASS: return new class_object();
-        case POINTER: return new pointer_object();
+        case PAIR_CONTAINER: return new pair_container();
     }
     return nullptr;
 }
 
-void int_object::mark() {
-    cout << "Marking int" << endl;
-    marked = 1;
-}
-
-void char_object::mark() {
-    marked = 1;
-}
-
-void bool_object::mark() {
-    marked = 1;
-}
-
 void pair_object::mark() {
-    cout << "Marking pair of type (" << firstType << ", " << secondType << ")" << endl;
+    //cout << "Marking pair of type (" << firstType << ", " << secondType << ")" << endl;
     marked = 1;
-    cout << "First: " << first << endl;
-    cout << "Second: " << second << endl;
     first->mark();
     second->mark();
 }
 
 void array_object::mark() {
-    cout << "Marking array of type " << array_type << "" << endl;
+    //cout << "Marking array of type " << array_type << "" << endl;
     marked = 1;
     switch (array_type) {
         case INT: case CHAR: case BOOL: return;
@@ -53,13 +35,13 @@ void array_object::mark() {
     bytes += 1; // Skip over array size
     for (int i = 0; i < array_size; i++) {
         object* meta = vm->heap[bytes[i]];
-        cout << "Marking inside array: " << bytes[i] << " -> " << meta->getType() << endl;
+        //cout << "Marking inside array: " << bytes[i] << " -> " << meta->getType() << endl;
         meta->mark();
     }
 }
 
 void struct_object::mark() {
-    cout << "Marking struct" << endl;
+    //cout << "Marking struct" << endl;
     marked = 1;
 
     uint8_t *bytes = this->bytes;
@@ -73,7 +55,7 @@ void struct_object::mark() {
 
         uint32_t *words = (uint32_t *) bytes;
         object* meta = vm->heap[*words];
-        cout << "Marking inside struct: " << (int) *bytes << " -> " << meta->getType() << endl;
+        //cout << "Marking inside struct: " << (int) *bytes << " -> " << meta->getType() << endl;
         meta->mark();
 
         bytes += type_size(type);
@@ -81,19 +63,18 @@ void struct_object::mark() {
 }
 
 void class_object::mark() {
+    // TODO implement
     marked = 1;
 }
 
-void pointer_object::mark() {
+void pair_container::mark() {
     marked = 1;
     switch (type) {
         case INT: case CHAR: case BOOL: return;
         default: break;
     }
     uint32_t *bytes = (uint32_t*) this->bytes;
-    //cout << "Pointer bytes address: " << (int) bytes << endl;
-    cout << "Contents of pointer: " << (int) bytes[0] << endl;
     object* meta = vm->heap[bytes[0]];
-    cout << "Marking inside pointer: " << bytes[0] << " -> " << meta->getType() << endl;
+    //cout << "Marking inside pointer: " << bytes[0] << " -> " << meta->getType() << endl;
     meta->mark();
 }
