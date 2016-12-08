@@ -22,6 +22,7 @@ object StructVisitor extends WACCParserBaseVisitor[Either[CompilationError, (Str
     val members = ctx.structMemberDeclaration().toList map (x => {
       val varType = x.`type`.accept(TypeVisitor)
       val vr = VariableReference(x.IDENT().toString, varType, offset)
+
       offset += varType.size
       vr
     })
@@ -33,6 +34,10 @@ object StructVisitor extends WACCParserBaseVisitor[Either[CompilationError, (Str
       return Left (SemanticError("Duplicate members name in struct " + name, ctx.start))
     }
 
+    val parentName = Option(ctx.parent).map(_.getText)
+    val parentMembers = parentName.map(SymbolTable.structsTable(_).members).getOrElse(Seq())
+    val inheritedMembers = parentMembers.filter(pm => !members.map(_.name).contains(pm.name))
+
     /** TODO: add checks for first argument being of the instance type if needed
       * otherwise any method will be allowed (could be treated as a static method)
       */
@@ -43,9 +48,7 @@ object StructVisitor extends WACCParserBaseVisitor[Either[CompilationError, (Str
       * a static method of the same name and same arguments. IMO this should be handled by
       * the package/imports system and not by class definition rules.*/
 
-    val parentName = Option(ctx.parent).map(_.getText)
-
-    val struct = Struct(name, parentName, members)
+    val struct = Struct(name, parentName, inheritedMembers ++ members)
     SymbolTable.declareStruct(struct)
     Right((struct, ctx.function().toList))
   }
