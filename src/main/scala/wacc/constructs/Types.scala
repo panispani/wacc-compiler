@@ -28,6 +28,7 @@ case class PairType(firstType: Type, secondType: Type) extends Type {
 }
 case class StructType(identifier: String, members: Seq[(String, Type)]) extends Type {
   override val size: Int = 4
+  override def toString(): String = identifier
 }
 
 object String extends ArrayType(Character)
