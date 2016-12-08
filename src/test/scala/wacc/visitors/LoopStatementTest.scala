@@ -82,11 +82,12 @@ class LoopStatementTest extends VisitorTest {
     result.left.get should be (a[SemanticError])
   }
 
-  it should "accept only declare statements as init" in {
+  // We used to allow declare statements only but there's no point to restrict this
+  it should "allow only declare statements as init" in {
     val parser = TestUtilities.setupParser(
-      "for print \"error\"; i < 2; i = i + 1 do skip done")
+      "for print \"error\"; true; print \"step\" do skip done")
 
     val result = TestUtilities.buildSubProgram(parser.sequence, SequenceVisitor)
-    result.left.get should be (a[SyntaxError])
+    result.left.value should be (a[CompilationError])
   }
 }
