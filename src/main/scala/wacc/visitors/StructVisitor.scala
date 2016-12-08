@@ -36,9 +36,11 @@ object StructVisitor extends WACCParserBaseVisitor[Either[CompilationError, (Str
     val membersName = members.map(_.name)
 
     //Semantic error if two members have the same name
-    if (membersName.distinct.size != membersName.size) {
-      return Left (SemanticError("Duplicate members name in struct " + name, ctx.start))
-    }
+    if (membersName.distinct.size != membersName.size)
+      return Left(SemanticError("Duplicate members name in struct " + name, ctx.start))
+
+    if (members.map(_.name) exists inheritedMembers.map(_.name).toSet)
+      return Left(SemanticError("Duplicate members in superclass", ctx.start))
 
     /** TODO: add checks for first argument being of the instance type if needed
       * otherwise any method will be allowed (could be treated as a static method)
