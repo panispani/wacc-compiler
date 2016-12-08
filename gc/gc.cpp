@@ -134,11 +134,9 @@ uint32_t* new_pair_constructor(object_type type1, object_type type2) {
 
     obj->first->type = type1;
     obj->first->bytes = (uint8_t *) bytes[0];
-    cout << (int) obj->first->bytes << endl;
 
     obj->second->type = type2;
     obj->second->bytes = (uint8_t *) bytes[1];
-    cout << (int) obj->second->bytes << endl;
 
     // Map addresses on actual heap to addresses of created meta-objects for the pair
     pushHeap(bytes, obj);
@@ -381,11 +379,11 @@ static void test_pair_array_reassignment() {
 }
 
 /************ MAIN *****************/
-int main() {
+/*int main() {
     //test_int_pair_reassignment();
     //test_int_array_reassignment();
     //test_pair_array_reassignment();
     //test_pair_pair_reassignment();
     test_multidimensional_array_reassignment();
     return 0;
-}
+}*/

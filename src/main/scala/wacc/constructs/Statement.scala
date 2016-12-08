@@ -76,7 +76,7 @@ case class AssignStatement(lhs: AssignTarget, rhs: AssignValue) extends Statemen
             BL(Label("pushVM"))
           )
           case default => CodeSegment()
-        }
+         }
       })
   }
 }
