@@ -53,7 +53,7 @@ object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError
       case Right(argList) =>
         functionSignature match {
           case Right((name, returnType, argTypes)) =>
-            if (matchArgumentLists(argTypes, argList)) Right(FunctionCall(name, argList, returnType))
+            if (matchArgumentLists(argTypes, argList)) Right(FunctionCall(name, Function.fullName(name, argTypes), argList, returnType))
             else Left(SemanticError("Argument list types don't match up", ctx.start))
           case Left(error) => Left(error)
         }
