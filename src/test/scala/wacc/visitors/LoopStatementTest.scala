@@ -64,7 +64,7 @@ class LoopStatementTest extends VisitorTest {
     val loopVariable = VariableReference("i", Integer, -9)
 
     // i from loop scope
-    loop.init.asInstanceOf[DeclareStatement].newReference should be (loopVariable)
+    loop.init.newReference should be (loopVariable)
 
     // checks that step and cond use loop variable
     loop.step.asInstanceOf[AssignStatement].lhs should be (loopVariable)
@@ -82,12 +82,11 @@ class LoopStatementTest extends VisitorTest {
     result.left.get should be (a[SemanticError])
   }
 
-  // We used to allow declare statements only but there's no point to restrict this
-  it should "allow non-declare/assign statements as init/step" in {
+  it should "allow only declare statements as init" in {
     val parser = TestUtilities.setupParser(
-      "for print \"ok\"; true; print \"step\" do skip done")
+      "for print \"error\"; true; print \"step\" do skip done")
 
     val result = TestUtilities.buildSubProgram(parser.sequence, SequenceVisitor)
-    result.isRight should be (true)
+    result.left.value should be (a[CompilationError])
   }
 }

@@ -22,7 +22,7 @@ object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError
     val argumentExpressions = sequenceOrLast(argumentList map (_.accept(ExpressionVisitor)))
 
     val functionSignature = argumentExpressions.right.flatMap(argList => {
-      val argTypes = argList map (e => e.vartype)
+      val argTypes = argList map (e => e.varType)
       val identifier = Function.fullName(name, argTypes)
 
       SymbolTable.functionsTable.get(identifier) match {
@@ -52,7 +52,7 @@ object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError
   private def matchArgumentLists(l1: Seq[Type], l2: Seq[Expression]) = l1.size == l2.size && matchTypes(l1, l2)
 
   private def matchTypes(l1: Seq[Type], l2: Seq[Expression]): Boolean = {
-    val matchList = (l1, l2).zipped map((e1, e2) => compatibleTypes(e1, e2.vartype))
+    val matchList = (l1, l2).zipped map((e1, e2) => compatibleTypes(e1, e2.varType))
     matchList.forall(b => b)
   }
 }

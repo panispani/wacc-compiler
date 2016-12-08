@@ -4,11 +4,11 @@ options { tokenVocab=WACCLexer; }
 // Top-level rule
 program : BEGIN struct* function* sequence END EOF;
 
-struct : STRUCT IDENT (structMember SEMICOLON)* ;
-structMember : type IDENT ;
+struct : STRUCT IDENT (structMemberDeclaration SEMICOLON)+ ;
+structMemberDeclaration: type IDENT ;
 structType : STRUCT IDENT ;
 structLiteral : LC (expression (COMMA expression)*)? RC ;
-structElement : IDENT DOT IDENT ;
+structMember : IDENT (DOT IDENT)+ ;
 
 function : type IDENT LP parameterList? RP IS sequence END ;
 parameterList : parameter (COMMA parameter)* ;
@@ -42,13 +42,13 @@ loopStatement : WHILE expression DO sequence DONE                               
               | DO sequence WHILE expression                                                   # DoWhile
               | FOR (init=statement)? SEMICOLON
                     cond=expression SEMICOLON
-                    (step=statement)? DO body=sequence DONE                               # For
+                    (step=statement)? DO body=sequence DONE                                    # For
               ;
 
 assignLhs : variableReference # AssignLhsIdent
           | arrayElement      # AssignLhsArrayElement
           | pairElement       # AssignLhsPairElement
-          | structElement     # AssignLhsStructElement
+          | structMember      # AssignLhsStructMember
           ;
 
 assignRhs : expression      # AssignRhsExpression
@@ -57,7 +57,7 @@ assignRhs : expression      # AssignRhsExpression
           | pairElement     # AssignRhsPairElement
           | functionCall    # AssignRhsFunctionCall
           | structLiteral   # AssignRhsStructLiteral
-          | structElement   # AssignRhsStructElement
+          | structMember    # AssignRhsStructMember
           ;
 
 type : primitiveType
@@ -83,6 +83,7 @@ erasedPair      : PAIR ;
 expression : literal                                   # LiteralExp
            | variableReference                         # VariableRefExp
            | arrayElement                              # ArrayElemExp
+           | structMember                              # StructMemberExp
            | unaryOperator expression                  # UnaryOperatorExp
            | LP expression RP                          # BracketedExp
            | expression op=MUL expression              # BinaryOperatorExp

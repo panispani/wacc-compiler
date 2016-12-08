@@ -1,8 +1,11 @@
 package wacc.visitors
 
-import antlr.WACCParser.{ArrayTypeContext, ErasedPairContext, PairTypeContext, PrimitiveTypeContext}
+import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
+import wacc.SymbolTable
 import wacc.constructs._
+
+import scala.collection.JavaConversions._
 
 object TypeVisitor extends WACCParserBaseVisitor[Type] {
   override def visitPrimitiveType(ctx: PrimitiveTypeContext): Type =
@@ -32,5 +35,13 @@ object TypeVisitor extends WACCParserBaseVisitor[Type] {
 
   override def visitErasedPair(ctx: ErasedPairContext): Type = {
     PairType(AnyType, AnyType)
+  }
+
+  override def visitStructType(ctx: StructTypeContext): Type = {
+    val name: String = ctx.IDENT().getText
+    //TODO: refactor typevisitor to return an Either[SemanticError, Type]
+    //TODO: case when a struct type is not defined
+    val members = SymbolTable.structsTable(name).members
+    StructType(name, members map (m => (m.name, m.varType)))
   }
 }

@@ -36,12 +36,12 @@ abstract class AbstractPrintStatement extends Statement {
   val expression: Expression
 
   def transStatement(registers: Seq[Register]): CodeSegment = {
-    val printLabel: Label = expression.vartype match {
-      case Integer => StaticCode.printIntLabel
-      case Character => StaticCode.printCharLabel
-      case Boolean => StaticCode.printBoolLabel
-      case String => StaticCode.printFunctionLabel
-      case ArrayType(_) => StaticCode.printReferenceFunctionLabel
+    val printLabel: Label = expression.varType match {
+      case Integer        => StaticCode.printIntLabel
+      case Character      => StaticCode.printCharLabel
+      case Boolean        => StaticCode.printBoolLabel
+      case String         => StaticCode.printFunctionLabel
+      case ArrayType(_)   => StaticCode.printReferenceFunctionLabel
       case PairType(_, _) => StaticCode.printReferenceFunctionLabel
       case _ => StaticCode.printFunctionLabel
     }
@@ -69,13 +69,13 @@ case class AssignStatement(lhs: AssignTarget, rhs: AssignValue) extends Statemen
       .extend(rhs.transAssignRhs(registers))
       .extend(Macros.store(lhs, registers))
       .extend(lhs match {
-        case vt: VariableReference => lhs.vartype match {
+        case vt: VariableReference => lhs.varType match {
           case PairType(_, _) | ArrayType(_) => CodeSegment(
             ADD(R0, FP, ImmOperand(vt.offset)),
             MOV(R1, registers.head),
             BL(Label("pushVM"))
           )
-          case default => CodeSegment()
+          case _ => CodeSegment()
          }
       })
   }
@@ -85,11 +85,11 @@ case class FreeStatement(expression: Expression) extends Statement {
 
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     expression match {
-      case VariableReference(name, vartype, offset) => {
+      case VariableReference(name, varType, offset) => {
         CodeSegment(
           LDR(registers.head, RegisterAddress(FP, offset)),
           MOV(R0, registers.head),
-          BL(vartype match {
+          BL(varType match {
             case pt: PairType => StaticCode.freePairLabel
             case at: ArrayType => StaticCode.freeArrayLabel
         }))
@@ -124,8 +124,8 @@ case class ReadStatement(target: AssignTarget) extends Statement {
       }
     }
 
-    val readLabel: Label = target.vartype match {
-      case Integer => StaticCode.readIntLabel
+    val readLabel: Label = target.varType match {
+      case Integer   => StaticCode.readIntLabel
       case Character => StaticCode.readCharLabel
     }
 
@@ -202,19 +202,20 @@ case class ConditionalRecursiveStatement(expression: Expression, trueStatements:
 
 // Identifier is a new reference here so it will always have the correct offset at parse-time
 // Otherwise we would need to have it as a String and do additional lookup during code generation
-case class DeclareStatement(vartype: Type, newReference: VariableReference, value: AssignValue) extends ConditionalStatement {
+
+case class DeclareStatement(varType: Type, newReference: VariableReference, value: AssignValue) extends ConditionalStatement {
+
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     CodeSegment()
       .extend(value.transAssignRhs(registers))
       .extend(Macros.store(newReference, registers))
-      .extend(SUB(SP, SP, ImmOperand(vartype.size)))
-      .extend(vartype match {
+      .extend(varType match {
         case PairType(_, _) | ArrayType(_) => CodeSegment(
           ADD(R0, FP, ImmOperand(newReference.offset)),
           MOV(R1, registers.head),
           BL(Label("pushVM"))
         )
-        case default => CodeSegment()
+        case _ => CodeSegment()
       })
   }
 }
@@ -239,7 +240,8 @@ case class LoopStatement(condition: Expression, body: Seq[Statement], symbolTabl
   }
 }
 
-case class ForLoopStatement(init: Statement, cond: Expression, step: Statement, body: Seq[Statement], symbolTable: SymbolTable) extends Statement {
+case class ForLoopStatement(init: DeclareStatement, cond: Expression, step: Statement, body: Seq[Statement], symbolTable: SymbolTable) extends Statement {
+
   override def transStatement(registers: Seq[Register]): CodeSegment = {
     val L0 = Label()
     val L1 = Label()

@@ -4,11 +4,11 @@ import wacc.arm._
 import wacc.codegeneration._
 
 case class PairConstructor(firstExp: Expression, secondExp: Expression) extends AssignValue {
-  override val vartype: Type = PairType(firstExp.vartype, secondExp.vartype)
+  override val varType: Type = PairType(firstExp.varType, secondExp.varType)
 
   override def transAssignRhs(registers: Seq[Register]): CodeSegment = {
-    val firstType = firstExp.vartype
-    val secondType = secondExp.vartype
+    val firstType = firstExp.varType
+    val secondType = secondExp.varType
 
     val store1 = firstType match {
       case Boolean | Character => STRB(registers(1), RegisterAddress(R0))

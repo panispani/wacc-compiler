@@ -2,9 +2,8 @@ package wacc.constructs
 
 import wacc.{SymbolTable, VariableReference}
 
-case class Function(name: String, params: Seq[VariableReference], vartype: Type, statements: Seq[Statement], symbolTable: SymbolTable) {
-
-  val identifier = Function.fullName(name, params.map(_.vartype))
+case class Function(name: String, params: Seq[VariableReference], varType: Type, statements: Seq[Statement], symbolTable: SymbolTable) {
+  val identifier: String = Function.fullName(name, params.map(_.varType))
 }
 
 object Function {
