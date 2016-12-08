@@ -15,6 +15,7 @@ typedef enum {
         ARRAY,
         STRUCT,
         CLASS,
+        POINTER
 } object_type;
 
 // Abstract
@@ -30,6 +31,14 @@ public:
 };
 
 // Concrete instances
+class pointer_object: public object {
+public:
+    object_type type;
+public:
+    virtual void mark();
+    string getType() { return "pointer"; }
+};
+
 class int_object: public object {
 public:
     virtual void mark();
@@ -50,8 +59,10 @@ public:
 
 class pair_object: public object {
 public:
-    object *first;
-    object *second;
+    pointer_object *first;
+    pointer_object *second;
+    object_type firstType;
+    object_type secondType;
 
 public:
     virtual void mark();

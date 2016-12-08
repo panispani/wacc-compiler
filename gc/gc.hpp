@@ -16,7 +16,7 @@ using namespace std;
 extern "C" {
     void gc_begin();
     void gc_end();
-    uint8_t** new_pair_constructor(object_type type1, object_type type2);
+    uint32_t* new_pair_constructor(object_type type1, object_type type2);
     uint8_t* new_array_literal(int array_size, object_type type);
     object* new_string_literal();
     void pushVM(void* stackaddress, void* heapaddress);

@@ -14,6 +14,7 @@ object* object::new_obj(int type) {
         case ARRAY: return new array_object();
         case STRUCT: return new struct_object();
         case CLASS: return new class_object();
+        case POINTER: return new pointer_object();
     }
     return nullptr;
 }
@@ -32,8 +33,10 @@ void bool_object::mark() {
 }
 
 void pair_object::mark() {
-    cout << "Marking pair" << endl;
+    cout << "Marking pair of type (" << firstType << ", " << secondType << ")" << endl;
     marked = 1;
+    cout << "First: " << first << endl;
+    cout << "Second: " << second << endl;
     first->mark();
     second->mark();
 }
@@ -46,9 +49,9 @@ void array_object::mark() {
         default: break;
     }
 
-    uint32_t *bytes = (uint32_t*) this->bytes; // Skip over array size
+    uint32_t *bytes = (uint32_t*) this->bytes;
     cout << "Array size: " << bytes[0] << endl;
-    bytes += 1;
+    bytes += 1; // Skip over array size
     for (int i = 0; i < array_size; i++) {
         object* meta = vm->heap[bytes[i]];
         cout << "Marking inside array: " << bytes[i] << " -> " << meta->getType() << endl;
@@ -62,4 +65,16 @@ void struct_object::mark() {
 
 void class_object::mark() {
     marked = 1;
+}
+
+void pointer_object::mark() {
+    marked = 1;
+    switch (type) {
+        case INT: case CHAR: case BOOL: return;
+        default: break;
+    }
+    uint32_t *bytes = (uint32_t*) this->bytes;
+    object* meta = vm->heap[bytes[0]];
+    cout << "Marking inside pointer: " << bytes[0] << " -> " << meta->getType() << endl;
+    meta->mark();
 }

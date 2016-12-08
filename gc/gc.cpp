@@ -81,14 +81,14 @@ static bool should_collect() {
 
 int type_size(object_type type) {
     switch (type) {
-      case INT: return 4;
+      case INT:
       case PAIR:
       case STRUCT:
       case CLASS:
-      case ARRAY: return sizeof(uintptr_t);
+      case POINTER:
+      case ARRAY: return 4;
       case CHAR:
       case BOOL: return 1;
-      case ANY:
       default: return 0;
     }
 }
@@ -118,23 +118,27 @@ void pushVM(void* stackaddress, void* heapaddress) {
     }
 }
 
-uint8_t** new_pair_constructor(object_type type1, object_type type2) {
+uint32_t* new_pair_constructor(object_type type1, object_type type2) {
     // Allocate actual space for the pair and its elements
-    uint8_t **bytes = (uint8_t **) malloc(8);
-    bytes[0]        = (uint8_t *) malloc(type_size(type1));
-    bytes[4]        = (uint8_t *) malloc(type_size(type1));
+    uint32_t **bytes = (uint32_t **) malloc(8);
+    bytes[0]         = (uint32_t *) malloc(type_size(type1));
+    bytes[1]         = (uint32_t *) malloc(type_size(type2));
 
     // Create meta-objects for the pair and its elements
     pair_object *obj = (pair_object *) object::new_obj(PAIR);
-    obj->first       = (pair_object *) object::new_obj(type1);
-    obj->second      = (pair_object *) object::new_obj(type2);
+    obj->first       = (pointer_object *) object::new_obj(POINTER);
+    obj->second      = (pointer_object *) object::new_obj(POINTER);
 
+    obj->first->type = type1;
+    obj->first->bytes = (uint8_t *) bytes[0];
+    obj->second->type = type2;
+    obj->second->bytes = (uint8_t *) bytes[1];
 
     // Map addresses on actual heap to addresses of created meta-objects for the pair
     pushHeap(bytes, obj);
     pushHeap(bytes[0], obj->first);
-    pushHeap(bytes[4], obj->second);
-    return bytes;
+    pushHeap(bytes[1], obj->second);
+    return (uint32_t*) bytes;
 }
 
 uint8_t* new_array_literal(int array_size, object_type type) {
@@ -170,7 +174,7 @@ void collect_garbage() {
 
     printf("\n---------- Before VM heap ---------\n");
     for(auto obj : vm->heap) {
-        cout << obj.first << ": " << obj.second->getType() << endl;
+        cout << obj.first << " -> " << obj.second << " of type " << obj.second->getType() << endl;
     }
     printf("--------------------\n");
 
@@ -179,7 +183,7 @@ void collect_garbage() {
 
     printf("\n---------- After VM heap ---------\n");
     for(auto obj : vm->heap) {
-        cout << obj.first << ": " << obj.second->getType() << endl;
+        cout << obj.first << " -> " << obj.second << " of type " << obj.second->getType() << endl;
     }
     printf("--------------------\n");
 
@@ -188,8 +192,8 @@ void collect_garbage() {
 
 static void test_int_pair_reassignment() {
     gc_begin();
-    uint8_t** o1 = new_pair_constructor(INT, INT);
-    uint8_t** o2 = new_pair_constructor(INT, INT);
+    uint32_t* o1 = new_pair_constructor(INT, INT);
+    uint32_t* o2 = new_pair_constructor(INT, INT);
     pushVM(&o1, o1); // o1 = newpair
     pushVM(&o2, o2); // o2 = newpair
     pushVM(&o2, o1); // o2 = o1
@@ -210,6 +214,52 @@ static void test_int_pair_reassignment() {
     gc_end();
 }
 
+static void test_pair_pair_reassignment() {
+    gc_begin();
+    uint32_t* o1 = new_pair_constructor(PAIR, PAIR);
+    uint32_t* o2 = new_pair_constructor(PAIR, PAIR);
+    uint32_t* p1 = new_pair_constructor(INT, INT);
+    uint32_t* p2 = new_pair_constructor(INT, INT);
+    uint32_t* p3 = new_pair_constructor(INT, INT);
+    uint32_t* p4 = new_pair_constructor(INT, INT);
+
+    auto first_entry_pair_address = reinterpret_cast<std::uintptr_t>(o1);
+    auto second_entry_pair_address = reinterpret_cast<std::uintptr_t>(o2);
+
+    auto first_pair_address = reinterpret_cast<std::uintptr_t>(p1);
+    auto second_pair_address = reinterpret_cast<std::uintptr_t>(p2);
+    auto third_pair_address = reinterpret_cast<std::uintptr_t>(p3);
+    auto fourth_pair_address = reinterpret_cast<std::uintptr_t>(p4);
+
+    auto o1_variable_address = reinterpret_cast<std::uintptr_t>(&o1);
+    auto o2_variable_address = reinterpret_cast<std::uintptr_t>(&o2);
+
+    pair_object *meta = (pair_object *) vm->heap[first_entry_pair_address];
+    meta->first->bytes[0]  = first_pair_address;
+    meta->second->bytes[0] = second_pair_address;
+
+    meta = (pair_object *) vm->heap[second_entry_pair_address];
+    meta->first->bytes[0]  = third_pair_address;
+    meta->second->bytes[0] = fourth_pair_address;
+
+    pushVM(&o1, o1); // o1 = newpair(newpair(1, 1), newpair(2, 2))
+    pushVM(&o2, o2); // o2 = newpair(newpair(3, 3), newpair(4, 4))
+    pushVM(&o2, o1); // o2 = o1
+
+    // o2 should be garbage collected, and so should the pairs contained within it
+    bool test_passed = vm->heap.count(first_entry_pair_address) == 1                        // First pair should still exist in the heap
+                       && vm->heap.count(second_entry_pair_address) == 0                    // Second pair should be garbage collected
+                       && vm->heap.count(first_pair_address) == 1
+                       && vm->heap.count(second_pair_address) == 1
+                       && vm->heap.count(third_pair_address) == 0
+                       && vm->heap.count(fourth_pair_address) == 0
+                       && vm->heap.size() == 9                                              // Thus the heap should contain 9 objects (3 pairs)
+                       && vm->stack.size() == 2                                             // The stack should still have 2 mappings
+                       && vm->stack[o1_variable_address] == first_entry_pair_address        // The first variable should point to the first array
+                       && vm->stack[o2_variable_address] == first_entry_pair_address;       // and so should the second array
+    cout << "PAIR OF PAIRS RE-ASSIGNMENT: " << (test_passed ? "PASSED" : "FAILED") << endl;
+    gc_end();
+}
 
 static void test_int_array_reassignment() {
     gc_begin();
@@ -239,10 +289,10 @@ static void test_pair_array_reassignment() {
     gc_begin();
     uint32_t* o1 = (uint32_t*) new_array_literal(2, PAIR);
     uint32_t* o2 = (uint32_t*) new_array_literal(2, PAIR);
-    uint8_t** p1 = new_pair_constructor(INT, INT);
-    uint8_t** p2 = new_pair_constructor(INT, INT);
-    uint8_t** p3 = new_pair_constructor(INT, INT);
-    uint8_t** p4 = new_pair_constructor(INT, INT);
+    uint32_t* p1 = new_pair_constructor(INT, INT);
+    uint32_t* p2 = new_pair_constructor(INT, INT);
+    uint32_t* p3 = new_pair_constructor(INT, INT);
+    uint32_t* p4 = new_pair_constructor(INT, INT);
 
     auto first_array_address = reinterpret_cast<std::uintptr_t>(o1);
     auto second_array_address = reinterpret_cast<std::uintptr_t>(o2);
@@ -263,18 +313,11 @@ static void test_pair_array_reassignment() {
     o2[1] = third_pair_address;
     o2[2] = fourth_pair_address;
 
-    /*
-    memcpy(o1 + type_size(INT),     p1, 4);
-    memcpy(o1 + type_size(INT) + 4, p2, 4);
-    memcpy(o2 + type_size(INT),     p3, 4);
-    memcpy(o2 + type_size(INT) + 4, p4, 4);
-     */
-
     pushVM(&o1, o1); // o1 = [newpair(1, 1), newpair(2, 2)]
     pushVM(&o2, o2); // o2 = [newpair(3, 3), newpair(4, 4)]
     pushVM(&o2, o1); // o2 = o1
 
-    // o1 should be garbage collected, and so should the pairs contained within it
+    // o2 should be garbage collected, and so should the pairs contained within it
     bool test_passed = vm->heap.count(first_array_address) == 1                        // First array should still exist in the heap
                        && vm->heap.count(second_array_address) == 0                    // Second array should be garbage collected
                        && vm->heap.count(first_pair_address) == 1
@@ -289,35 +332,11 @@ static void test_pair_array_reassignment() {
     gc_end();
 }
 
-/*
-static void test_complex1_gc() {
-    new_pair_constructor(0, -1, -1);
-    new_pair_constructor(1, -1, -1);
-    new_array_literal(2, 15);
-    new_array_literal(3, 129);
-    _copy(4, 0);
-    _copy(1, 0);
-    run_gc();
-}
-
-*
- * 4 objs created, id(0) and id(1) point to the same obj
- * 3 objs should be collected, all but the third created
- *
-static void test_complex2_gc() {
-    new_array_literal(0, 2);
-    new_array_literal(1, 2938);
-    new_array_literal(0, 10);
-    new_array_literal(1, 20);
-    _copy(1, 0);
-    run_gc();
-}
-*/
-
 /************ MAIN *****************/
 int main() {
     //test_int_pair_reassignment();
     //test_int_array_reassignment();
-    test_pair_array_reassignment();
+    //test_pair_array_reassignment();
+    test_pair_pair_reassignment();
     return 0;
 }
