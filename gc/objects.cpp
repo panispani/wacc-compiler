@@ -39,17 +39,19 @@ void pair_object::mark() {
 }
 
 void array_object::mark() {
-    cout << "Marking array" << endl;
+    cout << "Marking array of type " << array_type << "" << endl;
     marked = 1;
     switch (array_type) {
         case INT: case CHAR: case BOOL: return;
         default: break;
     }
 
-    uint8_t *bytes = this->bytes + type_size(INT); // Skip over array size
+    uint32_t *bytes = (uint32_t*) this->bytes; // Skip over array size
+    cout << "Array size: " << bytes[0] << endl;
+    bytes += 1;
     for (int i = 0; i < array_size; i++) {
-        cout << "Marking " << bytes[i] << endl;
         object* meta = vm->heap[bytes[i]];
+        cout << "Marking inside array: " << bytes[i] << " -> " << meta->getType() << endl;
         meta->mark();
     }
 }

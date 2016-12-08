@@ -146,6 +146,7 @@ uint8_t* new_array_literal(int array_size, object_type type) {
     array_object* obj = (array_object*) array_object::new_obj(ARRAY);
     obj->bytes = bytes;
     obj->array_size = array_size;
+    obj->array_type = type;
 
     // Map address on actual heap to address of created meta-object for the array
     pushHeap(bytes, obj);
@@ -236,8 +237,8 @@ static void test_int_array_reassignment() {
 
 static void test_pair_array_reassignment() {
     gc_begin();
-    uint8_t* o1 = new_array_literal(2, PAIR);
-    uint8_t* o2 = new_array_literal(2, PAIR);
+    uint32_t* o1 = (uint32_t*) new_array_literal(2, PAIR);
+    uint32_t* o2 = (uint32_t*) new_array_literal(2, PAIR);
     uint8_t** p1 = new_pair_constructor(INT, INT);
     uint8_t** p2 = new_pair_constructor(INT, INT);
     uint8_t** p3 = new_pair_constructor(INT, INT);
@@ -254,17 +255,20 @@ static void test_pair_array_reassignment() {
     auto o1_variable_address = reinterpret_cast<std::uintptr_t>(&o1);
     auto o2_variable_address = reinterpret_cast<std::uintptr_t>(&o2);
 
+    o1[0] = 2;
+    o1[1] = first_pair_address;
+    o1[2] = second_pair_address;
 
-    /*o1[4] = first_pair_address;
-    o1[8] = second_pair_address;
+    o2[0] = 2;
+    o2[1] = third_pair_address;
+    o2[2] = fourth_pair_address;
 
-    o2[4] = third_pair_address;
-    o2[8] = fourth_pair_address;*/
-
+    /*
     memcpy(o1 + type_size(INT),     p1, 4);
     memcpy(o1 + type_size(INT) + 4, p2, 4);
     memcpy(o2 + type_size(INT),     p3, 4);
     memcpy(o2 + type_size(INT) + 4, p4, 4);
+     */
 
     pushVM(&o1, o1); // o1 = [newpair(1, 1), newpair(2, 2)]
     pushVM(&o2, o2); // o2 = [newpair(3, 3), newpair(4, 4)]
@@ -273,10 +277,10 @@ static void test_pair_array_reassignment() {
     // o1 should be garbage collected, and so should the pairs contained within it
     bool test_passed = vm->heap.count(first_array_address) == 1                        // First array should still exist in the heap
                        && vm->heap.count(second_array_address) == 0                    // Second array should be garbage collected
-                       && vm->heap.count(first_pair_address) == 0                      // First pair should be garbage collected
-                       && vm->heap.count(second_pair_address) == 0                     // Second pair should be garbage collected
-                       && vm->heap.count(third_pair_address) == 1                      // Third pair should still exist in the heap
-                       && vm->heap.count(fourth_pair_address) == 1                     // Fourth pair should still exist in the heap
+                       && vm->heap.count(first_pair_address) == 1
+                       && vm->heap.count(second_pair_address) == 1
+                       && vm->heap.count(third_pair_address) == 0
+                       && vm->heap.count(fourth_pair_address) == 0
                        && vm->heap.size() == 7                                         // Thus the heap should contain 7 objects (2 pairs and an array)
                        && vm->stack.size() == 2                                        // The stack should still have 2 mappings
                        && vm->stack[o1_variable_address] == first_array_address        // The first variable should point to the first array
