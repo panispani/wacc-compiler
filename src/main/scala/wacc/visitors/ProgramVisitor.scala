@@ -1,6 +1,6 @@
 package wacc.visitors
 
-import antlr.WACCParser.{FunctionContext, ProgramContext, StructContext}
+import antlr.WACCParser.{FunctionContext, ProgramContext}
 import antlr.WACCParserBaseVisitor
 import wacc.constructs._
 import wacc.{FunctionReference, SymbolTable}
