@@ -53,6 +53,7 @@ static void sweep() {
     for (auto pair : vm->heap) {
         auto obj = pair.second;
         if (!obj->marked) {
+            cout << "Erasing " << pair.first << endl;
             to_delete.push_back(pair.first);
         } else {
             obj->marked = 0;
@@ -69,7 +70,6 @@ static void sweep() {
 
     // Update the heap
     for (auto key : to_delete) {
-        cout << "Erasing " << key << endl;
         vm->heap.erase(key);
     }
 }
@@ -184,24 +184,53 @@ void run_gc() {
 }
 
 
-static void test_pair_copy_gc() {
+static void test_int_pair_reassignment() {
+    gc_begin();
     uint8_t** o1 = new_pair_constructor(INT, INT);
     uint8_t** o2 = new_pair_constructor(INT, INT);
     pushVM(&o1, o1); // o1 = newpair
     pushVM(&o2, o2); // o2 = newpair
     pushVM(&o2, o1); // o2 = o1
+
     // o1 should be garbage collected
+    auto first_pair_address = reinterpret_cast<std::uintptr_t>(o1);
+    auto second_pair_address = reinterpret_cast<std::uintptr_t>(o2);
+    auto o1_variable_address = reinterpret_cast<std::uintptr_t>(&o1);
+    auto o2_variable_address = reinterpret_cast<std::uintptr_t>(&o2);
+    bool test_passed = vm->heap.count(first_pair_address) == 1                        // First pair should still exist in the heap
+                       && vm->heap.count(second_pair_address) == 0                    // Second pair should be garbage collected
+                       && vm->heap.size() == 3                                        // Thus the heap should contain just 3 objects
+                       && vm->stack.size() == 2                                       // The stack should still have 2 mappings
+                       && vm->stack[o1_variable_address] == first_pair_address        // The first variable should point to the first pair
+                       && vm->stack[o2_variable_address] == first_pair_address;       // and so should the second variable
+
+    cout << "PAIR RE-ASSIGNMENT: " << (test_passed ? "PASSED" : "FAILED") << endl;
+    gc_end();
 }
 
 
-static void test_array_copy_gc() {
+static void test_int_array_reassignment() {
+    gc_begin();
     uint8_t* o1 = new_array_literal(3, INT);
     uint8_t* o2 = new_array_literal(3, INT);
     pushVM(&o1, o1); // o1 = [1, 2, 3]
     pushVM(&o2, o2); // o2 = [4, 5, 6]
     pushVM(&o2, o1); // o2 = o1
-    run_gc();
+    run_gc(); // Have to force it as only 2 heap items are allocated
+
     // o1 should be garbage collected
+    auto first_array_address = reinterpret_cast<std::uintptr_t>(o1);
+    auto second_array_address = reinterpret_cast<std::uintptr_t>(o2);
+    auto o1_variable_address = reinterpret_cast<std::uintptr_t>(&o1);
+    auto o2_variable_address = reinterpret_cast<std::uintptr_t>(&o2);
+    bool test_passed = vm->heap.count(first_array_address) == 1                        // First array should still exist in the heap
+                       && vm->heap.count(second_array_address) == 0                    // Second array should be garbage collected
+                       && vm->heap.size() == 1                                         // Thus the heap should contain just 1 object
+                       && vm->stack.size() == 2                                        // The stack should still have 2 mappings
+                       && vm->stack[o1_variable_address] == first_array_address        // The first variable should point to the first array
+                       && vm->stack[o2_variable_address] == first_array_address;       // and so should the second array
+    cout << "INT ARRAY RE-ASSIGNMENT: " << (test_passed ? "PASSED" : "FAILED") << endl;
+    gc_end();
 }
 
 /*
@@ -231,8 +260,7 @@ static void test_complex2_gc() {
 
 /************ MAIN *****************/
 int main() {
-    gc_begin();
-    test_array_copy_gc();
-    gc_end();
+    test_int_pair_reassignment();
+    test_int_array_reassignment();
     return 0;
 }
