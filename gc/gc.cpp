@@ -169,7 +169,7 @@ void collect_garbage() {
 
     printf("\n---------- Before VM heap ---------\n");
     for(auto obj : vm->heap) {
-        cout << obj.first << endl;
+        cout << obj.first << ": " << obj.second->getType() << endl;
     }
     printf("--------------------\n");
 
@@ -178,7 +178,7 @@ void collect_garbage() {
 
     printf("\n---------- After VM heap ---------\n");
     for(auto obj : vm->heap) {
-        cout << obj.first << endl;
+        cout << obj.first << ": " << obj.second->getType() << endl;
     }
     printf("--------------------\n");
 

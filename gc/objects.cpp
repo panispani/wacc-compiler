@@ -48,10 +48,9 @@ void array_object::mark() {
 
     uint8_t *bytes = this->bytes + type_size(INT); // Skip over array size
     for (int i = 0; i < array_size; i++) {
-        auto addr1 = reinterpret_cast<std::uintptr_t>(bytes);
-        object* meta = vm->heap[addr1];
+        cout << "Marking " << bytes[i] << endl;
+        object* meta = vm->heap[bytes[i]];
         meta->mark();
-        bytes += type_size(array_type);
     }
 }
 

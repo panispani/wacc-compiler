@@ -2,6 +2,9 @@
 #define __OBJECTS_H
 
 #include <cstdint>
+#include <string>
+
+using namespace std;
 
 typedef enum {
         ANY,
@@ -22,6 +25,7 @@ public:
 
 public:
     virtual void mark() = 0;
+    virtual string getType() = 0;
     static object* new_obj(int type);
 };
 
@@ -29,16 +33,19 @@ public:
 class int_object: public object {
 public:
     virtual void mark();
+    string getType() { return "int"; }
 };
 
 class char_object: public object {
 public:
     virtual void mark();
+    string getType() { return "char"; }
 };
 
 class bool_object: public object {
 public:
     virtual void mark();
+    string getType() { return "bool"; }
 };
 
 class pair_object: public object {
@@ -48,6 +55,7 @@ public:
 
 public:
     virtual void mark();
+    string getType() { return "pair"; }
 };
 
 class array_object: public object {
@@ -55,16 +63,19 @@ public:
     object_type array_type;
     int array_size;
     virtual void mark();
+    string getType() { return "array"; }
 };
 
 class struct_object: public object {
 public:
     virtual void mark();
+    string getType() { return "struct"; }
 };
 
 class class_object: public object {
 public:
     virtual void mark();
+    string getType() { return "class"; }
 };
 
 
