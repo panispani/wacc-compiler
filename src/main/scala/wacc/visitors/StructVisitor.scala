@@ -17,7 +17,13 @@ object StructVisitor extends WACCParserBaseVisitor[Either[CompilationError, (Str
       return Left(SemanticError("Attempted redefinition of struct " + name, ctx.start))
     }
 
-    var offset = 0
+    val parentName = Option(ctx.parent).map(_.getText)
+    val inheritedMembers = parentName.map(SymbolTable.structsTable(_).members).getOrElse(Seq())
+
+    // New members are placed after inherited ones so that we can support polymorphism
+    var offset = if (inheritedMembers.nonEmpty) {
+      inheritedMembers.last.offset + inheritedMembers.last.varType.size
+    } else 0
 
     val members = ctx.structMemberDeclaration().toList map (x => {
       val varType = x.`type`.accept(TypeVisitor)
@@ -33,10 +39,6 @@ object StructVisitor extends WACCParserBaseVisitor[Either[CompilationError, (Str
     if (membersName.distinct.size != membersName.size) {
       return Left (SemanticError("Duplicate members name in struct " + name, ctx.start))
     }
-
-    val parentName = Option(ctx.parent).map(_.getText)
-    val parentMembers = parentName.map(SymbolTable.structsTable(_).members).getOrElse(Seq())
-    val inheritedMembers = parentMembers.filter(pm => !members.map(_.name).contains(pm.name))
 
     /** TODO: add checks for first argument being of the instance type if needed
       * otherwise any method will be allowed (could be treated as a static method)

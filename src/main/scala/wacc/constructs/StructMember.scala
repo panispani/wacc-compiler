@@ -24,10 +24,7 @@ case class StructMember(vr: VariableReference, membersName: Seq[String]) extends
     for (memberName <- membersName) {
       currentVr.varType match {
         case s @StructType(structId, _, _) => {
-              val memberOffset = s.members
-                .takeWhile(m => m.name != memberName)
-                .map(m => m.varType.size)
-                .sum
+              val memberOffset = s.members.find(_.name == memberName).get.offset
               result = result :+ memberOffset
 
           currentVr = SymbolTable.structsTable(structId).members.find(vr => vr.name == memberName).get
