@@ -10,3 +10,4 @@ set(SOURCE_FILES
     objects.hpp)
 
 add_executable(gc ${SOURCE_FILES})
+set_target_properties(gc PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")

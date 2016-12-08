@@ -22,7 +22,7 @@ extern "C" {
     uint8_t* new_array_literal(int array_size, object_type type);
     object* new_string_literal();
     void pushVM(void* stackaddress, void* heapaddress);
-    void run_gc();
+    void collect_garbage();
 }
 
 #endif

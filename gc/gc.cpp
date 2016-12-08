@@ -74,27 +74,22 @@ static void sweep() {
     }
 }
 
-static void gc() {
-    markAll();
-    sweep();
-}
-
 // heuristics of when to call GC
-static bool should_gc() {
+static bool should_collect() {
     return vm->heap.size() >= vm->heap_max / 2;
 }
 
 
 size_t type_size(int type) {
     switch (type) {
-      case ANY:
-      case INT:
+      case INT: return 4;
       case PAIR:
       case STRUCT:
       case CLASS:
-      case ARRAY: return 4;
+      case ARRAY: return sizeof(uintptr_t);
       case CHAR:
       case BOOL: return 1;
+      case ANY:
       default: return 0;
     }
 }
@@ -102,8 +97,8 @@ size_t type_size(int type) {
 /************ PUBLIC FUNCTIONS *****************/
 
 static void pushHeap(void* heapaddress, object* obj) {
-    cout << "Pushing " << heapaddress << " -> " << obj << " to heap " << endl;
-    if (should_gc()) {
+    cout << "Pushing " << heapaddress << " to heap " << endl;
+    if (should_collect()) {
         vm->garbage_collect = true;
     }
 
@@ -120,9 +115,8 @@ void pushVM(void* stackaddress, void* heapaddress) {
 
     if (vm->garbage_collect) {
         vm->garbage_collect = false;
-        run_gc();
+        collect_garbage();
     }
-}
 
 uint8_t** new_pair_constructor(object_type type1, object_type type2) {
     // Create meta-objects for the pair and its elements
@@ -132,8 +126,8 @@ uint8_t** new_pair_constructor(object_type type1, object_type type2) {
 
     // Allocate actual space for the pair and its elements
     uint8_t **bytes = (uint8_t**) malloc(8);
-    bytes[0] = (uint8_t*) malloc(type_size(type1));
-    bytes[4] = (uint8_t*) malloc(type_size(type1));
+    bytes[0]        = (uint8_t*) malloc(type_size(type1));
+    bytes[4]        = (uint8_t*) malloc(type_size(type1));
 
     // Map addresses on actual heap to addresses of created meta-objects for the pair
     pushHeap(bytes, obj);
@@ -147,7 +141,8 @@ uint8_t* new_array_literal(int array_size, object_type type) {
     array_object* obj = (array_object*) array_object::new_obj(ARRAY);
 
     // Allocate actual space for the array
-    uint8_t *bytes = (uint8_t*) malloc(4 + array_size * type_size(type));
+    uint8_t* bytes = (uint8_t*) malloc(type_size(INT) + array_size * type_size(type));
+    cout <<  "Allocated " << type_size(INT) + array_size * type_size(type) << " bytes for array literal" << endl;
 
     // Map address on actual heap to address of created meta-object for the array
     pushHeap(bytes, obj);
@@ -165,21 +160,24 @@ void gc_end() {
 }
 
 /********************* TESTS *************************/
-void run_gc() {
+void collect_garbage() {
 
     //printf("INTTYPE 1\nPAIRTYPE 2\nCHARTYPE 3\nARRAYTYPE 4\nSTRUCTTYPE 5\n");
 
-    printf("\nBefore VM heap\n");
-    for(auto obj: vm->heap) {
-        printf("%p of type: not for now\n", obj);
+    printf("\n---------- Before VM heap ---------\n");
+    for(auto obj : vm->heap) {
+        cout << obj.first << endl;
     }
+    printf("--------------------\n");
 
-    gc();
+    markAll();
+    sweep();
 
-    printf("\nAfter VM heap\n");
-    for(auto obj: vm->heap) {
-        printf("%p of type: not for now\n", obj);
+    printf("\n---------- After VM heap ---------\n");
+    for(auto obj : vm->heap) {
+        cout << obj.first << endl;
     }
+    printf("--------------------\n");
 
 }
 
@@ -216,7 +214,7 @@ static void test_int_array_reassignment() {
     pushVM(&o1, o1); // o1 = [1, 2, 3]
     pushVM(&o2, o2); // o2 = [4, 5, 6]
     pushVM(&o2, o1); // o2 = o1
-    run_gc(); // Have to force it as only 2 heap items are allocated
+    collect_garbage(); // Have to force it as only 2 heap items are allocated
 
     // o1 should be garbage collected
     auto first_array_address = reinterpret_cast<std::uintptr_t>(o1);
@@ -230,6 +228,48 @@ static void test_int_array_reassignment() {
                        && vm->stack[o1_variable_address] == first_array_address        // The first variable should point to the first array
                        && vm->stack[o2_variable_address] == first_array_address;       // and so should the second array
     cout << "INT ARRAY RE-ASSIGNMENT: " << (test_passed ? "PASSED" : "FAILED") << endl;
+    gc_end();
+}
+
+static void test_pair_array_reassignment() {
+    gc_begin();
+    uint8_t* o1 = new_array_literal(2, PAIR);
+    uint8_t* o2 = new_array_literal(2, PAIR);
+    uint8_t** p1 = new_pair_constructor(INT, INT);
+    uint8_t** p2 = new_pair_constructor(INT, INT);
+    uint8_t** p3 = new_pair_constructor(INT, INT);
+    uint8_t** p4 = new_pair_constructor(INT, INT);
+
+    auto first_array_address = reinterpret_cast<std::uintptr_t>(o1);
+    auto second_array_address = reinterpret_cast<std::uintptr_t>(o2);
+    auto first_pair_address = reinterpret_cast<std::uintptr_t>(p1);
+    auto second_pair_address = reinterpret_cast<std::uintptr_t>(p2);
+    auto third_pair_address = reinterpret_cast<std::uintptr_t>(p3);
+    auto fourth_pair_address = reinterpret_cast<std::uintptr_t>(p4);
+    auto o1_variable_address = reinterpret_cast<std::uintptr_t>(&o1);
+    auto o2_variable_address = reinterpret_cast<std::uintptr_t>(&o2);
+
+    memcpy(o1 + type_size(INT),     p1, 4);
+    memcpy(o1 + type_size(INT) + 4, p2, 4);
+    memcpy(o2 + type_size(INT),     p3, 4);
+    memcpy(o2 + type_size(INT) + 4, p4, 4);
+
+    pushVM(&o1, o1); // o1 = [newpair(1, 1), newpair(2, 2)]
+    pushVM(&o2, o2); // o2 = [newpair(3, 3), newpair(4, 4)]
+    pushVM(&o2, o1); // o2 = o1
+
+    // o1 should be garbage collected, and so should the pairs contained within it
+    bool test_passed = vm->heap.count(first_array_address) == 1                        // First array should still exist in the heap
+                       && vm->heap.count(second_array_address) == 0                    // Second array should be garbage collected
+                       && vm->heap.count(first_pair_address) == 0                      // First pair should be garbage collected
+                       && vm->heap.count(second_pair_address) == 0                     // Second pair should be garbage collected
+                       && vm->heap.count(third_pair_address) == 1                      // Third pair should still exist in the heap
+                       && vm->heap.count(fourth_pair_address) == 1                     // Fourth pair should still exist in the heap
+                       && vm->heap.size() == 7                                         // Thus the heap should contain 7 objects (2 pairs and an array)
+                       && vm->stack.size() == 2                                        // The stack should still have 2 mappings
+                       && vm->stack[o1_variable_address] == first_array_address        // The first variable should point to the first array
+                       && vm->stack[o2_variable_address] == first_array_address;       // and so should the second array
+    cout << "PAIR ARRAY RE-ASSIGNMENT: " << (test_passed ? "PASSED" : "FAILED") << endl;
     gc_end();
 }
 
@@ -262,5 +302,6 @@ static void test_complex2_gc() {
 int main() {
     test_int_pair_reassignment();
     test_int_array_reassignment();
+    test_pair_array_reassignment();
     return 0;
 }
