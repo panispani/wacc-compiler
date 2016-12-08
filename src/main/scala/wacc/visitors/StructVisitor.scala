@@ -10,7 +10,7 @@ import scala.collection.JavaConversions._
 object StructVisitor extends WACCParserBaseVisitor[Either[CompilationError, (Struct, Seq[FunctionContext])]] {
 
   override def visitStruct(ctx: StructContext): Either[CompilationError, (Struct, Seq[FunctionContext])] = {
-    val name = ctx.IDENT().getText
+    val name = ctx.name.getText
 
     // Check for duplicate struct name
     if (SymbolTable.structsTable contains name) {
@@ -43,7 +43,7 @@ object StructVisitor extends WACCParserBaseVisitor[Either[CompilationError, (Str
       * a static method of the same name and same arguments. IMO this should be handled by
       * the package/imports system and not by class definition rules.*/
 
-    val struct = Struct(ctx.IDENT().getText, members)
+    val struct = Struct(name, members)
     SymbolTable.declareStruct(struct)
     Right((struct, ctx.function().toList))
   }

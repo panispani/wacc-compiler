@@ -4,7 +4,7 @@ options { tokenVocab=WACCLexer; }
 // Top-level rule
 program : BEGIN struct* function* sequence END EOF;
 
-struct : STRUCT IDENT (structMemberDeclaration SEMICOLON)+ (function)* ;
+struct : STRUCT name=IDENT (IS parent=IDENT)? (structMemberDeclaration SEMICOLON)+ (function)* ;
 structMemberDeclaration: type IDENT ;
 structType : STRUCT IDENT ;
 structLiteral : LC (expression (COMMA expression)*)? RC ;
