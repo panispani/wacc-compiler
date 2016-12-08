@@ -70,12 +70,12 @@ case class AssignStatement(lhs: AssignTarget, rhs: AssignValue) extends Statemen
       .extend(Macros.store(lhs, registers))
       .extend(lhs match {
         case vt: VariableReference => lhs.vartype match {
-          case pt: PairType => CodeSegment(
+          case PairType(_, _) | ArrayType(_) => CodeSegment(
             ADD(R0, FP, ImmOperand(vt.offset)),
             MOV(R1, registers.head),
             BL(Label("pushVM"))
           )
-          //TODO Extend for arrays and other things which matter
+          case default => CodeSegment()
         }
       })
   }
