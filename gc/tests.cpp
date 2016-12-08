@@ -21,7 +21,8 @@ static void test_int_pair_reassignment() {
                        && vm->stack[o1_variable_address] == first_pair_address        // The first variable should point to the first pair
                        && vm->stack[o2_variable_address] == first_pair_address;       // and so should the second variable
 
-    cout << "PAIR RE-ASSIGNMENT: " << (test_passed ? "PASSED" : "FAILED") << endl;
+    string fail = "----------------------------------------------------------------------------";
+    cout << "PAIR RE-ASSIGNMENT: " << (test_passed ? "PASSED" : fail) << endl;
     gc_end();
 }
 
@@ -69,7 +70,8 @@ static void test_pair_pair_reassignment() {
                        && vm->stack[o1_variable_address] == first_entry_pair_address        // The first variable should point to the first array
                        && vm->stack[o2_variable_address] == first_entry_pair_address;       // and so should the second array
 
-    cout << "PAIR OF PAIRS RE-ASSIGNMENT: " << (test_passed ? "PASSED" : "FAILED") << endl;
+    string fail = "----------------------------------------------------------------------------";
+    cout << "PAIR OF PAIRS RE-ASSIGNMENT: " << (test_passed ? "PASSED" : fail) << endl;
     gc_end();
 }
 
@@ -110,7 +112,8 @@ static void test_multidimensional_array_reassignment() {
                        && vm->stack.size() == 2                                        // The stack should have 3 mappings
                        && vm->stack[o3_variable_address] == third_array_address        // The first variable should point to the first array
                        && vm->stack[o6_variable_address] == third_array_address;       // and so should the second array
-    cout << "MULTIDIMENSIONAL ARRAY RE-ASSIGNMENT: " << (test_passed ? "PASSED" : "FAILED") << endl;
+    string fail = "----------------------------------------------------------------------------";
+    cout << "MULTIDIMENSIONAL ARRAY RE-ASSIGNMENT: " << (test_passed ? "PASSED" : fail) << endl;
     gc_end();
 }
 
@@ -134,7 +137,8 @@ static void test_int_array_reassignment() {
                        && vm->stack.size() == 2                                        // The stack should still have 2 mappings
                        && vm->stack[o1_variable_address] == first_array_address        // The first variable should point to the first array
                        && vm->stack[o2_variable_address] == first_array_address;       // and so should the second array
-    cout << "INT ARRAY RE-ASSIGNMENT: " << (test_passed ? "PASSED" : "FAILED") << endl;
+    string fail = "----------------------------------------------------------------------------";
+    cout << "INT ARRAY RE-ASSIGNMENT: " << (test_passed ? "PASSED" : fail) << endl;
     gc_end();
 }
 
@@ -181,7 +185,8 @@ static void test_pair_array_reassignment() {
                        && vm->stack.size() == 2                                        // The stack should still have 2 mappings
                        && vm->stack[o1_variable_address] == first_array_address        // The first variable should point to the first array
                        && vm->stack[o2_variable_address] == first_array_address;       // and so should the second array
-    cout << "PAIR ARRAY RE-ASSIGNMENT: " << (test_passed ? "PASSED" : "FAILED") << endl;
+    string fail = "----------------------------------------------------------------------------";
+    cout << "PAIR ARRAY RE-ASSIGNMENT: " << (test_passed ? "PASSED" : fail) << endl;
     gc_end();
 }
 
@@ -226,7 +231,8 @@ static void test_struct_reassignment() {
                        && vm->stack[o1_variable_address] == first_literal_address        // The first variable should point to the first array
                        && vm->stack[o2_variable_address] == first_literal_address;       // and so should the second array
 
-    cout << "STRUCT RE-ASSIGNMENT: " << (test_passed ? "PASSED" : "FAILED") << endl;
+    string fail = "----------------------------------------------------------------------------";
+    cout << "STRUCT RE-ASSIGNMENT: " << (test_passed ? "PASSED" : fail) << endl;
     gc_end();
 }
 
