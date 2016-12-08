@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <string>
+#include <cstdlib>
 
 using namespace std;
 
@@ -15,7 +16,7 @@ typedef enum {
         ARRAY,
         STRUCT,
         CLASS,
-        POINTER
+        PAIR_CONTAINER
 } object_type;
 
 // Abstract
@@ -24,14 +25,13 @@ public:
     bool marked;
     uint8_t *bytes;
 
-    virtual ~object() {};
     virtual void mark() = 0;
     virtual string getType() = 0;
     static object* new_obj(int type);
 };
 
 // Concrete instances
-class pointer_object: public object {
+class pair_container: public object {
 public:
     object_type type;
 public:
@@ -39,30 +39,10 @@ public:
     string getType() { return "pointer"; }
 };
 
-class int_object: public object {
-public:
-    virtual void mark();
-    string getType() { return "int"; }
-};
-
-class char_object: public object {
-public:
-    virtual void mark();
-    string getType() { return "char"; }
-};
-
-class bool_object: public object {
-public:
-    virtual void mark();
-    string getType() { return "bool"; }
-};
-
 class pair_object: public object {
 public:
-    pointer_object *first;
-    pointer_object *second;
-    object_type firstType;
-    object_type secondType;
+    pair_container *first;
+    pair_container *second;
 
     ~pair_object() {
         delete first;

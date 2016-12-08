@@ -64,7 +64,7 @@ static void sweep() {
         // Delete both the actual memory and the meta-object
         void *addr = reinterpret_cast<void*>(key);
         free(addr);
-        free(vm->heap[key]);
+        delete vm->heap[key];
     }
 
     // Update the heap
@@ -87,7 +87,7 @@ int type_size(object_type type) {
       case PAIR:
       case STRUCT:
       case CLASS:
-      case POINTER:
+      case PAIR_CONTAINER:
       case ARRAY: return 4;
       case CHAR:
       case BOOL: return 1;
@@ -121,28 +121,32 @@ void pushVM(void* stackaddress, void* heapaddress) {
     }
 }
 
-uint32_t* new_pair_constructor(object_type type1, object_type type2) {
+pair_container* new_pair_container(object_type type) {
+    // Allocate actual space for the pair container
+    uint8_t *bytes = (uint8_t*) malloc(type_size(type));
+
+    // Create meta-object for the pair container
+    pair_container *obj = (pair_container *) object::new_obj(PAIR_CONTAINER);
+    obj->type = type;
+    obj->bytes = bytes;
+
+    // Map addresses on actual heap to addresses of created meta-objects for the pair container
+    pushHeap(bytes, obj);
+    return obj;
+}
+
+uint32_t* new_pair(object_type type1, object_type type2) {
     // Allocate actual space for the pair and its elements
-    uint32_t **bytes = (uint32_t **) malloc(8);
-    bytes[0]         = (uint32_t *) malloc(type_size(type1));
-    bytes[1]         = (uint32_t *) malloc(type_size(type2));
+    uint32_t *bytes = (uint32_t *) malloc(8);
 
     // Create meta-objects for the pair and its elements
     pair_object *obj = (pair_object *) object::new_obj(PAIR);
-    obj->first       = (pointer_object *) object::new_obj(POINTER);
-    obj->second      = (pointer_object *) object::new_obj(POINTER);
-
-    obj->first->type = type1;
-    obj->first->bytes = (uint8_t *) bytes[0];
-
-    obj->second->type = type2;
-    obj->second->bytes = (uint8_t *) bytes[1];
+    obj->first       = new_pair_container(type1);
+    obj->second      = new_pair_container(type2);
 
     // Map addresses on actual heap to addresses of created meta-objects for the pair
     pushHeap(bytes, obj);
-    pushHeap(bytes[0], obj->first);
-    pushHeap(bytes[1], obj->second);
-    return (uint32_t*) bytes;
+    return bytes;
 }
 
 uint8_t* new_array_literal(int array_size, object_type type) {
@@ -175,20 +179,17 @@ uint8_t* new_struct_literal(int struct_size, int num_types, object_type types[])
     return bytes;
 }
 
-//called once on startup
+// Called once on startup
 void gc_begin() {
     vm = new VM();
 }
 
-// free heap
+// Called once on shutdown
 void gc_end() {
     delete vm;
 }
 
 void collect_garbage() {
-
-    //printf("INTTYPE 1\nPAIRTYPE 2\nCHARTYPE 3\nARRAYTYPE 4\nSTRUCTTYPE 5\n");
-
     printf("\n---------- Before VM heap ---------\n");
     for(auto obj : vm->heap) {
         cout << obj.first << " -> " << obj.second << " of type " << obj.second->getType() << endl;
