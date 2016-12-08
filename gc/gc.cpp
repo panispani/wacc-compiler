@@ -134,11 +134,9 @@ uint32_t* new_pair_constructor(object_type type1, object_type type2) {
 
     obj->first->type = type1;
     obj->first->bytes = (uint8_t *) bytes[0];
-    cout << (int) obj->first->bytes << endl;
 
     obj->second->type = type2;
     obj->second->bytes = (uint8_t *) bytes[1];
-    cout << (int) obj->second->bytes << endl;
 
     // Map addresses on actual heap to addresses of created meta-objects for the pair
     pushHeap(bytes, obj);
@@ -150,13 +148,27 @@ uint32_t* new_pair_constructor(object_type type1, object_type type2) {
 uint8_t* new_array_literal(int array_size, object_type type) {
     // Allocate actual space for the array
     uint8_t* bytes = (uint8_t*) malloc(type_size(INT) + array_size * type_size(type));
-    cout <<  "Allocated " << type_size(INT) + array_size * type_size(type) << " bytes for array literal" << endl;
 
     // Create meta-object for the array
     array_object* obj = (array_object*) array_object::new_obj(ARRAY);
     obj->bytes = bytes;
     obj->array_size = array_size;
     obj->array_type = type;
+
+    // Map address on actual heap to address of created meta-object for the array
+    pushHeap(bytes, obj);
+    return bytes;
+}
+
+uint8_t* new_struct_literal(int struct_size, int num_types, object_type types[]) {
+    // Allocate actual space for the struct
+    uint8_t* bytes = (uint8_t*) malloc(struct_size);
+
+    // Create meta-object for the struct
+    struct_object* obj = (struct_object*) array_object::new_obj(STRUCT);
+    obj->bytes = bytes;
+    obj->types = types;
+    obj->num_types = num_types;
 
     // Map address on actual heap to address of created meta-object for the array
     pushHeap(bytes, obj);
@@ -380,12 +392,58 @@ static void test_pair_array_reassignment() {
     gc_end();
 }
 
+static void test_struct_reassignment() {
+    gc_begin();
+    object_type types[] = { INT, INT, PAIR };
+    uint32_t *o1 = (uint32_t*) new_struct_literal(12, 3, types);
+    uint32_t *o2 = (uint32_t*) new_struct_literal(12, 3, types);
+    uint32_t *p1 = new_pair_constructor(INT, INT);
+    uint32_t *p2 = new_pair_constructor(INT, INT);
+
+    auto first_literal_address = reinterpret_cast<std::uintptr_t>(o1);
+    auto second_literal_address = reinterpret_cast<std::uintptr_t>(o2);
+
+    auto first_pair_address = reinterpret_cast<std::uintptr_t>(p1);
+    auto second_pair_address = reinterpret_cast<std::uintptr_t>(p2);
+
+    auto o1_variable_address = reinterpret_cast<std::uintptr_t>(&o1);
+    auto o2_variable_address = reinterpret_cast<std::uintptr_t>(&o2);
+
+    cout << "Struct 1 bytes address in test case: " << first_literal_address << endl;
+    o1[0] = 1;
+    o1[1] = 1;
+    o1[2] = first_pair_address;
+
+    cout << "Struct 2 bytes address in test case: " << second_literal_address << endl;
+    o2[0] = 2;
+    o2[1] = 2;
+    o2[2] = second_pair_address;
+
+    pushVM(&o1, o1); // o1 = {1, 1, newpair(1, 1)}
+    pushVM(&o2, o2); // o2 = {2, 2, newpair(2, 2)}
+    pushVM(&o2, o1); // o2 = o1
+
+    // o2 should be garbage collected, and so should the pair contained within it
+    bool test_passed = vm->heap.count(first_literal_address) == 1                        // First literal should still exist in the heap
+                       && vm->heap.count(second_literal_address) == 0                    // Second literal should be garbage collected
+                       && vm->heap.count(first_pair_address) == 1
+                       && vm->heap.count(second_pair_address) == 0
+                       && vm->heap.size() == 4                                           // Thus the heap should contain 3 objects (struct and pair)
+                       && vm->stack.size() == 2                                          // The stack should still have 2 mappings
+                       && vm->stack[o1_variable_address] == first_literal_address        // The first variable should point to the first array
+                       && vm->stack[o2_variable_address] == first_literal_address;       // and so should the second array
+
+    cout << "STRUCT RE-ASSIGNMENT: " << (test_passed ? "PASSED" : "FAILED") << endl;
+    gc_end();
+}
+
 /************ MAIN *****************/
 int main() {
-    //test_int_pair_reassignment();
-    //test_int_array_reassignment();
-    //test_pair_array_reassignment();
-    //test_pair_pair_reassignment();
+    test_int_pair_reassignment();
+    test_int_array_reassignment();
+    test_pair_array_reassignment();
+    test_pair_pair_reassignment();
     test_multidimensional_array_reassignment();
+    test_struct_reassignment();
     return 0;
 }

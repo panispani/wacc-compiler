@@ -50,7 +50,6 @@ void array_object::mark() {
     }
 
     uint32_t *bytes = (uint32_t*) this->bytes;
-    cout << "Array size: " << bytes[0] << endl;
     bytes += 1; // Skip over array size
     for (int i = 0; i < array_size; i++) {
         object* meta = vm->heap[bytes[i]];
@@ -60,7 +59,25 @@ void array_object::mark() {
 }
 
 void struct_object::mark() {
+    cout << "Marking struct" << endl;
     marked = 1;
+
+    uint8_t *bytes = this->bytes;
+    for (int i = 0; i < num_types; i++) {
+        object_type type = types[i];
+
+        switch (type) {
+            case INT: case CHAR: case BOOL: bytes += type_size(type); continue;
+            default: break;
+        }
+
+        uint32_t *words = (uint32_t *) bytes;
+        object* meta = vm->heap[*words];
+        cout << "Marking inside struct: " << (int) *bytes << " -> " << meta->getType() << endl;
+        meta->mark();
+
+        bytes += type_size(type);
+    }
 }
 
 void class_object::mark() {

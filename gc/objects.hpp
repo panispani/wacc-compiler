@@ -79,6 +79,8 @@ public:
 
 class struct_object: public object {
 public:
+    int num_types;
+    object_type *types;
     virtual void mark();
     string getType() { return "struct"; }
 };
