@@ -13,13 +13,14 @@ begin
         end
 
     struct square is rect
-
+        int a;
         struct square square(int side) is
             struct square self = { side, side };
             return self
         end
 
     struct square mySquare = call square(2);
+    println mySquare.width;
     int area = call area(mySquare);
     print "Area: "; println area
 end
