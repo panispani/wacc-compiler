@@ -7,7 +7,8 @@ set(SOURCE_FILES
     gc.cpp
     gc.hpp
     objects.cpp
-    objects.hpp)
+    objects.hpp
+    tests.cpp)
 
 add_executable(gc ${SOURCE_FILES})
 set_target_properties(gc PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
