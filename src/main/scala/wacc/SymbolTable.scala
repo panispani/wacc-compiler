@@ -16,7 +16,7 @@ case class SymbolTable(parent: Option[SymbolTable], var currentOffset: Int = 0) 
   private val initialOffset = currentOffset
   def sizeInBytes = currentOffset - initialOffset
 
-  private var map: mutable.Map[String, VariableReference] = mutable.Map()
+  private var map: mutable.Map[String, VariableReference] = mutable.LinkedHashMap()
 
   // The frame pointer will store the stack both LR and the parent FP have been stored
   // The offset to argument 0 is 8 and the rest depend on the argument sizes
