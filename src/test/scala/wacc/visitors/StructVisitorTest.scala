@@ -18,7 +18,7 @@ class StructVisitorTest extends VisitorTest {
     val parser = TestUtilities.setupParser("struct car int a; char b;")
     val result = TestUtilities.buildSubProgram(parser.struct, StructVisitor)
 
-    val struct = result.right.get
+    val struct = result.right.get._1
     struct.identifier shouldBe "car"
     struct.members.head shouldBe VariableReference("a", Integer, 0)
     struct.members(1) shouldBe VariableReference("b", Character, 4)
