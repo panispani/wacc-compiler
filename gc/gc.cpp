@@ -210,6 +210,48 @@ static void test_int_pair_reassignment() {
     gc_end();
 }
 
+static void test_multidimensional_array_reassignment() {
+    gc_begin();
+    uint8_t* o1 = new_array_literal(3, INT);
+    uint8_t* o2 = new_array_literal(3, INT);
+    pushVM(&o1, o1);
+    pushVM(&o2, o2);
+    uint32_t* o3 = (uint32_t*) new_array_literal(2, ARRAY);
+    o3[0] = 2;
+    o3[1] = reinterpret_cast<std::uintptr_t>(o1);
+    o3[2] = reinterpret_cast<std::uintptr_t>(o2);
+    pushVM(&o3, o3); // declare o3 array
+
+    uint8_t* o4 = new_array_literal(3, INT);
+    uint8_t* o5 = new_array_literal(3, INT);
+    pushVM(&o4, o4);
+    pushVM(&o5, o5);
+    uint32_t* o6 = (uint32_t*) new_array_literal(2, ARRAY);
+    o6[0] = 2;
+    o6[1] = reinterpret_cast<std::uintptr_t>(o4);
+    o6[2] = reinterpret_cast<std::uintptr_t>(o5);
+    pushVM(&o6, o6); // declare o6 array
+    pushVM(&o6, o3); // o6 = o3
+
+    collect_garbage(); // collect o6
+
+    auto third_array_address = reinterpret_cast<std::uintptr_t>(o3);
+    auto fourth_array_address = reinterpret_cast<std::uintptr_t>(o4);
+    auto fifth_array_address = reinterpret_cast<std::uintptr_t>(o5);
+    auto six_array_address = reinterpret_cast<std::uintptr_t>(o6);
+    auto o3_variable_address = reinterpret_cast<std::uintptr_t>(&o3);
+    auto o6_variable_address = reinterpret_cast<std::uintptr_t>(&o6);
+
+    bool test_passed = vm->heap.count(fourth_array_address) == 0                       // Fourth array should be garbage collected
+                       && vm->heap.count(fifth_array_address) == 0                     // Fifth array should be garbage collected
+                       && vm->heap.count(six_array_address) == 0                       // Sixth array should be garbage collected
+                       && vm->heap.size() == 3                                         // Thus the heap should contain 3 objects
+                       && vm->stack.size() == 3                                        // The stack should have 3 mappings
+                       && vm->stack[o3_variable_address] == third_array_address        // The first variable should point to the first array
+                       && vm->stack[o6_variable_address] == six_array_address;         // and so should the second array
+    cout << "INT ARRAY RE-ASSIGNMENT: " << (test_passed ? "PASSED" : "FAILED") << endl;
+    gc_end();
+}
 
 static void test_int_array_reassignment() {
     gc_begin();
@@ -263,13 +305,6 @@ static void test_pair_array_reassignment() {
     o2[1] = third_pair_address;
     o2[2] = fourth_pair_address;
 
-    /*
-    memcpy(o1 + type_size(INT),     p1, 4);
-    memcpy(o1 + type_size(INT) + 4, p2, 4);
-    memcpy(o2 + type_size(INT),     p3, 4);
-    memcpy(o2 + type_size(INT) + 4, p4, 4);
-     */
-
     pushVM(&o1, o1); // o1 = [newpair(1, 1), newpair(2, 2)]
     pushVM(&o2, o2); // o2 = [newpair(3, 3), newpair(4, 4)]
     pushVM(&o2, o1); // o2 = o1
@@ -318,6 +353,6 @@ static void test_complex2_gc() {
 int main() {
     //test_int_pair_reassignment();
     //test_int_array_reassignment();
-    test_pair_array_reassignment();
+    test_multidimensional_array_reassignment();
     return 0;
 }
