@@ -1,4 +1,5 @@
 #include "gc.hpp"
+#include "vm.hpp"
 
 using namespace std;
 
@@ -13,7 +14,6 @@ using namespace std;
  *  traverse heap and delete objs that are unreachable
  */
 
-
 VM::VM() {
     heap.clear();
     garbage_collect = false;
@@ -27,10 +27,9 @@ VM::~VM() {
     }*/
 }
 
+VM *vm;
+
 /************ STATIC FUNCTIONS *****************/
-
-
-static VM* vm;
 
 static void mark(unsigned long long int heapaddress) {
     object* obj = vm->heap[heapaddress];
@@ -80,7 +79,7 @@ static bool should_collect() {
 }
 
 
-size_t type_size(int type) {
+int type_size(object_type type) {
     switch (type) {
       case INT: return 4;
       case PAIR:
@@ -117,17 +116,19 @@ void pushVM(void* stackaddress, void* heapaddress) {
         vm->garbage_collect = false;
         collect_garbage();
     }
+}
 
 uint8_t** new_pair_constructor(object_type type1, object_type type2) {
-    // Create meta-objects for the pair and its elements
-    pair_object* obj = (pair_object*) object::new_obj(PAIR);
-    obj->first = (pair_object*) object::new_obj(type1);
-    obj->second = (pair_object*) object::new_obj(type2);
-
     // Allocate actual space for the pair and its elements
-    uint8_t **bytes = (uint8_t**) malloc(8);
-    bytes[0]        = (uint8_t*) malloc(type_size(type1));
-    bytes[4]        = (uint8_t*) malloc(type_size(type1));
+    uint8_t **bytes = (uint8_t **) malloc(8);
+    bytes[0]        = (uint8_t *) malloc(type_size(type1));
+    bytes[4]        = (uint8_t *) malloc(type_size(type1));
+
+    // Create meta-objects for the pair and its elements
+    pair_object *obj = (pair_object *) object::new_obj(PAIR);
+    obj->first       = (pair_object *) object::new_obj(type1);
+    obj->second      = (pair_object *) object::new_obj(type2);
+
 
     // Map addresses on actual heap to addresses of created meta-objects for the pair
     pushHeap(bytes, obj);
@@ -137,12 +138,14 @@ uint8_t** new_pair_constructor(object_type type1, object_type type2) {
 }
 
 uint8_t* new_array_literal(int array_size, object_type type) {
-    // Create meta-object for the array
-    array_object* obj = (array_object*) array_object::new_obj(ARRAY);
-
     // Allocate actual space for the array
     uint8_t* bytes = (uint8_t*) malloc(type_size(INT) + array_size * type_size(type));
     cout <<  "Allocated " << type_size(INT) + array_size * type_size(type) << " bytes for array literal" << endl;
+
+    // Create meta-object for the array
+    array_object* obj = (array_object*) array_object::new_obj(ARRAY);
+    obj->bytes = bytes;
+    obj->array_size = array_size;
 
     // Map address on actual heap to address of created meta-object for the array
     pushHeap(bytes, obj);
@@ -242,12 +245,21 @@ static void test_pair_array_reassignment() {
 
     auto first_array_address = reinterpret_cast<std::uintptr_t>(o1);
     auto second_array_address = reinterpret_cast<std::uintptr_t>(o2);
+
     auto first_pair_address = reinterpret_cast<std::uintptr_t>(p1);
     auto second_pair_address = reinterpret_cast<std::uintptr_t>(p2);
     auto third_pair_address = reinterpret_cast<std::uintptr_t>(p3);
     auto fourth_pair_address = reinterpret_cast<std::uintptr_t>(p4);
+
     auto o1_variable_address = reinterpret_cast<std::uintptr_t>(&o1);
     auto o2_variable_address = reinterpret_cast<std::uintptr_t>(&o2);
+
+
+    /*o1[4] = first_pair_address;
+    o1[8] = second_pair_address;
+
+    o2[4] = third_pair_address;
+    o2[8] = fourth_pair_address;*/
 
     memcpy(o1 + type_size(INT),     p1, 4);
     memcpy(o1 + type_size(INT) + 4, p2, 4);
@@ -300,8 +312,8 @@ static void test_complex2_gc() {
 
 /************ MAIN *****************/
 int main() {
-    test_int_pair_reassignment();
-    test_int_array_reassignment();
+    //test_int_pair_reassignment();
+    //test_int_array_reassignment();
     test_pair_array_reassignment();
     return 0;
 }

@@ -1,18 +1,7 @@
 #ifndef __OBJECTS_H
 #define __OBJECTS_H
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <iostream>
-//#include <stdint.h>
-#include <algorithm>
-#include <vector>
-#include <string>
-#include <map>
 #include <cstdint>
-
-using namespace std;
 
 typedef enum {
         ANY,
@@ -25,24 +14,18 @@ typedef enum {
         CLASS,
 } object_type;
 
-
-// abstract
+// Abstract
 class object {
 public:
     bool marked;
+    uint8_t *bytes;
 
 public:
     virtual void mark() = 0;
     static object* new_obj(int type);
 };
 
-/*
- * WARNING:
- * duplication is introduced on purpose
- * This is because of the way we implemented the ARM backend
- * and the assumptions did there about memory
- */
-
+// Concrete instances
 class int_object: public object {
 public:
     virtual void mark();
@@ -70,6 +53,7 @@ public:
 class array_object: public object {
 public:
     object_type array_type;
+    int array_size;
     virtual void mark();
 };
 

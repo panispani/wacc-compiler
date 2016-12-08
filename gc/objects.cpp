@@ -1,5 +1,6 @@
 #include "objects.hpp"
 #include "gc.hpp"
+#include "vm.hpp"
 
 object* object::new_obj(int type) {
     switch (static_cast<object_type>(type)) {
@@ -38,7 +39,20 @@ void pair_object::mark() {
 }
 
 void array_object::mark() {
+    cout << "Marking array" << endl;
     marked = 1;
+    switch (array_type) {
+        case INT: case CHAR: case BOOL: return;
+        default: break;
+    }
+
+    uint8_t *bytes = this->bytes + type_size(INT); // Skip over array size
+    for (int i = 0; i < array_size; i++) {
+        auto addr1 = reinterpret_cast<std::uintptr_t>(bytes);
+        object* meta = vm->heap[addr1];
+        meta->mark();
+        bytes += type_size(array_type);
+    }
 }
 
 void struct_object::mark() {

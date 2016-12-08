@@ -1,19 +1,17 @@
 #ifndef __GC_H
 #define __GC_H
 
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <string>
+#include <cstdint>
 #include "objects.hpp"
 
-#define MAX_STACK_SIZE 4096
-#define DEFAULT_HEAP_SIZE 10
-class VM {
-public:
-        map<unsigned long long int, unsigned long long int> stack;
-        map<unsigned long long int, object*> heap;
-        bool garbage_collect;
-        unsigned int heap_max;
-        VM();
-        ~VM();
-};
+using namespace std;
 
 extern "C" {
     void gc_begin();
@@ -23,6 +21,7 @@ extern "C" {
     object* new_string_literal();
     void pushVM(void* stackaddress, void* heapaddress);
     void collect_garbage();
+    int type_size(object_type);
 }
 
 #endif
