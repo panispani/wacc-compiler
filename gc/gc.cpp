@@ -110,6 +110,9 @@ static void pushHeap(void* heapaddress, object* obj) {
 
 // call on declaration and assignment
 void pushVM(void* stackaddress, void* heapaddress) {
+    if (heapaddress == nullptr) {
+        return;
+    }
     auto addr1 = reinterpret_cast<std::uintptr_t>(stackaddress);
     auto addr2 = reinterpret_cast<std::uintptr_t>(heapaddress);
 
