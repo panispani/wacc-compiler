@@ -43,7 +43,9 @@ object StructVisitor extends WACCParserBaseVisitor[Either[CompilationError, (Str
       * a static method of the same name and same arguments. IMO this should be handled by
       * the package/imports system and not by class definition rules.*/
 
-    val struct = Struct(name, members)
+    val parentName = Option(ctx.parent).map(_.getText)
+
+    val struct = Struct(name, parentName, members)
     SymbolTable.declareStruct(struct)
     Right((struct, ctx.function().toList))
   }
