@@ -103,4 +103,5 @@ charLiteral   : CHAR_LITERAL ;
 stringLiteral : STRING_LITERAL ;
 pairLiteral      : NULL_PAIR ;
 
+
 unaryOperator : NOT | MINUS | LEN | ORD | CHR ;

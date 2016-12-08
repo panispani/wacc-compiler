@@ -74,6 +74,8 @@ void pointer_object::mark() {
         default: break;
     }
     uint32_t *bytes = (uint32_t*) this->bytes;
+    cout << "Pointer bytes address: " << (int) bytes << endl;
+    cout << "Contents of pointer: " << (int) bytes[0] << endl;
     object* meta = vm->heap[bytes[0]];
     cout << "Marking inside pointer: " << bytes[0] << " -> " << meta->getType() << endl;
     meta->mark();

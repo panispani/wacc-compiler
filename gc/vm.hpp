@@ -7,7 +7,7 @@
 using namespace std;
 
 #define MAX_STACK_SIZE 4096
-#define DEFAULT_HEAP_SIZE 10
+#define DEFAULT_HEAP_SIZE 45
 
 class VM {
 public:

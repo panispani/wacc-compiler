@@ -22,9 +22,9 @@ VM::VM() {
 }
 
 VM::~VM() {
-    /*for (auto pair : heap) {
-        free(object);
-    }*/
+    for (auto it : heap) {
+        delete it.second;
+    }
 }
 
 VM *vm;
@@ -33,7 +33,7 @@ VM *vm;
 
 static void mark(unsigned long long int heapaddress) {
     object* obj = vm->heap[heapaddress];
-    if (obj == NULL) {
+    if (obj == nullptr) {
         return;
     }
     obj->mark();
@@ -75,7 +75,9 @@ static void sweep() {
 
 // heuristics of when to call GC
 static bool should_collect() {
-    return vm->heap.size() >= vm->heap_max / 2;
+    // TODO make it real
+    //return vm->heap.size() >= vm->heap_max / 2;
+    return true;
 }
 
 
@@ -110,6 +112,7 @@ static void pushHeap(void* heapaddress, object* obj) {
 void pushVM(void* stackaddress, void* heapaddress) {
     auto addr1 = reinterpret_cast<std::uintptr_t>(stackaddress);
     auto addr2 = reinterpret_cast<std::uintptr_t>(heapaddress);
+
     vm->stack[addr1] = addr2;
 
     if (vm->garbage_collect) {
@@ -131,8 +134,11 @@ uint32_t* new_pair_constructor(object_type type1, object_type type2) {
 
     obj->first->type = type1;
     obj->first->bytes = (uint8_t *) bytes[0];
+    cout << (int) obj->first->bytes << endl;
+
     obj->second->type = type2;
     obj->second->bytes = (uint8_t *) bytes[1];
+    cout << (int) obj->second->bytes << endl;
 
     // Map addresses on actual heap to addresses of created meta-objects for the pair
     pushHeap(bytes, obj);
@@ -216,12 +222,12 @@ static void test_int_pair_reassignment() {
 
 static void test_pair_pair_reassignment() {
     gc_begin();
-    uint32_t* o1 = new_pair_constructor(PAIR, PAIR);
-    uint32_t* o2 = new_pair_constructor(PAIR, PAIR);
-    uint32_t* p1 = new_pair_constructor(INT, INT);
-    uint32_t* p2 = new_pair_constructor(INT, INT);
-    uint32_t* p3 = new_pair_constructor(INT, INT);
-    uint32_t* p4 = new_pair_constructor(INT, INT);
+    uint32_t *o1 = new_pair_constructor(PAIR, PAIR);
+    uint32_t *o2 = new_pair_constructor(PAIR, PAIR);
+    uint32_t *p1 = new_pair_constructor(INT, INT);
+    uint32_t *p2 = new_pair_constructor(INT, INT);
+    uint32_t *p3 = new_pair_constructor(INT, INT);
+    uint32_t *p4 = new_pair_constructor(INT, INT);
 
     auto first_entry_pair_address = reinterpret_cast<std::uintptr_t>(o1);
     auto second_entry_pair_address = reinterpret_cast<std::uintptr_t>(o2);
@@ -235,12 +241,12 @@ static void test_pair_pair_reassignment() {
     auto o2_variable_address = reinterpret_cast<std::uintptr_t>(&o2);
 
     pair_object *meta = (pair_object *) vm->heap[first_entry_pair_address];
-    meta->first->bytes[0]  = first_pair_address;
-    meta->second->bytes[0] = second_pair_address;
+    memcpy(meta->first->bytes, &first_pair_address, 4);
+    memcpy(meta->second->bytes, &second_pair_address, 4);
 
     meta = (pair_object *) vm->heap[second_entry_pair_address];
-    meta->first->bytes[0]  = third_pair_address;
-    meta->second->bytes[0] = fourth_pair_address;
+    memcpy(meta->first->bytes, &third_pair_address, 4);
+    memcpy(meta->second->bytes, &fourth_pair_address, 4);
 
     pushVM(&o1, o1); // o1 = newpair(newpair(1, 1), newpair(2, 2))
     pushVM(&o2, o2); // o2 = newpair(newpair(3, 3), newpair(4, 4))
@@ -257,7 +263,51 @@ static void test_pair_pair_reassignment() {
                        && vm->stack.size() == 2                                             // The stack should still have 2 mappings
                        && vm->stack[o1_variable_address] == first_entry_pair_address        // The first variable should point to the first array
                        && vm->stack[o2_variable_address] == first_entry_pair_address;       // and so should the second array
+
     cout << "PAIR OF PAIRS RE-ASSIGNMENT: " << (test_passed ? "PASSED" : "FAILED") << endl;
+    gc_end();
+}
+
+static void test_multidimensional_array_reassignment() {
+    gc_begin();
+    uint8_t* o1 = new_array_literal(3, INT);
+    uint8_t* o2 = new_array_literal(3, INT);
+    pushVM(&o1, o1);
+    pushVM(&o2, o2);
+    uint32_t* o3 = (uint32_t*) new_array_literal(2, ARRAY);
+    o3[0] = 2;
+    o3[1] = reinterpret_cast<std::uintptr_t>(o1);
+    o3[2] = reinterpret_cast<std::uintptr_t>(o2);
+    pushVM(&o3, o3); // declare o3 array
+
+    uint8_t* o4 = new_array_literal(3, INT);
+    uint8_t* o5 = new_array_literal(3, INT);
+    pushVM(&o4, o4);
+    pushVM(&o5, o5);
+    uint32_t* o6 = (uint32_t*) new_array_literal(2, ARRAY);
+    o6[0] = 2;
+    o6[1] = reinterpret_cast<std::uintptr_t>(o4);
+    o6[2] = reinterpret_cast<std::uintptr_t>(o5);
+    pushVM(&o6, o6); // declare o6 array
+    pushVM(&o6, o3); // o6 = o3
+
+    collect_garbage(); // collect old o6
+
+    auto third_array_address = reinterpret_cast<std::uintptr_t>(o3);
+    auto fourth_array_address = reinterpret_cast<std::uintptr_t>(o4);
+    auto fifth_array_address = reinterpret_cast<std::uintptr_t>(o5);
+    auto six_array_address = reinterpret_cast<std::uintptr_t>(o6);
+    auto o3_variable_address = reinterpret_cast<std::uintptr_t>(&o3);
+    auto o6_variable_address = reinterpret_cast<std::uintptr_t>(&o6);
+
+    bool test_passed = vm->heap.count(fourth_array_address) == 0                       // Fourth array should be garbage collected
+                       && vm->heap.count(fifth_array_address) == 0                     // Fifth array should be garbage collected
+                       && vm->heap.count(six_array_address) == 0                       // Sixth array should be garbage collected
+                       && vm->heap.size() == 3                                         // Thus the heap should contain 3 objects
+                       && vm->stack.size() == 3                                        // The stack should have 3 mappings
+                       && vm->stack[o3_variable_address] == third_array_address        // The first variable should point to the first array
+                       && vm->stack[o6_variable_address] == six_array_address;         // and so should the second array
+    cout << "MULTIDIMENSIONAL ARRAY RE-ASSIGNMENT: " << (test_passed ? "PASSED" : "FAILED") << endl;
     gc_end();
 }
 
@@ -338,5 +388,6 @@ int main() {
     //test_int_array_reassignment();
     //test_pair_array_reassignment();
     test_pair_pair_reassignment();
+    //test_multidimensional_array_reassignment();
     return 0;
 }
