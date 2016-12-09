@@ -90,6 +90,7 @@ case class FreeStatement(expression: Expression) extends Statement {
           LDR(registers.head, RegisterAddress(FP, offset)),
           MOV(R0, registers.head),
           BL(Label("gc_free")),
+          MOV(R0, registers.head),
           BL(varType match {
             case pt: PairType => StaticCode.freePairLabel
             case at: ArrayType => StaticCode.freeArrayLabel
