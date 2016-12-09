@@ -73,7 +73,7 @@ case class AssignStatement(lhs: AssignTarget, rhs: AssignValue) extends Statemen
           case PairType(_, _) | ArrayType(_) => CodeSegment(
             ADD(R0, FP, ImmOperand(vt.offset)),
             MOV(R1, registers.head),
-            BL(Label("pushVM"))
+            BL(Label("push_stack"))
           )
           case _ => CodeSegment()
          }
@@ -219,7 +219,7 @@ case class DeclareStatement(varType: Type, newReference: VariableReference, valu
         case PairType(_, _) | ArrayType(_) => CodeSegment(
           ADD(R0, FP, ImmOperand(newReference.offset)),
           MOV(R1, registers.head),
-          BL(Label("pushVM"))
+          BL(Label("push_stack"))
         )
         case _ => CodeSegment()
       })
