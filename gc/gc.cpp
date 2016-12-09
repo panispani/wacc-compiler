@@ -34,7 +34,6 @@ VM *vm;
 /************ STATIC FUNCTIONS *****************/
 
 static void mark(unsigned long long int heapaddress) {
-    cout << (void*) heapaddress << endl;
     if (!vm->heap.count(heapaddress)) {
         return;
     }
@@ -48,7 +47,6 @@ static void mark(unsigned long long int heapaddress) {
 static void markAll() {
     // Start marking from the stack allocated variables
     for (auto pair : vm->stack) {
-        cout << pair.second << endl;
         mark(pair.second);
     }
 }
