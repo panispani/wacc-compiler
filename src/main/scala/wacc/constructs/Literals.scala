@@ -41,7 +41,7 @@ case class ArrayLiteral(elements: Seq[Expression]) extends AssignValue {
     }
 
     CodeSegment()
-      .extend(LDR(R0, Const(arraySize)))
+      .extend(LDR(R0, Const(elements.size)))
       .extend(MOV(R1, ImmOperand(varType.elemtype.enumId)))
       .extend(BL(Label("new_array_literal")))
       .extend(MOV(registers.head, R0))
