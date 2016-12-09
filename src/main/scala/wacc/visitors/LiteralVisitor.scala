@@ -3,18 +3,50 @@ package wacc.visitors
 import antlr.WACCParser._
 import antlr.WACCParserBaseVisitor
 import wacc.constructs.{CharLiteral, StringLiteral, _}
+import java.lang.Integer.parseInt
 
 /**
   * It only visits expression literals
   * (excludes array literal which is implemented separately)
   */
 object  LiteralVisitor extends WACCParserBaseVisitor[Either[CompilationError, Literal]] {
-  override def visitIntLiteral(ctx: IntLiteralContext): Either[CompilationError, IntegerLiteral]
-    = try {
-        Right(IntegerLiteral(ctx.getText.toInt))
-      } catch {
-        case e: NumberFormatException => Left(SyntaxError("integer literal not in range", ctx.start))
+
+
+  override def visitDecLiteral(ctx: DecLiteralContext): Either[CompilationError, Literal] = {
+    try {
+      Right(IntegerLiteral(ctx.getText.toInt))
+    } catch {
+      case e: NumberFormatException => Left(SyntaxError("integer literal not in range", ctx.start))
+    }
+  }
+
+  override def visitHexLiteral(ctx: HexLiteralContext): Either[CompilationError, Literal] = {
+    try {
+      Right(IntegerLiteral(parseInt(ctx.getText.drop(2), 16)))
+    } catch {
+      case e: NumberFormatException => Left(SyntaxError("integer literal not in range", ctx.start))
+    }
+  }
+
+  override def visitOctalLiteral(ctx: OctalLiteralContext): Either[CompilationError, Literal] = {
+    try {
+      if (ctx.getText == "0") {
+        Right(IntegerLiteral(0))
+      } else {
+        Right(IntegerLiteral(parseInt(ctx.getText.drop(1), 8)))
       }
+    } catch {
+      case e: NumberFormatException => Left(SyntaxError("integer literal not in range", ctx.start))
+    }
+  }
+
+  override def visitBinaryLiteral(ctx: BinaryLiteralContext): Either[CompilationError, Literal] = {
+    try {
+      Right(IntegerLiteral(parseInt(ctx.getText.drop(2), 2)))
+    } catch {
+      case e: NumberFormatException => Left(SyntaxError("integer literal not in range", ctx.start))
+    }
+  }
 
   override def visitBoolLiteral(ctx: BoolLiteralContext): Either[CompilationError, BoolLiteral]
     = Right(BoolLiteral(ctx.getText.toBoolean))
