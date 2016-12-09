@@ -24,6 +24,7 @@ VM::VM() {
 VM::~VM() {
     for (auto it : heap) {
         void *addr = reinterpret_cast<void*>(it.first);
+        //cout << "VM destructor freeing from heap " << addr << endl;
         free(addr);
         free(it.second);
     }
@@ -189,7 +190,7 @@ uint8_t* new_struct_literal(int struct_size, int num_types, object_type types[])
     obj->bytes = bytes;
     obj->types = types;
     obj->num_types = num_types;
-    cout << "Constructing struct of size " << struct_size << " and " << num_types << " members" << endl;
+    //cout << "Constructing struct of size " << struct_size << " and " << num_types << " members" << endl;
 
     // Map address on actual heap to address of created meta-object for the array
     pushHeap(bytes, obj);
@@ -214,32 +215,40 @@ void remove_function_stack(void* fp) {
 
 void remove_stack(void* obj) {
     auto addr1 = reinterpret_cast<std::uintptr_t>(obj);
-    cout << addr1 << endl;
+    //cout << addr1 << endl;
     vm->stack.erase(addr1);
 }
 
-void gc_free(void* obj) {
+void print_stack_and_heap() {
+    cout << "Stack:" << endl;
+    for(auto obj : vm->stack) {
+        cout << (void*) obj.first << " -> " << (void*) obj.second << endl;
+    }
+
+    cout << "Heap:" << endl;
+    for(auto obj : vm->heap) {
+        cout << (void*) obj.first << " -> " << obj.second << " of type " << obj.second->getType() << endl;
+    }
+}
+
+unsigned long long gc_free(void* obj) {
     auto addr1 = reinterpret_cast<std::uintptr_t>(obj);
     delete vm->heap[vm->stack[addr1]];
     vm->heap.erase(vm->stack[addr1]);
-    remove_stack(obj);
+    return vm->stack[addr1];
 }
 
 void collect_garbage() {
-   // printf("\n---------- Before VM heap ---------\n");
-   // for(auto obj : vm->heap) {
-   //     cout << (void*) obj.first << " -> " << obj.second << " of type " << obj.second->getType() << endl;
-   //  }
-   // printf("--------------------\n");
+    //printf("\n---------- Before GC stack & heap ---------\n");
+    //print_stack_and_heap();
+    //printf("--------------------\n");
 
     markAll();
     sweep();
 
-   // printf("\n---------- After VM heap ---------\n");
-   // for(auto obj : vm->heap) {
-   //     cout << (void*) obj.first << " -> " << obj.second << " of type " << obj.second->getType() << endl;
-   // }
-   // printf("--------------------\n");
+    //printf("\n---------- After GC stack & heap ---------\n");
+    //print_stack_and_heap();
+    //printf("--------------------\n");
 
 }
 

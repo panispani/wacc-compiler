@@ -4,19 +4,15 @@
 
 object* object::new_obj(int type) {
     switch (static_cast<object_type>(type)) {
-        case ANY:
-            cout << "Error in garbage collector - attempting to create ANY type" << endl;
-            return nullptr;
         case PAIR: return new pair_object();
         case ARRAY: return new array_object();
         case STRUCT: return new struct_object();
         case CLASS: return new class_object();
         case PAIR_CONTAINER: return new pair_container();
         default:
-            cout << "Error in garbage collector - attempting to create primitive type" << endl;
+            cout << "Error in garbage collector - attempting to create invalid type " << type << endl;
             return nullptr;
      }
-    return nullptr;
 }
 
 void pair_object::mark() {
