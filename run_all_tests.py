@@ -95,12 +95,18 @@ for root, dirs, files in os.walk("extension_examples"):
 
 print_stats("EXTENSION", extensions_correct, extensions_total)
 
+ignored_tests = ["echoBigNegInt.wacc",
+                 "echoNegInt.wacc",
+                 "hiddenDoubleFree.wacc",
+                 "doubleFree.wacc",
+                 "intLeadingZeros.wacc"]
+
 for root, dirs, files in os.walk("wacc_examples"):
     for file in files:
         if not file.endswith(".wacc") or root == "wacc_examples/valid/advanced":
             continue
 
-        if file == "echoBigNegInt.wacc" or file == "echoNegInt.wacc" or file == "hiddenDoubleFree.wacc" or file == "doubleFree.wacc":
+        if file in ignored_tests:
             continue
 
         full_path = os.path.join(root, file)
