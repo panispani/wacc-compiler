@@ -89,6 +89,7 @@ case class FreeStatement(expression: Expression) extends Statement {
         CodeSegment(
           LDR(registers.head, RegisterAddress(FP, offset)),
           MOV(R0, registers.head),
+          BL(Label("gc_free")),
           BL(varType match {
             case pt: PairType => StaticCode.freePairLabel
             case at: ArrayType => StaticCode.freeArrayLabel
