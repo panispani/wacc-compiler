@@ -1,0 +1,18 @@
+begin
+    string a = "abc";
+    for int i = 0; i < 3; i = i + 1 do
+        string s = " ";
+        s[0] = a[i];
+        a = a + s;
+        println "we"
+    done;
+    println "asd";
+    println a;
+    string b = "qwe";
+    string c = "qwake";
+    string d = "qwakje";
+    pair(string, string) p1 = newpair(a, b);
+    pair(string, string) p2 = newpair(c, d);
+    p1 = p2;
+    free a
+end
