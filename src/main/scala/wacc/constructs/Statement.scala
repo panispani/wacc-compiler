@@ -109,9 +109,12 @@ case class ScopeStatement(statements: Seq[Statement], symbolTable: SymbolTable) 
     val instructions = statements map (_.transStatement(registers))
     val (beginFrame, endFrame) = Macros.semanticFrame(this.symbolTable.sizeInBytes)
 
-    beginFrame
-      .extend(instructions.foldLeft(CodeSegment())((acc, x) => acc.extend(x)))
-      .extend(endFrame)
+    val code: CodeSegment = beginFrame
+                            .extend(instructions.foldLeft(CodeSegment())((acc, x) => acc.extend(x)))
+
+    val freeVariables: CodeSegment = symbolTable.freeVariables()
+
+    code.extend(freeVariables).extend(endFrame)
   }
 }
 

@@ -1,5 +1,7 @@
 package wacc
 
+import wacc.arm._
+import wacc.codegeneration.CodeSegment
 import wacc.constructs._
 
 import scala.collection.mutable
@@ -17,6 +19,15 @@ case class SymbolTable(parent: Option[SymbolTable], var currentOffset: Int = 0) 
   def sizeInBytes = currentOffset - initialOffset
 
   private var map: mutable.Map[String, VariableReference] = mutable.LinkedHashMap()
+
+  // for each variable in map, call removeVM
+  def freeVariables(): CodeSegment = {
+    var code = CodeSegment()
+    for ((k,v) <- map) {
+      code = code.extend(Seq(MOV(R0, ImmOperand(v.offset)), ADD(R0, R0, FP), BL(Label("gc_free"))))
+    }
+    code
+  }
 
   // The frame pointer will store the stack both LR and the parent FP have been stored
   // The offset to argument 0 is 8 and the rest depend on the argument sizes
