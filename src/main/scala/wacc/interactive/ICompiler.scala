@@ -1,14 +1,15 @@
 package wacc.interactive
 
 import java.io.{ByteArrayInputStream, _}
-import scala.language.postfixOps
+
 import antlr.{WACCLexer, WACCParser}
 import org.antlr.v4.runtime.{ANTLRInputStream, CommonTokenStream}
 import wacc.arm.Registers
 import wacc.codegeneration.{CodeSegment, TransFunctions, TransStatements}
-import wacc.constructs.{CompilationError, Function, SemanticError, Statement, SyntaxError}
-import wacc.visitors.{FunctionVisitor, ProgramVisitor, StatementVisitor}
+import wacc.constructs.{CompilationError, Function, Statement, SyntaxError}
+import wacc.visitors.{FunctionVisitor, StatementVisitor}
 
+import scala.language.postfixOps
 import scala.sys.process._
 
 object ICompiler extends App {
@@ -32,11 +33,7 @@ object ICompiler extends App {
     //parser.removeErrorListeners() We want error messages by at least one
     val tree = parser.function()
     try {
-      ProgramVisitor.defineFunction(tree) match {
-        case Some(SemanticError(error, symbol)) =>
-          Left(SemanticError(error, symbol))
-        case None => FunctionVisitor.visit(tree)
-      }
+      FunctionVisitor.defineFunction(tree).right.flatMap(FunctionVisitor.visit)
     } catch {
       case _: NullPointerException =>
         Left(SyntaxError("It's not a function", null))
