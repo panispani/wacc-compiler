@@ -1,0 +1,9 @@
+# exiting a scope should delete the variable from the VM stack
+begin
+    pair(int, int) a = newpair(1, 2);
+    begin
+        pair(int, int) b = a;
+        pair(int, int) c = newpair(5, 7)
+    end;
+    println a
+end
