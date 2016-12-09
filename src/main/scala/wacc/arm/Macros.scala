@@ -7,6 +7,7 @@ import wacc.constructs._
 import scala.collection.+:
 
 object Macros {
+  //The value that needs to be stored is in registers.head
   def store(lhs: AssignTarget, registers: Seq[Register]): Seq[Instruction] = {
     lhs match {
       case VariableReference(name, varType, offset) => {
@@ -39,6 +40,19 @@ object Macros {
 
         instruction.extend(store).instructions
 
+      }
+
+      case sm @ StructMember(vr, membersName) => {
+        val instruction = getNestedStructMemberAddress(sm.membersOffset, registers.tail)
+        val store = sm.varType match {
+          case Character | Boolean => STRB(registers.head, RegisterAddress(registers(1)))
+          case default => STR(registers.head, RegisterAddress(registers(1)))
+        }
+
+        CodeSegment(ADD(registers(1), FP, ImmOperand(vr.offset)))  //Put stack location of the struct in registers(1)
+          .extend(instruction)
+          .extend(store)
+          .instructions
       }
     }
   }
