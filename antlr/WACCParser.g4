@@ -14,7 +14,15 @@ function : type IDENT LP parameterList? RP IS sequence END ;
 parameterList : parameter (COMMA parameter)* ;
 parameter : type IDENT ;
 
+invocation : functionCall
+           | instanceMethodCall
+           ;
+
+instanceMethodCall : CALL self=IDENT DOT methodName=IDENT LP argumentList? RP ;
+
 functionCall : CALL IDENT LP argumentList? RP ;
+
+
 argumentList : expression (COMMA expression)* ;
 
 sequence : statement (SEMICOLON statement)* ;
@@ -40,9 +48,9 @@ conditionalStatement : IF expression THEN trueSequence=sequence FI              
 
 loopStatement : WHILE expression DO sequence DONE                                              # While
               | DO sequence WHILE expression                                                   # DoWhile
-              | FOR (init=statement)? SEMICOLON
+              | FOR init=statement SEMICOLON
                     cond=expression SEMICOLON
-                    (step=statement)? DO body=sequence DONE                                    # For
+                    step=statement DO body=sequence DONE                                    # For
               ;
 
 assignLhs : variableReference # AssignLhsIdent
@@ -51,13 +59,13 @@ assignLhs : variableReference # AssignLhsIdent
           | structMember      # AssignLhsStructMember
           ;
 
-assignRhs : expression      # AssignRhsExpression
-          | arrayLiteral    # AssignRhsArrayLiteral
-          | pairConstructor # AssignRhsPairConstructor
-          | pairElement     # AssignRhsPairElement
-          | functionCall    # AssignRhsFunctionCall
-          | structLiteral   # AssignRhsStructLiteral
-          | structMember    # AssignRhsStructMember
+assignRhs : expression             # AssignRhsExpression
+          | arrayLiteral           # AssignRhsArrayLiteral
+          | pairConstructor        # AssignRhsPairConstructor
+          | pairElement            # AssignRhsPairElement
+          | invocation             # AssignRhsFunctionCall
+          | structLiteral          # AssignRhsStructLiteral
+          | structMember           # AssignRhsStructMember
           ;
 
 type : primitiveType
@@ -67,7 +75,7 @@ type : primitiveType
      ;
 
 primitiveType : INT | BOOL | CHAR | STRING ;
-notNestedArrayType: primitiveType | pairType ;
+notNestedArrayType: primitiveType | pairType  | structType;
 
 arrayType    : notNestedArrayType (LB RB)+ ;
 
@@ -104,8 +112,20 @@ expression : literal                                   # LiteralExp
 
 variableReference : IDENT ;
 
-literal : intLiteral | boolLiteral | charLiteral | stringLiteral | pairLiteral ;
-intLiteral    : (PLUS | MINUS)? NUMBER ;
+literal : decLiteral
+        | hexLiteral
+        | octalLiteral
+        | binaryLiteral
+        | boolLiteral
+        | charLiteral
+        | stringLiteral
+        | pairLiteral
+        ;
+
+decLiteral    : (PLUS | MINUS)? DECIMAL ;
+hexLiteral    : (PLUS | MINUS)? HEX ;
+octalLiteral  : (PLUS | MINUS)? OCTAL ;
+binaryLiteral : (PLUS | MINUS)? BINARY ;
 boolLiteral   : TRUE | FALSE ;
 charLiteral   : CHAR_LITERAL ;
 stringLiteral : STRING_LITERAL ;
