@@ -1,0 +1,13 @@
+begin
+    pair(int, int) p = newpair(1, 2);
+    pair(int, int) q = newpair(321, 2);
+    p = q;
+    int a = fst p;
+    int b = snd p;
+    int c = fst q;
+    int d = snd q;
+    println a;
+    println b;
+    println c;
+    println d
+end

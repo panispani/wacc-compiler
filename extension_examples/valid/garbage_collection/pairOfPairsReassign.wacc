@@ -1,0 +1,36 @@
+begin
+    pair(int, int) p1 = newpair(1, 1);
+    pair(int, int) p2 = newpair(2, 2);
+    pair(int, int) p3 = newpair(3, 3);
+    pair(int, int) p4 = newpair(4, 4);
+
+    pair(pair, pair) o1 = newpair(p1, p2);
+    pair(pair, pair) o2 = newpair(p3, p4);
+
+    int a = fst p1;
+    pair(int, int) b = fst o1;
+    int c = fst b;
+    println a;
+    println c;
+
+    a = fst p2;
+    b = snd o1;
+    c = fst b;
+    println a;
+    println c;
+
+    a = fst p3;
+    b = fst o2;
+    c = fst b;
+    println a;
+    println c;
+
+    a = fst p4;
+    b = snd o2;
+    c = fst b;
+    println a;
+    println c;
+
+    # o2 should be collected only
+    o1 = o2
+end
