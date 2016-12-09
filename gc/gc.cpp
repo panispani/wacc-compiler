@@ -23,6 +23,8 @@ VM::VM() {
 
 VM::~VM() {
     for (auto it : heap) {
+        void *addr = reinterpret_cast<void*>(it.first);
+        free(addr);
         free(it.second);
     }
 }
