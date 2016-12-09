@@ -32,6 +32,9 @@ VM *vm;
 /************ STATIC FUNCTIONS *****************/
 
 static void mark(unsigned long long int heapaddress) {
+    if (!vm->heap.count(heapaddress)) {
+        return;
+    }
     object* obj = vm->heap[heapaddress];
     if (obj == nullptr) {
         return;
@@ -49,6 +52,7 @@ static void markAll() {
 static void sweep() {
     vector<unsigned long long int> to_delete;
     to_delete.clear();
+    cout << vm->heap.size() << endl;
     for (auto pair : vm->heap) {
         auto obj = pair.second;
         if (!obj->marked) {
