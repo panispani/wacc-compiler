@@ -14,7 +14,15 @@ function : type IDENT LP parameterList? RP IS sequence END ;
 parameterList : parameter (COMMA parameter)* ;
 parameter : type IDENT ;
 
+invocation : functionCall
+           | instanceMethodCall
+           ;
+
+instanceMethodCall : CALL self=IDENT DOT methodName=IDENT LP argumentList? RP ;
+
 functionCall : CALL IDENT LP argumentList? RP ;
+
+
 argumentList : expression (COMMA expression)* ;
 
 sequence : statement (SEMICOLON statement)* ;
@@ -51,13 +59,13 @@ assignLhs : variableReference # AssignLhsIdent
           | structMember      # AssignLhsStructMember
           ;
 
-assignRhs : expression      # AssignRhsExpression
-          | arrayLiteral    # AssignRhsArrayLiteral
-          | pairConstructor # AssignRhsPairConstructor
-          | pairElement     # AssignRhsPairElement
-          | functionCall    # AssignRhsFunctionCall
-          | structLiteral   # AssignRhsStructLiteral
-          | structMember    # AssignRhsStructMember
+assignRhs : expression             # AssignRhsExpression
+          | arrayLiteral           # AssignRhsArrayLiteral
+          | pairConstructor        # AssignRhsPairConstructor
+          | pairElement            # AssignRhsPairElement
+          | invocation             # AssignRhsFunctionCall
+          | structLiteral          # AssignRhsStructLiteral
+          | structMember           # AssignRhsStructMember
           ;
 
 type : primitiveType
