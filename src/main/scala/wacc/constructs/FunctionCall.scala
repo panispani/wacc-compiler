@@ -3,9 +3,10 @@ package wacc.constructs
 import wacc.arm._
 import wacc.codegeneration._
 
-case class FunctionCall(name: String, args: Seq[Expression], returnType: Type) extends AssignValue {
+case class FunctionCall(name: String, identifier: String, args: Seq[Expression], returnType: Type) extends AssignValue {
   override val varType = returnType
-  def identifier: String = Function.fullName(name, args map (_.varType))
+
+
 
   override def transAssignRhs(registers: Seq[Register]): CodeSegment = {
     val argumentsSize = ImmOperand(args.map(_.varType.size).sum)
@@ -23,5 +24,11 @@ case class FunctionCall(name: String, args: Seq[Expression], returnType: Type) e
       .extend(BL(Label(identifier)))
       .extend(ADD(SP, SP, argumentsSize))
       .extend(MOV(registers.head, R0))
+  }
+}
+
+object FunctionCall {
+  def apply(name: String, args: Seq[Expression], returnType: Type): FunctionCall = {
+    this(name, Function.fullName(name, args map (_.varType)), args, returnType)
   }
 }

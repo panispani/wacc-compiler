@@ -21,8 +21,7 @@ object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError
 
     val argumentExpressions = sequenceOrLast(argumentList map (_.accept(ExpressionVisitor)))
 
-    val functionSignature = argumentExpressions.right.flatMap(argList => {
-      val argTypes = argList map (e => e.varType)
+    def getFunctionSignature(name: String, argTypes: Seq[Type]): Either[CompilationError, (String, Type, Seq[Type])] = {
       val identifier = Function.fullName(name, argTypes)
 
       SymbolTable.functionsTable.get(identifier) match {
@@ -32,16 +31,29 @@ object FunctionCallVisitor extends WACCParserBaseVisitor[Either[CompilationError
             case default => Left(SemanticError(name + " is not a function", ctx.start))
           }
         }
-        case None => Left(SemanticError(
-          "Function " + SemanticErrors.functionSignatureToString(name, argTypes) + ") is undefined", ctx.start))
+        case None => argTypes.head match {
+          case st @ StructType(id, _, parentName) =>
+            parentName match {
+              case Some(parent) => getFunctionSignature(name, SymbolTable.structsTable(parent) +: argTypes.tail)
+              case None => Left(SemanticError(
+                "Function " + SemanticErrors.functionSignatureToString(name, argTypes) + ") is undefined", ctx.start))
+            }
+          case _ => Left(SemanticError(
+            "Function " + SemanticErrors.functionSignatureToString(name, argTypes) + ") is undefined", ctx.start))
+        }
       }
+    }
+
+    val functionSignature = argumentExpressions.right.flatMap(argList => {
+      val argTypes = argList map (e => e.varType)
+      getFunctionSignature(name, argTypes)
     })
 
     argumentExpressions match {
       case Right(argList) =>
         functionSignature match {
           case Right((name, returnType, argTypes)) =>
-            if (matchArgumentLists(argTypes, argList)) Right(FunctionCall(name, argList, returnType))
+            if (matchArgumentLists(argTypes, argList)) Right(FunctionCall(name, Function.fullName(name, argTypes), argList, returnType))
             else Left(SemanticError("Argument list types don't match up", ctx.start))
           case Left(error) => Left(error)
         }

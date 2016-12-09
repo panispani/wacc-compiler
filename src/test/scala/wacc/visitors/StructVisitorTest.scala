@@ -7,10 +7,14 @@ class StructVisitorTest extends VisitorTest {
 
   it should "struct type declaration should be valid" in {
     val parser = TestUtilities.setupParser("struct car")
-    SymbolTable.structsTable += "car" -> Struct("car", Seq(VariableReference("a", Integer, 0), VariableReference("b", Character, 0)))
+    SymbolTable.structsTable += "car" -> StructType("car", Seq(VariableReference("a", Integer, 0), VariableReference("b", Character, 0)))
     val result = TestUtilities.buildSubProgram(parser.structType, TypeVisitor)
 
-    result shouldBe StructType("car", Seq(("a", Integer), ("b", Character)))
+    result shouldBe StructType(
+      "car",
+      Seq(VariableReference("a", Integer, 0),
+        VariableReference("b", Character, 0))
+    )
   }
 
   "Visiting a struct" should "create struct construct with the correct symbol table" in {
@@ -18,7 +22,7 @@ class StructVisitorTest extends VisitorTest {
     val parser = TestUtilities.setupParser("struct car int a; char b;")
     val result = TestUtilities.buildSubProgram(parser.struct, StructVisitor)
 
-    val struct = result.right.get
+    val struct = result.right.get._1
     struct.identifier shouldBe "car"
     struct.members.head shouldBe VariableReference("a", Integer, 0)
     struct.members(1) shouldBe VariableReference("b", Character, 4)
