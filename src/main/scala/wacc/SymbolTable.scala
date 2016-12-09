@@ -24,7 +24,9 @@ case class SymbolTable(parent: Option[SymbolTable], var currentOffset: Int = 0) 
   def freeVariables(): CodeSegment = {
     var code = CodeSegment()
     for ((k,v) <- map) {
-      code = code.extend(Seq(MOV(R0, ImmOperand(v.offset)), ADD(R0, R0, FP), BL(Label("remove_stack"))))
+      if (v.offset < 0) {
+        code = code.extend(Seq(MOV(R0, ImmOperand(v.offset)), ADD(R0, R0, FP), BL(Label("remove_stack"))))
+      }
     }
     code
   }

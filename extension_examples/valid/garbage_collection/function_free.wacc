@@ -1,0 +1,11 @@
+begin
+    int foo(pair(int, int) x) is
+        pair(int, int) a = newpair(2, 2);
+        pair(int, int) b = x;
+        return 0
+    end
+    pair(int, int) t = newpair(3, 33);
+    pair(int, int) t5 = newpair(3, 33);
+    int result = call foo(t);
+    println(t)
+end

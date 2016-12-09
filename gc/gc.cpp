@@ -102,7 +102,6 @@ int type_size(object_type type) {
       default: return 0;
     }
 }
-
 /************ PUBLIC FUNCTIONS *****************/
 
 static void pushHeap(void* heapaddress, object* obj) {
@@ -207,9 +206,15 @@ void gc_end() {
     delete vm;
 }
 
+void remove_function_stack(void* fp) {
+    auto addr1 = reinterpret_cast<std::uintptr_t>(fp);
+    auto it = vm->stack.lower_bound(addr1);
+    vm->stack.erase(vm->stack.begin(), it);
+}
 
 void remove_stack(void* obj) {
     auto addr1 = reinterpret_cast<std::uintptr_t>(obj);
+    cout << addr1 << endl;
     vm->stack.erase(addr1);
 }
 
@@ -221,20 +226,20 @@ void gc_free(void* obj) {
 }
 
 void collect_garbage() {
-    printf("\n---------- Before VM heap ---------\n");
-    for(auto obj : vm->heap) {
-        cout << (void*) obj.first << " -> " << obj.second << " of type " << obj.second->getType() << endl;
-     }
-    printf("--------------------\n");
+   // printf("\n---------- Before VM heap ---------\n");
+   // for(auto obj : vm->heap) {
+   //     cout << (void*) obj.first << " -> " << obj.second << " of type " << obj.second->getType() << endl;
+   //  }
+   // printf("--------------------\n");
 
     markAll();
     sweep();
 
-    printf("\n---------- After VM heap ---------\n");
-    for(auto obj : vm->heap) {
-        cout << (void*) obj.first << " -> " << obj.second << " of type " << obj.second->getType() << endl;
-    }
-    printf("--------------------\n");
+   // printf("\n---------- After VM heap ---------\n");
+   // for(auto obj : vm->heap) {
+   //     cout << (void*) obj.first << " -> " << obj.second << " of type " << obj.second->getType() << endl;
+   // }
+   // printf("--------------------\n");
 
 }
 
