@@ -20,7 +20,8 @@ extern "C" {
     uint32_t* new_pair(object_type type1, object_type type2);
     uint8_t* new_array_literal(int array_size, object_type type);
     uint8_t* new_struct_literal(int struct_size, int num_types, object_type *types);
-    void pushVM(void* stackaddress, void* heapaddress);
+    void push_stack(void* stackaddress, void* heapaddress);
+    void remove_stack(void* obj);
     void collect_garbage();
     int type_size(object_type);
 }

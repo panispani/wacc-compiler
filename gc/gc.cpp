@@ -116,7 +116,7 @@ static void pushHeap(void* heapaddress, object* obj) {
 
 
 // call on declaration and assignment
-void pushVM(void* stackaddress, void* heapaddress) {
+void push_stack(void* stackaddress, void* heapaddress) {
     //cout << "Pushing " << stackaddress << " -> " << heapaddress << " to stack " << endl;
     if (heapaddress == nullptr) {
         return;
@@ -204,11 +204,17 @@ void gc_end() {
     delete vm;
 }
 
+
+void remove_stack(void* obj) {
+    auto addr1 = reinterpret_cast<std::uintptr_t>(obj);
+    vm->stack.erase(addr1);
+}
+
 void gc_free(void* obj) {
     auto addr1 = reinterpret_cast<std::uintptr_t>(obj);
     delete vm->heap[vm->stack[addr1]];
     vm->heap.erase(vm->stack[addr1]);
-    vm->stack.erase(addr1);
+    remove_stack(obj);
 }
 
 void collect_garbage() {
