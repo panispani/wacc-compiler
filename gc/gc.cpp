@@ -190,6 +190,7 @@ uint8_t* new_struct_literal(int struct_size, int num_types, object_type types[])
     obj->bytes = bytes;
     obj->types = types;
     obj->num_types = num_types;
+    cout << "Constructing struct of size " << struct_size << " and " << num_types << " members" << endl;
 
     // Map address on actual heap to address of created meta-object for the array
     pushHeap(bytes, obj);
