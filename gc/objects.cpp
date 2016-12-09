@@ -12,7 +12,10 @@ object* object::new_obj(int type) {
         case STRUCT: return new struct_object();
         case CLASS: return new class_object();
         case PAIR_CONTAINER: return new pair_container();
-    }
+        default:
+            cout << "Error in garbage collector - attempting to create primitive type" << endl;
+            return nullptr;
+     }
     return nullptr;
 }
 
