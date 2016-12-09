@@ -23,7 +23,7 @@ VM::VM() {
 
 VM::~VM() {
     for (auto it : heap) {
-        delete it.second;
+        free(it.second);
     }
 }
 
@@ -63,8 +63,11 @@ static void sweep() {
     for (auto key : to_delete) {
         // Delete both the actual memory and the meta-object
         void *addr = reinterpret_cast<void*>(key);
+        cout << "Freeing: " << addr << endl;
         free(addr);
-        delete vm->heap[key];
+        cout << "Freeing: " << vm->heap[key] << endl;
+        free(vm->heap[key]);
+        cout << "Successfully freed" << endl;
     }
 
     // Update the heap
@@ -141,17 +144,19 @@ pair_container* new_pair_container(object_type type) {
 }
 
 uint32_t* new_pair(object_type type1, object_type type2) {
-    // Allocate actual space for the pair and its elements
-    uint32_t *bytes = (uint32_t *) malloc(8);
-
     // Create meta-objects for the pair and its elements
     pair_object *obj = (pair_object *) object::new_obj(PAIR);
     obj->first       = new_pair_container(type1);
     obj->second      = new_pair_container(type2);
 
+    // Allocate actual space for the pair and its elements
+    uint32_t **bytes = (uint32_t **) malloc(8);
+    bytes[0] = (uint32_t*) obj->first->bytes;
+    bytes[1] = (uint32_t*) obj->second->bytes;
+
     // Map addresses on actual heap to addresses of created meta-objects for the pair
     pushHeap(bytes, obj);
-    return bytes;
+    return (uint32_t*) bytes;
 }
 
 uint8_t* new_array_literal(int array_size, object_type type) {

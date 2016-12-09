@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <string>
 #include <cstdlib>
+#include <iostream>
 
 using namespace std;
 
@@ -36,6 +37,9 @@ class pair_container: public object {
 public:
     object_type type;
 public:
+    virtual ~pair_container() {
+        cout << "In pair container destructor" << endl;
+    };
     virtual void mark();
     string getType() { return "pointer"; }
 };
