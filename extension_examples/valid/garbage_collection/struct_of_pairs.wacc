@@ -1,0 +1,7 @@
+begin
+    struct car
+        pair(pair, pair) p;
+        pair(pair, pair) p2;
+    struct car c = {null, null};
+    c.p = newpair(null, null)
+end

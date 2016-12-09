@@ -1,0 +1,10 @@
+begin
+    struct engine
+        pair(int, int) a;
+        pair(int, int) a2;
+    struct engine e = {null, null};
+    e = {null, null};
+    pair(int, int) p = e.a;
+    free p;
+    println p
+end
