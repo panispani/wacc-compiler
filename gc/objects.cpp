@@ -17,6 +17,9 @@ object* object::new_obj(int type) {
 void pair_object::mark() {
     //cout << "Marking pair of type (" << firstType << ", " << secondType << ")" << endl;
     marked = 1;
+    if (first == nullptr || second == nullptr) {
+        return;
+    }
     first->mark();
     second->mark();
 }
@@ -32,14 +35,12 @@ void array_object::mark() {
     uint32_t *bytes = (uint32_t*) this->bytes;
     bytes += 1; // Skip over array size
     for (int i = 0; i < array_size; i++) {
-        if (bytes[i] == 0) {
-            continue;
-        }
 
-        //cout << vm->heap.count(bytes[i]) << endl;
-        if (vm->heap.count(bytes[i]) == 0) {
+        if (bytes[0] == 0 || vm->heap.count(bytes[i]) == 0) {
             continue;
         }
+        //cout << i << endl;
+        //cout << bytes[i] << endl;
 
         object* meta = vm->heap[bytes[i]];
 
@@ -62,7 +63,7 @@ void struct_object::mark() {
         }
 
         uint32_t *words = (uint32_t *) bytes;
-        if (*words == 0) {
+        if (*words == 0 || !vm->heap.count(*words)) {
             bytes += type_size(type);
             continue;
         }
