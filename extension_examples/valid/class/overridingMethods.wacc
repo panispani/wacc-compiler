@@ -1,0 +1,23 @@
+begin
+    struct a
+        int n;
+        int f(struct a self) is
+            return 5
+        end
+
+    struct b is a
+        int p;
+        int f(struct b self) is
+            return 10
+        end
+
+    struct c is a
+        int p;
+
+    struct b bs = {3, 4};
+    struct c cs = {1, 2};
+    int rb = call f(bs);
+    int rc = call f(cs);
+    println rb;
+    println rc
+end
