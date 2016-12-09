@@ -25,7 +25,11 @@ case class ArrayLiteral(elements: Seq[Expression]) extends AssignValue {
   val varType: ArrayType = ArrayType(if (elements.nonEmpty) elements.head.varType else AnyType)
 
   override def transAssignRhs(registers: Seq[Register]): CodeSegment = {
-    val arraySize = 4 + elements.size * varType.size
+
+    // This value is required when generating code without GC
+    // See the commented out code segment below
+    //val arraySize = 4 + elements.size * varType.size
+
     var offset = 4
     var instructions: Seq[Instruction] = Seq()
 
@@ -40,9 +44,11 @@ case class ArrayLiteral(elements: Seq[Expression]) extends AssignValue {
 
     }
 
+    // new_array_literal takes the length of the array and computes the size
+    // based on the enumId (unique identifier based on the data type)
     CodeSegment()
       .extend(LDR(R0, Const(elements.size)))
-      .extend(MOV(R1, ImmOperand(varType.elemtype.enumId)))
+      .extend(LDR(R1, Const(varType.elemtype.enumId)))
       .extend(BL(Label("new_array_literal")))
       .extend(MOV(registers.head, R0))
       .extend(LDR(registers(1), Const(elements.size)))

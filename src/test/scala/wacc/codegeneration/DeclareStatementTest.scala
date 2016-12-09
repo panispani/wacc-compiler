@@ -1,8 +1,8 @@
 package wacc.codegeneration
 
+import wacc.TestUtilities
 import wacc.arm._
 import wacc.visitors.StatementVisitor
-import wacc.{SymbolTable, TestUtilities}
 
 class DeclareStatementTest extends CodeGenTest {
 
@@ -16,6 +16,7 @@ class DeclareStatementTest extends CodeGenTest {
     instructions.last shouldBe STR(availableRegisters.head, RegisterAddress(FP, -4))
   }
 
+  // TODO: Test case when GC is not enabled
   it should "produce the expected instructions with pair literal" in {
     val parser = TestUtilities.setupParser("pair(int, int) x = null")
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
@@ -24,6 +25,18 @@ class DeclareStatementTest extends CodeGenTest {
     val instructions = TransStatements.transStatement(program.right.get, availableRegisters)
 
     instructions.last shouldBe STR(availableRegisters.head, RegisterAddress(FP, -4))
+  }
+
+  it should "produce the expected instructions with pair literal when GC enabled" in {
+    val parser = TestUtilities.setupParser("pair(int, int) x = null")
+    val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
+
+    val availableRegisters = Seq(R4, R5, R6)
+    val instructions = TransStatements.transStatement(program.right.get, availableRegisters)
+
+    // Pair literal declarations also talk to GC
+    val gcInstructionsCount = 3
+    instructions.dropRight(gcInstructionsCount).last shouldBe STR(availableRegisters.head, RegisterAddress(FP, -4))
   }
 
   it should "be able to handle two consecutive declarations" in {
@@ -40,6 +53,7 @@ class DeclareStatementTest extends CodeGenTest {
     instructions(3) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -5))
   }
 
+  // TODO: make it possible to disable GC
   it should "be able to handle array declarations" in {
     val parser = TestUtilities.setupParser("int[] a = [0, 1]")
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
@@ -57,6 +71,30 @@ class DeclareStatementTest extends CodeGenTest {
     //Don't care about instruction(7) because it's up to translateExpression
     instructions(8) shouldBe STR(availableRegisters(1), RegisterAddress(availableRegisters.head, 8))
     instructions(9) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -4))
+  }
+
+  it should "be able to handle array declarations with GC enabled" in {
+    val parser = TestUtilities.setupParser("int[] a = [0, 1]")
+    val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
+
+    val availableRegisters = Seq(R4, R5, R6)
+    val instructions = TransStatements.transStatement(program.right.get, availableRegisters)
+
+    val arrayLength = 2
+
+    // Call to GC
+    instructions.head shouldBe LDR(R0, Const(arrayLength))
+    instructions(1) shouldBe LDR(R1, Const(wacc.constructs.Integer.enumId))
+    instructions(2) shouldBe BL(Label("new_array_literal"))
+
+    instructions(3) shouldBe MOV(availableRegisters.head, R0)
+    instructions(4) shouldBe LDR(availableRegisters(1), Const(arrayLength))
+    instructions(5) shouldBe STR(availableRegisters(1), RegisterAddress(availableRegisters.head, 0))
+    //Don't care about instruction(6) because it's up to translateExpression
+    instructions(7) shouldBe STR(availableRegisters(1), RegisterAddress(availableRegisters.head, 4))
+    //Don't care about instruction(8) because it's up to translateExpression
+    instructions(9) shouldBe STR(availableRegisters(1), RegisterAddress(availableRegisters.head, 8))
+    instructions(10) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -4))
 
   }
 
@@ -76,6 +114,7 @@ class DeclareStatementTest extends CodeGenTest {
     instructions(3) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -8))
   }
 
+  // See TODO above
   it should "be able to handle declaring an array with assign value another variable" in {
     val parser = TestUtilities.setupParser("int[] a = [0]")
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
@@ -98,6 +137,7 @@ class DeclareStatementTest extends CodeGenTest {
     instructions(9) shouldBe STR(availableRegisters.head, RegisterAddress(FP, -8))
   }
 
+  // See TODO above
   it should "be able to handle declaring pairs" in {
     val parser = TestUtilities.setupParser("pair(int, int) p = newpair(10, 3)")
     val program = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
