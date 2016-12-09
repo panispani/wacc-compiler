@@ -23,3 +23,10 @@ integration:
     - git submodule sync
     - git submodule update --init
   script: ./run_all_tests.py
+
+integration_gc:
+  stage: test
+  before_script:
+    - git submodule sync
+    - git submodule update --init
+  script: ./run_all_tests_gc.py
