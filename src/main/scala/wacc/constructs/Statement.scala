@@ -87,13 +87,14 @@ case class AssignStatement(lhs: AssignTarget, rhs: AssignValue) extends Statemen
 case class FreeStatement(expression: Expression) extends Statement {
 
   override def transStatement(registers: Seq[Register]): CodeSegment = {
+    // TODO handle not -gc case
     expression match {
       case VariableReference(name, varType, offset) => {
         CodeSegment(
-          LDR(registers.head, RegisterAddress(FP, offset)),
+          ADD(registers.head, FP, ImmOperand(offset)),
           MOV(R0, registers.head),
           BL(Label("gc_free")),
-          MOV(R0, registers.head),
+          //MOV(R0, registers.head),
           BL(varType match {
             case pt: PairType => StaticCode.freePairLabel
             case at: ArrayType => StaticCode.freeArrayLabel

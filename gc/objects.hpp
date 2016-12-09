@@ -8,6 +8,7 @@
 
 using namespace std;
 
+// WARNING: These need to match the backend! Check Types.scala
 typedef enum {
         ANY,
         INT,
@@ -16,7 +17,6 @@ typedef enum {
         PAIR,
         ARRAY,
         STRUCT,
-        CLASS,
         PAIR_CONTAINER
 } object_type;
 
@@ -38,7 +38,7 @@ public:
     object_type type;
 public:
     virtual ~pair_container() {
-        cout << "In pair container destructor" << endl;
+        //cout << "In pair container destructor" << endl;
     };
     virtual void mark();
     string getType() { return "pointer"; }

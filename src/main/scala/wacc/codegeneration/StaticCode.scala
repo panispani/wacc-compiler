@@ -1,6 +1,8 @@
 package wacc.codegeneration
 
 import wacc.arm._
+import wacc.constructs.ArrayType
+import wacc.constructs.Character
 
 object StaticCode {
 
@@ -89,6 +91,17 @@ object StaticCode {
   def checkNullPointerFunctionLabel: Label = Label("check_null_pointer")
   def concatinateStringsLabel: Label = Label("concatinate_strings")
 
+  def heapAllocateString = CodeSegment(
+    // Expects size in R0
+
+    LDR(R1, Const(ArrayType(Character).enumId)),
+    BL(Label("new_array_literal"))
+
+    /* TODO if not gc
+      BL(Label("malloc"))
+     */
+  )
+
   def concatinateStrings: CodeSegment = {
     //R0 stringA, R1 stringB
     CodeSegment(
@@ -101,8 +114,8 @@ object StaticCode {
       MOV(R3, R0),
       ADD(R0, R0, R2),                // R0 = len(stringA) + len(stringB)
       ADD(R0, R0, ImmOperand(4)),     // R0 = len(stringA) + len(stringB) + 4
-      PUSH(Seq(R0, R2, R3)),
-      BL(Label("malloc")),            // R0 = newstring*
+      PUSH(Seq(R0, R2, R3))).extend(
+      heapAllocateString).extend(CodeSegment(             // R0 = newstring*
       POP(Seq(R1, R2, R3)),
       SUB(R1, R1, ImmOperand(4)),
       STR(R1, RegisterAddress(R0)),   // *newstring = length(stringA) + len(stringB)
@@ -121,7 +134,7 @@ object StaticCode {
       POP(Seq(R0)),
       SUB(R0, R0, ImmOperand(4)),
       RETURN
-    )
+    ))
   }
 
   def readIntFunction: CodeSegment = {
