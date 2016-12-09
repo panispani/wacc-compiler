@@ -52,7 +52,7 @@ static void sweep() {
     for (auto pair : vm->heap) {
         auto obj = pair.second;
         if (!obj->marked) {
-            cout << "Erasing " << pair.first << endl;
+            //cout << "Erasing " << pair.first << endl;
             to_delete.push_back(pair.first);
         } else {
             obj->marked = 0;
@@ -63,11 +63,11 @@ static void sweep() {
     for (auto key : to_delete) {
         // Delete both the actual memory and the meta-object
         void *addr = reinterpret_cast<void*>(key);
-        cout << "Freeing: " << addr << endl;
+        //cout << "Freeing: " << addr << endl;
         free(addr);
-        cout << "Freeing: " << vm->heap[key] << endl;
+        //cout << "Freeing: " << vm->heap[key] << endl;
         free(vm->heap[key]);
-        cout << "Successfully freed" << endl;
+        //cout << "Successfully freed" << endl;
     }
 
     // Update the heap
@@ -101,7 +101,7 @@ int type_size(object_type type) {
 /************ PUBLIC FUNCTIONS *****************/
 
 static void pushHeap(void* heapaddress, object* obj) {
-    cout << "Pushing " << heapaddress << " to heap " << endl;
+    //cout << "Pushing " << heapaddress << " to heap " << endl;
     if (should_collect()) {
         vm->garbage_collect = true;
     }
@@ -113,7 +113,7 @@ static void pushHeap(void* heapaddress, object* obj) {
 
 // call on declaration and assignment
 void pushVM(void* stackaddress, void* heapaddress) {
-    cout << "Pushing " << stackaddress << " to stack " << endl;
+    //cout << "Pushing " << stackaddress << " to stack " << endl;
     if (heapaddress == nullptr) {
         return;
     }
