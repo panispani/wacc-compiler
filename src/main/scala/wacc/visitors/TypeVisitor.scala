@@ -5,8 +5,6 @@ import antlr.WACCParserBaseVisitor
 import wacc.SymbolTable
 import wacc.constructs._
 
-import scala.collection.JavaConversions._
-
 object TypeVisitor extends WACCParserBaseVisitor[Type] {
   override def visitPrimitiveType(ctx: PrimitiveTypeContext): Type =
     ctx.getText match {
@@ -41,7 +39,6 @@ object TypeVisitor extends WACCParserBaseVisitor[Type] {
     val name: String = ctx.IDENT().getText
     //TODO: refactor typevisitor to return an Either[SemanticError, Type]
     //TODO: case when a struct type is not defined
-    val members = SymbolTable.structsTable(name).members
-    StructType(name, members map (m => (m.name, m.varType)))
+    SymbolTable.structsTable(name)
   }
 }

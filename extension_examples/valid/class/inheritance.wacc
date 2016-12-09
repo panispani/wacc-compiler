@@ -1,0 +1,26 @@
+begin
+    struct rect
+        int width;
+        int height;
+
+        int area(struct rect self) is
+            return self.width * self.height
+        end
+
+        struct rect flip(struct rect self) is
+            struct rect flipped = { self.height, self.width };
+            return flipped
+        end
+
+    struct square is rect
+        int a;
+        struct square square(int side) is
+            struct square self = { side, side };
+            return self
+        end
+
+    struct square mySquare = call square(2);
+    println mySquare.width;
+    int area = call area(mySquare);
+    print "Area: "; println area
+end

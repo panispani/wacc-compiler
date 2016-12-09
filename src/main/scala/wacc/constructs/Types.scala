@@ -1,5 +1,7 @@
 package wacc.constructs
 
+import wacc.VariableReference
+
 trait Type {
   val size: Int
   val enumId: Int
@@ -44,7 +46,8 @@ case class ArrayType(elemtype: Type) extends Type {
   override def toAssemblyLabel: String = s"array_$elemtype"
 }
 
-case class StructType(identifier: String, members: Seq[(String, Type)]) extends Type {
+case class StructType(identifier: String, members: Seq[VariableReference], parentName: Option[String] = None) extends Type {
   override val size: Int = 4
   override val enumId: Int = 7
+  override def toString(): String = identifier
 }

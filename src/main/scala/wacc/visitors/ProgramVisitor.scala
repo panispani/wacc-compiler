@@ -17,11 +17,15 @@ object ProgramVisitor extends WACCParserBaseVisitor[Either[Seq[CompilationError]
     }
 
     for {
-      structs <- sequenceOrAll(ctx.struct().toList map (e => e.accept(StructVisitor))).right
-      functionContexts <- sequenceOrAll(ctx.function().toList map FunctionVisitor.defineFunction).right
-      functions <- sequenceOrAll(functionContexts map (e => e.accept(FunctionVisitor))).right
+      structDefinitions <- sequenceOrAll(ctx.struct().toList map (e => e.accept(StructVisitor))).right
+
+      functionContexts <- sequenceOrAll(ctx.function().toList ++ structDefinitions.unzip._2.flatten map
+        FunctionVisitor.defineFunction).right
+
+      functions <- sequenceOrAll(functionContexts map (_.accept(FunctionVisitor))).right
+
       statements <- sequenceOrAll(ctx.sequence().statement().toList map (
         _.accept(StatementVisitor).right.flatMap(semanticErrorIfReturn))).right
-    } yield Program(structs, functions, ScopeStatement(statements, SymbolTable.globalTable))
+    } yield Program(structDefinitions.unzip._1, functions, ScopeStatement(statements, SymbolTable.globalTable))
   }
 }

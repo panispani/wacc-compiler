@@ -1,0 +1,11 @@
+begin
+    struct a
+        int a1;
+        int a2;
+
+    struct b is a
+        int b1;
+        int a2;
+
+    skip
+end

@@ -1,6 +1,6 @@
 package wacc.constructs
 
-import wacc.{SymbolTable, VariableReference}
+import wacc.VariableReference
 import wacc.arm._
 import wacc.codegeneration._
 
@@ -59,7 +59,7 @@ trait Expression extends AssignValue with AssignTarget {
 
       case sm @ StructMember(struct, membersName) => {
         struct.varType match {
-          case StructType(structId, _) => {
+          case StructType(structId, _, _) => {
 
             val membersOffset = sm.membersOffset
 

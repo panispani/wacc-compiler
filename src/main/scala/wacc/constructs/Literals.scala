@@ -1,5 +1,6 @@
 package wacc.constructs
 
+import wacc.VariableReference
 import wacc.arm._
 import wacc.codegeneration._
 
@@ -72,7 +73,7 @@ case class PairLiteral() extends Literal {
 }
 
 case class StructLiteral(members: Seq[Expression]) extends AssignValue {
-  override val varType: Type = StructType("$$$", members map (member => ("", member.varType)))
+  override val varType: Type = StructType("$$$", members map (member => VariableReference("", member.varType, 0)), None)
 
   override def transAssignRhs(registers: Seq[Register]): CodeSegment = {
     val memberTypes = members map(m => m.varType)
