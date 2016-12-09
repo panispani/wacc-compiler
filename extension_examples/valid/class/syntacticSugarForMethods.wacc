@@ -1,0 +1,12 @@
+begin
+    struct a
+        int n;
+
+        int f(struct a self) is
+            return 5
+        end
+
+    struct a s = {2};
+    int result = call s.f();
+    println result
+end
