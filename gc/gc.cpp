@@ -95,7 +95,6 @@ int type_size(object_type type) {
       case INT:
       case PAIR:
       case STRUCT:
-      case CLASS:
       case PAIR_CONTAINER:
       case ARRAY: return 4;
       case CHAR:

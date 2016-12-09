@@ -7,7 +7,6 @@ object* object::new_obj(int type) {
         case PAIR: return new pair_object();
         case ARRAY: return new array_object();
         case STRUCT: return new struct_object();
-        case CLASS: return new class_object();
         case PAIR_CONTAINER: return new pair_container();
         default:
             cout << "Error in garbage collector - attempting to create invalid type " << type << endl;
@@ -73,11 +72,6 @@ void struct_object::mark() {
 
         bytes += type_size(type);
     }
-}
-
-void class_object::mark() {
-    // TODO implement
-    marked = 1;
 }
 
 void pair_container::mark() {
