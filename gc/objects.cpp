@@ -67,6 +67,11 @@ void struct_object::mark() {
         }
 
         uint32_t *words = (uint32_t *) bytes;
+        // test this
+        if (*words == 0) {
+            bytes += type_size(type);
+            continue;
+        }
         object* meta = vm->heap[*words];
         //cout << "Marking inside struct: " << (int) *bytes << " -> " << meta->getType() << endl;
         meta->mark();

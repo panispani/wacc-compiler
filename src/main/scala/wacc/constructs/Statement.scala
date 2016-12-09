@@ -25,6 +25,8 @@ case class ReturnStatement(returnValue: Expression) extends Statement {
 
     CodeSegment()
       .extend(returnValue.transAssignRhs(registers))
+      .extend(MOV(R0, FP))
+      .extend(BL(Label("remove_function_stack")))
       .extend(MOV(R0, registers.head))
       .extend(MOV(SP, FP))
       .extend(POP(Seq(FP)))

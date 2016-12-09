@@ -22,6 +22,7 @@ extern "C" {
     uint8_t* new_struct_literal(int struct_size, int num_types, object_type *types);
     void push_stack(void* stackaddress, void* heapaddress);
     void remove_stack(void* obj);
+    void remove_function_stack(void* fp);
     void collect_garbage();
     int type_size(object_type);
 }
