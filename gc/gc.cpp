@@ -192,6 +192,13 @@ void gc_end() {
     delete vm;
 }
 
+void gc_free(void* obj) {
+    auto addr1 = reinterpret_cast<std::uintptr_t>(obj);
+    delete vm->heap[vm->stack[addr1]];
+    vm->heap.erase(vm->stack[addr1]);
+    vm->stack.erase(addr1);
+}
+
 void collect_garbage() {
     printf("\n---------- Before VM heap ---------\n");
     for(auto obj : vm->heap) {

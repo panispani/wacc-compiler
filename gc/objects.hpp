@@ -25,6 +25,7 @@ public:
     bool marked;
     uint8_t *bytes;
 
+    virtual ~object() {};
     virtual void mark() = 0;
     virtual string getType() = 0;
     static object* new_obj(int type);
