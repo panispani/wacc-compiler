@@ -75,17 +75,36 @@ case class StructLiteral(members: Seq[Expression]) extends AssignValue {
   override val varType: Type = StructType("$$$", members map (member => ("", member.varType)))
 
   override def transAssignRhs(registers: Seq[Register]): CodeSegment = {
-    val structSize = members.map(m => m.varType.size).sum
+    val memberTypes = members map(m => m.varType)
+    val structSize =  (memberTypes map (m => m.size)).sum
     var offset = 0
+    var instructions = CodeSegment(
+      LDR(R0, Const(memberTypes.size * 4)),                         // R0 = size of array of types
+      BL(Label("malloc"))).extend(
+        memberTypes.zipWithIndex flatMap { case (m, i) => Seq(      // Fill array with enumIDs of types
+           MOV(R1, ImmOperand(m.enumId)),
+           STR(R1, RegisterAddress(R0, i * 4)))
+      }).extend(CodeSegment(
+        MOV(R2, R0),                                                // Put array address as third argument
+        PUSH(Seq(R0)),                                              // Save array address on stack for later free
+        LDR(R0, Const(structSize)),
+        LDR(R1, Const(members.size)),
+        BL(Label("new_struct_literal")),                            // new_struct_literal(structSize, members.size, types)
+        MOV(registers.head, R0),
+        POP(Seq(R1)),                                               // Pop address of types array into R1
+        MOV(R0, R1),
+        BL(Label("free")))                                          // Free the types array
+    )
+
+    /* TODO enable if -gc not enabled
     var instructions = CodeSegment(
       LDR(R0, Const(structSize)),
       BL(Label("malloc")),
       MOV(registers.head, R0)
     )
+    */
 
-    val store =
-
-    for (member <- members) {
+    val store = for (member <- members) {
       val store = member.varType match {
         case Character | Boolean => STRB(registers(1), RegisterAddress(registers.head, offset))
         case default => STR(registers(1), RegisterAddress(registers.head, offset))
