@@ -207,20 +207,20 @@ void gc_free(void* obj) {
 }
 
 void collect_garbage() {
-    printf("\n---------- Before VM heap ---------\n");
-    for(auto obj : vm->heap) {
-        cout << obj.first << " -> " << obj.second << " of type " << obj.second->getType() << endl;
-    }
-    printf("--------------------\n");
+    //printf("\n---------- Before VM heap ---------\n");
+    //for(auto obj : vm->heap) {
+    //    cout << obj.first << " -> " << obj.second << " of type " << obj.second->getType() << endl;
+    // }
+    //printf("--------------------\n");
 
     markAll();
     sweep();
 
-    printf("\n---------- After VM heap ---------\n");
-    for(auto obj : vm->heap) {
-        cout << obj.first << " -> " << obj.second << " of type " << obj.second->getType() << endl;
-    }
-    printf("--------------------\n");
+    //printf("\n---------- After VM heap ---------\n");
+    //for(auto obj : vm->heap) {
+    //    cout << obj.first << " -> " << obj.second << " of type " << obj.second->getType() << endl;
+    //}
+    //printf("--------------------\n");
 
 }
 
