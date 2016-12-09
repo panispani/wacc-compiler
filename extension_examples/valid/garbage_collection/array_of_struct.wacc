@@ -1,0 +1,11 @@
+begin
+    struct car
+        int a;
+    struct car c1 = { 1 };
+    struct car c2 = { 4 };
+    struct car c3 = { 5 };
+    struct car c4 = { 4 };
+    struct car[] arr = [c1, c2];
+    struct car[] arr2 = [c3, c4];
+    arr = arr2
+end

@@ -39,10 +39,12 @@ void array_object::mark() {
         if (bytes[0] == 0 || vm->heap.count(bytes[i]) == 0) {
             continue;
         }
-        //cout << i << endl;
-        //cout << bytes[i] << endl;
 
         object* meta = vm->heap[bytes[i]];
+
+        if (meta == this) {
+            continue;
+        }
 
         //cout << "Marking inside array: " << bytes[i] << " -> " << meta->getType() << endl;
         meta->mark();

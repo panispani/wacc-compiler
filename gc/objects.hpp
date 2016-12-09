@@ -37,9 +37,7 @@ class pair_container: public object {
 public:
     object_type type;
 public:
-    virtual ~pair_container() {
-        //cout << "In pair container destructor" << endl;
-    };
+    virtual ~pair_container() {};
     virtual void mark();
     string getType() { return "pointer"; }
 };

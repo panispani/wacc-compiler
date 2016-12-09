@@ -24,7 +24,6 @@ VM::VM() {
 VM::~VM() {
     for (auto it : heap) {
         void *addr = reinterpret_cast<void*>(it.first);
-        //cout << "VM destructor freeing from heap " << addr << endl;
         free(addr);
         free(it.second);
     }
@@ -35,6 +34,7 @@ VM *vm;
 /************ STATIC FUNCTIONS *****************/
 
 static void mark(unsigned long long int heapaddress) {
+    cout << (void*) heapaddress << endl;
     if (!vm->heap.count(heapaddress)) {
         return;
     }
@@ -48,6 +48,7 @@ static void mark(unsigned long long int heapaddress) {
 static void markAll() {
     // Start marking from the stack allocated variables
     for (auto pair : vm->stack) {
+        cout << pair.second << endl;
         mark(pair.second);
     }
 }
@@ -58,7 +59,6 @@ static void sweep() {
     for (auto pair : vm->heap) {
         auto obj = pair.second;
         if (!obj->marked) {
-            //cout << "Erasing " << pair.first << endl;
             to_delete.push_back(pair.first);
         } else {
             obj->marked = 0;
@@ -84,9 +84,9 @@ static void sweep() {
 
 // heuristics of when to call GC
 static bool should_collect() {
-    // TODO make it real
-    //return vm->heap.size() >= vm->heap_max / 2;
-    return true;
+    // Uncomment the next line to run in debug mode
+    //return true;
+    return vm->heap.size() >= vm->heap_max / 2;
 }
 
 
@@ -116,7 +116,6 @@ static void pushHeap(void* heapaddress, object* obj) {
 }
 
 
-// call on declaration and assignment
 void push_stack(void* stackaddress, void* heapaddress) {
     //cout << "Pushing " << stackaddress << " -> " << heapaddress << " to stack " << endl;
     if (heapaddress == nullptr) {
@@ -238,6 +237,7 @@ unsigned long long gc_free(void* obj) {
 }
 
 void collect_garbage() {
+    // uncomment to run on debug mode
     //printf("\n---------- Before GC stack & heap ---------\n");
     //print_stack_and_heap();
     //printf("--------------------\n");
