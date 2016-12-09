@@ -85,16 +85,35 @@ CHR : 'chr' ;
 IS : 'is' ;
 CALL: 'call' ;
 
-
-NUMBER :  DIGIT+ ;
+BINARY : BINARY_INTRO BIN_DIGIT+ ;
 fragment
-DIGIT : [0-9] ;
+BINARY_INTRO: '0b' ;
+fragment
+BIN_DIGIT : [0-1] ;
+
+HEX : HEX_INTRO HEX_DIGIT+ ;
+fragment
+HEX_INTRO: '0x' ;
+fragment
+HEX_DIGIT : [0-9A-Fa-f] ;
+
+OCTAL : OCTAL_INTRO OCT_DIGIT* ;
+fragment
+OCTAL_INTRO: '0' ;
+fragment
+OCT_DIGIT : [0-7] ;
+
+DECIMAL :  DECIMAL_INTRO (DEC_DIGIT*) ;
+fragment
+DECIMAL_INTRO: [1-9] ;
+fragment
+DEC_DIGIT : [0-9] ;
 
 IDENT: ID_START (ID_CHAR)*;
 fragment
 ID_START : (UNDERSCORE | ALPHA) ;
 fragment
-ID_CHAR : (UNDERSCORE | ALPHA | DIGIT) ;
+ID_CHAR : (UNDERSCORE | ALPHA | DEC_DIGIT) ;
 fragment
 ALPHA : [a-zA-Z] ;
 fragment

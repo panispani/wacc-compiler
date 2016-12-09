@@ -48,9 +48,9 @@ conditionalStatement : IF expression THEN trueSequence=sequence FI              
 
 loopStatement : WHILE expression DO sequence DONE                                              # While
               | DO sequence WHILE expression                                                   # DoWhile
-              | FOR (init=statement)? SEMICOLON
+              | FOR init=statement SEMICOLON
                     cond=expression SEMICOLON
-                    (step=statement)? DO body=sequence DONE                                    # For
+                    step=statement DO body=sequence DONE                                    # For
               ;
 
 assignLhs : variableReference # AssignLhsIdent
@@ -112,8 +112,20 @@ expression : literal                                   # LiteralExp
 
 variableReference : IDENT ;
 
-literal : intLiteral | boolLiteral | charLiteral | stringLiteral | pairLiteral ;
-intLiteral    : (PLUS | MINUS)? NUMBER ;
+literal : decLiteral
+        | hexLiteral
+        | octalLiteral
+        | binaryLiteral
+        | boolLiteral
+        | charLiteral
+        | stringLiteral
+        | pairLiteral
+        ;
+
+decLiteral    : (PLUS | MINUS)? DECIMAL ;
+hexLiteral    : (PLUS | MINUS)? HEX ;
+octalLiteral  : (PLUS | MINUS)? OCTAL ;
+binaryLiteral : (PLUS | MINUS)? BINARY ;
 boolLiteral   : TRUE | FALSE ;
 charLiteral   : CHAR_LITERAL ;
 stringLiteral : STRING_LITERAL ;

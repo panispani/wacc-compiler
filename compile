@@ -4,18 +4,26 @@
 
 DIR=$(dirname $0)
 
-SOURCE_PATH=$1
-SOURCE_FILE=$(basename ${SOURCE_PATH})
-
-# Assembly file is created in current directory
-OUT=${SOURCE_FILE%wacc}s
 
 # Flag for printing to standard output instead of a file
-if [[ $2 = "-stdout" ]]; then
+if [[ $2 = "--stdout" ]]; then
     OUT=/dev/stdout
 fi
 
-# TODO: remove assembly file in case of compilation errors
-scala -cp ${DIR}/target/scala-2.11/wacc_27_2.11-1.0.jar:${DIR}/lib/antlr-4.5.3-complete.jar \
+# Modes of compiler
+if [[ $1 = "--interactive" ]]; then
+    scala -cp ${DIR}/target/scala-2.11/wacc_27_2.11-1.0.jar:${DIR}/lib/antlr-4.5.3-complete.jar \
+          wacc.interactive.ICompiler
+else
+    SOURCE_PATH=$1
+    SOURCE_FILE=$(basename ${SOURCE_PATH})
+
+    # Assembly file is created in current directory
+    OUT=${SOURCE_FILE%wacc}s
+
+    # TODO: remove assembly file in case of compilation errors
+    scala -cp ${DIR}/target/scala-2.11/wacc_27_2.11-1.0.jar:${DIR}/lib/antlr-4.5.3-complete.jar \
           wacc.Compiler < ${SOURCE_PATH} > ${OUT}
+fi
+
 exit $?
