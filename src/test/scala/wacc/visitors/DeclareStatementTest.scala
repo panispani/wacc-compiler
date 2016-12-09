@@ -36,11 +36,25 @@ class DeclareStatementTest extends VisitorTest {
 
   it should "struct type declaration should be valid" in {
     val parser = TestUtilities.setupParser("struct car c = {1, 'a'}")
-    SymbolTable.structsTable += "car" -> Struct("car", Seq(VariableReference("a", Integer, 0), VariableReference("b", Character, 0)))
+    SymbolTable.structsTable += "car" -> StructType("car", Seq(VariableReference("a", Integer, 0), VariableReference("b", Character, 0)))
     val result = TestUtilities.buildSubProgram(parser.statement, StatementVisitor)
 
-    result.right.get shouldBe DeclareStatement(StructType("car",List(("a",Integer), ("b",Character))),
-      VariableReference("c",StructType("car",List(("a",Integer), ("b",Character))),-4),StructLiteral(List(IntegerLiteral(1), CharLiteral("a"))))
+    result.right.get shouldBe DeclareStatement(
+      StructType(
+        "car",
+        Seq(VariableReference("a", Integer, 0),
+          VariableReference("b", Character, 0))
+      ),
+      VariableReference(
+        "c",
+        StructType("car",
+          Seq(
+            VariableReference("a", Integer, 0),
+            VariableReference("b", Character, 0)
+          )
+        ),
+        -4),
+      StructLiteral(List(IntegerLiteral(1), CharLiteral("a"))))
   }
 
   //TODO: remove ignore and fix test

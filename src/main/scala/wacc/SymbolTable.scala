@@ -16,7 +16,7 @@ case class SymbolTable(parent: Option[SymbolTable], var currentOffset: Int = 0) 
   private val initialOffset = currentOffset
   def sizeInBytes = currentOffset - initialOffset
 
-  private var map: mutable.Map[String, VariableReference] = mutable.Map()
+  private var map: mutable.Map[String, VariableReference] = mutable.LinkedHashMap()
 
   // The frame pointer will store the stack both LR and the parent FP have been stored
   // The offset to argument 0 is 8 and the rest depend on the argument sizes
@@ -99,7 +99,7 @@ object SymbolTable {
   private var currentTable: SymbolTable = globalTable
   val functionsTable: mutable.Map[String, FunctionTable] = mutable.Map()
   //Todo: Not sure mapping to Struct is the correct thing
-  val structsTable: mutable.Map[String, Struct] = mutable.Map()
+  val structsTable: mutable.Map[String, StructType] = mutable.Map()
 
   def clearAll() = {
     globalTable.clear()
@@ -147,7 +147,7 @@ object SymbolTable {
     function.symbolTable.map.values.toList
   }
 
-  def declareStruct(struct: Struct): Unit = {
+  def declareStruct(struct: StructType): Unit = {
     structsTable += struct.identifier -> struct
   }
 

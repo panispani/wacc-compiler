@@ -11,7 +11,7 @@ class FunctionVisitorTest extends VisitorTest {
     val result = TestUtilities.buildSubProgram(parser.program, ProgramVisitor)
 
     val function = result.right.value.functions.head
-    function.identifier should be ("f")
+    function.name should be ("f")
     function.params should be (empty)
     function.varType should be (Integer)
 
