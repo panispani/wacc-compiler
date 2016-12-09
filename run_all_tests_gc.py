@@ -39,7 +39,7 @@ def test_file(full_path, invalid, ref_status, ref_out):
     print(full_path)
     input_file = get_input_file(full_path)
 
-    (our_status, our_out) = commands.getstatusoutput("./gc_script.sh {} < {}".format(full_path, input_file))
+    (our_status, our_out) = commands.getstatusoutput("./gc_prod_script.sh {} < {}".format(full_path, input_file))
     our_status = os.WEXITSTATUS(our_status)
 
     if (os.path.isfile(os.path.splitext(file)[0] + ".s")):
@@ -95,7 +95,7 @@ for root, dirs, files in os.walk("extension_examples"):
 
 print_stats("EXTENSION", extensions_correct, extensions_total)
 
-for root, dirs, files in os.walk("wacc_examples"):
+for root, dirs, files in os.walk("wacc_examples/valid"):
     for file in files:
         if not file.endswith(".wacc") or root == "wacc_examples/valid/advanced":
             continue
