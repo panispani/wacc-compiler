@@ -77,6 +77,7 @@ case class AssignStatement(lhs: AssignTarget, rhs: AssignValue) extends Statemen
           )
           case _ => CodeSegment()
          }
+        case _ => CodeSegment()
       })
   }
 }
