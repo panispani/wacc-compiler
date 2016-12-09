@@ -81,7 +81,7 @@ void pair_container::mark() {
         default: break;
     }
     uint32_t *bytes = (uint32_t*) this->bytes;
-    if (bytes[0] == 0) {
+    if (bytes[0] == 0 || !vm->heap.count(bytes[0])) {
         return;
     }
     object* meta = vm->heap[bytes[0]];

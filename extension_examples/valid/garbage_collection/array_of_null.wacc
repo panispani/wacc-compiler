@@ -1,0 +1,4 @@
+begin
+    pair(int, int)[] a = [null, null];
+    free a
+end
