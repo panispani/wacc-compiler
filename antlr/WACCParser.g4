@@ -75,7 +75,7 @@ type : primitiveType
      ;
 
 primitiveType : INT | BOOL | CHAR | STRING ;
-notNestedArrayType: primitiveType | pairType ;
+notNestedArrayType: primitiveType | pairType  | structType;
 
 arrayType    : notNestedArrayType (LB RB)+ ;
 
