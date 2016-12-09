@@ -116,7 +116,7 @@ static void pushHeap(void* heapaddress, object* obj) {
 
 // call on declaration and assignment
 void pushVM(void* stackaddress, void* heapaddress) {
-    //cout << "Pushing " << stackaddress << " to stack " << endl;
+    //cout << "Pushing " << stackaddress << " -> " << heapaddress << " to stack " << endl;
     if (heapaddress == nullptr) {
         return;
     }
@@ -171,6 +171,7 @@ uint8_t* new_array_literal(int array_size, object_type type) {
     obj->bytes = bytes;
     obj->array_size = array_size;
     obj->array_type = type;
+    //cout << "Constructing array of size " << array_size << " and type " << type << endl;
 
     // Map address on actual heap to address of created meta-object for the array
     pushHeap(bytes, obj);
@@ -212,7 +213,7 @@ void gc_free(void* obj) {
 void collect_garbage() {
     //printf("\n---------- Before VM heap ---------\n");
     //for(auto obj : vm->heap) {
-    //    cout << obj.first << " -> " << obj.second << " of type " << obj.second->getType() << endl;
+    //    cout << (void*) obj.first << " -> " << obj.second << " of type " << obj.second->getType() << endl;
     // }
     //printf("--------------------\n");
 
@@ -221,7 +222,7 @@ void collect_garbage() {
 
     //printf("\n---------- After VM heap ---------\n");
     //for(auto obj : vm->heap) {
-    //    cout << obj.first << " -> " << obj.second << " of type " << obj.second->getType() << endl;
+    //    cout << (void*) obj.first << " -> " << obj.second << " of type " << obj.second->getType() << endl;
     //}
     //printf("--------------------\n");
 

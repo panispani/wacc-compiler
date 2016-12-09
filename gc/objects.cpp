@@ -27,14 +27,24 @@ void array_object::mark() {
     //cout << "Marking array of type " << array_type << "" << endl;
     marked = 1;
     switch (array_type) {
-        case INT: case CHAR: case BOOL: return;
+        case ANY: case INT: case CHAR: case BOOL: return;
         default: break;
     }
 
     uint32_t *bytes = (uint32_t*) this->bytes;
     bytes += 1; // Skip over array size
     for (int i = 0; i < array_size; i++) {
+        if (bytes[i] == 0) {
+            continue;
+        }
+
+        //cout << vm->heap.count(bytes[i]) << endl;
+        if (vm->heap.count(bytes[i]) == 0) {
+            continue;
+        }
+
         object* meta = vm->heap[bytes[i]];
+
         //cout << "Marking inside array: " << bytes[i] << " -> " << meta->getType() << endl;
         meta->mark();
     }
