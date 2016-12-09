@@ -70,10 +70,13 @@ void class_object::mark() {
 void pair_container::mark() {
     marked = 1;
     switch (type) {
-        case INT: case CHAR: case BOOL: return;
+        case INT: case ANY: case CHAR: case BOOL: return;
         default: break;
     }
     uint32_t *bytes = (uint32_t*) this->bytes;
+    if (bytes[0] == 0) {
+        return;
+    }
     object* meta = vm->heap[bytes[0]];
     //cout << "Marking inside pointer: " << bytes[0] << " -> " << meta->getType() << endl;
     meta->mark();
