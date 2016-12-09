@@ -1,0 +1,9 @@
+begin
+    string s1 = "ald";
+    string s2 = "aasld";
+    string s3 = "alasdd";
+    string s4 = "asdald";
+    pair(string, string) p1 = newpair(s1, s2);
+    pair(string, string) p2 = newpair(s3, s4);
+    p1 = p2
+end
