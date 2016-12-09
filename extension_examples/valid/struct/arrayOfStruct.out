@@ -1,10 +1,1 @@
-begin
-    struct a
-        int n;
-
-    struct a s1 = {1};
-    struct a s2 = {2};
-    struct a[] s3 = {s1, s2};
-    struct a s4 = s3[0];
-    println s4.n
-end
+1
