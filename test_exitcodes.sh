@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# Compile tests and check if the expected exitcodes match
+
 test_wacc_files() {
     EXITCODE="$1"
     FILES=$(ls)
