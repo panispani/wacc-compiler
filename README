@@ -93,3 +93,23 @@ this be setting the -cp option on the command line
 note that the bin: ensures that the bin directory is still part of your java 
 classpath.
 
+> emulate.sh <
+
+Takes as an argument the path to an ARM11 program
+Creates an executable with a cross-compiler for ARM11
+Emulates the created executable
+
+> execute.sh <
+
+Takes as an argument the path to a WACC program
+Compiles the WACC file to ARM11 assembly
+Creates an executable with a cross-compiler for ARM11
+Emulates the created executable
+
+> run_all_tests.sh <
+Runs all the tests (the wacc_examples submodule has to be initialised)displaying information about success/failure
+"make" has to be run first
+
+> test_exitcodes.sh <
+Compiles all the tests in "wacc_examples" checking the compiler exitcode and compares it with the expected one
+
