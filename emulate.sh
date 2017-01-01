@@ -3,10 +3,11 @@
 # Creates an executable with a cross-compiler for ARM11
 # Emulates the created executable
 
-ASM=$1
+SOURCE_PATH=$1
+SOURCE_FILE=$(basename ${SOURCE_PATH})
 
-EXE=$(basename ${ASM})
-EXE=${EXE%.s}
+ASM=${SOURCE_FILE%wacc}s
 
-arm-linux-gnueabi-gcc -o ${EXE} -mcpu=arm1176jzf-s -mtune=arm1176jzf-s ${ASM} && \
-qemu-arm -L /usr/arm-linux-gnueabi/ ${EXE}
+arm-linux-gnueabi-g++ -c -o asm.o ${ASM} -mcpu=arm1176jzf-s -mtune=arm1176jzf-s
+arm-linux-gnueabi-g++ -mcpu=arm1176jzf-s -mtune=arm1176jzf-s -o output gc.o asm.o objects.o
+qemu-arm -L /usr/arm-linux-gnueabi/ output
